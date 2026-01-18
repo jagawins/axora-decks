@@ -17,59 +17,128 @@ interface Outline {
   summary: string;
 }
 
+interface BlockContent {
+  [key: string]: unknown;
+}
+
 interface Block {
-  type: "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
-  content: Record<string, unknown>;
+  type: "text" | "heading" | "list" | "callout" | "two_col" | "table";
+  content: BlockContent;
   order_index: number;
 }
 
+interface ValidationResult {
+  valid: boolean;
+  error?: string;
+  outline?: Outline;
+}
+
+function validateRequest(body: unknown): ValidationResult {
+  if (!body || typeof body !== "object") {
+    return { valid: false, error: "Request body must be a JSON object" };
+  }
+
+  const { outline } = body as { outline?: unknown };
+
+  if (!outline || typeof outline !== "object") {
+    return { valid: false, error: "outline is required and must be an object" };
+  }
+
+  const o = outline as Partial<Outline>;
+
+  if (!o.title || typeof o.title !== "string") {
+    return { valid: false, error: "outline.title is required" };
+  }
+
+  if (!Array.isArray(o.sections) || o.sections.length === 0) {
+    return { valid: false, error: "outline.sections must be a non-empty array" };
+  }
+
+  // Validate each section
+  for (let i = 0; i < o.sections.length; i++) {
+    const section = o.sections[i];
+    if (!section.heading || typeof section.heading !== "string") {
+      return { valid: false, error: `outline.sections[${i}].heading is required` };
+    }
+    if (!Array.isArray(section.points)) {
+      return { valid: false, error: `outline.sections[${i}].points must be an array` };
+    }
+  }
+
+  return {
+    valid: true,
+    outline: {
+      title: o.title,
+      sections: o.sections,
+      bullets: Array.isArray(o.bullets) ? o.bullets : [],
+      summary: typeof o.summary === "string" ? o.summary : "",
+    },
+  };
+}
+
 serve(async (req) => {
+  const requestId = crypto.randomUUID();
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { outline } = await req.json() as { outline: Outline };
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const body = await req.json();
+    const validation = validateRequest(body);
+
+    if (!validation.valid) {
+      console.error(`[${requestId}] Validation failed:`, validation.error);
+      return new Response(
+        JSON.stringify({ error: validation.error, requestId }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    console.log("Generating blocks from outline:", outline.title);
+    const outline = validation.outline!;
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
-    const systemPrompt = `You are an expert presentation designer. Your task is to convert an outline into presentation blocks.
+    if (!LOVABLE_API_KEY) {
+      console.error(`[${requestId}] LOVABLE_API_KEY not configured`);
+      return new Response(
+        JSON.stringify({ error: "AI service not configured", requestId }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log(`[${requestId}] Generating blocks from outline: "${outline.title}"`);
+
+    const systemPrompt = `You are an expert presentation designer. Convert outlines into presentation blocks.
 
 Available block types:
-- heading: For section headers. Content: { "level": 1|2|3, "text": "..." }
-- text: For paragraphs. Content: { "text": "..." }
-- list: For bullet points. Content: { "items": ["...", "..."], "ordered": false }
-- callout: For key insights. Content: { "text": "...", "icon": "info"|"warning"|"success" }
-- two_col: For side-by-side content. Content: { "left": "...", "right": "..." }
-- table: For data tables. Content: { "headers": [...], "rows": [[...], [...]] }
+- heading: { "level": 1|2|3, "text": "..." }
+- text: { "text": "..." }
+- list: { "items": ["..."], "ordered": false }
+- callout: { "text": "...", "icon": "info"|"warning"|"success" }
+- two_col: { "left": "...", "right": "..." }
+- table: { "headers": [...], "rows": [[...]] }
 
 Guidelines:
-- Start with an H1 heading block for the title
-- Use H2 headings for main sections
-- Convert bullet points to list blocks
-- Use callouts for key takeaways or important points
-- Use two_col for comparing concepts
-- Maintain logical flow and visual hierarchy
-- Keep text blocks concise (2-4 sentences max)`;
+- Start with H1 heading for title
+- Use H2 for main sections
+- Convert bullets to list blocks
+- Use callouts for key takeaways
+- Keep text blocks to 2-4 sentences max
+- Create 8-15 blocks total for a good presentation
+
+You MUST call the create_blocks function. If you cannot use the function, return ONLY valid JSON - no markdown:
+{ "blocks": [{ "type": "...", "content": {...} }] }`;
 
     const userPrompt = `Convert this outline into presentation blocks:
 
 Title: ${outline.title}
-
 Summary: ${outline.summary}
 
 Sections:
-${outline.sections.map((s, i) => `${i + 1}. ${s.heading}\n${s.points.map(p => `   - ${p}`).join('\n')}`).join('\n\n')}
+${outline.sections.map((s, i) => `${i + 1}. ${s.heading}\n${s.points.map(p => `   - ${p}`).join("\n")}`).join("\n\n")}
 
 Key Takeaways:
-${outline.bullets.map(b => `- ${b}`).join('\n')}
-
-Generate an array of blocks that would create a compelling, well-structured presentation.`;
+${outline.bullets.map(b => `- ${b}`).join("\n")}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -88,7 +157,7 @@ Generate an array of blocks that would create a compelling, well-structured pres
             type: "function",
             function: {
               name: "create_blocks",
-              description: "Create an array of presentation blocks from the outline",
+              description: "Create presentation blocks from outline",
               parameters: {
                 type: "object",
                 properties: {
@@ -97,10 +166,7 @@ Generate an array of blocks that would create a compelling, well-structured pres
                     items: {
                       type: "object",
                       properties: {
-                        type: {
-                          type: "string",
-                          enum: ["heading", "text", "list", "callout", "two_col", "table"]
-                        },
+                        type: { type: "string", enum: ["heading", "text", "list", "callout", "two_col", "table"] },
                         content: { type: "object" }
                       },
                       required: ["type", "content"]
@@ -117,46 +183,92 @@ Generate an array of blocks that would create a compelling, well-structured pres
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
+      const status = response.status;
+      console.error(`[${requestId}] AI gateway error: ${status}`);
+
+      if (status === 429) {
         return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
+          JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment.", requestId }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402) {
+      if (status === 402) {
         return new Response(
-          JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
+          JSON.stringify({ error: "AI credits exhausted. Please add credits to continue.", requestId }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error("Failed to generate blocks");
+
+      return new Response(
+        JSON.stringify({ error: "AI service temporarily unavailable", requestId }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
-    console.log("AI response received for blocks");
+    console.log(`[${requestId}] AI response received`);
 
-    // Extract the tool call result
+    // Try tool call first
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (toolCall?.function?.arguments) {
-      const result = JSON.parse(toolCall.function.arguments);
-      // Add order_index to each block
-      const blocks: Block[] = result.blocks.map((block: Omit<Block, 'order_index'>, index: number) => ({
-        ...block,
-        order_index: index
-      }));
-      return new Response(JSON.stringify({ blocks }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      try {
+        const result = JSON.parse(toolCall.function.arguments);
+        const rawBlocks = result.blocks as Array<{ type: string; content: BlockContent }>;
+        
+        const blocks: Block[] = rawBlocks.map((b, i) => ({
+          type: b.type as Block["type"],
+          content: b.content,
+          order_index: i,
+        }));
+
+        console.log(`[${requestId}] Generated ${blocks.length} blocks`);
+        return new Response(
+          JSON.stringify({ blocks, requestId }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      } catch (parseError) {
+        console.error(`[${requestId}] Failed to parse tool call:`, parseError);
+      }
     }
 
-    throw new Error("No valid response from AI");
-  } catch (error) {
-    console.error("generate-blocks error:", error);
+    // Fallback: try content
+    const content = data.choices?.[0]?.message?.content;
+    if (content) {
+      try {
+        const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        const result = JSON.parse(cleanContent);
+        const rawBlocks = result.blocks as Array<{ type: string; content: BlockContent }>;
+        
+        const blocks: Block[] = rawBlocks.map((b, i) => ({
+          type: b.type as Block["type"],
+          content: b.content,
+          order_index: i,
+        }));
+
+        console.log(`[${requestId}] Generated ${blocks.length} blocks (fallback)`);
+        return new Response(
+          JSON.stringify({ blocks, requestId }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      } catch (parseError) {
+        console.error(`[${requestId}] Failed to parse content fallback:`, parseError);
+      }
+    }
+
+    console.error(`[${requestId}] No valid parseable response`);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ error: "Failed to generate blocks. Please try again.", requestId }),
+      { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+
+  } catch (error) {
+    console.error(`[${requestId}] Unexpected error:`, error);
+    return new Response(
+      JSON.stringify({
+        error: error instanceof SyntaxError ? "Invalid JSON in request body" : "Internal server error",
+        requestId
+      }),
+      { status: error instanceof SyntaxError ? 400 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
