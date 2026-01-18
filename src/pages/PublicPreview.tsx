@@ -102,7 +102,7 @@ export default function PublicPreview() {
         <div className="flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-4">
             <a href="/" className="flex items-center gap-2">
-              <img src={axoraLogo} alt="Axora" className="h-8 w-auto" />
+              <img src={axoraLogo} alt="Axora" className="h-6 w-auto" />
             </a>
             <span className="text-muted-foreground">|</span>
             <h1 className="font-semibold truncate max-w-[300px]">

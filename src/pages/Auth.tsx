@@ -145,7 +145,7 @@ const Auth = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <a href="/" className="inline-flex items-center gap-2 mb-4">
-            <img src={axoraLogo} alt="Axora" className="h-12 w-auto" />
+            <img src={axoraLogo} alt="Axora" className="h-10 w-auto" />
           </a>
           <h1 className="text-2xl font-bold">
             {isSignUp ? 'Create your account' : 'Welcome back'}
