@@ -14,6 +14,41 @@ interface GenerateRequest {
   context?: string;
 }
 
+// Utility to strip any Markdown formatting that slips through
+function stripMarkdown(s: unknown): unknown {
+  if (typeof s !== "string") return s;
+
+  return s
+    // bold/italic markers
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/__(.*?)__/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/_(.*?)_/g, "$1")
+    // heading markers
+    .replace(/^#{1,6}\s+/gm, "")
+    // leading bullet markers
+    .replace(/^\s*[*-]\s+/gm, "")
+    // leading numbered list markers
+    .replace(/^\s*\d+\.\s+/gm, "")
+    // backticks
+    .replace(/`([^`]+)`/g, "$1")
+    .trim();
+}
+
+function sanitizeContent(content: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+
+  for (const k of Object.keys(content)) {
+    const v = content[k];
+    if (typeof v === "string") out[k] = stripMarkdown(v);
+    else if (Array.isArray(v)) out[k] = v.map(stripMarkdown);
+    else if (v && typeof v === "object") out[k] = sanitizeContent(v as Record<string, unknown>);
+    else out[k] = v;
+  }
+
+  return out;
+}
+
 serve(async (req) => {
   const requestId = crypto.randomUUID();
 
@@ -67,7 +102,7 @@ serve(async (req) => {
       list: {
         type: "object",
         properties: {
-          items: { type: "array", items: { type: "string" }, description: "3-7 clear, actionable list items" },
+          items: { type: "array", items: { type: "string" }, description: "3-7 clear, actionable list items as plain strings without bullet characters" },
           ordered: { type: "boolean", description: "true for numbered steps, false for bullet points" }
         },
         required: ["items", "ordered"]
@@ -118,7 +153,13 @@ serve(async (req) => {
     };
 
     const systemPrompt = `You are an expert content creator for executive presentations.
-Generate professional, impactful content based on the user's topic and block type.
+
+Output rules (non-negotiable):
+- Return plain text only. No Markdown. No asterisks. No bullets using * or -.
+- No **bold**, no _, no # headings, no backticks.
+- Use short sentences. Use line breaks if needed.
+- For "list" blocks: return items as plain strings without bullet characters or numbering.
+- For "table" blocks: cell strings must be plain text without Markdown.
 
 Guidelines:
 - Write in a professional, executive tone
@@ -130,6 +171,12 @@ Guidelines:
 
 Topic: ${prompt.trim()}
 ${context ? `\nContext: ${context}` : ""}
+
+Formatting requirements for ${type} block:
+- text, callout, two_col: plain text, no Markdown symbols.
+- heading: plain text title only.
+- list: items must be strings without leading bullets (*-) or numbering (1.).
+- table: cell strings without Markdown.
 
 Generate content that would fit well in a business presentation.`;
 
@@ -150,7 +197,7 @@ Generate content that would fit well in a business presentation.`;
             type: "function",
             function: {
               name: "create_block_content",
-              description: `Generate ${type} block content for an executive presentation`,
+              description: `Generate ${type} block content for an executive presentation. All strings must be plain text without Markdown formatting.`,
               parameters: {
                 type: "object",
                 properties: {
@@ -196,9 +243,12 @@ Generate content that would fit well in a business presentation.`;
       try {
         const result = JSON.parse(toolCall.function.arguments);
         if (result.content && Object.keys(result.content).length > 0) {
+          // Sanitize content to remove any stray Markdown
+          const cleaned = sanitizeContent(result.content);
+          
           console.log(`[${requestId}] Block content generated successfully`);
           return new Response(
-            JSON.stringify({ content: result.content, requestId }),
+            JSON.stringify({ content: cleaned, requestId }),
             { headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
@@ -214,9 +264,12 @@ Generate content that would fit well in a business presentation.`;
         const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
         const result = JSON.parse(cleanContent);
         if (result.content) {
+          // Sanitize content to remove any stray Markdown
+          const cleaned = sanitizeContent(result.content);
+          
           console.log(`[${requestId}] Block content generated (fallback)`);
           return new Response(
-            JSON.stringify({ content: result.content, requestId }),
+            JSON.stringify({ content: cleaned, requestId }),
             { headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }

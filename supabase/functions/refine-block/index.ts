@@ -34,6 +34,41 @@ interface ValidationResult {
   instruction?: string;
 }
 
+// Utility to strip any Markdown formatting that slips through
+function stripMarkdown(s: unknown): unknown {
+  if (typeof s !== "string") return s;
+
+  return s
+    // bold/italic markers
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/__(.*?)__/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/_(.*?)_/g, "$1")
+    // heading markers
+    .replace(/^#{1,6}\s+/gm, "")
+    // leading bullet markers
+    .replace(/^\s*[*-]\s+/gm, "")
+    // leading numbered list markers
+    .replace(/^\s*\d+\.\s+/gm, "")
+    // backticks
+    .replace(/`([^`]+)`/g, "$1")
+    .trim();
+}
+
+function sanitizeContent(content: BlockContent): BlockContent {
+  const out: BlockContent = {};
+
+  for (const k of Object.keys(content)) {
+    const v = content[k];
+    if (typeof v === "string") out[k] = stripMarkdown(v);
+    else if (Array.isArray(v)) out[k] = v.map(stripMarkdown);
+    else if (v && typeof v === "object") out[k] = sanitizeContent(v as BlockContent);
+    else out[k] = v;
+  }
+
+  return out;
+}
+
 function validateRequest(body: unknown): ValidationResult {
   if (!body || typeof body !== "object") {
     return { valid: false, error: "Request body must be a JSON object" };
@@ -102,10 +137,17 @@ serve(async (req) => {
 
     const systemPrompt = `You are an expert content editor for executive presentations.
 
+Output rules (non-negotiable):
+- Return plain text only. No Markdown. No asterisks. No bullets using * or -.
+- No **bold**, no _, no # headings, no backticks.
+- Use short sentences. Use line breaks if needed.
+- For "list" blocks: return items as plain strings without bullet characters or numbering.
+- For "table" blocks: cell strings must be plain text without Markdown.
+
 Block types and their content structure:
 - heading: { "level": number (1, 2, or 3), "text": string }
 - text: { "text": string }
-- list: { "items": array of strings, "ordered": boolean }
+- list: { "items": array of plain strings (no * or - prefixes), "ordered": boolean }
 - callout: { "text": string, "icon": "info" | "warning" | "success" }
 - two_col: { "left": string, "right": string }
 - table: { "headers": array of strings, "rows": array of array of strings }
@@ -125,6 +167,11 @@ ${JSON.stringify(block!.content, null, 2)}
 
 Instruction: "${instruction}"
 
+Formatting requirements:
+- All text must be plain text, no Markdown symbols (*, **, _, #, \`).
+- List items must be plain strings without leading bullets or numbers.
+- Table cells must be plain text.
+
 Update the content according to the instruction. For a ${block!.type} block, the content must include:
 ${block!.type === "text" ? '{ "text": "your refined text here" }' : ''}
 ${block!.type === "heading" ? '{ "level": 1|2|3, "text": "your refined heading" }' : ''}
@@ -138,21 +185,21 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
     const contentSchemas: Record<string, object> = {
       text: {
         type: "object",
-        properties: { text: { type: "string", description: "The text content" } },
+        properties: { text: { type: "string", description: "The text content - plain text only, no Markdown" } },
         required: ["text"]
       },
       heading: {
         type: "object",
         properties: {
           level: { type: "number", description: "Heading level: 1, 2, or 3" },
-          text: { type: "string", description: "The heading text" }
+          text: { type: "string", description: "The heading text - plain text only" }
         },
         required: ["level", "text"]
       },
       list: {
         type: "object",
         properties: {
-          items: { type: "array", items: { type: "string" }, description: "List items" },
+          items: { type: "array", items: { type: "string" }, description: "List items as plain strings without bullet characters" },
           ordered: { type: "boolean", description: "Whether list is ordered (numbered)" }
         },
         required: ["items", "ordered"]
@@ -160,7 +207,7 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
       callout: {
         type: "object",
         properties: {
-          text: { type: "string", description: "Callout message" },
+          text: { type: "string", description: "Callout message - plain text only" },
           icon: { type: "string", enum: ["info", "warning", "success"], description: "Icon type" }
         },
         required: ["text", "icon"]
@@ -168,16 +215,16 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
       two_col: {
         type: "object",
         properties: {
-          left: { type: "string", description: "Left column content" },
-          right: { type: "string", description: "Right column content" }
+          left: { type: "string", description: "Left column content - plain text only" },
+          right: { type: "string", description: "Right column content - plain text only" }
         },
         required: ["left", "right"]
       },
       table: {
         type: "object",
         properties: {
-          headers: { type: "array", items: { type: "string" }, description: "Column headers" },
-          rows: { type: "array", items: { type: "array", items: { type: "string" } }, description: "Table rows" }
+          headers: { type: "array", items: { type: "string" }, description: "Column headers - plain text" },
+          rows: { type: "array", items: { type: "array", items: { type: "string" } }, description: "Table rows - plain text cells" }
         },
         required: ["headers", "rows"]
       },
@@ -185,8 +232,8 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
         type: "object",
         properties: {
           src: { type: "string", description: "Image URL" },
-          alt: { type: "string", description: "Alt text" },
-          caption: { type: "string", description: "Caption text" }
+          alt: { type: "string", description: "Alt text - plain text" },
+          caption: { type: "string", description: "Caption text - plain text" }
         },
         required: ["src", "alt", "caption"]
       }
@@ -209,7 +256,7 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
             type: "function",
             function: {
               name: "update_block",
-              description: `Update the ${block!.type} block content. Must include all required fields for this block type.`,
+              description: `Update the ${block!.type} block content. Must include all required fields for this block type. All strings must be plain text without Markdown.`,
               parameters: {
                 type: "object",
                 properties: {
@@ -267,9 +314,12 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
           console.error(`[${requestId}] Empty content received, using original block content`);
           // Fall through to fallback
         } else {
+          // Sanitize content to remove any stray Markdown
+          const cleanedContent = sanitizeContent(updatedBlock.content);
+          
           const result: Block = {
             type: updatedBlock.type as Block["type"],
-            content: updatedBlock.content,
+            content: cleanedContent,
             order_index: block!.order_index || 0,
           };
 
@@ -295,9 +345,12 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
         if (!updatedBlock.content || Object.keys(updatedBlock.content).length === 0) {
           console.error(`[${requestId}] Empty content in fallback`);
         } else {
+          // Sanitize content to remove any stray Markdown
+          const cleanedContent = sanitizeContent(updatedBlock.content);
+          
           const result: Block = {
             type: updatedBlock.type as Block["type"],
-            content: updatedBlock.content,
+            content: cleanedContent,
             order_index: block!.order_index || 0,
           };
 
