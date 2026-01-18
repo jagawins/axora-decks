@@ -14,7 +14,133 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      blocks: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          order_index: number
+          project_id: string
+          type: Database["public"]["Enums"]["block_type"]
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          id?: string
+          order_index?: number
+          project_id: string
+          type: Database["public"]["Enums"]["block_type"]
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          order_index?: number
+          project_id?: string
+          type?: Database["public"]["Enums"]["block_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exports: {
+        Row: {
+          created_at: string
+          file_url: string | null
+          format: Database["public"]["Enums"]["export_format"]
+          id: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_url?: string | null
+          format: Database["public"]["Enums"]["export_format"]
+          id?: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          file_url?: string | null
+          format?: Database["public"]["Enums"]["export_format"]
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exports_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          brand_kit: Json | null
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          tier: Database["public"]["Enums"]["user_tier"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          brand_kit?: Json | null
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          tier?: Database["public"]["Enums"]["user_tier"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          brand_kit?: Json | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          tier?: Database["public"]["Enums"]["user_tier"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +149,16 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      block_type:
+        | "text"
+        | "heading"
+        | "image"
+        | "two_col"
+        | "table"
+        | "list"
+        | "callout"
+      export_format: "pdf" | "slides" | "web"
+      user_tier: "free" | "pro" | "executive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +285,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      block_type: [
+        "text",
+        "heading",
+        "image",
+        "two_col",
+        "table",
+        "list",
+        "callout",
+      ],
+      export_format: ["pdf", "slides", "web"],
+      user_tier: ["free", "pro", "executive"],
+    },
   },
 } as const
