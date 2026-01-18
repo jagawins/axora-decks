@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -19,11 +20,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Sparkles } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { aiEngine, BlockType } from "@/lib/ai-engine";
+import { sanitizeContent, sanitizeListItems } from "@/lib/sanitize";
 
 interface CreateDeckModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onGenerate: (params: {
+  /** Callback when generation is complete (for Editor integration) */
+  onGenerate?: (params: {
     topic: string;
     audience?: string;
     goal?: string;
@@ -48,6 +55,10 @@ export function CreateDeckModal({
   onOpenChange,
   onGenerate,
 }: CreateDeckModalProps) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const [topic, setTopic] = useState("");
   const [audience, setAudience] = useState("");
   const [goal, setGoal] = useState("");
@@ -58,24 +69,82 @@ export function CreateDeckModal({
   const handleSubmit = async () => {
     if (!topic.trim()) return;
 
+    // If onGenerate callback is provided (Editor mode), use it
+    if (onGenerate) {
+      setGenerating(true);
+      try {
+        await onGenerate({
+          topic: topic.trim(),
+          audience: audience.trim() || undefined,
+          goal: goal.trim() || undefined,
+          tone,
+          slideCount,
+        });
+        resetForm();
+      } finally {
+        setGenerating(false);
+      }
+      return;
+    }
+
+    // Library mode: create new project first
+    if (!user) {
+      toast({ title: 'Error', description: 'You must be logged in.', variant: 'destructive' });
+      return;
+    }
+
     setGenerating(true);
     try {
-      await onGenerate({
-        topic: topic.trim(),
-        audience: audience.trim() || undefined,
-        goal: goal.trim() || undefined,
+      // Create new project
+      const { data: newProject, error: projectError } = await supabase
+        .from('projects')
+        .insert({
+          title: topic.trim().substring(0, 100),
+          user_id: user.id,
+        })
+        .select()
+        .single();
+
+      if (projectError || !newProject) {
+        throw new Error('Failed to create project');
+      }
+
+      // Generate blocks using proper API
+      const prompt = `${topic.trim()}${audience ? `. Target audience: ${audience}` : ''}${goal ? `. Goal: ${goal}` : ''}`;
+      const result = await aiEngine.generateFromPrompt({
+        topic: prompt,
         tone,
-        slideCount,
       });
-      // Reset form on success
-      setTopic("");
-      setAudience("");
-      setGoal("");
-      setTone("professional");
-      setSlideCount(8);
+
+      if (result.blocks.length > 0) {
+        const blocksToInsert = result.blocks.map((block, index) => ({
+          project_id: newProject.id,
+          type: block.type,
+          content: block.content as Record<string, unknown>,
+          order_index: index,
+        }));
+
+        await supabase.from('blocks').insert(blocksToInsert as any);
+      }
+
+      resetForm();
+      onOpenChange(false);
+      navigate(`/preview/${newProject.id}`);
+      toast({ title: 'Deck created!', description: 'Your AI-generated deck is ready.' });
+    } catch (error) {
+      console.error('Error creating deck:', error);
+      toast({ title: 'Error', description: 'Failed to create deck.', variant: 'destructive' });
     } finally {
       setGenerating(false);
     }
+  };
+
+  const resetForm = () => {
+    setTopic("");
+    setAudience("");
+    setGoal("");
+    setTone("professional");
+    setSlideCount(8);
   };
 
   return (

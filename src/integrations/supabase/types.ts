@@ -81,6 +81,27 @@ export type Database = {
           },
         ]
       }
+      folders: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           brand_kit: Json | null
@@ -116,9 +137,13 @@ export type Database = {
       }
       projects: {
         Row: {
+          cover_image_url: string | null
           created_at: string
           description: string | null
+          folder_id: string | null
           id: string
+          is_favorite: boolean | null
+          last_viewed_at: string | null
           share_enabled: boolean
           share_token: string
           theme: string
@@ -127,9 +152,13 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
+          folder_id?: string | null
           id?: string
+          is_favorite?: boolean | null
+          last_viewed_at?: string | null
           share_enabled?: boolean
           share_token?: string
           theme?: string
@@ -138,9 +167,13 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
+          folder_id?: string | null
           id?: string
+          is_favorite?: boolean | null
+          last_viewed_at?: string | null
           share_enabled?: boolean
           share_token?: string
           theme?: string
@@ -148,7 +181,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "projects_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
