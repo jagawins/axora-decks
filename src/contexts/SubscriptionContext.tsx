@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { SubscriptionTier, SubscriptionStatus, SUBSCRIPTION_TIERS } from '@/lib/subscription';
+import { SubscriptionTier, SubscriptionStatus } from '@/lib/subscription';
+import { invokeFunction } from '@/lib/supabase-function-client';
 
 interface SubscriptionContextType {
   subscription: SubscriptionStatus;
@@ -45,23 +45,27 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('check-subscription', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+      const response = await invokeFunction<{
+        subscribed?: boolean;
+        tier?: string;
+        product_id?: string;
+        subscription_end?: string;
+      }>('check-subscription', undefined, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
-      if (error) {
-        console.error('Error checking subscription:', error);
+      if (response.error) {
+        console.error('Error checking subscription:', response.error);
         setSubscription(defaultSubscription);
         return;
       }
 
+      const data = response.data;
       setSubscription({
-        subscribed: data.subscribed || false,
-        tier: (data.tier as SubscriptionTier) || 'free',
-        productId: data.product_id || null,
-        subscriptionEnd: data.subscription_end || null,
+        subscribed: data?.subscribed || false,
+        tier: (data?.tier as SubscriptionTier) || 'free',
+        productId: data?.product_id || null,
+        subscriptionEnd: data?.subscription_end || null,
       });
     } catch (error) {
       console.error('Error checking subscription:', error);
@@ -78,19 +82,16 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId },
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+      const response = await invokeFunction<{ url?: string }>('create-checkout', { priceId }, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
-      if (error) {
-        console.error('Error creating checkout:', error);
+      if (response.error) {
+        console.error('Error creating checkout:', response.error);
         return null;
       }
 
-      return data.url || null;
+      return response.data?.url || null;
     } catch (error) {
       console.error('Error creating checkout:', error);
       return null;
@@ -104,18 +105,16 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+      const response = await invokeFunction<{ url?: string }>('customer-portal', undefined, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
-      if (error) {
-        console.error('Error opening customer portal:', error);
+      if (response.error) {
+        console.error('Error opening customer portal:', response.error);
         return null;
       }
 
-      return data.url || null;
+      return response.data?.url || null;
     } catch (error) {
       console.error('Error opening customer portal:', error);
       return null;

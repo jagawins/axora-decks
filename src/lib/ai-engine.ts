@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { invokeFunction, type FunctionResponse } from "@/lib/supabase-function-client";
 
 // Consistent types
 export type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
@@ -40,35 +40,24 @@ export interface GenerateBlockContentParams {
   context?: string;
 }
 
+// Re-export for backward compatibility
 interface APIResponse<T> {
   data: T | null;
   error: string | null;
   requestId?: string;
 }
 
-async function invokeFunction<T>(
+// Wrapper to maintain existing interface
+async function callFunction<T>(
   functionName: string,
   body: Record<string, unknown>
 ): Promise<APIResponse<T>> {
-  try {
-    const { data, error } = await supabase.functions.invoke(functionName, {
-      body,
-    });
-
-    if (error) {
-      console.error(`${functionName} invocation error:`, error);
-      return { data: null, error: error.message || "Function invocation failed" };
-    }
-
-    if (data.error) {
-      return { data: null, error: data.error, requestId: data.requestId };
-    }
-
-    return { data: data as T, error: null, requestId: data.requestId };
-  } catch (err) {
-    console.error(`${functionName} unexpected error:`, err);
-    return { data: null, error: err instanceof Error ? err.message : "Unknown error" };
-  }
+  const response = await invokeFunction<T>(functionName, body);
+  return {
+    data: response.data,
+    error: response.error,
+    requestId: response.requestId,
+  };
 }
 
 export const aiEngine = {
@@ -76,7 +65,7 @@ export const aiEngine = {
    * Generate an outline from a prompt
    */
   async generateOutline(params: GenerateOutlineParams): Promise<Outline> {
-    const response = await invokeFunction<{ outline: Outline; requestId?: string }>(
+    const response = await callFunction<{ outline: Outline; requestId?: string }>(
       "generate-outline",
       {
         topic: params.topic,

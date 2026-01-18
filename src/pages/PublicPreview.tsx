@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { invokeFunction } from "@/lib/supabase-function-client";
 import PreviewDeck from "@/components/PreviewDeck";
 import { Loader2, AlertCircle } from "lucide-react";
 import axoraLogo from "@/assets/axora-logo.png";
@@ -41,25 +41,24 @@ export default function PublicPreview() {
       setError(null);
 
       try {
-        const { data, error: fnError } = await supabase.functions.invoke("get-shared-project", {
-          body: { token },
-        });
+        const response = await invokeFunction<{
+          project?: Project;
+          blocks?: Block[];
+          error?: string;
+        }>("get-shared-project", { token });
 
-        if (fnError) {
-          throw new Error(fnError.message || "Failed to load shared project");
+        if (response.error) {
+          throw new Error(response.error);
         }
 
-        if (data?.error) {
-          throw new Error(data.error);
-        }
-
-        if (!data?.project) {
+        if (!response.data?.project) {
           throw new Error("Shared project not found");
         }
 
+        const data = response.data;
         setProject({
-          ...data.project,
-          theme: (data.project.theme as ThemeId) || DEFAULT_THEME,
+          ...data.project!,
+          theme: (data.project!.theme as ThemeId) || DEFAULT_THEME,
         });
         setBlocks(data.blocks || []);
       } catch (e) {
