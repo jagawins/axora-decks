@@ -1,5 +1,14 @@
 import { supabase } from "@/integrations/supabase/client";
 
+// Consistent types
+export type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
+
+export interface Block {
+  type: BlockType;
+  content: Record<string, unknown>;
+  order_index: number;
+}
+
 export interface Outline {
   title: string;
   sections: Array<{
@@ -10,24 +19,50 @@ export interface Outline {
   summary: string;
 }
 
-export interface Block {
-  type: "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
-  content: Record<string, unknown>;
-  order_index: number;
-}
-
 export interface GenerateOutlineParams {
-  prompt: string;
+  prompt?: string;
   topic: string;
-  tone: string;
+  tone?: "professional" | "crisp" | "analytical" | "persuasive" | "executive" | "casual";
 }
 
 export interface RefineBlockParams {
   block: {
-    type: string;
+    type: BlockType;
     content: Record<string, unknown>;
+    order_index?: number;
   };
   instruction: string;
+}
+
+interface APIResponse<T> {
+  data: T | null;
+  error: string | null;
+  requestId?: string;
+}
+
+async function invokeFunction<T>(
+  functionName: string,
+  body: Record<string, unknown>
+): Promise<APIResponse<T>> {
+  try {
+    const { data, error } = await supabase.functions.invoke(functionName, {
+      body,
+    });
+
+    if (error) {
+      console.error(`${functionName} invocation error:`, error);
+      return { data: null, error: error.message || "Function invocation failed" };
+    }
+
+    if (data.error) {
+      return { data: null, error: data.error, requestId: data.requestId };
+    }
+
+    return { data: data as T, error: null, requestId: data.requestId };
+  } catch (err) {
+    console.error(`${functionName} unexpected error:`, err);
+    return { data: null, error: err instanceof Error ? err.message : "Unknown error" };
+  }
 }
 
 export const aiEngine = {
@@ -35,60 +70,55 @@ export const aiEngine = {
    * Generate an outline from a prompt
    */
   async generateOutline(params: GenerateOutlineParams): Promise<Outline> {
-    const { data, error } = await supabase.functions.invoke("generate-outline", {
-      body: params,
-    });
+    const response = await invokeFunction<{ outline: Outline; requestId?: string }>(
+      "generate-outline",
+      {
+        topic: params.topic,
+        prompt: params.prompt || "",
+        tone: params.tone || "professional",
+      }
+    );
 
-    if (error) {
-      console.error("Generate outline error:", error);
-      throw new Error(error.message || "Failed to generate outline");
+    if (response.error || !response.data?.outline) {
+      throw new Error(response.error || "Failed to generate outline");
     }
 
-    if (data.error) {
-      throw new Error(data.error);
-    }
-
-    return data as Outline;
+    return response.data.outline;
   },
 
   /**
    * Generate blocks from an outline
    */
   async generateBlocks(outline: Outline): Promise<Block[]> {
-    const { data, error } = await supabase.functions.invoke("generate-blocks", {
-      body: { outline },
-    });
+    const response = await invokeFunction<{ blocks: Block[]; requestId?: string }>(
+      "generate-blocks",
+      { outline }
+    );
 
-    if (error) {
-      console.error("Generate blocks error:", error);
-      throw new Error(error.message || "Failed to generate blocks");
+    if (response.error || !response.data?.blocks) {
+      throw new Error(response.error || "Failed to generate blocks");
     }
 
-    if (data.error) {
-      throw new Error(data.error);
-    }
-
-    return data.blocks as Block[];
+    return response.data.blocks;
   },
 
   /**
    * Refine a single block based on instructions
    */
   async refineBlock(params: RefineBlockParams): Promise<Block> {
-    const { data, error } = await supabase.functions.invoke("refine-block", {
-      body: params,
-    });
+    const response = await invokeFunction<{ block: Block; requestId?: string }>(
+      "refine-block",
+      {
+        block: params.block,
+        instruction: params.instruction,
+      }
+    );
 
-    if (error) {
-      console.error("Refine block error:", error);
-      throw new Error(error.message || "Failed to refine block");
+    if (response.error || !response.data?.block) {
+      throw new Error(response.error || "Failed to refine block");
     }
 
-    if (data.error) {
-      throw new Error(data.error);
-    }
-
-    return data as Block;
+    return response.data.block;
   },
 
   /**
