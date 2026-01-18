@@ -55,7 +55,7 @@ serve(async (req) => {
 
     // Fetch project by token (share must be enabled)
     const projRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/projects?select=id,title,description,share_enabled,share_token&share_token=eq.${token}&limit=1`,
+      `${SUPABASE_URL}/rest/v1/projects?select=id,title,description,theme,share_enabled,share_token&share_token=eq.${token}&limit=1`,
       {
         method: "GET",
         headers: {
@@ -100,7 +100,7 @@ serve(async (req) => {
     console.log(`[${requestId}] Successfully fetched shared project with ${blocks.length} blocks`);
 
     return json(200, {
-      project: { id: project.id, title: project.title, description: project.description },
+      project: { id: project.id, title: project.title, description: project.description, theme: project.theme },
       blocks,
       requestId,
     });
