@@ -34,6 +34,12 @@ export interface RefineBlockParams {
   instruction: string;
 }
 
+export interface GenerateBlockContentParams {
+  type: BlockType;
+  prompt: string;
+  context?: string;
+}
+
 interface APIResponse<T> {
   data: T | null;
   error: string | null;
@@ -119,6 +125,26 @@ export const aiEngine = {
     }
 
     return response.data.block;
+  },
+
+  /**
+   * Generate block content from scratch based on a prompt
+   */
+  async generateBlockContent(params: GenerateBlockContentParams): Promise<Record<string, unknown>> {
+    const response = await invokeFunction<{ content: Record<string, unknown>; requestId?: string }>(
+      "generate-block-content",
+      {
+        type: params.type,
+        prompt: params.prompt,
+        context: params.context,
+      }
+    );
+
+    if (response.error || !response.data?.content) {
+      throw new Error(response.error || "Failed to generate content");
+    }
+
+    return response.data.content;
   },
 
   /**
