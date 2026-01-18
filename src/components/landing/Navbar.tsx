@@ -12,7 +12,7 @@ const Navbar = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <img src={axoraLogo} alt="Axora" className="h-10 w-auto" />
+            <img src={axoraLogo} alt="Axora" className="h-14 w-auto" />
           </Link>
 
           {/* Navigation Links */}
