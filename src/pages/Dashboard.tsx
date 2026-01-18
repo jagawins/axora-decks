@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { 
@@ -12,7 +13,9 @@ import {
   MoreHorizontal,
   Trash2,
   Pencil,
-  Lock
+  Lock,
+  CreditCard,
+  Crown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import axoraLogo from "@/assets/axora-logo.png";
@@ -34,6 +37,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { SUBSCRIPTION_TIERS, getProjectLimit } from '@/lib/subscription';
 
 interface Project {
   id: string;
@@ -44,13 +48,14 @@ interface Project {
 }
 
 interface Profile {
-  tier: 'free' | 'pro' | 'executive';
   name: string | null;
 }
 
 const Dashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
+  const { subscription, loading: subscriptionLoading, checkSubscription, createCheckout, openCustomerPortal } = useSubscription();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   
   const [projects, setProjects] = useState<Project[]>([]);
@@ -60,6 +65,28 @@ const Dashboard = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+
+  // Handle checkout success/canceled query params
+  useEffect(() => {
+    const checkoutStatus = searchParams.get('checkout');
+    if (checkoutStatus === 'success') {
+      toast({
+        title: 'Subscription activated!',
+        description: 'Thank you for subscribing. Your account has been upgraded.',
+      });
+      checkSubscription();
+      // Clear the query param
+      navigate('/dashboard', { replace: true });
+    } else if (checkoutStatus === 'canceled') {
+      toast({
+        title: 'Checkout canceled',
+        description: 'Your subscription checkout was canceled.',
+        variant: 'destructive',
+      });
+      navigate('/dashboard', { replace: true });
+    }
+  }, [searchParams, navigate, toast, checkSubscription]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -83,12 +110,12 @@ const Dashboard = () => {
       // Fetch profile
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('tier, name')
+        .select('name')
         .eq('user_id', user.id)
         .maybeSingle();
       
       if (profileData) {
-        setProfile(profileData as Profile);
+        setProfile(profileData);
       }
 
       // Fetch projects
@@ -115,10 +142,11 @@ const Dashboard = () => {
     if (!user || !newTitle.trim()) return;
 
     // Check tier limits for free users
-    if (profile?.tier === 'free' && projects.length >= 3) {
+    const projectLimit = getProjectLimit(subscription.tier);
+    if (projectLimit !== -1 && projects.length >= projectLimit) {
       toast({
         title: 'Project limit reached',
-        description: 'Free accounts can create up to 3 projects. Upgrade to Pro for unlimited projects.',
+        description: 'Upgrade to Pro for unlimited projects.',
         variant: 'destructive',
       });
       return;
@@ -188,6 +216,37 @@ const Dashboard = () => {
     navigate('/');
   };
 
+  const handleUpgrade = async (priceId: string) => {
+    setIsCheckoutLoading(true);
+    try {
+      const url = await createCheckout(priceId);
+      if (url) {
+        window.open(url, '_blank');
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to create checkout session.',
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setIsCheckoutLoading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    const url = await openCustomerPortal();
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Failed to open subscription management.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -196,17 +255,8 @@ const Dashboard = () => {
     });
   };
 
-  const getProjectLimit = () => {
-    if (profile?.tier === 'free') return 3;
-    return Infinity;
-  };
-
-  const canCreateProject = () => {
-    if (profile?.tier === 'free') {
-      return projects.length < 3;
-    }
-    return true;
-  };
+  const projectLimit = getProjectLimit(subscription.tier);
+  const canCreateProject = projectLimit === -1 || projects.length < projectLimit;
 
   if (authLoading || loading) {
     return (
@@ -229,14 +279,23 @@ const Dashboard = () => {
             <div className="flex items-center gap-4">
               {/* Tier badge */}
               <span className={`px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider ${
-                profile?.tier === 'executive' 
+                subscription.tier === 'executive' 
                   ? 'bg-success/20 text-success' 
-                  : profile?.tier === 'pro' 
+                  : subscription.tier === 'pro' 
                     ? 'bg-accent/20 text-accent' 
                     : 'bg-muted text-muted-foreground'
               }`}>
-                {profile?.tier || 'free'}
+                {subscription.tier === 'executive' && <Crown className="h-3 w-3 inline mr-1" />}
+                {subscription.tier}
               </span>
+
+              {/* Manage subscription button for paid users */}
+              {subscription.subscribed && (
+                <Button variant="ghost" size="sm" onClick={handleManageSubscription}>
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Manage
+                </Button>
+              )}
 
               <span className="text-sm text-muted-foreground hidden sm:block">
                 {profile?.name || user?.email}
@@ -256,19 +315,19 @@ const Dashboard = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold">Your Projects</h1>
-            {profile?.tier === 'free' && (
+            {subscription.tier === 'free' && (
               <p className="text-muted-foreground mt-1">
-                {projects.length} of {getProjectLimit()} projects used
+                {projects.length} of {projectLimit} projects used
               </p>
             )}
           </div>
 
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
-              <Button variant="hero" disabled={!canCreateProject()}>
+              <Button variant="hero" disabled={!canCreateProject}>
                 <Plus className="h-4 w-4 mr-2" />
                 New Project
-                {!canCreateProject() && <Lock className="h-3 w-3 ml-2" />}
+                {!canCreateProject && <Lock className="h-3 w-3 ml-2" />}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
@@ -322,7 +381,7 @@ const Dashboard = () => {
         </div>
 
         {/* Tier upgrade banner for free users */}
-        {profile?.tier === 'free' && projects.length >= 2 && (
+        {subscription.tier === 'free' && projects.length >= 2 && (
           <div className="glass-card p-6 mb-8 border-accent/20">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
@@ -331,8 +390,12 @@ const Dashboard = () => {
                   Get unlimited projects, PDF/slide exports, and brand kit integration.
                 </p>
               </div>
-              <Button variant="hero-outline">
-                Upgrade Now
+              <Button 
+                variant="hero-outline" 
+                onClick={() => handleUpgrade(SUBSCRIPTION_TIERS.pro.priceId!)}
+                disabled={isCheckoutLoading}
+              >
+                {isCheckoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Upgrade Now'}
               </Button>
             </div>
           </div>

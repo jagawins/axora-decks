@@ -1,6 +1,11 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Check, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { SUBSCRIPTION_TIERS } from "@/lib/subscription";
+import { useToast } from "@/hooks/use-toast";
 
 const plans = [
   {
@@ -15,7 +20,8 @@ const plans = [
     ],
     cta: "Get Started",
     variant: "outline" as const,
-    popular: false
+    popular: false,
+    tier: "free" as const,
   },
   {
     name: "Pro",
@@ -31,7 +37,8 @@ const plans = [
     ],
     cta: "Start Pro Trial",
     variant: "hero" as const,
-    popular: true
+    popular: true,
+    tier: "pro" as const,
   },
   {
     name: "Executive",
@@ -48,11 +55,79 @@ const plans = [
     ],
     cta: "Contact Sales",
     variant: "outline" as const,
-    popular: false
+    popular: false,
+    tier: "executive" as const,
   }
 ];
 
 const Pricing = () => {
+  const { user } = useAuth();
+  const { subscription, createCheckout } = useSubscription();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loadingTier, setLoadingTier] = useState<string | null>(null);
+
+  const handlePlanClick = async (tier: "free" | "pro" | "executive") => {
+    // If not logged in, redirect to auth
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    // If free tier, just go to dashboard
+    if (tier === 'free') {
+      navigate('/dashboard');
+      return;
+    }
+
+    // If already on this tier, go to dashboard
+    if (subscription.tier === tier) {
+      navigate('/dashboard');
+      return;
+    }
+
+    // For executive, contact sales for now
+    if (tier === 'executive') {
+      toast({
+        title: "Contact Sales",
+        description: "Please reach out to our sales team for Executive plan.",
+      });
+      return;
+    }
+
+    // Create checkout session
+    const priceId = SUBSCRIPTION_TIERS[tier].priceId;
+    if (!priceId) return;
+
+    setLoadingTier(tier);
+    try {
+      const url = await createCheckout(priceId);
+      if (url) {
+        window.open(url, '_blank');
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to create checkout session. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setLoadingTier(null);
+    }
+  };
+
+  const getButtonText = (plan: typeof plans[0]) => {
+    if (loadingTier === plan.tier) {
+      return <Loader2 className="h-4 w-4 animate-spin" />;
+    }
+    
+    if (user && subscription.tier === plan.tier) {
+      return "Current Plan";
+    }
+    
+    return plan.cta;
+  };
+
   return (
     <section id="pricing" className="section-padding relative">
       <div className="container-wide">
@@ -78,10 +153,17 @@ const Pricing = () => {
                 plan.popular 
                   ? "border-accent bg-gradient-to-b from-accent/10 to-accent/5 scale-105 shadow-lg shadow-accent/10" 
                   : "border-border bg-card hover:border-accent/20"
-              }`}
+              } ${user && subscription.tier === plan.tier ? "ring-2 ring-accent" : ""}`}
             >
+              {/* Current plan badge */}
+              {user && subscription.tier === plan.tier && (
+                <div className="absolute -top-3 right-4 px-3 py-1 bg-success text-success-foreground text-xs font-semibold rounded-full">
+                  Your Plan
+                </div>
+              )}
+
               {/* Popular badge */}
-              {plan.popular && (
+              {plan.popular && !(user && subscription.tier === plan.tier) && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full">
                   Most Popular
                 </div>
@@ -114,15 +196,15 @@ const Pricing = () => {
               </ul>
 
               {/* CTA */}
-              <Link to="/auth" className="block">
-                <Button 
-                  variant={plan.variant} 
-                  className="w-full" 
-                  size="lg"
-                >
-                  {plan.cta}
-                </Button>
-              </Link>
+              <Button 
+                variant={plan.variant} 
+                className="w-full" 
+                size="lg"
+                onClick={() => handlePlanClick(plan.tier)}
+                disabled={loadingTier === plan.tier || (user && subscription.tier === plan.tier)}
+              >
+                {getButtonText(plan)}
+              </Button>
             </div>
           ))}
         </div>
