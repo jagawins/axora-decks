@@ -4,9 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Zap, Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import axoraLogo from "@/assets/axora-logo.png";
 
 // Validation schemas
 const emailSchema = z.string().email('Please enter a valid email address');
@@ -144,10 +145,7 @@ const Auth = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <a href="/" className="inline-flex items-center gap-2 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent">
-              <Zap className="h-5 w-5 text-accent-foreground" />
-            </div>
-            <span className="text-2xl font-bold tracking-tight">AXORA</span>
+            <img src={axoraLogo} alt="Axora" className="h-12 w-auto" />
           </a>
           <h1 className="text-2xl font-bold">
             {isSignUp ? 'Create your account' : 'Welcome back'}

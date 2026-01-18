@@ -4,7 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { 
-  Zap, 
   Plus, 
   FileText, 
   LogOut, 
@@ -16,6 +15,7 @@ import {
   Lock
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import axoraLogo from "@/assets/axora-logo.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -223,10 +223,7 @@ const Dashboard = () => {
         <div className="container-wide">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent">
-                <Zap className="h-5 w-5 text-accent-foreground" />
-              </div>
-              <span className="text-xl font-bold tracking-tight">AXORA</span>
+              <img src={axoraLogo} alt="Axora" className="h-10 w-auto" />
             </div>
 
             <div className="flex items-center gap-4">
