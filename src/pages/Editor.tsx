@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { aiEngine, Block as AIBlock, BlockType } from "@/lib/ai-engine";
+import { sanitizeContent, sanitizeListItems } from "@/lib/sanitize";
 import { THEMES, DEFAULT_THEME, ThemeId } from "@/lib/themes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,11 +27,11 @@ import {
   Image,
   Play,
   Share2,
-  Link,
   Copy,
   Check,
   Palette,
   FileDown,
+  Upload,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axoraLogo from "@/assets/axora-logo.png";
@@ -56,6 +57,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
+import { CreateDeckModal } from "@/components/CreateDeckModal";
+import { ImportContentModal } from "@/components/ImportContentModal";
 
 interface Project {
   id: string;
@@ -108,10 +111,14 @@ const Editor = () => {
   const [refineInstruction, setRefineInstruction] = useState("");
   const [refining, setRefining] = useState(false);
 
-  // AI generate state
+  // AI generate state (per-block)
   const [generateOpen, setGenerateOpen] = useState(false);
   const [generatePrompt, setGeneratePrompt] = useState("");
   const [generating, setGenerating] = useState(false);
+
+  // AI deck generation modals
+  const [createDeckOpen, setCreateDeckOpen] = useState(false);
+  const [importContentOpen, setImportContentOpen] = useState(false);
 
   // Add block state
   const [addBlockOpen, setAddBlockOpen] = useState(false);
@@ -307,7 +314,13 @@ const Editor = () => {
         instruction: refineInstruction.trim(),
       });
 
-      updateBlock(block.id, refined.content);
+      // Sanitize the content before updating
+      const sanitized = sanitizeContent(refined.content);
+      if (block.type === "list" && Array.isArray(sanitized.items)) {
+        sanitized.items = sanitizeListItems(sanitized.items);
+      }
+
+      updateBlock(block.id, sanitized);
       setRefineOpen(false);
       setRefineInstruction("");
 
@@ -338,7 +351,13 @@ const Editor = () => {
         prompt: generatePrompt.trim(),
       });
 
-      updateBlock(block.id, content);
+      // Sanitize the content before updating
+      const sanitized = sanitizeContent(content);
+      if (block.type === "list" && Array.isArray(sanitized.items)) {
+        sanitized.items = sanitizeListItems(sanitized.items);
+      }
+
+      updateBlock(block.id, sanitized);
       setGenerateOpen(false);
       setGeneratePrompt("");
 
@@ -355,6 +374,150 @@ const Editor = () => {
       });
     } finally {
       setGenerating(false);
+    }
+  };
+
+  // AI Deck Generation handler
+  const handleCreateDeck = async (params: {
+    topic: string;
+    audience?: string;
+    goal?: string;
+    tone: "professional" | "crisp" | "analytical" | "persuasive" | "executive" | "casual";
+    slideCount: number;
+  }) => {
+    if (!projectId) return;
+
+    try {
+      // Build the prompt with optional context
+      let prompt = params.topic;
+      if (params.audience) {
+        prompt += `\n\nTarget audience: ${params.audience}`;
+      }
+      if (params.goal) {
+        prompt += `\n\nGoal: ${params.goal}`;
+      }
+      prompt += `\n\nCreate approximately ${params.slideCount} slides.`;
+
+      const result = await aiEngine.generateFromPrompt({
+        topic: params.topic,
+        prompt,
+        tone: params.tone,
+      });
+
+      // Convert AI blocks to our format with sanitization
+      const newBlocks: Block[] = result.blocks.map((b, i) => {
+        const sanitized = sanitizeContent(b.content);
+        if (b.type === "list" && Array.isArray(sanitized.items)) {
+          sanitized.items = sanitizeListItems(sanitized.items);
+        }
+        return {
+          id: crypto.randomUUID(),
+          type: b.type,
+          content: sanitized,
+          order_index: i,
+        };
+      });
+
+      setBlocks(newBlocks);
+      setHasUnsavedChanges(true);
+      setCreateDeckOpen(false);
+
+      // Auto-save and navigate to preview
+      await saveBlocksAndNavigate(newBlocks);
+    } catch (error) {
+      console.error("Create deck error:", error);
+      toast({
+        title: "Generation failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Import content handler
+  const handleImportContent = async (content: string) => {
+    if (!projectId) return;
+
+    try {
+      // Use the pasted content as both topic and prompt
+      const result = await aiEngine.generateFromPrompt({
+        topic: "Presentation from imported content",
+        prompt: content,
+        tone: "professional",
+      });
+
+      // Convert AI blocks to our format with sanitization
+      const newBlocks: Block[] = result.blocks.map((b, i) => {
+        const sanitized = sanitizeContent(b.content);
+        if (b.type === "list" && Array.isArray(sanitized.items)) {
+          sanitized.items = sanitizeListItems(sanitized.items);
+        }
+        return {
+          id: crypto.randomUUID(),
+          type: b.type,
+          content: sanitized,
+          order_index: i,
+        };
+      });
+
+      setBlocks(newBlocks);
+      setHasUnsavedChanges(true);
+      setImportContentOpen(false);
+
+      // Auto-save and navigate to preview
+      await saveBlocksAndNavigate(newBlocks);
+    } catch (error) {
+      console.error("Import content error:", error);
+      toast({
+        title: "Import failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Helper to save blocks and navigate to preview
+  const saveBlocksAndNavigate = async (blocksToSave: Block[]) => {
+    if (!projectId) return;
+
+    try {
+      // Delete existing blocks and re-insert
+      await supabase.from("blocks").delete().eq("project_id", projectId);
+
+      if (blocksToSave.length > 0) {
+        const blocksToInsert = blocksToSave.map((block, index) => ({
+          project_id: projectId,
+          type: block.type as "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout",
+          content: block.content as unknown as import("@/integrations/supabase/types").Json,
+          order_index: index,
+        }));
+
+        const { error } = await supabase.from("blocks").insert(blocksToInsert);
+        if (error) throw error;
+      }
+
+      // Update project timestamp
+      await supabase
+        .from("projects")
+        .update({ updated_at: new Date().toISOString() })
+        .eq("id", projectId);
+
+      setHasUnsavedChanges(false);
+      
+      toast({
+        title: "Deck created",
+        description: "Your presentation is ready!",
+      });
+
+      // Navigate to preview
+      navigate(`/preview/${projectId}`);
+    } catch (error) {
+      console.error("Save error:", error);
+      toast({
+        title: "Save failed",
+        description: "Could not save your deck.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -457,6 +620,18 @@ const Editor = () => {
             {hasUnsavedChanges && (
               <span className="text-xs text-muted-foreground">Unsaved changes</span>
             )}
+
+            {/* Generate Deck Button - Always visible */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCreateDeckOpen(true)}
+              className="border-accent/30 text-accent hover:bg-accent/10"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              Generate Deck
+            </Button>
+
             <Button
               variant="ghost"
               size="sm"
@@ -534,7 +709,7 @@ const Editor = () => {
             <div className="space-y-2">
               {blocks.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-8">
-                  No blocks yet. Add one to get started.
+                  No blocks yet. Create with AI or add manually.
                 </p>
               ) : (
                 blocks.map((block, index) => {
@@ -587,16 +762,46 @@ const Editor = () => {
         <main className="flex-1 overflow-y-auto p-8">
           <div className="max-w-3xl mx-auto space-y-6">
             {blocks.length === 0 ? (
-              <div className="text-center py-20 glass-card">
-                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Start building your presentation</h3>
-                <p className="text-muted-foreground mb-6">
-                  Add blocks to create your content
-                </p>
-                <Button variant="hero" onClick={() => setAddBlockOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Block
-                </Button>
+              /* AI-First Empty State */
+              <div className="text-center py-16">
+                <div className="glass-card p-8 max-w-lg mx-auto">
+                  <Sparkles className="h-12 w-12 text-accent mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold mb-2">Create Your Presentation</h3>
+                  <p className="text-muted-foreground mb-8">
+                    Let AI help you build a professional deck in seconds, or import existing content.
+                  </p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button
+                      variant="hero"
+                      size="lg"
+                      onClick={() => setCreateDeckOpen(true)}
+                      className="gap-2"
+                    >
+                      <Sparkles className="h-5 w-5" />
+                      Create Deck with AI
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={() => setImportContentOpen(true)}
+                      className="gap-2"
+                    >
+                      <Upload className="h-5 w-5" />
+                      Import Content
+                    </Button>
+                  </div>
+
+                  <div className="mt-8 pt-6 border-t border-border">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Or start manually
+                    </p>
+                    <Button variant="ghost" onClick={() => setAddBlockOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Block
+                    </Button>
+                  </div>
+                </div>
               </div>
             ) : (
               blocks.map((block) => (
@@ -774,7 +979,7 @@ const Editor = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Generate Dialog */}
+      {/* Generate Dialog (per-block) */}
       <Dialog open={generateOpen} onOpenChange={setGenerateOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -874,6 +1079,20 @@ const Editor = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* AI Deck Generation Modal */}
+      <CreateDeckModal
+        open={createDeckOpen}
+        onOpenChange={setCreateDeckOpen}
+        onGenerate={handleCreateDeck}
+      />
+
+      {/* Import Content Modal */}
+      <ImportContentModal
+        open={importContentOpen}
+        onOpenChange={setImportContentOpen}
+        onImport={handleImportContent}
+      />
     </div>
   );
 };
