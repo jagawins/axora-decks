@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Zap,
   ArrowLeft,
   Save,
   Loader2,
@@ -26,6 +25,7 @@ import {
   Image,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import axoraLogo from "@/assets/axora-logo.png";
 import {
   Dialog,
   DialogContent,
@@ -354,7 +354,7 @@ const Editor = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-accent" />
+              <img src={axoraLogo} alt="Axora" className="h-6 w-auto" />
               <span className="font-semibold truncate max-w-[200px]">
                 {project?.title || "Untitled"}
               </span>
