@@ -33,6 +33,44 @@ interface ValidationResult {
   outline?: Outline;
 }
 
+// Utility to strip any Markdown formatting that slips through
+function stripMarkdown(s: unknown): unknown {
+  if (typeof s !== "string") return s;
+
+  return s
+    // bold/italic markers
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/__(.*?)__/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/_(.*?)_/g, "$1")
+    // heading markers
+    .replace(/^#{1,6}\s+/gm, "")
+    // leading bullet markers
+    .replace(/^\s*[*-]\s+/gm, "")
+    // leading numbered list markers
+    .replace(/^\s*\d+\.\s+/gm, "")
+    // backticks
+    .replace(/`([^`]+)`/g, "$1")
+    .trim();
+}
+
+function sanitizeContent(content: BlockContent): BlockContent {
+  const out: BlockContent = {};
+
+  for (const k of Object.keys(content)) {
+    const v = content[k];
+    if (typeof v === "string") out[k] = stripMarkdown(v);
+    else if (Array.isArray(v)) out[k] = v.map(item => 
+      typeof item === "string" ? stripMarkdown(item) : 
+      (item && typeof item === "object") ? sanitizeContent(item as BlockContent) : item
+    );
+    else if (v && typeof v === "object") out[k] = sanitizeContent(v as BlockContent);
+    else out[k] = v;
+  }
+
+  return out;
+}
+
 function validateRequest(body: unknown): ValidationResult {
   if (!body || typeof body !== "object") {
     return { valid: false, error: "Request body must be a JSON object" };
@@ -110,18 +148,24 @@ serve(async (req) => {
 
     const systemPrompt = `You are an expert presentation designer. Convert outlines into presentation blocks.
 
+CRITICAL OUTPUT RULES (non-negotiable):
+- Return plain text only. NO Markdown formatting whatsoever.
+- No asterisks (*), no bold (**), no italic (_), no headings (#), no backticks.
+- List items must be plain strings WITHOUT leading bullet characters (*, -, •) or numbers.
+- All text content must be clean sentences without formatting symbols.
+
 Available block types:
-- heading: { "level": 1|2|3, "text": "..." }
-- text: { "text": "..." }
-- list: { "items": ["..."], "ordered": false }
-- callout: { "text": "...", "icon": "info"|"warning"|"success" }
-- two_col: { "left": "...", "right": "..." }
-- table: { "headers": [...], "rows": [[...]] }
+- heading: { "level": 1|2|3, "text": "plain text" }
+- text: { "text": "plain text paragraph" }
+- list: { "items": ["plain string", "plain string"], "ordered": false }
+- callout: { "text": "plain text", "icon": "info"|"warning"|"success" }
+- two_col: { "left": "plain text", "right": "plain text" }
+- table: { "headers": ["plain text"], "rows": [["plain text"]] }
 
 Guidelines:
 - Start with H1 heading for title
 - Use H2 for main sections
-- Convert bullets to list blocks
+- Convert bullets to list blocks (items as plain strings, no bullet characters)
 - Use callouts for key takeaways
 - Keep text blocks to 2-4 sentences max
 - Create 8-15 blocks total for a good presentation
@@ -217,7 +261,7 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
         
         const blocks: Block[] = rawBlocks.map((b, i) => ({
           type: b.type as Block["type"],
-          content: b.content,
+          content: sanitizeContent(b.content),
           order_index: i,
         }));
 
@@ -241,7 +285,7 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
         
         const blocks: Block[] = rawBlocks.map((b, i) => ({
           type: b.type as Block["type"],
-          content: b.content,
+          content: sanitizeContent(b.content),
           order_index: i,
         }));
 

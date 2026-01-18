@@ -96,18 +96,24 @@ serve(async (req) => {
 
     const systemPrompt = `You are an expert executive presentation consultant. Create structured outlines for executive-grade presentations.
 
+CRITICAL OUTPUT RULES (non-negotiable):
+- Return plain text only. NO Markdown formatting whatsoever.
+- No asterisks (*), no bold (**), no italic (_), no headings (#), no backticks.
+- No bullet characters (*, -, •) in any text - just plain strings.
+- Section points must be clean sentences without leading bullets or numbers.
+- Use a ${tone} tone throughout.
+
 Guidelines:
 - Create clear, hierarchical structures with 3-6 main sections
 - Focus on executive-level communication
 - Be concise but comprehensive
 - Ensure logical flow between sections
-- Use a ${tone} tone throughout
 
 You MUST call the create_outline function with your response. If for any reason you cannot use the function, return ONLY valid JSON matching this schema - no markdown, no commentary:
 {
   "title": "string",
-  "sections": [{"heading": "string", "points": ["string"]}],
-  "bullets": ["string"],
+  "sections": [{"heading": "string", "points": ["plain string without bullets"]}],
+  "bullets": ["plain string without bullets"],
   "summary": "string"
 }`;
 
