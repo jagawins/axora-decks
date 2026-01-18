@@ -1,1 +1,10 @@
 project_id = "isxdedybwhlxzeuymxcq"
+
+[functions.generate-outline]
+verify_jwt = false
+
+[functions.generate-blocks]
+verify_jwt = false
+
+[functions.refine-block]
+verify_jwt = false
