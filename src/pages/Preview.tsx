@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import PreviewDeck from "@/components/PreviewDeck";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
 
 type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
 
@@ -19,6 +20,7 @@ interface Project {
   id: string;
   title: string;
   description: string | null;
+  theme: ThemeId;
 }
 
 export default function Preview() {
@@ -49,7 +51,7 @@ export default function Preview() {
     try {
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
-        .select("id, title, description")
+        .select("id, title, description, theme")
         .eq("id", projectId)
         .maybeSingle();
 
@@ -59,7 +61,10 @@ export default function Preview() {
         return;
       }
 
-      setProject(projectData);
+      setProject({
+        ...projectData,
+        theme: (projectData.theme as ThemeId) || DEFAULT_THEME,
+      });
 
       const { data: blocksData, error: blocksError } = await supabase
         .from("blocks")
@@ -117,7 +122,7 @@ export default function Preview() {
 
       {/* Preview Content */}
       <main className="flex-1">
-        <PreviewDeck blocks={blocks} title={project?.title} />
+        <PreviewDeck blocks={blocks} title={project?.title} theme={project?.theme} />
       </main>
     </div>
   );

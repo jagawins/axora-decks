@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { aiEngine, Block as AIBlock, BlockType } from "@/lib/ai-engine";
+import { THEMES, DEFAULT_THEME, ThemeId } from "@/lib/themes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,6 +29,8 @@ import {
   Link,
   Copy,
   Check,
+  Palette,
+  FileDown,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axoraLogo from "@/assets/axora-logo.png";
@@ -46,6 +49,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 
 interface Project {
@@ -113,6 +122,9 @@ const Editor = () => {
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
+  // Theme state
+  const [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME);
+
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
@@ -132,7 +144,7 @@ const Editor = () => {
     try {
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
-        .select("id, title, description, share_enabled, share_token")
+        .select("id, title, description, share_enabled, share_token, theme")
         .eq("id", projectId)
         .maybeSingle();
 
@@ -145,6 +157,7 @@ const Editor = () => {
       setProject(projectData);
       setShareEnabled(!!projectData.share_enabled);
       setShareToken(projectData.share_token ? String(projectData.share_token) : null);
+      setTheme((projectData.theme as ThemeId) || DEFAULT_THEME);
 
       const { data: blocksData, error: blocksError } = await supabase
         .from("blocks")
@@ -388,6 +401,31 @@ const Editor = () => {
     });
   };
 
+  const updateTheme = async (next: ThemeId) => {
+    if (!projectId) return;
+    setTheme(next);
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .update({ theme: next })
+        .eq("id", projectId);
+
+      if (error) throw error;
+      toast({ title: "Theme updated" });
+    } catch (e) {
+      console.error("Theme update error:", e);
+      toast({
+        title: "Theme update failed",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const exportPdf = () => {
+    if (!projectId) return;
+    window.open(`/print/${projectId}`, "_blank", "noopener,noreferrer");
+  };
+
   const selectedBlock = blocks.find((b) => b.id === selectedBlockId);
 
   if (authLoading || loading) {
@@ -427,6 +465,33 @@ const Editor = () => {
               <Play className="h-4 w-4 mr-2" />
               Preview
             </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <Palette className="h-4 w-4 mr-2" />
+                  Theme
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {(Object.keys(THEMES) as ThemeId[]).map((t) => (
+                  <DropdownMenuItem
+                    key={t}
+                    onClick={() => updateTheme(t)}
+                    className={theme === t ? "bg-accent/20" : ""}
+                  >
+                    {THEMES[t].label}
+                    {theme === t && <Check className="h-4 w-4 ml-auto" />}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button variant="ghost" size="sm" onClick={exportPdf}>
+              <FileDown className="h-4 w-4 mr-2" />
+              PDF
+            </Button>
+
             <Button
               variant="ghost"
               size="sm"

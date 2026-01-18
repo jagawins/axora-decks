@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import PreviewDeck from "@/components/PreviewDeck";
 import { Loader2, AlertCircle } from "lucide-react";
 import axoraLogo from "@/assets/axora-logo.png";
+import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
 
 type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
 
@@ -18,6 +19,7 @@ interface Project {
   id: string;
   title: string;
   description: string | null;
+  theme: ThemeId;
 }
 
 export default function PublicPreview() {
@@ -55,7 +57,10 @@ export default function PublicPreview() {
           throw new Error("Shared project not found");
         }
 
-        setProject(data.project);
+        setProject({
+          ...data.project,
+          theme: (data.project.theme as ThemeId) || DEFAULT_THEME,
+        });
         setBlocks(data.blocks || []);
       } catch (e) {
         console.error("Error loading shared project:", e);
@@ -109,7 +114,7 @@ export default function PublicPreview() {
 
       {/* Preview Content */}
       <main className="flex-1">
-        <PreviewDeck blocks={blocks} title={project?.title} />
+        <PreviewDeck blocks={blocks} title={project?.title} theme={project?.theme} />
       </main>
     </div>
   );

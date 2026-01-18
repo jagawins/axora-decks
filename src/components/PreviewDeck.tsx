@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
 
 type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
 
@@ -14,9 +15,10 @@ interface Block {
 interface PreviewDeckProps {
   blocks: Block[];
   title?: string;
+  theme?: ThemeId;
 }
 
-const PreviewDeck = ({ blocks, title }: PreviewDeckProps) => {
+const PreviewDeck = ({ blocks, title, theme = DEFAULT_THEME }: PreviewDeckProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -83,9 +85,9 @@ const PreviewDeck = ({ blocks, title }: PreviewDeckProps) => {
   const currentBlock = blocks[currentSlide];
 
   return (
-    <div className={`flex flex-col h-full ${isFullscreen ? "bg-background" : ""}`}>
+    <div className={`flex flex-col h-full theme-${theme} ${isFullscreen ? "bg-background" : ""}`}>
       {/* Controls */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-card/50">
+      <div className="preview-controls flex items-center justify-between p-4 border-b border-border bg-card/50">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
             Slide {currentSlide + 1} of {totalSlides}
@@ -121,13 +123,13 @@ const PreviewDeck = ({ blocks, title }: PreviewDeckProps) => {
 
       {/* Slide Content */}
       <div className="flex-1 flex items-center justify-center p-8 overflow-auto">
-        <div className="w-full max-w-4xl aspect-[16/9] bg-card border border-border rounded-xl shadow-2xl p-12 flex items-center justify-center">
+        <div className="w-full max-w-4xl aspect-[16/9] bg-[var(--deck-bg)] text-[var(--deck-fg)] border border-[var(--deck-border)] rounded-xl shadow-2xl p-12 flex items-center justify-center">
           <SlideContent block={currentBlock} />
         </div>
       </div>
 
       {/* Slide Thumbnails */}
-      <div className="p-4 border-t border-border bg-card/50 overflow-x-auto">
+      <div className="preview-thumbnails p-4 border-t border-border bg-card/50 overflow-x-auto">
         <div className="flex gap-2 min-w-max">
           {blocks.map((block, index) => (
             <button
@@ -135,8 +137,8 @@ const PreviewDeck = ({ blocks, title }: PreviewDeckProps) => {
               onClick={() => setCurrentSlide(index)}
               className={`flex-shrink-0 w-20 h-12 rounded border-2 transition-all ${
                 index === currentSlide
-                  ? "border-accent bg-accent/20"
-                  : "border-border hover:border-accent/50"
+                  ? "border-[var(--deck-accent)] bg-[var(--deck-accent)]/20"
+                  : "border-border hover:border-[var(--deck-accent)]/50"
               }`}
             >
               <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
@@ -200,7 +202,7 @@ const SlideContent = ({ block }: { block: Block }) => {
               ? "border-yellow-500/50 bg-yellow-500/10"
               : icon === "success"
               ? "border-green-500/50 bg-green-500/10"
-              : "border-accent/50 bg-accent/10"
+              : "border-[var(--deck-accent)]/50 bg-[var(--deck-accent)]/10"
           }`}
         >
           <p className="text-xl md:text-2xl">{String(content.text || "")}</p>
@@ -224,7 +226,7 @@ const SlideContent = ({ block }: { block: Block }) => {
             <thead>
               <tr>
                 {headers.map((h, i) => (
-                  <th key={i} className="border border-border p-3 bg-muted/50 text-left font-semibold">
+                  <th key={i} className="border border-[var(--deck-border)] p-3 bg-[var(--deck-muted)]/20 text-left font-semibold">
                     {h}
                   </th>
                 ))}
@@ -234,7 +236,7 @@ const SlideContent = ({ block }: { block: Block }) => {
               {rows.map((row, ri) => (
                 <tr key={ri}>
                   {row.map((cell, ci) => (
-                    <td key={ci} className="border border-border p-3">
+                    <td key={ci} className="border border-[var(--deck-border)] p-3">
                       {cell}
                     </td>
                   ))}
@@ -254,11 +256,11 @@ const SlideContent = ({ block }: { block: Block }) => {
           {src ? (
             <img src={src} alt={alt || ""} className="max-h-[60vh] mx-auto rounded-lg" />
           ) : (
-            <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
+            <div className="w-full h-48 bg-[var(--deck-muted)]/20 rounded-lg flex items-center justify-center text-[var(--deck-muted)]">
               No image
             </div>
           )}
-          {caption && <p className="mt-4 text-muted-foreground">{caption}</p>}
+          {caption && <p className="mt-4 text-[var(--deck-muted)]">{caption}</p>}
         </div>
       );
 

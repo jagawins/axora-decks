@@ -224,3 +224,36 @@
     animation: shimmer 3s ease-in-out infinite;
   }
 }
+
+/* Presentation Themes */
+.theme-classic {
+  --deck-bg: hsl(0 0% 100%);
+  --deck-fg: hsl(222.2 84% 4.9%);
+  --deck-muted: hsl(215.4 16.3% 46.9%);
+  --deck-border: hsl(214.3 31.8% 91.4%);
+  --deck-accent: hsl(221.2 83.2% 53.3%);
+}
+
+.theme-midnight {
+  --deck-bg: hsl(222.2 84% 4.9%);
+  --deck-fg: hsl(210 40% 98%);
+  --deck-muted: hsl(215 20.2% 65.1%);
+  --deck-border: hsl(217.2 32.6% 17.5%);
+  --deck-accent: hsl(198 93% 60%);
+}
+
+.theme-sand {
+  --deck-bg: hsl(48 100% 96%);
+  --deck-fg: hsl(222.2 84% 4.9%);
+  --deck-muted: hsl(25 5.3% 44.7%);
+  --deck-border: hsl(20 5.9% 90%);
+  --deck-accent: hsl(16 90% 55%);
+}
+
+.theme-graphite {
+  --deck-bg: hsl(0 0% 96%);
+  --deck-fg: hsl(222.2 84% 4.9%);
+  --deck-muted: hsl(215.4 16.3% 46.9%);
+  --deck-border: hsl(0 0% 85%);
+  --deck-accent: hsl(222.2 47.4% 11.2%);
+}

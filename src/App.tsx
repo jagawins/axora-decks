@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Editor from "./pages/Editor";
 import Preview from "./pages/Preview";
 import PublicPreview from "./pages/PublicPreview";
+import Print from "./pages/Print";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/editor/:id" element={<Editor />} />
             <Route path="/preview/:id" element={<Preview />} />
+            <Route path="/print/:id" element={<Print />} />
             <Route path="/p/:token" element={<PublicPreview />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
