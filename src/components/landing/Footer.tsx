@@ -7,7 +7,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <img src={axoraLogo} alt="Axora" className="h-12 w-auto" />
+            <img src={axoraLogo} alt="Axora" className="h-7 w-auto" />
           </div>
 
           {/* Links */}

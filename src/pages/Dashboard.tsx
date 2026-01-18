@@ -223,7 +223,7 @@ const Dashboard = () => {
         <div className="container-wide">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-2">
-              <img src={axoraLogo} alt="Axora" className="h-10 w-auto" />
+              <img src={axoraLogo} alt="Axora" className="h-8 w-auto" />
             </div>
 
             <div className="flex items-center gap-4">
