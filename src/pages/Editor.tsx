@@ -16,6 +16,7 @@ import {
   ChevronUp,
   ChevronDown,
   Wand2,
+  Sparkles,
   FileText,
   Heading,
   List,
@@ -92,6 +93,11 @@ const Editor = () => {
   const [refineOpen, setRefineOpen] = useState(false);
   const [refineInstruction, setRefineInstruction] = useState("");
   const [refining, setRefining] = useState(false);
+
+  // AI generate state
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [generatePrompt, setGeneratePrompt] = useState("");
+  const [generating, setGenerating] = useState(false);
 
   // Add block state
   const [addBlockOpen, setAddBlockOpen] = useState(false);
@@ -296,7 +302,39 @@ const Editor = () => {
     }
   };
 
+  const handleGenerate = async () => {
+    const block = blocks.find((b) => b.id === selectedBlockId);
+    if (!block || !generatePrompt.trim()) return;
+
+    setGenerating(true);
+    try {
+      const content = await aiEngine.generateBlockContent({
+        type: block.type,
+        prompt: generatePrompt.trim(),
+      });
+
+      updateBlock(block.id, content);
+      setGenerateOpen(false);
+      setGeneratePrompt("");
+
+      toast({
+        title: "Content generated",
+        description: "AI has created new content for your block.",
+      });
+    } catch (error) {
+      console.error("Generate error:", error);
+      toast({
+        title: "Generation failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const selectedBlock = blocks.find((b) => b.id === selectedBlockId);
+
 
   if (authLoading || loading) {
     return (
@@ -452,6 +490,15 @@ const Editor = () => {
                 </div>
 
                 <Button
+                  variant="hero"
+                  className="w-full justify-start"
+                  onClick={() => setGenerateOpen(true)}
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate with AI
+                </Button>
+
+                <Button
                   variant="outline"
                   className="w-full justify-start"
                   onClick={() => setRefineOpen(true)}
@@ -585,6 +632,52 @@ const Editor = () => {
                 <>
                   <Wand2 className="h-4 w-4 mr-2" />
                   Refine
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Generate Dialog */}
+      <Dialog open={generateOpen} onOpenChange={setGenerateOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Generate with AI</DialogTitle>
+            <DialogDescription>
+              Describe what content you want to create for this {selectedBlock ? BLOCK_LABELS[selectedBlock.type].toLowerCase() : "block"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="generate-prompt">Topic or prompt</Label>
+            <Textarea
+              id="generate-prompt"
+              placeholder="e.g., Key benefits of cloud migration, Q3 sales performance metrics, Project timeline overview..."
+              value={generatePrompt}
+              onChange={(e) => setGeneratePrompt(e.target.value)}
+              className="mt-2 bg-muted/50"
+              rows={3}
+              disabled={generating}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setGenerateOpen(false)} disabled={generating}>
+              Cancel
+            </Button>
+            <Button
+              variant="hero"
+              onClick={handleGenerate}
+              disabled={!generatePrompt.trim() || generating}
+            >
+              {generating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate
                 </>
               )}
             </Button>
