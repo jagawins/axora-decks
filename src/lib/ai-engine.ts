@@ -1,4 +1,4 @@
-import { invokeFunction, type FunctionResponse } from "@/lib/supabase-function-client";
+import { invokeFunction } from "@/lib/supabase-function-client";
 
 // Consistent types
 export type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
@@ -40,32 +40,12 @@ export interface GenerateBlockContentParams {
   context?: string;
 }
 
-// Re-export for backward compatibility
-interface APIResponse<T> {
-  data: T | null;
-  error: string | null;
-  requestId?: string;
-}
-
-// Wrapper to maintain existing interface
-async function callFunction<T>(
-  functionName: string,
-  body: Record<string, unknown>
-): Promise<APIResponse<T>> {
-  const response = await invokeFunction<T>(functionName, body);
-  return {
-    data: response.data,
-    error: response.error,
-    requestId: response.requestId,
-  };
-}
-
 export const aiEngine = {
   /**
    * Generate an outline from a prompt
    */
   async generateOutline(params: GenerateOutlineParams): Promise<Outline> {
-    const response = await callFunction<{ outline: Outline; requestId?: string }>(
+    const response = await invokeFunction<{ outline: Outline; requestId?: string }>(
       "generate-outline",
       {
         topic: params.topic,
