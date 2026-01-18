@@ -43,13 +43,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -92,6 +86,96 @@ const BLOCK_LABELS: Record<BlockType, string> = {
   table: "Table",
   image: "Image",
 };
+
+/**
+ * Normalization helpers
+ * Purpose: make AI outputs consistent with your renderer expectations, and strip markdown artifacts.
+ */
+function stripMarkdown(s: string) {
+  return s
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*\*/g, "$1") // defensive: odd patterns
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/`(.*?)`/g, "$1")
+    .replace(/^#+\s+/gm, "")
+    .trim();
+}
+
+function normalizeBlockContent(type: BlockType, raw: Record<string, unknown>) {
+  const text = stripMarkdown(String(raw.text ?? raw.content ?? raw.value ?? raw.message ?? ""));
+
+  switch (type) {
+    case "heading":
+      return {
+        level: Number(raw.level ?? 2),
+        text: text || "New Heading",
+      };
+
+    case "text":
+      return {
+        text: text || "Enter your text here...",
+      };
+
+    case "callout":
+      return {
+        text: text || "Important point here",
+        icon: String(raw.icon ?? "info"),
+      };
+
+    case "two_col":
+      return {
+        left: stripMarkdown(String(raw.left ?? raw.col1 ?? raw.column1 ?? raw.a ?? "")) || "Left content",
+        right: stripMarkdown(String(raw.right ?? raw.col2 ?? raw.column2 ?? raw.b ?? "")) || "Right content",
+      };
+
+    case "list": {
+      const itemsRaw = raw.items ?? raw.bullets ?? raw.points ?? [];
+      const items = Array.isArray(itemsRaw)
+        ? itemsRaw
+            .map((x) => stripMarkdown(String(x)))
+            .map((x) => x.replace(/^[-•\d.]+\s*/, "").trim())
+            .filter(Boolean)
+        : stripMarkdown(String(itemsRaw))
+            .split("\n")
+            .map((x) => stripMarkdown(x.replace(/^[-•\d.]+\s*/, "")))
+            .filter(Boolean);
+
+      return {
+        items: items.length ? items : ["Item 1", "Item 2"],
+        ordered: Boolean(raw.ordered),
+      };
+    }
+
+    case "table": {
+      const headersRaw = raw.headers ?? [];
+      const rowsRaw = raw.rows ?? [];
+
+      const headers = Array.isArray(headersRaw)
+        ? headersRaw.map((h) => stripMarkdown(String(h))).filter(Boolean)
+        : ["Column 1", "Column 2"];
+
+      const rows =
+        Array.isArray(rowsRaw) && rowsRaw.every((r) => Array.isArray(r))
+          ? (rowsRaw as unknown[][]).map((r) => r.map((c) => stripMarkdown(String(c))))
+          : [["Data", "Data"]];
+
+      return {
+        headers: headers.length ? headers : ["Column 1", "Column 2"],
+        rows,
+      };
+    }
+
+    case "image":
+      return {
+        src: String(raw.src ?? raw.url ?? ""),
+        alt: stripMarkdown(String(raw.alt ?? "")),
+        caption: stripMarkdown(String(raw.caption ?? "")),
+      };
+
+    default:
+      return raw;
+  }
+}
 
 const Editor = () => {
   const { id: projectId } = useParams<{ id: string }>();
@@ -173,14 +257,15 @@ const Editor = () => {
         .order("order_index", { ascending: true });
 
       if (blocksError) throw blocksError;
-      
-      // Cast the blocks data to our interface
-      setBlocks((blocksData || []).map(b => ({
-        id: b.id,
-        type: b.type as BlockType,
-        content: b.content as Record<string, unknown>,
-        order_index: b.order_index,
-      })));
+
+      setBlocks(
+        (blocksData || []).map((b) => ({
+          id: b.id,
+          type: b.type as BlockType,
+          content: b.content as Record<string, unknown>,
+          order_index: b.order_index,
+        })),
+      );
     } catch (error) {
       console.error("Error fetching project:", error);
       toast({
@@ -199,7 +284,6 @@ const Editor = () => {
 
     setSaving(true);
     try {
-      // Delete existing blocks and re-insert (simpler than diffing)
       await supabase.from("blocks").delete().eq("project_id", projectId);
 
       if (blocks.length > 0) {
@@ -214,11 +298,7 @@ const Editor = () => {
         if (error) throw error;
       }
 
-      // Update project timestamp
-      await supabase
-        .from("projects")
-        .update({ updated_at: new Date().toISOString() })
-        .eq("id", projectId);
+      await supabase.from("projects").update({ updated_at: new Date().toISOString() }).eq("id", projectId);
 
       setHasUnsavedChanges(false);
       toast({
@@ -238,9 +318,7 @@ const Editor = () => {
   };
 
   const updateBlock = useCallback((blockId: string, content: Record<string, unknown>) => {
-    setBlocks((prev) =>
-      prev.map((b) => (b.id === blockId ? { ...b, content } : b))
-    );
+    setBlocks((prev) => prev.map((b) => (b.id === blockId ? { ...b, content } : b)));
     setHasUnsavedChanges(true);
   }, []);
 
@@ -259,11 +337,14 @@ const Editor = () => {
     setHasUnsavedChanges(true);
   }, []);
 
-  const deleteBlock = useCallback((blockId: string) => {
-    setBlocks((prev) => prev.filter((b) => b.id !== blockId));
-    if (selectedBlockId === blockId) setSelectedBlockId(null);
-    setHasUnsavedChanges(true);
-  }, [selectedBlockId]);
+  const deleteBlock = useCallback(
+    (blockId: string) => {
+      setBlocks((prev) => prev.filter((b) => b.id !== blockId));
+      if (selectedBlockId === blockId) setSelectedBlockId(null);
+      setHasUnsavedChanges(true);
+    },
+    [selectedBlockId],
+  );
 
   const addBlock = () => {
     const newBlock: Block = {
@@ -314,8 +395,9 @@ const Editor = () => {
         instruction: refineInstruction.trim(),
       });
 
-      // Sanitize the content before updating
-      const sanitized = sanitizeContent(refined.content);
+      let sanitized = sanitizeContent(refined.content);
+      sanitized = normalizeBlockContent(block.type, sanitized);
+
       if (block.type === "list" && Array.isArray(sanitized.items)) {
         sanitized.items = sanitizeListItems(sanitized.items);
       }
@@ -351,8 +433,9 @@ const Editor = () => {
         prompt: generatePrompt.trim(),
       });
 
-      // Sanitize the content before updating
-      const sanitized = sanitizeContent(content);
+      let sanitized = sanitizeContent(content);
+      sanitized = normalizeBlockContent(block.type, sanitized);
+
       if (block.type === "list" && Array.isArray(sanitized.items)) {
         sanitized.items = sanitizeListItems(sanitized.items);
       }
@@ -388,14 +471,9 @@ const Editor = () => {
     if (!projectId) return;
 
     try {
-      // Build the prompt with optional context
       let prompt = params.topic;
-      if (params.audience) {
-        prompt += `\n\nTarget audience: ${params.audience}`;
-      }
-      if (params.goal) {
-        prompt += `\n\nGoal: ${params.goal}`;
-      }
+      if (params.audience) prompt += `\n\nTarget audience: ${params.audience}`;
+      if (params.goal) prompt += `\n\nGoal: ${params.goal}`;
       prompt += `\n\nCreate approximately ${params.slideCount} slides.`;
 
       const result = await aiEngine.generateFromPrompt({
@@ -404,12 +482,14 @@ const Editor = () => {
         tone: params.tone,
       });
 
-      // Convert AI blocks to our format with sanitization
       const newBlocks: Block[] = result.blocks.map((b, i) => {
-        const sanitized = sanitizeContent(b.content);
+        let sanitized = sanitizeContent(b.content);
+        sanitized = normalizeBlockContent(b.type, sanitized);
+
         if (b.type === "list" && Array.isArray(sanitized.items)) {
           sanitized.items = sanitizeListItems(sanitized.items);
         }
+
         return {
           id: crypto.randomUUID(),
           type: b.type,
@@ -422,7 +502,6 @@ const Editor = () => {
       setHasUnsavedChanges(true);
       setCreateDeckOpen(false);
 
-      // Auto-save and navigate to preview
       await saveBlocksAndNavigate(newBlocks);
     } catch (error) {
       console.error("Create deck error:", error);
@@ -439,19 +518,20 @@ const Editor = () => {
     if (!projectId) return;
 
     try {
-      // Use the pasted content as both topic and prompt
       const result = await aiEngine.generateFromPrompt({
         topic: "Presentation from imported content",
         prompt: content,
         tone: "professional",
       });
 
-      // Convert AI blocks to our format with sanitization
       const newBlocks: Block[] = result.blocks.map((b, i) => {
-        const sanitized = sanitizeContent(b.content);
+        let sanitized = sanitizeContent(b.content);
+        sanitized = normalizeBlockContent(b.type, sanitized);
+
         if (b.type === "list" && Array.isArray(sanitized.items)) {
           sanitized.items = sanitizeListItems(sanitized.items);
         }
+
         return {
           id: crypto.randomUUID(),
           type: b.type,
@@ -464,7 +544,6 @@ const Editor = () => {
       setHasUnsavedChanges(true);
       setImportContentOpen(false);
 
-      // Auto-save and navigate to preview
       await saveBlocksAndNavigate(newBlocks);
     } catch (error) {
       console.error("Import content error:", error);
@@ -481,7 +560,6 @@ const Editor = () => {
     if (!projectId) return;
 
     try {
-      // Delete existing blocks and re-insert
       await supabase.from("blocks").delete().eq("project_id", projectId);
 
       if (blocksToSave.length > 0) {
@@ -496,20 +574,15 @@ const Editor = () => {
         if (error) throw error;
       }
 
-      // Update project timestamp
-      await supabase
-        .from("projects")
-        .update({ updated_at: new Date().toISOString() })
-        .eq("id", projectId);
+      await supabase.from("projects").update({ updated_at: new Date().toISOString() }).eq("id", projectId);
 
       setHasUnsavedChanges(false);
-      
+
       toast({
         title: "Deck created",
         description: "Your presentation is ready!",
       });
 
-      // Navigate to preview
       navigate(`/preview/${projectId}`);
     } catch (error) {
       console.error("Save error:", error);
@@ -540,8 +613,8 @@ const Editor = () => {
 
       toast({
         title: newShareEnabled ? "Sharing enabled" : "Sharing disabled",
-        description: newShareEnabled 
-          ? "Anyone with the link can now view this presentation." 
+        description: newShareEnabled
+          ? "Anyone with the link can now view this presentation."
           : "This presentation is now private.",
       });
     } catch (error) {
@@ -568,10 +641,7 @@ const Editor = () => {
     if (!projectId) return;
     setTheme(next);
     try {
-      const { error } = await supabase
-        .from("projects")
-        .update({ theme: next })
-        .eq("id", projectId);
+      const { error } = await supabase.from("projects").update({ theme: next }).eq("id", projectId);
 
       if (error) throw error;
       toast({ title: "Theme updated" });
@@ -610,18 +680,13 @@ const Editor = () => {
             </Button>
             <div className="flex items-center gap-2">
               <img src={axoraLogo} alt="Axora" className="h-5 w-auto" />
-              <span className="font-semibold truncate max-w-[200px]">
-                {project?.title || "Untitled"}
-              </span>
+              <span className="font-semibold truncate max-w-[200px]">{project?.title || "Untitled"}</span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {hasUnsavedChanges && (
-              <span className="text-xs text-muted-foreground">Unsaved changes</span>
-            )}
+            {hasUnsavedChanges && <span className="text-xs text-muted-foreground">Unsaved changes</span>}
 
-            {/* Generate Deck Button - Always visible */}
             <Button
               variant="outline"
               size="sm"
@@ -632,11 +697,7 @@ const Editor = () => {
               Generate Deck
             </Button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate(`/preview/${projectId}`)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigate(`/preview/${projectId}`)}>
               <Play className="h-4 w-4 mr-2" />
               Preview
             </Button>
@@ -667,20 +728,12 @@ const Editor = () => {
               PDF
             </Button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShareDialogOpen(true)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setShareDialogOpen(true)}>
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </Button>
-            <Button
-              variant="hero"
-              size="sm"
-              onClick={handleSave}
-              disabled={saving || !hasUnsavedChanges}
-            >
+
+            <Button variant="hero" size="sm" onClick={handleSave} disabled={saving || !hasUnsavedChanges}>
               {saving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -718,33 +771,38 @@ const Editor = () => {
                     <div
                       key={block.id}
                       className={`group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
-                        selectedBlockId === block.id
-                          ? "bg-accent/20 border border-accent/30"
-                          : "hover:bg-muted/50"
+                        selectedBlockId === block.id ? "bg-accent/20 border border-accent/30" : "hover:bg-muted/50"
                       }`}
                       onClick={() => setSelectedBlockId(block.id)}
                     >
                       <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="text-sm truncate flex-1">
-                        {getBlockPreview(block)}
-                      </span>
+                      <span className="text-sm truncate flex-1">{getBlockPreview(block)}</span>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100">
                         <button
-                          onClick={(e) => { e.stopPropagation(); moveBlock(block.id, "up"); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveBlock(block.id, "up");
+                          }}
                           disabled={index === 0}
                           className="p-1 hover:bg-muted rounded disabled:opacity-30"
                         >
                           <ChevronUp className="h-3 w-3" />
                         </button>
                         <button
-                          onClick={(e) => { e.stopPropagation(); moveBlock(block.id, "down"); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveBlock(block.id, "down");
+                          }}
                           disabled={index === blocks.length - 1}
                           className="p-1 hover:bg-muted rounded disabled:opacity-30"
                         >
                           <ChevronDown className="h-3 w-3" />
                         </button>
                         <button
-                          onClick={(e) => { e.stopPropagation(); deleteBlock(block.id); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteBlock(block.id);
+                          }}
                           className="p-1 hover:bg-destructive/20 rounded text-destructive"
                         >
                           <Trash2 className="h-3 w-3" />
@@ -762,7 +820,6 @@ const Editor = () => {
         <main className="flex-1 overflow-y-auto p-8">
           <div className="max-w-3xl mx-auto space-y-6">
             {blocks.length === 0 ? (
-              /* AI-First Empty State */
               <div className="text-center py-16">
                 <div className="glass-card p-8 max-w-lg mx-auto">
                   <Sparkles className="h-12 w-12 text-accent mx-auto mb-4" />
@@ -770,32 +827,20 @@ const Editor = () => {
                   <p className="text-muted-foreground mb-8">
                     Let AI help you build a professional deck in seconds, or import existing content.
                   </p>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button
-                      variant="hero"
-                      size="lg"
-                      onClick={() => setCreateDeckOpen(true)}
-                      className="gap-2"
-                    >
+                    <Button variant="hero" size="lg" onClick={() => setCreateDeckOpen(true)} className="gap-2">
                       <Sparkles className="h-5 w-5" />
                       Create Deck with AI
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={() => setImportContentOpen(true)}
-                      className="gap-2"
-                    >
+                    <Button variant="outline" size="lg" onClick={() => setImportContentOpen(true)} className="gap-2">
                       <Upload className="h-5 w-5" />
                       Import Content
                     </Button>
                   </div>
 
                   <div className="mt-8 pt-6 border-t border-border">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Or start manually
-                    </p>
+                    <p className="text-sm text-muted-foreground mb-3">Or start manually</p>
                     <Button variant="ghost" onClick={() => setAddBlockOpen(true)}>
                       <Plus className="h-4 w-4 mr-2" />
                       Add Block
@@ -829,20 +874,12 @@ const Editor = () => {
                   <p className="font-medium text-sm">{BLOCK_LABELS[selectedBlock.type]}</p>
                 </div>
 
-                <Button
-                  variant="hero"
-                  className="w-full justify-start"
-                  onClick={() => setGenerateOpen(true)}
-                >
+                <Button variant="hero" className="w-full justify-start" onClick={() => setGenerateOpen(true)}>
                   <Sparkles className="h-4 w-4 mr-2" />
                   Generate with AI
                 </Button>
 
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => setRefineOpen(true)}
-                >
+                <Button variant="outline" className="w-full justify-start" onClick={() => setRefineOpen(true)}>
                   <Wand2 className="h-4 w-4 mr-2" />
                   Refine with AI
                 </Button>
@@ -887,9 +924,7 @@ const Editor = () => {
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                Select a block to use AI actions
-              </p>
+              <p className="text-sm text-muted-foreground text-center py-8">Select a block to use AI actions</p>
             )}
           </div>
         </aside>
@@ -938,9 +973,7 @@ const Editor = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Refine with AI</DialogTitle>
-            <DialogDescription>
-              Tell AI how to improve this block
-            </DialogDescription>
+            <DialogDescription>Tell AI how to improve this block</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Label htmlFor="instruction">Instruction</Label>
@@ -958,11 +991,7 @@ const Editor = () => {
             <Button variant="outline" onClick={() => setRefineOpen(false)} disabled={refining}>
               Cancel
             </Button>
-            <Button
-              variant="hero"
-              onClick={handleRefine}
-              disabled={!refineInstruction.trim() || refining}
-            >
+            <Button variant="hero" onClick={handleRefine} disabled={!refineInstruction.trim() || refining}>
               {refining ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -985,7 +1014,8 @@ const Editor = () => {
           <DialogHeader>
             <DialogTitle>Generate with AI</DialogTitle>
             <DialogDescription>
-              Describe what content you want to create for this {selectedBlock ? BLOCK_LABELS[selectedBlock.type].toLowerCase() : "block"}
+              Describe what content you want to create for this{" "}
+              {selectedBlock ? BLOCK_LABELS[selectedBlock.type].toLowerCase() : "block"}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -1004,11 +1034,7 @@ const Editor = () => {
             <Button variant="outline" onClick={() => setGenerateOpen(false)} disabled={generating}>
               Cancel
             </Button>
-            <Button
-              variant="hero"
-              onClick={handleGenerate}
-              disabled={!generatePrompt.trim() || generating}
-            >
+            <Button variant="hero" onClick={handleGenerate} disabled={!generatePrompt.trim() || generating}>
               {generating ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -1031,7 +1057,7 @@ const Editor = () => {
           <DialogHeader>
             <DialogTitle>Share Presentation</DialogTitle>
             <DialogDescription>
-              {shareEnabled 
+              {shareEnabled
                 ? "Anyone with the link can view this presentation."
                 : "Enable link sharing to let anyone view this presentation."}
             </DialogDescription>
@@ -1042,16 +1068,10 @@ const Editor = () => {
                 <Share2 className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="font-medium text-sm">Public link sharing</p>
-                  <p className="text-xs text-muted-foreground">
-                    {shareEnabled ? "Enabled" : "Disabled"}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{shareEnabled ? "Enabled" : "Disabled"}</p>
                 </div>
               </div>
-              <Button
-                variant={shareEnabled ? "outline" : "hero"}
-                size="sm"
-                onClick={toggleSharing}
-              >
+              <Button variant={shareEnabled ? "outline" : "hero"} size="sm" onClick={toggleSharing}>
                 {shareEnabled ? "Disable" : "Enable"}
               </Button>
             </div>
@@ -1060,11 +1080,7 @@ const Editor = () => {
               <div className="space-y-2">
                 <Label>Share link</Label>
                 <div className="flex gap-2">
-                  <Input
-                    readOnly
-                    value={`${window.location.origin}/p/${shareToken}`}
-                    className="bg-muted/50 text-sm"
-                  />
+                  <Input readOnly value={`${window.location.origin}/p/${shareToken}`} className="bg-muted/50 text-sm" />
                   <Button variant="outline" size="icon" onClick={copyShareLink}>
                     <Copy className="h-4 w-4" />
                   </Button>
@@ -1081,18 +1097,10 @@ const Editor = () => {
       </Dialog>
 
       {/* AI Deck Generation Modal */}
-      <CreateDeckModal
-        open={createDeckOpen}
-        onOpenChange={setCreateDeckOpen}
-        onGenerate={handleCreateDeck}
-      />
+      <CreateDeckModal open={createDeckOpen} onOpenChange={setCreateDeckOpen} onGenerate={handleCreateDeck} />
 
       {/* Import Content Modal */}
-      <ImportContentModal
-        open={importContentOpen}
-        onOpenChange={setImportContentOpen}
-        onImport={handleImportContent}
-      />
+      <ImportContentModal open={importContentOpen} onOpenChange={setImportContentOpen} onImport={handleImportContent} />
     </div>
   );
 };
@@ -1105,16 +1113,18 @@ function getBlockPreview(block: Block): string {
     case "text":
     case "callout":
       return String(content.text || "Empty").slice(0, 30);
-    case "list":
+    case "list": {
       const items = content.items as string[] | undefined;
       return items?.[0]?.slice(0, 25) || "List";
+    }
     case "two_col":
       return String(content.left || "Two columns").slice(0, 25);
-    case "table":
+    case "table": {
       const headers = content.headers as string[] | undefined;
       return headers?.join(", ").slice(0, 25) || "Table";
+    }
     case "image":
-      return content.alt as string || "Image";
+      return (content.alt as string) || "Image";
     default:
       return BLOCK_LABELS[block.type] || "Block";
   }
@@ -1168,9 +1178,7 @@ const BlockRenderer = ({ block, isSelected, onSelect, onUpdate }: BlockRendererP
         <div className="space-y-2">
           {((content.items as string[]) || []).map((item, idx) => (
             <div key={idx} className="flex items-start gap-2">
-              <span className="text-muted-foreground mt-1">
-                {content.ordered ? `${idx + 1}.` : "•"}
-              </span>
+              <span className="text-muted-foreground mt-1">{content.ordered ? `${idx + 1}.` : "•"}</span>
               <Input
                 value={item}
                 onChange={(e) => {
@@ -1285,11 +1293,7 @@ const BlockRenderer = ({ block, isSelected, onSelect, onUpdate }: BlockRendererP
             className="bg-muted/30"
           />
           {content.src && (
-            <img
-              src={String(content.src)}
-              alt={String(content.alt || "")}
-              className="max-w-full rounded-lg"
-            />
+            <img src={String(content.src)} alt={String(content.alt || "")} className="max-w-full rounded-lg" />
           )}
           <Input
             value={String(content.caption || "")}
