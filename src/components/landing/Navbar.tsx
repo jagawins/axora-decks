@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import axoraLogo from "@/assets/axora-logo-cropped.png";
+import axoraLogo from "@/assets/axora-logo.png";
 <Link to="/" className="flex items-center gap-2 shrink-0">
   <img src={axoraLogo} alt="Axora" className="h-10 w-auto" />
 </Link>;
