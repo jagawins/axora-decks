@@ -1,0 +1,111 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+interface ReqBody {
+  token: string;
+}
+
+function json(status: number, body: Record<string, unknown>) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+serve(async (req) => {
+  const requestId = crypto.randomUUID();
+
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  if (req.method !== "POST") {
+    return json(405, { error: "Method not allowed", requestId });
+  }
+
+  try {
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+    if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+      console.error(`[${requestId}] Missing SUPABASE_URL or SERVICE_ROLE_KEY`);
+      return json(503, { error: "Service not configured", requestId });
+    }
+
+    const body = (await req.json()) as ReqBody;
+
+    if (!body?.token || typeof body.token !== "string") {
+      return json(400, { error: "token is required", requestId });
+    }
+
+    const token = body.token.trim();
+    
+    // Accept UUID token only
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRe.test(token)) {
+      return json(400, { error: "token must be a valid UUID", requestId });
+    }
+
+    console.log(`[${requestId}] Fetching shared project with token: ${token.slice(0, 8)}...`);
+
+    // Fetch project by token (share must be enabled)
+    const projRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/projects?select=id,title,description,share_enabled,share_token&share_token=eq.${token}&limit=1`,
+      {
+        method: "GET",
+        headers: {
+          apikey: SERVICE_ROLE_KEY,
+          Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+        },
+      }
+    );
+
+    if (!projRes.ok) {
+      console.error(`[${requestId}] Upstream error fetching project: ${projRes.status}`);
+      return json(502, { error: "Upstream error fetching project", requestId });
+    }
+
+    const projects = await projRes.json();
+    const project = projects?.[0];
+
+    if (!project || project.share_enabled !== true) {
+      console.log(`[${requestId}] Shared project not found or sharing disabled`);
+      return json(404, { error: "Shared project not found", requestId });
+    }
+
+    // Fetch blocks for that project
+    const blocksRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/blocks?select=id,type,content,order_index&project_id=eq.${project.id}&order=order_index.asc`,
+      {
+        method: "GET",
+        headers: {
+          apikey: SERVICE_ROLE_KEY,
+          Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+        },
+      }
+    );
+
+    if (!blocksRes.ok) {
+      console.error(`[${requestId}] Upstream error fetching blocks: ${blocksRes.status}`);
+      return json(502, { error: "Upstream error fetching blocks", requestId });
+    }
+
+    const blocks = await blocksRes.json();
+
+    console.log(`[${requestId}] Successfully fetched shared project with ${blocks.length} blocks`);
+
+    return json(200, {
+      project: { id: project.id, title: project.title, description: project.description },
+      blocks,
+      requestId,
+    });
+  } catch (e) {
+    console.error(`[${requestId}] Unexpected error:`, e);
+    return json(500, { error: "Internal server error", requestId });
+  }
+});

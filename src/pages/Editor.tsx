@@ -23,6 +23,11 @@ import {
   Columns,
   Table,
   Image,
+  Play,
+  Share2,
+  Link,
+  Copy,
+  Check,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axoraLogo from "@/assets/axora-logo.png";
@@ -103,6 +108,11 @@ const Editor = () => {
   const [addBlockOpen, setAddBlockOpen] = useState(false);
   const [newBlockType, setNewBlockType] = useState<BlockType>("text");
 
+  // Share state
+  const [shareEnabled, setShareEnabled] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
@@ -122,7 +132,7 @@ const Editor = () => {
     try {
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
-        .select("id, title, description")
+        .select("id, title, description, share_enabled, share_token")
         .eq("id", projectId)
         .maybeSingle();
 
@@ -133,6 +143,8 @@ const Editor = () => {
       }
 
       setProject(projectData);
+      setShareEnabled(!!projectData.share_enabled);
+      setShareToken(projectData.share_token ? String(projectData.share_token) : null);
 
       const { data: blocksData, error: blocksError } = await supabase
         .from("blocks")
@@ -333,8 +345,50 @@ const Editor = () => {
     }
   };
 
-  const selectedBlock = blocks.find((b) => b.id === selectedBlockId);
+  const toggleSharing = async () => {
+    if (!projectId) return;
 
+    try {
+      const newShareEnabled = !shareEnabled;
+      const { data, error } = await supabase
+        .from("projects")
+        .update({ share_enabled: newShareEnabled })
+        .eq("id", projectId)
+        .select("share_enabled, share_token")
+        .single();
+
+      if (error) throw error;
+
+      setShareEnabled(!!data.share_enabled);
+      setShareToken(String(data.share_token));
+
+      toast({
+        title: newShareEnabled ? "Sharing enabled" : "Sharing disabled",
+        description: newShareEnabled 
+          ? "Anyone with the link can now view this presentation." 
+          : "This presentation is now private.",
+      });
+    } catch (error) {
+      console.error("Error toggling share:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update sharing settings.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const copyShareLink = async () => {
+    if (!shareToken) return;
+    const url = `${window.location.origin}/p/${shareToken}`;
+    await navigator.clipboard.writeText(url);
+    toast({
+      title: "Link copied",
+      description: "Share link copied to clipboard.",
+    });
+  };
+
+  const selectedBlock = blocks.find((b) => b.id === selectedBlockId);
 
   if (authLoading || loading) {
     return (
@@ -365,6 +419,22 @@ const Editor = () => {
             {hasUnsavedChanges && (
               <span className="text-xs text-muted-foreground">Unsaved changes</span>
             )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(`/preview/${projectId}`)}
+            >
+              <Play className="h-4 w-4 mr-2" />
+              Preview
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShareDialogOpen(true)}
+            >
+              <Share2 className="h-4 w-4 mr-2" />
+              Share
+            </Button>
             <Button
               variant="hero"
               size="sm"
@@ -680,6 +750,61 @@ const Editor = () => {
                   Generate
                 </>
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Share Dialog */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share Presentation</DialogTitle>
+            <DialogDescription>
+              {shareEnabled 
+                ? "Anyone with the link can view this presentation."
+                : "Enable link sharing to let anyone view this presentation."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
+              <div className="flex items-center gap-3">
+                <Share2 className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="font-medium text-sm">Public link sharing</p>
+                  <p className="text-xs text-muted-foreground">
+                    {shareEnabled ? "Enabled" : "Disabled"}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant={shareEnabled ? "outline" : "hero"}
+                size="sm"
+                onClick={toggleSharing}
+              >
+                {shareEnabled ? "Disable" : "Enable"}
+              </Button>
+            </div>
+
+            {shareEnabled && shareToken && (
+              <div className="space-y-2">
+                <Label>Share link</Label>
+                <div className="flex gap-2">
+                  <Input
+                    readOnly
+                    value={`${window.location.origin}/p/${shareToken}`}
+                    className="bg-muted/50 text-sm"
+                  />
+                  <Button variant="outline" size="icon" onClick={copyShareLink}>
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShareDialogOpen(false)}>
+              Done
             </Button>
           </DialogFooter>
         </DialogContent>
