@@ -102,32 +102,95 @@ serve(async (req) => {
 
     const systemPrompt = `You are an expert content editor for executive presentations.
 
-Block types and content structure:
-- heading: { "level": 1|2|3, "text": "..." }
-- text: { "text": "..." }
-- list: { "items": ["..."], "ordered": false }
-- callout: { "text": "...", "icon": "info"|"warning"|"success" }
-- two_col: { "left": "...", "right": "..." }
-- table: { "headers": [...], "rows": [[...]] }
-- image: { "src": "...", "alt": "...", "caption": "..." }
+Block types and their content structure:
+- heading: { "level": number (1, 2, or 3), "text": string }
+- text: { "text": string }
+- list: { "items": array of strings, "ordered": boolean }
+- callout: { "text": string, "icon": "info" | "warning" | "success" }
+- two_col: { "left": string, "right": string }
+- table: { "headers": array of strings, "rows": array of array of strings }
+- image: { "src": string, "alt": string, "caption": string }
 
 Guidelines:
-- Maintain block type unless explicitly asked to change
+- Maintain the block type (${block!.type})
 - Keep professional executive tone
 - Be concise but impactful
-- Follow instructions precisely
+- Follow the user's instruction precisely
+- ALWAYS include the required content fields based on block type`;
 
-You MUST call the update_block function. If you cannot, return ONLY valid JSON - no markdown:
-{ "type": "...", "content": {...} }`;
-
-    const userPrompt = `Refine this ${block!.type} block:
+    const userPrompt = `Refine this ${block!.type} block based on the instruction.
 
 Current content:
 ${JSON.stringify(block!.content, null, 2)}
 
-Instruction: ${instruction}
+Instruction: "${instruction}"
 
-Return the updated block.`;
+Update the content according to the instruction. For a ${block!.type} block, the content must include:
+${block!.type === "text" ? '{ "text": "your refined text here" }' : ''}
+${block!.type === "heading" ? '{ "level": 1|2|3, "text": "your refined heading" }' : ''}
+${block!.type === "list" ? '{ "items": ["item1", "item2", ...], "ordered": true/false }' : ''}
+${block!.type === "callout" ? '{ "text": "your message", "icon": "info"|"warning"|"success" }' : ''}
+${block!.type === "two_col" ? '{ "left": "left content", "right": "right content" }' : ''}
+${block!.type === "table" ? '{ "headers": ["col1", "col2"], "rows": [["data1", "data2"]] }' : ''}
+${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "caption" }' : ''}`;
+
+    // Build content schema based on block type
+    const contentSchemas: Record<string, object> = {
+      text: {
+        type: "object",
+        properties: { text: { type: "string", description: "The text content" } },
+        required: ["text"]
+      },
+      heading: {
+        type: "object",
+        properties: {
+          level: { type: "number", description: "Heading level: 1, 2, or 3" },
+          text: { type: "string", description: "The heading text" }
+        },
+        required: ["level", "text"]
+      },
+      list: {
+        type: "object",
+        properties: {
+          items: { type: "array", items: { type: "string" }, description: "List items" },
+          ordered: { type: "boolean", description: "Whether list is ordered (numbered)" }
+        },
+        required: ["items", "ordered"]
+      },
+      callout: {
+        type: "object",
+        properties: {
+          text: { type: "string", description: "Callout message" },
+          icon: { type: "string", enum: ["info", "warning", "success"], description: "Icon type" }
+        },
+        required: ["text", "icon"]
+      },
+      two_col: {
+        type: "object",
+        properties: {
+          left: { type: "string", description: "Left column content" },
+          right: { type: "string", description: "Right column content" }
+        },
+        required: ["left", "right"]
+      },
+      table: {
+        type: "object",
+        properties: {
+          headers: { type: "array", items: { type: "string" }, description: "Column headers" },
+          rows: { type: "array", items: { type: "array", items: { type: "string" } }, description: "Table rows" }
+        },
+        required: ["headers", "rows"]
+      },
+      image: {
+        type: "object",
+        properties: {
+          src: { type: "string", description: "Image URL" },
+          alt: { type: "string", description: "Alt text" },
+          caption: { type: "string", description: "Caption text" }
+        },
+        required: ["src", "alt", "caption"]
+      }
+    };
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -146,12 +209,16 @@ Return the updated block.`;
             type: "function",
             function: {
               name: "update_block",
-              description: "Update block content based on instruction",
+              description: `Update the ${block!.type} block content. Must include all required fields for this block type.`,
               parameters: {
                 type: "object",
                 properties: {
-                  type: { type: "string", enum: VALID_BLOCK_TYPES as unknown as string[] },
-                  content: { type: "object" }
+                  type: { 
+                    type: "string", 
+                    enum: [block!.type],
+                    description: "Block type - must be " + block!.type
+                  },
+                  content: contentSchemas[block!.type] || { type: "object" }
                 },
                 required: ["type", "content"]
               }
@@ -186,24 +253,32 @@ Return the updated block.`;
     }
 
     const data = await response.json();
-    console.log(`[${requestId}] AI response received`);
+    console.log(`[${requestId}] AI response received:`, JSON.stringify(data, null, 2));
 
     // Try tool call first
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (toolCall?.function?.arguments) {
       try {
         const updatedBlock = JSON.parse(toolCall.function.arguments);
-        const result: Block = {
-          type: updatedBlock.type as Block["type"],
-          content: updatedBlock.content,
-          order_index: block!.order_index || 0,
-        };
+        console.log(`[${requestId}] Parsed tool call:`, JSON.stringify(updatedBlock, null, 2));
+        
+        // Validate content exists and is not empty
+        if (!updatedBlock.content || Object.keys(updatedBlock.content).length === 0) {
+          console.error(`[${requestId}] Empty content received, using original block content`);
+          // Fall through to fallback
+        } else {
+          const result: Block = {
+            type: updatedBlock.type as Block["type"],
+            content: updatedBlock.content,
+            order_index: block!.order_index || 0,
+          };
 
-        console.log(`[${requestId}] Block refined successfully`);
-        return new Response(
-          JSON.stringify({ block: result, requestId }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+          console.log(`[${requestId}] Block refined successfully:`, JSON.stringify(result.content));
+          return new Response(
+            JSON.stringify({ block: result, requestId }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
       } catch (parseError) {
         console.error(`[${requestId}] Failed to parse tool call:`, parseError);
       }
@@ -212,26 +287,32 @@ Return the updated block.`;
     // Fallback: try content
     const content = data.choices?.[0]?.message?.content;
     if (content) {
+      console.log(`[${requestId}] Trying content fallback:`, content);
       try {
         const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
         const updatedBlock = JSON.parse(cleanContent);
-        const result: Block = {
-          type: updatedBlock.type as Block["type"],
-          content: updatedBlock.content,
-          order_index: block!.order_index || 0,
-        };
+        
+        if (!updatedBlock.content || Object.keys(updatedBlock.content).length === 0) {
+          console.error(`[${requestId}] Empty content in fallback`);
+        } else {
+          const result: Block = {
+            type: updatedBlock.type as Block["type"],
+            content: updatedBlock.content,
+            order_index: block!.order_index || 0,
+          };
 
-        console.log(`[${requestId}] Block refined (fallback)`);
-        return new Response(
-          JSON.stringify({ block: result, requestId }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+          console.log(`[${requestId}] Block refined (fallback):`, JSON.stringify(result.content));
+          return new Response(
+            JSON.stringify({ block: result, requestId }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
       } catch (parseError) {
         console.error(`[${requestId}] Failed to parse content fallback:`, parseError);
       }
     }
 
-    console.error(`[${requestId}] No valid parseable response`);
+    console.error(`[${requestId}] No valid parseable response, raw data:`, JSON.stringify(data));
     return new Response(
       JSON.stringify({ error: "Failed to refine block. Please try again.", requestId }),
       { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
