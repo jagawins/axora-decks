@@ -407,13 +407,13 @@ const Editor = () => {
       setRefineInstruction("");
 
       toast({
-        title: "Block refined",
-        description: "AI has updated your content.",
+        title: "Block rewritten",
+        description: "Agent updated this block only. No other changes made.",
       });
     } catch (error) {
-      console.error("Refine error:", error);
+      console.error("Agent edit error:", error);
       toast({
-        title: "Refine failed",
+        title: "Agent edit failed",
         description: error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
@@ -882,44 +882,58 @@ const Editor = () => {
 
                 <Button variant="outline" className="w-full justify-start" onClick={() => setRefineOpen(true)}>
                   <Wand2 className="h-4 w-4 mr-2" />
-                  Refine with AI
+                  Agent Edit
                 </Button>
+                <p className="text-xs text-muted-foreground px-1">
+                  Rewrites selected block only
+                </p>
 
                 <div className="pt-4 border-t border-border">
-                  <p className="text-xs text-muted-foreground mb-2">Quick actions</p>
-                  <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground mb-2">Quick edits (block only)</p>
+                  <div className="space-y-1">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full justify-start text-sm"
+                      className="w-full justify-start text-sm h-8"
                       onClick={() => {
-                        setRefineInstruction("Make it more concise");
+                        setRefineInstruction("Make it more concise and punchy");
                         setRefineOpen(true);
                       }}
                     >
-                      Shorten
+                      ✂️ Shorten
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full justify-start text-sm"
+                      className="w-full justify-start text-sm h-8"
                       onClick={() => {
-                        setRefineInstruction("Expand with more detail");
+                        setRefineInstruction("Expand with more detail and examples");
                         setRefineOpen(true);
                       }}
                     >
-                      Expand
+                      📝 Expand
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full justify-start text-sm"
+                      className="w-full justify-start text-sm h-8"
                       onClick={() => {
-                        setRefineInstruction("Make the tone more professional");
+                        setRefineInstruction("Make the tone more professional and executive");
                         setRefineOpen(true);
                       }}
                     >
-                      Professional tone
+                      👔 Professional
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-sm h-8"
+                      onClick={() => {
+                        setRefineInstruction("Simplify the language for a general audience");
+                        setRefineOpen(true);
+                      }}
+                    >
+                      💡 Simplify
                     </Button>
                   </div>
                 </div>
@@ -969,15 +983,39 @@ const Editor = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Refine Dialog */}
+      {/* Agent Edit Dialog - Block-scoped refinement */}
       <Dialog open={refineOpen} onOpenChange={setRefineOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Refine with AI</DialogTitle>
-            <DialogDescription>Tell AI how to improve this block</DialogDescription>
+            <DialogTitle className="flex items-center gap-2">
+              <Wand2 className="h-5 w-5 text-accent" />
+              Agent Edit
+            </DialogTitle>
+            <DialogDescription>
+              AI will rewrite only the selected block. No other changes will be made to your deck.
+            </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <Label htmlFor="instruction">Instruction</Label>
+          
+          {selectedBlock && (
+            <div className="rounded-lg bg-muted/50 border border-border p-3 my-2">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground">Scope:</span>
+                <span className="font-medium flex items-center gap-1.5">
+                  {(() => {
+                    const Icon = BLOCK_ICONS[selectedBlock.type];
+                    return <Icon className="h-3.5 w-3.5" />;
+                  })()}
+                  {BLOCK_LABELS[selectedBlock.type]}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1 truncate">
+                "{getBlockPreview(selectedBlock)}"
+              </p>
+            </div>
+          )}
+          
+          <div className="py-2">
+            <Label htmlFor="instruction">How should AI rewrite this block?</Label>
             <Textarea
               id="instruction"
               placeholder="e.g., Make it more persuasive, add statistics, simplify the language..."
@@ -988,7 +1026,11 @@ const Editor = () => {
               disabled={refining}
             />
           </div>
-          <DialogFooter>
+          
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <p className="text-xs text-muted-foreground mr-auto hidden sm:block">
+              Only this block will be modified
+            </p>
             <Button variant="outline" onClick={() => setRefineOpen(false)} disabled={refining}>
               Cancel
             </Button>
@@ -996,12 +1038,12 @@ const Editor = () => {
               {refining ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Refining...
+                  Rewriting...
                 </>
               ) : (
                 <>
                   <Wand2 className="h-4 w-4 mr-2" />
-                  Refine
+                  Rewrite Block
                 </>
               )}
             </Button>
@@ -1106,26 +1148,48 @@ const Editor = () => {
   );
 };
 
-// Helper function for block preview text
+// Helper function for block preview text - renders actual content for sidebar labels
 function getBlockPreview(block: Block): string {
   const content = block.content;
   switch (block.type) {
-    case "heading":
-    case "text":
-    case "callout":
-      return String(content.text || "Empty").slice(0, 30);
+    case "heading": {
+      const text = String(content.text || "").trim();
+      if (!text || text === "New Heading") return "Heading";
+      return text.slice(0, 35) + (text.length > 35 ? "…" : "");
+    }
+    case "text": {
+      const text = String(content.text || "").trim();
+      if (!text || text === "Enter your text here...") return "Text block";
+      return text.slice(0, 35) + (text.length > 35 ? "…" : "");
+    }
+    case "callout": {
+      const text = String(content.text || "").trim();
+      if (!text || text === "Important point here") return "Callout";
+      return text.slice(0, 35) + (text.length > 35 ? "…" : "");
+    }
     case "list": {
       const items = content.items as string[] | undefined;
-      return items?.[0]?.slice(0, 25) || "List";
+      if (!items || items.length === 0) return "List";
+      const firstItem = items[0]?.trim();
+      if (!firstItem || firstItem === "Item 1") return `List (${items.length} items)`;
+      return firstItem.slice(0, 30) + (items.length > 1 ? ` +${items.length - 1}` : "");
     }
-    case "two_col":
-      return String(content.left || "Two columns").slice(0, 25);
+    case "two_col": {
+      const left = String(content.left || "").trim();
+      if (!left || left === "Left content") return "Two columns";
+      return left.slice(0, 30) + "…";
+    }
     case "table": {
       const headers = content.headers as string[] | undefined;
-      return headers?.join(", ").slice(0, 25) || "Table";
+      const rows = content.rows as string[][] | undefined;
+      if (!headers || headers.length === 0) return "Table";
+      return `Table: ${headers.slice(0, 2).join(", ")}${headers.length > 2 ? "…" : ""} (${rows?.length || 0} rows)`;
     }
-    case "image":
-      return (content.alt as string) || "Image";
+    case "image": {
+      const alt = String(content.alt || "").trim();
+      const caption = String(content.caption || "").trim();
+      return alt || caption || "Image";
+    }
     default:
       return BLOCK_LABELS[block.type] || "Block";
   }
