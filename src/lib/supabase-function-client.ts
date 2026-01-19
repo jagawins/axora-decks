@@ -8,7 +8,7 @@ export type FunctionResponse<T> = {
   requestId?: string;
 };
 
-function safeJsonParse(text: string): any | null {
+function safeJsonParse(text: string): Record<string, unknown> | null {
   try {
     return JSON.parse(text);
   } catch {
@@ -27,41 +27,61 @@ export async function invokeFunction<T>(
       headers: options?.headers,
     });
 
+    // Handle Supabase SDK error object (not thrown)
     if (error) {
-      // This is usually generic. Return it, but keep status as best effort.
-      const status = (error as any)?.status ?? 500;
-      return { data: null, error: error.message ?? "Function invocation failed", status };
+      return {
+        data: null,
+        error: error.message ?? "Function invocation failed",
+        status: 500,
+      };
     }
 
     // Some functions return { error: "...", requestId?: "..." } as 200
-    if (data && typeof data === "object" && "error" in (data as any) && (data as any).error) {
+    if (data && typeof data === "object" && "error" in data && data.error) {
       return {
         data: null,
-        error: String((data as any).error),
+        error: String(data.error),
         status: 400,
-        requestId: (data as any).requestId,
+        requestId: (data as Record<string, unknown>).requestId as string | undefined,
       };
     }
 
-    return { data: data as T, error: null, status: 200, requestId: (data as any)?.requestId };
-  } catch (err: any) {
-    const name = err?.name;
+    return {
+      data: data as T,
+      error: null,
+      status: 200,
+      requestId: (data as Record<string, unknown>)?.requestId as string | undefined,
+    };
+  } catch (err: unknown) {
+    const error = err as Error & { name?: string; context?: Response };
+    const name = error?.name;
 
-    if (name === "FunctionsHttpError" && err?.context) {
-      const res: Response = err.context;
+    // FunctionsHttpError: read the Response body from err.context
+    if (name === "FunctionsHttpError" && error.context) {
+      const res: Response = error.context;
       const status = res.status ?? 500;
-      const text = await res.text().catch(() => "");
-      const parsed = safeJsonParse(text);
 
-      return {
-        data: null,
-        error:
-          (parsed && (parsed.error || parsed.message)) ||
-          text ||
-          `${functionName} failed with status ${status}`,
-        status,
-        requestId: parsed?.requestId,
-      };
+      try {
+        const text = await res.text();
+        const parsed = safeJsonParse(text);
+
+        return {
+          data: null,
+          error:
+            (parsed?.error as string) ||
+            (parsed?.message as string) ||
+            text ||
+            `${functionName} failed with status ${status}`,
+          status,
+          requestId: parsed?.requestId as string | undefined,
+        };
+      } catch {
+        return {
+          data: null,
+          error: `${functionName} failed with status ${status}`,
+          status,
+        };
+      }
     }
 
     if (name === "FunctionsRelayError") {
@@ -72,6 +92,6 @@ export async function invokeFunction<T>(
       return { data: null, error: "Network error connecting to edge function", status: 0 };
     }
 
-    return { data: null, error: err?.message ?? "Unknown error", status: 500 };
+    return { data: null, error: error?.message ?? "Unknown error", status: 500 };
   }
 }
