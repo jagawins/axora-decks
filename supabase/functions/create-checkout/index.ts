@@ -55,6 +55,18 @@ serve(async (req) => {
     }
 
     const origin = req.headers.get("origin") || "http://localhost:5173";
+    
+    // Define trial-eligible price IDs (Pro and Team plans)
+    const trialEligiblePriceIds = [
+      "price_1Sr8V3Q6moo5x0SK85qbutky", // Pro monthly
+      "price_1Sr8VnQ6moo5x0SKOtT54UPI", // Pro yearly
+      "price_1Sr8WEQ6moo5x0SKQr2wz73w", // Team monthly
+      "price_1Sr8X2Q6moo5x0SKwpWZWe8M", // Team yearly
+    ];
+    
+    const isTrialEligible = trialEligiblePriceIds.includes(priceId);
+    logStep("Trial eligibility check", { priceId, isTrialEligible });
+    
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -65,6 +77,9 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
+      subscription_data: isTrialEligible ? {
+        trial_period_days: 14,
+      } : undefined,
       success_url: `${origin}/dashboard?checkout=success`,
       cancel_url: `${origin}/dashboard?checkout=canceled`,
     });

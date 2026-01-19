@@ -47,10 +47,11 @@ const Pricing = () => {
         "Advanced themes",
         "Priority AI processing"
       ],
-      cta: "Start Pro",
+      cta: "Start 14-Day Free Trial",
       featured: true,
       tier: "pro" as const,
       perUser: false,
+      hasTrial: true,
     },
     {
       name: "Team",
@@ -65,10 +66,11 @@ const Pricing = () => {
         "Centralized billing",
         "Admin dashboard"
       ],
-      cta: "Start Team",
+      cta: "Start 14-Day Free Trial",
       featured: false,
       tier: "team" as const,
       perUser: true,
+      hasTrial: true,
     }
   ];
 
@@ -193,9 +195,12 @@ const Pricing = () => {
                     </span>
                   </div>
                   {isAnnual && plan.yearlySavings && (
-                    <p className="text-xs text-accent font-medium mb-4">{plan.yearlySavings}</p>
+                    <p className="text-xs text-accent font-medium">{plan.yearlySavings}</p>
                   )}
-                  {!plan.yearlySavings && <div className="mb-4" />}
+                  {'hasTrial' in plan && plan.hasTrial && (
+                    <p className="text-xs text-success font-medium mt-1">14-day free trial included</p>
+                  )}
+                  {!plan.yearlySavings && !('hasTrial' in plan && plan.hasTrial) && <div className="mb-4" />}
                   
                   <ul className="space-y-3 mb-8">
                     {plan.features.map((feature, j) => (

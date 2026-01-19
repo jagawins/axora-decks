@@ -39,11 +39,12 @@ const plans = [
       "Advanced AI actions",
       "Priority support"
     ],
-    cta: "Start Pro",
+    cta: "Start 14-Day Free Trial",
     variant: "hero" as const,
     popular: true,
     tier: "pro" as const,
     perUser: false,
+    hasTrial: true,
   },
   {
     name: "Team",
@@ -58,11 +59,12 @@ const plans = [
       "Centralized billing",
       "Admin dashboard"
     ],
-    cta: "Start Team",
+    cta: "Start 14-Day Free Trial",
     variant: "outline" as const,
     popular: false,
     tier: "team" as const,
     perUser: true,
+    hasTrial: true,
   }
 ];
 
@@ -202,6 +204,9 @@ const Pricing = () => {
                 </div>
                 {isAnnual && plan.yearlySavings && (
                   <p className="text-xs text-accent font-medium">{plan.yearlySavings}</p>
+                )}
+                {plan.hasTrial && (
+                  <p className="text-xs text-success font-medium mt-1">14-day free trial included</p>
                 )}
                 <p className="text-sm text-muted-foreground mt-2">{plan.description}</p>
               </div>
