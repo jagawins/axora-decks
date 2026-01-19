@@ -52,9 +52,9 @@ const Hero = () => {
 
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up animation-delay-300">
-            <Link to="/auth">
+            <Link to="/create">
               <Button variant="hero" size="xl" className="group">
-                Try AXOR Free
+                Create with AI
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
