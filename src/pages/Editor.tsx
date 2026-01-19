@@ -34,7 +34,7 @@ import {
   Upload,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import axoraIcon from "@/assets/axora-icon.svg";
+import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
 import {
   Dialog,
   DialogContent,
@@ -678,8 +678,9 @@ const Editor = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="flex items-center gap-2">
-              <img src={axoraIcon} alt="AXORA" className="h-5 w-5" />
+            <div className="flex items-center gap-3">
+              <img src={axoraWordmark} alt="AXORA" className="h-4 w-auto" />
+              <span className="text-muted-foreground">|</span>
               <span className="font-semibold truncate max-w-[200px]">{project?.title || "Untitled"}</span>
             </div>
           </div>
