@@ -36,10 +36,18 @@ const Hero = () => {
             PowerPoint decks in minutes
           </h1>
 
-          {/* Subheadline */}
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
-            AXOR transforms unstructured thinking into polished, board-ready presentations. 
-            Designed for leaders who need clarity, speed, and precision—not slides full of noise.
+          {/* Subheadline with SEO internal links */}
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-4 leading-relaxed animate-fade-in-up animation-delay-200">
+            Build executive-ready presentations with structured AI.
+          </p>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
+            Explore our{" "}
+            <Link to="/ai-deck-generator" className="text-accent hover:underline">AI deck generator</Link>
+            , see{" "}
+            <Link to="/gamma-alternative" className="text-accent hover:underline">why teams switch from Gamma</Link>
+            , or generate{" "}
+            <Link to="/powerpoint-ai" className="text-accent hover:underline">PowerPoint-ready slides</Link>
+            {" "}in minutes.
           </p>
 
           {/* CTA buttons */}
@@ -67,19 +75,6 @@ const Hero = () => {
               <span className="text-lg font-semibold tracking-wide">Deloitte</span>
               <span className="text-lg font-semibold tracking-wide hidden sm:block">Goldman</span>
             </div>
-          </div>
-
-          {/* SEO Internal Links */}
-          <div className="mt-10 flex flex-wrap justify-center gap-6 text-sm animate-fade-in-up animation-delay-500">
-            <Link to="/gamma-alternative" className="text-muted-foreground hover:text-accent transition-colors">
-              Gamma alternative
-            </Link>
-            <Link to="/powerpoint-ai" className="text-muted-foreground hover:text-accent transition-colors">
-              PowerPoint AI generator
-            </Link>
-            <Link to="/ai-deck-generator" className="text-muted-foreground hover:text-accent transition-colors">
-              AI deck generator
-            </Link>
           </div>
         </div>
       </div>

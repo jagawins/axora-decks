@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { 
   FileText, 
   Heading, 
@@ -73,6 +74,16 @@ const Features = () => {
           ))}
         </div>
 
+        {/* Why AXOR contextual link */}
+        <div className="text-center mb-12">
+          <p className="text-muted-foreground">
+            Unlike Gamma, AXOR generates structured blocks instead of free-form slides.{" "}
+            <Link to="/gamma-alternative" className="text-accent hover:underline">
+              See the full comparison →
+            </Link>
+          </p>
+        </div>
+
         {/* Main features */}
         <div className="grid md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
@@ -87,6 +98,16 @@ const Features = () => {
               <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
             </div>
           ))}
+        </div>
+
+        {/* Contextual SEO link */}
+        <div className="text-center mt-12">
+          <p className="text-muted-foreground">
+            Generate board-ready PowerPoint decks using AI.{" "}
+            <Link to="/powerpoint-ai" className="text-accent hover:underline">
+              Learn about PowerPoint AI →
+            </Link>
+          </p>
         </div>
       </div>
     </section>

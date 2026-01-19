@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Shuffle, Layout, Send } from "lucide-react";
 
 const values = [
@@ -57,6 +58,17 @@ const ValueTriplet = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Contextual SEO link */}
+        <div className="text-center mt-12">
+          <p className="text-muted-foreground">
+            Our{" "}
+            <Link to="/ai-deck-generator" className="text-accent hover:underline">
+              AI deck generator
+            </Link>
+            {" "}converts intent into structured presentation blocks.
+          </p>
         </div>
       </div>
     </section>

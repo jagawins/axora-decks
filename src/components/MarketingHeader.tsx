@@ -21,17 +21,20 @@ const MarketingHeader = () => {
             </Link>
           </div>
 
-          {/* Center: Navigation Links */}
-          <div className="flex items-center justify-center gap-8">
-            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Features
-            </a>
-            <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              How it works
-            </a>
-            <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          {/* Center: SEO Navigation Links */}
+          <div className="flex items-center justify-center gap-6">
+            <Link to="/ai-deck-generator" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              AI Deck Generator
+            </Link>
+            <Link to="/gamma-alternative" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Gamma Alternative
+            </Link>
+            <Link to="/powerpoint-ai" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              PowerPoint AI
+            </Link>
+            <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Pricing
-            </a>
+            </Link>
           </div>
 
           {/* Right: CTA Buttons */}
@@ -78,27 +81,34 @@ const MarketingHeader = () => {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-white/5 bg-background/95 backdrop-blur-xl">
           <div className="container-wide py-4 flex flex-col gap-4">
-            <a 
-              href="#features" 
+            <Link 
+              to="/ai-deck-generator" 
               className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Features
-            </a>
-            <a 
-              href="#how-it-works" 
+              AI Deck Generator
+            </Link>
+            <Link 
+              to="/gamma-alternative" 
               className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
-              How it works
-            </a>
-            <a 
-              href="#pricing" 
+              Gamma Alternative
+            </Link>
+            <Link 
+              to="/powerpoint-ai" 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              PowerPoint AI
+            </Link>
+            <Link 
+              to="/pricing" 
               className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               Pricing
-            </a>
+            </Link>
             <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
               {loading ? null : user ? (
                 <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
