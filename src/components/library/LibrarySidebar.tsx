@@ -1,7 +1,7 @@
 import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import axoraIcon from "@/assets/axora-icon.svg";
+import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 
 interface LibrarySidebarProps {
@@ -23,9 +23,8 @@ export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }:
   return (
     <aside className="w-64 border-r border-border bg-card/30 flex flex-col h-full">
       {/* Logo */}
-      <div className="p-6 border-b border-border flex items-center gap-2">
-        <img src={axoraIcon} alt="AXORA" className="h-8 w-8" />
-        <span className="text-lg font-bold tracking-tight">AXORA</span>
+      <div className="p-6 border-b border-border">
+        <img src={axoraWordmark} alt="AXORA" className="h-6 w-auto" />
       </div>
 
       {/* Navigation */}

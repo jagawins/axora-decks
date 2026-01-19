@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import axoraIcon from "@/assets/axora-icon.svg";
+import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
 
 const Footer = () => {
   return (
@@ -105,9 +105,8 @@ const Footer = () => {
         <div className="border-t border-white/5 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             {/* Logo */}
-            <div className="flex items-center gap-2">
-              <img src={axoraIcon} alt="AXORA" className="h-7 w-7" />
-              <span className="text-lg font-bold tracking-tight">AXORA</span>
+            <div className="flex items-center">
+              <img src={axoraWordmark} alt="AXORA" className="h-6 w-auto" />
             </div>
 
             {/* Micro-copy */}

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import axoraIcon from "@/assets/axora-icon.svg";
+import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
 
 const Navbar = () => {
   const { user, loading } = useAuth();
@@ -11,9 +11,8 @@ const Navbar = () => {
       <div className="container-wide">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <img src={axoraIcon} alt="AXORA" className="h-8 w-8" />
-            <span className="text-lg font-bold tracking-tight">AXORA</span>
+          <Link to="/" className="flex items-center">
+            <img src={axoraWordmark} alt="AXORA" className="h-7 w-auto" />
           </Link>
 
           {/* Navigation Links */}
