@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="628" viewBox="0 0 1200 628">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E6F2FF"/>
+      <stop offset="100%" stop-color="#C8E4FF"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.20"/>
+    </filter>
+    <clipPath id="clip">
+      <rect x="145" y="145" width="170" height="170" rx="28"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="628" fill="url(#bg)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="80" y="95" width="1040" height="452" rx="34" fill="#FFFFFF" fill-opacity="0.96"/>
+    <rect x="80" y="95" width="1040" height="160" rx="34" fill="#D7EEFF" fill-opacity="1"/>
+    <rect x="80" y="235" width="1040" height="312" rx="34" fill="#FFFFFF" fill-opacity="0.96"/>
+  </g>
+
+  <!-- Replace href with your hosted image path -->
+  <image href="jag-photo.jpg" x="145" y="145" width="170" height="170" preserveAspectRatio="xMidYMid slice" clip-path="url(#clip)"/>
+
+  <rect x="820" y="145" width="210" height="52" rx="26" fill="#1E5AFF" fill-opacity="0.90" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="2"/>
+  <text x="925" y="178" text-anchor="middle" font-family="Inter, system-ui, -apple-system, Segoe UI, Arial" font-size="20" font-weight="700" fill="#FFFFFF">AXORA</text>
+
+  <text x="345" y="182" font-family="Inter, system-ui, -apple-system, Segoe UI, Arial" font-size="44" font-weight="800" fill="#0F2341">Jag Mariappan</text>
+  <text x="345" y="224" font-family="Inter, system-ui, -apple-system, Segoe UI, Arial" font-size="26" font-weight="500" fill="#233C5F" fill-opacity="0.9">Founder · @inaxora</text>
+
+  <text x="145" y="320" font-family="Inter, system-ui, -apple-system, Segoe UI, Arial" font-size="24" font-weight="400" fill="#19375F" fill-opacity="0.85">
+    <tspan x="145" dy="0">I build executive grade decks fast. Structured blocks in, polished slides out.</tspan>
+  </text>
+
+  <rect x="145" y="445" width="370" height="56" rx="16" fill="#1E5AFF"/>
+  <text x="330" y="481" text-anchor="middle" font-family="Inter, system-ui, -apple-system, Segoe UI, Arial" font-size="22" font-weight="700" fill="#FFFFFF">Try AXORA</text>
+
+  <rect x="533" y="445" width="330" height="56" rx="16" fill="none" stroke="#1E5AFF" stroke-opacity="0.75" stroke-width="2"/>
+  <text x="698" y="481" text-anchor="middle" font-family="Inter, system-ui, -apple-system, Segoe UI, Arial" font-size="22" font-weight="700" fill="#143A78">Watch demo</text>
+</svg>
