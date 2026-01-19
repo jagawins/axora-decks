@@ -31,6 +31,7 @@ interface ValidationResult {
   valid: boolean;
   error?: string;
   outline?: Outline;
+  density?: string;
 }
 
 interface BlockValidationResult {
@@ -77,7 +78,7 @@ function validateRequest(body: unknown): ValidationResult {
     return { valid: false, error: "Request body must be a JSON object" };
   }
 
-  const { outline } = body as { outline?: unknown };
+  const { outline, density } = body as { outline?: unknown; density?: string };
 
   if (!outline || typeof outline !== "object") {
     return { valid: false, error: "outline is required and must be an object" };
@@ -103,6 +104,9 @@ function validateRequest(body: unknown): ValidationResult {
     }
   }
 
+  const validDensities = ["vibes", "minimal", "context", "plenty"];
+  const sanitizedDensity = typeof density === "string" && validDensities.includes(density) ? density : undefined;
+
   return {
     valid: true,
     outline: {
@@ -111,6 +115,7 @@ function validateRequest(body: unknown): ValidationResult {
       bullets: Array.isArray(o.bullets) ? o.bullets : [],
       summary: typeof o.summary === "string" ? o.summary : "",
     },
+    density: sanitizedDensity,
   };
 }
 
@@ -418,11 +423,53 @@ function parseAIResponse(data: Record<string, unknown>, requestId: string): { bl
   return { blocks: null, parseError: "no tool call or content in response" };
 }
 
+function getDensityBlockConstraints(density: string): string {
+  switch (density) {
+    case "vibes":
+      return `
+DENSITY CONSTRAINTS (STRICT - JUST VIBES):
+- Prefer heading blocks and image placeholders
+- Lists: maximum 2-3 very short items
+- Text blocks: maximum 1 short sentence
+- NO tables
+- Focus on visual impact`;
+    
+    case "minimal":
+      return `
+DENSITY CONSTRAINTS (STRICT - MINIMAL TEXT):
+- Lists: maximum 3 bullet points
+- Text blocks: maximum 2 sentences
+- Tables: avoid unless essential
+- Keep everything concise`;
+    
+    case "context":
+      return `
+DENSITY CONSTRAINTS (A LITTLE CONTEXT):
+- Lists: 3-5 bullet points allowed
+- Text blocks: 2-3 sentences
+- One table allowed if relevant`;
+    
+    case "plenty":
+      return `
+DENSITY CONSTRAINTS (PLENTY OF TEXT):
+- Lists: 5+ items allowed
+- Text blocks: paragraphs permitted
+- Multiple tables allowed
+- Detailed explanations welcome`;
+    
+    default:
+      return "";
+  }
+}
+
 // Build system prompt
-function buildSystemPrompt(isRetry: boolean, validationErrors?: string[]): string {
+function buildSystemPrompt(isRetry: boolean, validationErrors?: string[], density?: string): string {
+  const densityConstraints = getDensityBlockConstraints(density || "context");
+  
   let prompt = `You are an expert presentation designer. Convert outlines into presentation blocks.
 
 CRITICAL: You MUST populate the content object with actual data. Empty content {} will fail.
+${densityConstraints}
 
 BLOCK FORMATS (copy exactly):
 - heading: {"level": 1, "text": "Your Heading Text Here"}
@@ -551,6 +598,7 @@ serve(async (req) => {
     }
 
     const outline = validation.outline!;
+    const density = validation.density;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -561,7 +609,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`[${requestId}] Generating blocks for: "${outline.title}"`);
+    console.log(`[${requestId}] Generating blocks for: "${outline.title}" with density: ${density || "default"}`);
 
     const userPrompt = `Convert this outline into presentation blocks:
 
@@ -575,7 +623,7 @@ Key Takeaways:
 ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
 
     // First attempt
-    const systemPrompt1 = buildSystemPrompt(false);
+    const systemPrompt1 = buildSystemPrompt(false, undefined, density);
     const result1 = await callAI(LOVABLE_API_KEY, systemPrompt1, userPrompt);
 
     if (result1.error) {
@@ -628,7 +676,7 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
       console.warn(`[${requestId}] Validation failed (attempt 1): invalidBlocksCount=${blockValidation1.invalidCount}, missingKeys=${blockValidation1.errors.slice(0, 3).join("; ")}`);
       console.log(`[${requestId}] Retrying with correction prompt...`);
 
-      const systemPrompt2 = buildSystemPrompt(true, blockValidation1.errors);
+      const systemPrompt2 = buildSystemPrompt(true, blockValidation1.errors, density);
       const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt);
 
       if (result2.error || !result2.response?.ok) {

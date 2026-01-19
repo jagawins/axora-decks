@@ -15,6 +15,8 @@ interface OutlineRequest {
   prompt?: string;
   topic: string;
   tone?: string;
+  density?: "vibes" | "minimal" | "context" | "plenty";
+  cardsCount?: number;
 }
 
 interface Outline {
@@ -31,6 +33,8 @@ interface ValidationResult {
     prompt: string;
     topic: string;
     tone: string;
+    density: string;
+    cardsCount: number;
   };
 }
 
@@ -44,7 +48,7 @@ function validateRequest(body: unknown): ValidationResult {
     return { valid: false, error: "Request body must be a JSON object" };
   }
 
-  const { prompt, topic, tone } = body as OutlineRequest;
+  const { prompt, topic, tone, density, cardsCount } = body as OutlineRequest;
 
   if (!topic || typeof topic !== "string" || topic.trim().length === 0) {
     return { valid: false, error: "topic is required and must be a non-empty string" };
@@ -61,12 +65,18 @@ function validateRequest(body: unknown): ValidationResult {
     sanitizedTone = tone.toLowerCase();
   }
 
+  const validDensities = ["vibes", "minimal", "context", "plenty"];
+  const sanitizedDensity = typeof density === "string" && validDensities.includes(density) ? density : "context";
+  const sanitizedCardsCount = typeof cardsCount === "number" && cardsCount >= 3 && cardsCount <= 25 ? cardsCount : 10;
+
   return {
     valid: true,
     sanitized: {
       prompt: sanitizedPrompt,
       topic: topic.trim(),
       tone: sanitizedTone,
+      density: sanitizedDensity,
+      cardsCount: sanitizedCardsCount,
     },
   };
 }
@@ -162,19 +172,62 @@ function getToolSchema() {
   };
 }
 
-function buildSystemPrompt(tone: string, isRetry: boolean, validationErrors?: string[]): string {
+function getDensityConstraints(density: string): string {
+  switch (density) {
+    case "vibes":
+      return `
+DENSITY: JUST VIBES (STRICT CONSTRAINTS)
+- Prefer headings and visual impact over text
+- Maximum 2-3 very short points per section
+- Points should be punchy phrases, not sentences
+- No detailed explanations
+- Focus on bold statements and key phrases only`;
+    
+    case "minimal":
+      return `
+DENSITY: MINIMAL TEXT (STRICT CONSTRAINTS)
+- Maximum 3 bullet points per section
+- Each point: maximum 2 short sentences
+- Keep all content concise and punchy
+- No lengthy explanations`;
+    
+    case "context":
+      return `
+DENSITY: A LITTLE CONTEXT (CONSTRAINTS)
+- 3-5 bullet points per section allowed
+- Points can have supporting context
+- Balance between detail and readability`;
+    
+    case "plenty":
+      return `
+DENSITY: PLENTY OF TEXT (CONSTRAINTS)
+- Allow detailed explanations in points
+- 4-6 points per section permitted
+- Include comprehensive context and supporting information`;
+    
+    default:
+      return "";
+  }
+}
+
+function buildSystemPrompt(tone: string, density: string, cardsCount: number, isRetry: boolean, validationErrors?: string[]): string {
+  const densityConstraints = getDensityConstraints(density);
+  const sectionCount = Math.max(3, Math.min(6, Math.ceil(cardsCount / 2)));
+  
   let prompt = `You are an expert executive presentation consultant. Create structured outlines for executive-grade presentations.
 
 CRITICAL REQUIREMENTS (non-negotiable):
-1. You MUST provide 3-6 sections with at least 2 bullet points each
+1. You MUST provide ${sectionCount} sections with bullet points each
 2. You MUST provide 3-5 key takeaways in the bullets array
 3. All text must be plain text - NO Markdown formatting
 4. No asterisks, bold, italic, headings, or bullet characters
 5. Use a ${tone} tone throughout
+6. This outline should support approximately ${cardsCount} slides/cards
+${densityConstraints}
 
 Structure requirements:
 - Title: Clear, compelling title (5+ characters)
-- Sections: 3-6 sections, each with heading and 2-5 talking points
+- Sections: ${sectionCount} sections, each with heading and talking points
 - Bullets: 3-5 key takeaways for the audience
 - Summary: 2-3 sentence executive summary (50+ characters)
 
@@ -264,7 +317,7 @@ serve(async (req) => {
       );
     }
 
-    const { prompt, topic, tone } = validation.sanitized!;
+    const { prompt, topic, tone, density, cardsCount } = validation.sanitized!;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -275,17 +328,17 @@ serve(async (req) => {
       );
     }
 
-    console.log(`[${requestId}] Generating outline for topic: "${topic}" with tone: ${tone}`);
+    console.log(`[${requestId}] Generating outline for topic: "${topic}" with tone: ${tone}, density: ${density}, cards: ${cardsCount}`);
 
     const userPrompt = `Create a detailed outline for:
 
 Topic: ${topic}
 ${prompt ? `\nAdditional context:\n${prompt}` : ""}
 
-Generate a structured outline suitable for an executive presentation with 3-6 main sections.`;
+Generate a structured outline suitable for an executive presentation with approximately ${cardsCount} slides/cards.`;
 
     // First attempt
-    const systemPrompt1 = buildSystemPrompt(tone, false);
+    const systemPrompt1 = buildSystemPrompt(tone, density, cardsCount, false);
     const result1 = await callAI(LOVABLE_API_KEY, systemPrompt1, userPrompt);
 
     if (result1.error) {
@@ -340,7 +393,7 @@ Generate a structured outline suitable for an executive presentation with 3-6 ma
       console.warn(`[${requestId}] Outline validation failed (attempt 1): ${outlineValidation1.errors.join("; ")}`);
       console.log(`[${requestId}] Retrying with correction prompt...`);
 
-      const systemPrompt2 = buildSystemPrompt(tone, true, outlineValidation1.errors);
+      const systemPrompt2 = buildSystemPrompt(tone, density, cardsCount, true, outlineValidation1.errors);
       const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt);
 
       if (result2.response?.ok) {
