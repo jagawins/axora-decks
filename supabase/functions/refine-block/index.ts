@@ -6,6 +6,7 @@ const corsHeaders = {
 };
 
 const MAX_INSTRUCTION_LENGTH = 500;
+const MAX_CONTEXT_LENGTH = 200;
 const VALID_BLOCK_TYPES = ["text", "heading", "list", "callout", "two_col", "table", "image"] as const;
 
 interface BlockContent {
@@ -25,13 +26,116 @@ interface RefineRequest {
     order_index?: number;
   };
   instruction: string;
+  // Optional: template-based refinement
+  templateId?: string;
+  context?: string;
 }
+
+// Template definitions for type-preserving transformations
+const TEMPLATES: Record<string, { type: string; instruction: string }> = {
+  // Heading templates
+  "heading-executive-title": {
+    type: "heading",
+    instruction: "Rewrite as a strong, action-oriented executive slide title. Use 5-8 words. Lead with outcome or impact. No punctuation at end.",
+  },
+  "heading-section-divider": {
+    type: "heading",
+    instruction: "Rewrite as a clear section divider heading. Use 2-4 words. Should signal a major topic transition. Simple and bold.",
+  },
+  "heading-one-line-takeaway": {
+    type: "heading",
+    instruction: "Rewrite as a memorable one-line takeaway. Capture the single most important insight. Make it quotable and impactful.",
+  },
+  // Text templates
+  "text-executive-summary": {
+    type: "text",
+    instruction: "Rewrite as a crisp executive summary. Lead with the key insight. Maximum 3 sentences. Use active voice. Eliminate jargon.",
+  },
+  "text-problem-statement": {
+    type: "text",
+    instruction: "Rewrite as a clear problem statement. State the core problem in the first sentence. Quantify impact if possible. Keep under 3 sentences.",
+  },
+  "text-recommendation": {
+    type: "text",
+    instruction: "Rewrite as a direct recommendation. Start with 'We recommend...' or equivalent. Include one key reason. Be specific and actionable.",
+  },
+  "text-risks-mitigations": {
+    type: "text",
+    instruction: "Rewrite to highlight key risks and their mitigations. Format: Risk followed by mitigation. Keep concise and balanced.",
+  },
+  "text-next-steps": {
+    type: "text",
+    instruction: "Rewrite as clear next steps. Each action should be specific with owner or timeline implied. Use imperative voice.",
+  },
+  // List templates
+  "list-key-points": {
+    type: "list",
+    instruction: "Rewrite as key points. Each item should be 5-10 words. Start each with a strong verb or noun. No sub-bullets. Maximum 5 items.",
+  },
+  "list-benefits": {
+    type: "list",
+    instruction: "Rewrite as a benefits list. Start each item with a quantifiable outcome or clear advantage. Focus on value to the audience. Maximum 5 items.",
+  },
+  "list-requirements": {
+    type: "list",
+    instruction: "Rewrite as requirements. Each item should be specific and measurable. Use 'must' or 'shall' language. Keep items brief.",
+  },
+  "list-risks": {
+    type: "list",
+    instruction: "Rewrite as a risk list. Each item should identify a specific risk. Order by impact or likelihood. Keep each under 10 words.",
+  },
+  "list-milestones": {
+    type: "list",
+    instruction: "Rewrite as milestones. Each item should be a deliverable with implied timeline. Use past or future tense. Keep chronological.",
+  },
+  // Callout templates
+  "callout-key-insight": {
+    type: "callout",
+    instruction: "Rewrite as a key insight callout. Distill to the single most important revelation. Make it memorable. Under 20 words. Use icon: info.",
+  },
+  "callout-warning": {
+    type: "callout",
+    instruction: "Rewrite as a warning callout. Clearly state what could go wrong. Be direct but not alarmist. Under 20 words. Use icon: warning.",
+  },
+  "callout-success-metric": {
+    type: "callout",
+    instruction: "Rewrite as a success metric callout. Highlight the key number or KPI. Include target or achievement. Under 20 words. Use icon: success.",
+  },
+  // Two column templates
+  "two_col-pros-cons": {
+    type: "two_col",
+    instruction: "Rewrite as pros vs cons format. Left column: advantages (3-4 points). Right column: disadvantages (3-4 points). Keep balanced and brief.",
+  },
+  "two_col-now-next": {
+    type: "two_col",
+    instruction: "Rewrite as now vs next comparison. Left column: current state. Right column: future state or recommendation. Show clear progression.",
+  },
+  "two_col-problem-solution": {
+    type: "two_col",
+    instruction: "Rewrite as problem vs solution format. Left column: the problem or pain point. Right column: the proposed solution. Keep parallel structure.",
+  },
+  // Table templates
+  "table-options-comparison": {
+    type: "table",
+    instruction: "Rewrite as an options comparison table. First column: option names. Other columns: evaluation criteria. Keep cells to 1-3 words. Clear winner should emerge.",
+  },
+  "table-raci": {
+    type: "table",
+    instruction: "Rewrite as a RACI matrix. Rows: tasks/activities. Columns: stakeholder roles. Cells contain only R, A, C, or I. Keep focused on key activities.",
+  },
+  "table-timeline": {
+    type: "table",
+    instruction: "Rewrite as a timeline table. Columns: Phase/Date, Activity, Owner/Status. Keep cells brief. Show clear progression of work.",
+  },
+};
 
 interface ValidationResult {
   valid: boolean;
   error?: string;
   block?: Block;
   instruction?: string;
+  templateId?: string;
+  context?: string;
 }
 
 // Utility to strip any Markdown formatting that slips through
@@ -74,7 +178,7 @@ function validateRequest(body: unknown): ValidationResult {
     return { valid: false, error: "Request body must be a JSON object" };
   }
 
-  const { block, instruction } = body as RefineRequest;
+  const { block, instruction, templateId, context } = body as RefineRequest;
 
   if (!block || typeof block !== "object") {
     return { valid: false, error: "block is required and must be an object" };
@@ -88,8 +192,36 @@ function validateRequest(body: unknown): ValidationResult {
     return { valid: false, error: "block.content is required and must be an object" };
   }
 
-  if (!instruction || typeof instruction !== "string" || instruction.trim().length === 0) {
-    return { valid: false, error: "instruction is required and must be a non-empty string" };
+  // Support two modes: direct instruction OR template-based
+  let finalInstruction = "";
+  let validatedTemplateId: string | undefined;
+  let validatedContext: string | undefined;
+
+  if (templateId && typeof templateId === "string") {
+    // Template-based refinement
+    const template = TEMPLATES[templateId];
+    if (!template) {
+      return { valid: false, error: `Unknown template: ${templateId}` };
+    }
+    // Enforce type preservation: template type must match block type
+    if (template.type !== block.type) {
+      return { 
+        valid: false, 
+        error: `Template "${templateId}" is for ${template.type} blocks, but block is ${block.type}. Type must match.` 
+      };
+    }
+    // Build instruction from template + optional context
+    finalInstruction = template.instruction;
+    if (context && typeof context === "string" && context.trim()) {
+      finalInstruction += ` Additional context: ${context.slice(0, MAX_CONTEXT_LENGTH).trim()}`;
+    }
+    validatedTemplateId = templateId;
+    validatedContext = context?.slice(0, MAX_CONTEXT_LENGTH).trim();
+  } else if (instruction && typeof instruction === "string" && instruction.trim().length > 0) {
+    // Direct instruction mode
+    finalInstruction = instruction.slice(0, MAX_INSTRUCTION_LENGTH).trim();
+  } else {
+    return { valid: false, error: "Either instruction or templateId is required" };
   }
 
   return {
@@ -99,7 +231,9 @@ function validateRequest(body: unknown): ValidationResult {
       content: block.content,
       order_index: typeof block.order_index === "number" ? block.order_index : 0,
     },
-    instruction: instruction.slice(0, MAX_INSTRUCTION_LENGTH).trim(),
+    instruction: finalInstruction,
+    templateId: validatedTemplateId,
+    context: validatedContext,
   };
 }
 
