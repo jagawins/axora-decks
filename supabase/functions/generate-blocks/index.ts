@@ -422,44 +422,57 @@ function parseAIResponse(data: Record<string, unknown>, requestId: string): { bl
 function buildSystemPrompt(isRetry: boolean, validationErrors?: string[]): string {
   let prompt = `You are an expert presentation designer. Convert outlines into presentation blocks.
 
-CRITICAL: Return ONLY valid JSON via the create_blocks function. Every block MUST have type and content with ALL required fields populated.
+CRITICAL: You MUST populate the content object with actual data. Empty content {} will fail.
 
-BLOCK TYPES AND REQUIRED CONTENT:
-- heading: { level: 1|2|3, text: "heading text (min 2 chars)" }
-- text: { text: "paragraph text (min 10 chars)" }
-- list: { items: ["item1", "item2"] (min 2 items, each min 2 chars), ordered: true|false }
-- callout: { text: "callout message (min 10 chars)", icon: "info"|"warning"|"success" }
-- two_col: { left: "left column (min 5 chars)", right: "right column (min 5 chars)" }
-- table: { headers: ["col1", "col2"] (min 2), rows: [["data1", "data2"]] (min 1 row, 2 cells each) }
+BLOCK FORMATS (copy exactly):
+- heading: {"level": 1, "text": "Your Heading Text Here"}
+- text: {"text": "Your paragraph text here, at least 10 characters"}
+- list: {"items": ["First item", "Second item", "Third item"], "ordered": false}
+- callout: {"text": "Important message here", "icon": "info"}
+- two_col: {"left": "Left column content", "right": "Right column content"}
+- table: {"headers": ["Column 1", "Column 2"], "rows": [["Row 1 Data", "More Data"]]}
 
-RULES:
-- Start with H1 heading for title
-- Use H2 for section headings
-- Convert bullets to list blocks
-- Use callouts for key takeaways
-- Keep text blocks to 2-4 sentences
-- Create 8-15 blocks total
-- ALL text fields MUST contain actual content, NEVER empty strings`;
+STRUCTURE:
+1. Start with H1 heading (level: 1) for the title
+2. Use H2 (level: 2) for section headings
+3. Convert bullet points to list blocks
+4. Use callouts for key takeaways (icon: "info", "warning", or "success")
+5. Create 8-15 blocks total
+
+EXAMPLE BLOCK:
+{"type": "heading", "content": {"level": 1, "text": "AI in Healthcare: A Strategic Overview"}}
+
+NEVER return {"type": "heading", "content": {}} - this will fail validation.`;
 
   if (isRetry && validationErrors?.length) {
     prompt += `
 
-CORRECTION REQUIRED - Previous response failed validation:
-${validationErrors.slice(0, 5).join("\n")}
+CORRECTION REQUIRED - Your previous response had empty content objects.
+Errors: ${validationErrors.slice(0, 3).join("; ")}
 
-You MUST fix ALL blocks to include required content keys with actual text. Empty strings and empty arrays will fail.`;
+You MUST fill in actual text for every content field.`;
   }
 
   return prompt;
 }
 
-// Strict oneOf tool schema
+// Simplified tool schema - no oneOf, explicit content structure in description
 function getToolSchema() {
   return {
     type: "function",
     function: {
       name: "create_blocks",
-      description: "Create presentation blocks with validated content",
+      description: `Create presentation blocks. CRITICAL: Each block's content object MUST have the required fields filled with actual text.
+
+Block content requirements:
+- heading: {"level": 1|2|3, "text": "heading text"}
+- text: {"text": "paragraph text at least 10 chars"}
+- list: {"items": ["item1", "item2"], "ordered": true|false}
+- callout: {"text": "callout message", "icon": "info"|"warning"|"success"}
+- two_col: {"left": "left column text", "right": "right column text"}
+- table: {"headers": ["col1", "col2"], "rows": [["data1", "data2"]]}
+
+NEVER return empty content objects like {}. Every content field must have actual text.`,
       parameters: {
         type: "object",
         required: ["blocks"],
@@ -475,105 +488,11 @@ function getToolSchema() {
                   type: "string",
                   enum: ["heading", "text", "list", "callout", "two_col", "table"]
                 },
-                content: { type: "object" }
-              },
-              oneOf: [
-                {
-                  properties: {
-                    type: { const: "heading" },
-                    content: {
-                      type: "object",
-                      required: ["level", "text"],
-                      properties: {
-                        level: { type: "integer", enum: [1, 2, 3] },
-                        text: { type: "string", minLength: 2 }
-                      },
-                      additionalProperties: false
-                    }
-                  }
-                },
-                {
-                  properties: {
-                    type: { const: "text" },
-                    content: {
-                      type: "object",
-                      required: ["text"],
-                      properties: {
-                        text: { type: "string", minLength: 10 }
-                      },
-                      additionalProperties: false
-                    }
-                  }
-                },
-                {
-                  properties: {
-                    type: { const: "list" },
-                    content: {
-                      type: "object",
-                      required: ["items", "ordered"],
-                      properties: {
-                        ordered: { type: "boolean" },
-                        items: {
-                          type: "array",
-                          minItems: 2,
-                          items: { type: "string", minLength: 2 }
-                        }
-                      },
-                      additionalProperties: false
-                    }
-                  }
-                },
-                {
-                  properties: {
-                    type: { const: "callout" },
-                    content: {
-                      type: "object",
-                      required: ["text", "icon"],
-                      properties: {
-                        icon: { type: "string", enum: ["info", "warning", "success"] },
-                        text: { type: "string", minLength: 10 }
-                      },
-                      additionalProperties: false
-                    }
-                  }
-                },
-                {
-                  properties: {
-                    type: { const: "two_col" },
-                    content: {
-                      type: "object",
-                      required: ["left", "right"],
-                      properties: {
-                        left: { type: "string", minLength: 5 },
-                        right: { type: "string", minLength: 5 }
-                      },
-                      additionalProperties: false
-                    }
-                  }
-                },
-                {
-                  properties: {
-                    type: { const: "table" },
-                    content: {
-                      type: "object",
-                      required: ["headers", "rows"],
-                      properties: {
-                        headers: { type: "array", minItems: 2, items: { type: "string", minLength: 1 } },
-                        rows: {
-                          type: "array",
-                          minItems: 1,
-                          items: {
-                            type: "array",
-                            minItems: 2,
-                            items: { type: "string", minLength: 1 }
-                          }
-                        }
-                      },
-                      additionalProperties: false
-                    }
-                  }
+                content: {
+                  type: "object",
+                  description: "Block content with type-specific fields. heading needs {level, text}. text needs {text}. list needs {items, ordered}. callout needs {text, icon}. two_col needs {left, right}. table needs {headers, rows}."
                 }
-              ]
+              }
             }
           }
         }
@@ -596,7 +515,7 @@ async function callAI(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "openai/gpt-5-mini",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
