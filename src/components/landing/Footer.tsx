@@ -40,7 +40,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <Link to="/gamma-alternative" className="text-sm text-muted-foreground hover:text-accent transition-colors">
-                  AXOR vs Gamma
+                  AXORA vs Gamma
                 </Link>
               </li>
               <li>
@@ -65,6 +65,11 @@ const Footer = () => {
           <div>
             <h4 className="text-sm font-semibold mb-4">Resources</h4>
             <ul className="space-y-3">
+              <li>
+                <Link to="/templates" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  Templates
+                </Link>
+              </li>
               <li>
                 <Link to="/features" className="text-sm text-muted-foreground hover:text-accent transition-colors">
                   How It Works
