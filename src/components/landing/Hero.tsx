@@ -68,6 +68,19 @@ const Hero = () => {
               <span className="text-lg font-semibold tracking-wide hidden sm:block">Goldman</span>
             </div>
           </div>
+
+          {/* SEO Internal Links */}
+          <div className="mt-10 flex flex-wrap justify-center gap-6 text-sm animate-fade-in-up animation-delay-500">
+            <Link to="/gamma-alternative" className="text-muted-foreground hover:text-accent transition-colors">
+              Gamma alternative
+            </Link>
+            <Link to="/powerpoint-ai" className="text-muted-foreground hover:text-accent transition-colors">
+              PowerPoint AI generator
+            </Link>
+            <Link to="/ai-deck-generator" className="text-muted-foreground hover:text-accent transition-colors">
+              AI deck generator
+            </Link>
+          </div>
         </div>
       </div>
     </section>
