@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import Index from "./pages/Index";
@@ -13,35 +14,49 @@ import Preview from "./pages/Preview";
 import PublicPreview from "./pages/PublicPreview";
 import Print from "./pages/Print";
 import GammaAlternative from "./pages/GammaAlternative";
+import PowerPointAI from "./pages/PowerPointAI";
+import PPTGenerator from "./pages/PPTGenerator";
+import ExecutiveDeckGenerator from "./pages/ExecutiveDeckGenerator";
+import Features from "./pages/Features";
+import Pricing from "./pages/Pricing";
+import AIIndex from "./pages/AIIndex";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <SubscriptionProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/editor/:id" element={<Editor />} />
-              <Route path="/preview/:id" element={<Preview />} />
-              <Route path="/print/:id" element={<Print />} />
-              <Route path="/p/:token" element={<PublicPreview />} />
-              <Route path="/gamma-alternative" element={<GammaAlternative />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </SubscriptionProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <SubscriptionProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/editor/:id" element={<Editor />} />
+                <Route path="/preview/:id" element={<Preview />} />
+                <Route path="/print/:id" element={<Print />} />
+                <Route path="/p/:token" element={<PublicPreview />} />
+                <Route path="/gamma-alternative" element={<GammaAlternative />} />
+                <Route path="/powerpoint-ai" element={<PowerPointAI />} />
+                <Route path="/ppt-generator" element={<PPTGenerator />} />
+                <Route path="/executive-deck-generator" element={<ExecutiveDeckGenerator />} />
+                <Route path="/features" element={<Features />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/ai-index" element={<AIIndex />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </SubscriptionProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </HelmetProvider>
 );
 
 export default App;

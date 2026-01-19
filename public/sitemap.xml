@@ -28,9 +28,16 @@
   <url>
     <loc>https://axor.verityaxis.com/pricing</loc>
     <priority>0.5</priority>
+    <changefreq>monthly</changefreq>
   </url>
   <url>
     <loc>https://axor.verityaxis.com/features</loc>
     <priority>0.5</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://axor.verityaxis.com/ai-index</loc>
+    <priority>0.3</priority>
+    <changefreq>monthly</changefreq>
   </url>
 </urlset>
