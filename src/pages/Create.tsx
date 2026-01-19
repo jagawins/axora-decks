@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Sparkles, Loader2, Presentation, Share2 } from "lucide-react";
+import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +26,7 @@ import { THEMES, DEFAULT_THEME, type ThemeId } from "@/lib/themes";
 // Types
 type OutputType = "presentation" | "social";
 type DensityLevel = "vibes" | "minimal" | "context" | "plenty";
+type VisualsMode = "none" | "stock" | "ai" | "hybrid";
 
 interface GenerationSpec {
   outputType: OutputType;
@@ -33,6 +34,7 @@ interface GenerationSpec {
   theme: ThemeId;
   language: string;
   density: DensityLevel;
+  visualsMode: VisualsMode;
   prompt: string;
 }
 
@@ -57,6 +59,13 @@ const DENSITY_OPTIONS: { value: DensityLevel; label: string; description: string
   { value: "plenty", label: "Plenty of text", description: "Paragraphs and more tables" },
 ];
 
+const VISUALS_OPTIONS: { value: VisualsMode; label: string; description: string; icon: typeof Image }[] = [
+  { value: "none", label: "No images", description: "Text only", icon: ImageOff },
+  { value: "stock", label: "Stock photos", description: "Pexels library", icon: Image },
+  { value: "ai", label: "AI generated", description: "Custom visuals", icon: Wand2 },
+  { value: "hybrid", label: "Hybrid", description: "Stock + AI fallback", icon: Sparkles },
+];
+
 const EXAMPLE_PROMPTS = [
   "Q3 2024 Sales Performance Review for the Board",
   "Product launch strategy for AI-powered CRM",
@@ -64,6 +73,13 @@ const EXAMPLE_PROMPTS = [
   "Series A pitch deck for fintech startup",
   "Team onboarding: Engineering culture and values",
   "Market analysis: Electric vehicle trends 2025",
+];
+
+const ENTRY_CARDS = [
+  { id: "scratch", icon: Sparkles, title: "Start from scratch", description: "Describe your topic and let AI create" },
+  { id: "template", icon: LayoutTemplate, title: "Use a template", description: "60+ executive-ready templates", href: "/templates" },
+  { id: "import", icon: FileText, title: "Import content", description: "Paste notes, docs, or outlines" },
+  { id: "quick", icon: Zap, title: "Quick deck", description: "One-click generation from topic" },
 ];
 
 function normalizeBlockContent(type: string, content: Record<string, unknown>): Record<string, unknown> {
@@ -117,6 +133,14 @@ function normalizeBlockContent(type: string, content: Record<string, unknown>): 
         normalized.right = content.right_column ?? content.column2 ?? content.col2 ?? "";
       }
       break;
+    case "image":
+      if (normalized.query === undefined) {
+        normalized.query = content.search ?? content.keywords ?? content.topic ?? "";
+      }
+      if (normalized.alt === undefined) {
+        normalized.alt = content.alt_text ?? content.description ?? "";
+      }
+      break;
   }
   
   return normalized;
@@ -128,18 +152,80 @@ export default function Create() {
   const { toast } = useToast();
   
   // State
+  const [activeEntry, setActiveEntry] = useState<string | null>(null);
   const [outputType, setOutputType] = useState<OutputType>("presentation");
   const [cardsCount, setCardsCount] = useState(10);
   const [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME);
   const [language, setLanguage] = useState("en-US");
   const [density, setDensity] = useState<DensityLevel>("context");
+  const [visualsMode, setVisualsMode] = useState<VisualsMode>("stock");
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
 
   const selectedDensity = DENSITY_OPTIONS.find(d => d.value === density);
+  const selectedVisuals = VISUALS_OPTIONS.find(v => v.value === visualsMode);
 
   const handleExampleClick = (example: string) => {
     setPrompt(example);
+  };
+
+  const handleEntryClick = (cardId: string, href?: string) => {
+    if (href) {
+      navigate(href);
+      return;
+    }
+    setActiveEntry(cardId);
+  };
+
+  const resolveImages = async (blocks: any[], projectId: string): Promise<any[]> => {
+    if (visualsMode === "none") return blocks;
+    
+    // Collect image blocks that need resolution
+    const imageBlocks = blocks
+      .map((block, index) => ({ ...block, originalIndex: index }))
+      .filter(block => block.type === "image" && block.content?.query);
+
+    if (imageBlocks.length === 0) return blocks;
+
+    try {
+      const { data, error } = await supabase.functions.invoke("resolve-images", {
+        body: {
+          images: imageBlocks.map(block => ({
+            blockIndex: block.originalIndex,
+            query: block.content.query,
+            alt: block.content.alt || block.content.query,
+            caption: block.content.caption,
+            aspect: block.content.aspect || "16:9",
+          })),
+          mode: visualsMode,
+          projectId,
+        },
+      });
+
+      if (error) throw error;
+
+      // Update blocks with resolved images
+      const resolvedImages = data?.images || [];
+      const updatedBlocks = [...blocks];
+      
+      resolvedImages.forEach((resolved: any) => {
+        const blockIndex = resolved.blockIndex;
+        if (updatedBlocks[blockIndex]) {
+          updatedBlocks[blockIndex].content = {
+            ...updatedBlocks[blockIndex].content,
+            src: resolved.src,
+            provider: resolved.provider,
+            credit: resolved.credit,
+          };
+        }
+      });
+
+      return updatedBlocks;
+    } catch (error) {
+      console.error("Image resolution error:", error);
+      // Return blocks unchanged if image resolution fails
+      return blocks;
+    }
   };
 
   const handleGenerate = async () => {
@@ -164,6 +250,7 @@ export default function Create() {
         theme,
         language,
         density,
+        visualsMode,
         prompt: prompt.trim(),
       };
 
@@ -184,12 +271,18 @@ export default function Create() {
 
       // Build enhanced prompt with density constraints
       const densityInstructions = getDensityInstructions(density);
-      const languageInstruction = language !== "en-US" ? `\n\nLanguage: Generate all content in ${LANGUAGES.find(l => l.value === language)?.label || language}.` : "";
+      const visualsInstruction = visualsMode !== "none" 
+        ? `\n\nInclude image blocks where visuals would enhance the presentation. Use descriptive search queries for images.`
+        : "";
+      const languageInstruction = language !== "en-US" 
+        ? `\n\nLanguage: Generate all content in ${LANGUAGES.find(l => l.value === language)?.label || language}.` 
+        : "";
       
       const enhancedPrompt = `${spec.prompt}
 
 Content Style: ${selectedDensity?.label} - ${selectedDensity?.description}
 ${densityInstructions}
+${visualsInstruction}
 ${languageInstruction}
 
 Create exactly ${cardsCount} slides/cards.`;
@@ -203,7 +296,7 @@ Create exactly ${cardsCount} slides/cards.`;
 
       if (result.blocks.length > 0) {
         // Process and normalize blocks
-        const processedBlocks = result.blocks.slice(0, cardsCount).map((block, index) => {
+        let processedBlocks = result.blocks.slice(0, cardsCount).map((block, index) => {
           let sanitized = sanitizeContent(block.content);
           sanitized = normalizeBlockContent(block.type, sanitized);
 
@@ -225,6 +318,9 @@ Create exactly ${cardsCount} slides/cards.`;
             order_index: index,
           };
         });
+
+        // Resolve images if needed
+        processedBlocks = await resolveImages(processedBlocks, newProject.id);
 
         await supabase.from("blocks").insert(processedBlocks as any);
       }
@@ -262,189 +358,246 @@ Create exactly ${cardsCount} slides/cards.`;
           <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-success/5 rounded-full blur-[80px]" />
         </div>
 
-        <div className="w-full max-w-3xl mx-auto">
+        <div className="w-full max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-10">
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground mb-4">
               Create with AI
             </h1>
             <p className="text-lg text-muted-foreground">
-              Describe your topic and customize your deck
+              Choose how you want to start
             </p>
           </div>
 
-          {/* Studio Controls */}
-          <div className="space-y-8 bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 sm:p-8">
-            
-            {/* Output Type Toggle */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Output Type</Label>
-              <ToggleGroup
-                type="single"
-                value={outputType}
-                onValueChange={(v) => v && setOutputType(v as OutputType)}
-                className="justify-start"
-              >
-                <ToggleGroupItem value="presentation" className="gap-2 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground">
-                  <Presentation className="h-4 w-4" />
-                  Presentation
-                </ToggleGroupItem>
-                <ToggleGroupItem value="social" className="gap-2 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground">
-                  <Share2 className="h-4 w-4" />
-                  Social Cards
-                </ToggleGroupItem>
-              </ToggleGroup>
+          {/* Entry Cards */}
+          {!activeEntry && (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+              {ENTRY_CARDS.map((card) => (
+                <button
+                  key={card.id}
+                  onClick={() => handleEntryClick(card.id, card.href)}
+                  className={cn(
+                    "group p-6 rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm",
+                    "hover:border-accent/50 hover:bg-card/80 transition-all duration-200",
+                    "text-left flex flex-col items-start gap-3"
+                  )}
+                >
+                  <div className="p-2.5 rounded-lg bg-accent/10 text-accent group-hover:bg-accent group-hover:text-accent-foreground transition-colors">
+                    <card.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">{card.title}</h3>
+                    <p className="text-sm text-muted-foreground">{card.description}</p>
+                  </div>
+                </button>
+              ))}
             </div>
+          )}
 
-            {/* Options Row */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {/* Cards Count */}
-              <div className="space-y-2">
-                <Label htmlFor="cards-count" className="text-sm font-medium">Cards</Label>
-                <Select value={String(cardsCount)} onValueChange={(v) => setCardsCount(Number(v))}>
-                  <SelectTrigger id="cards-count" className="bg-muted/50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CARD_COUNT_OPTIONS.map((count) => (
-                      <SelectItem key={count} value={String(count)}>
-                        {count} cards
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Theme */}
-              <div className="space-y-2">
-                <Label htmlFor="theme" className="text-sm font-medium">Theme</Label>
-                <Select value={theme} onValueChange={(v) => setTheme(v as ThemeId)}>
-                  <SelectTrigger id="theme" className="bg-muted/50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(THEMES).map(([id, { label }]) => (
-                      <SelectItem key={id} value={id}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Language */}
-              <div className="space-y-2">
-                <Label htmlFor="language" className="text-sm font-medium">Language</Label>
-                <Select value={language} onValueChange={setLanguage}>
-                  <SelectTrigger id="language" className="bg-muted/50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {LANGUAGES.map((lang) => (
-                      <SelectItem key={lang.value} value={lang.value}>
-                        {lang.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Density */}
-              <div className="space-y-2">
-                <Label htmlFor="density" className="text-sm font-medium">Density</Label>
-                <Select value={density} onValueChange={(v) => setDensity(v as DensityLevel)}>
-                  <SelectTrigger id="density" className="bg-muted/50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DENSITY_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Preview Badge */}
-            <div className="flex flex-wrap gap-2 p-3 bg-muted/30 rounded-lg border border-border/30">
-              <Badge variant="secondary" className="text-xs">
-                {outputType === "presentation" ? "📊 Presentation" : "📱 Social"}
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                {cardsCount} cards
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                {THEMES[theme].label}
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                {LANGUAGES.find(l => l.value === language)?.label}
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                {selectedDensity?.label}
-              </Badge>
-            </div>
-
-            {/* Prompt Textarea */}
-            <div className="space-y-3">
-              <Label htmlFor="prompt" className="text-sm font-medium">
-                What would you like to create?
-              </Label>
-              <Textarea
-                id="prompt"
-                placeholder="Describe your presentation topic, key points, or paste your notes..."
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                className="min-h-[120px] bg-muted/50 resize-none"
-                disabled={generating}
-              />
-            </div>
-
-            {/* Example Prompts */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium text-muted-foreground">
-                Example prompts
-              </Label>
-              <div className="flex flex-wrap gap-2">
-                {EXAMPLE_PROMPTS.map((example) => (
-                  <button
-                    key={example}
-                    onClick={() => handleExampleClick(example)}
-                    disabled={generating}
-                    className={cn(
-                      "px-3 py-1.5 text-xs rounded-full border border-border/50",
-                      "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                      "transition-colors disabled:opacity-50"
-                    )}
-                  >
-                    {example.length > 40 ? example.slice(0, 40) + "…" : example}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Generate Button */}
-            <Button
-              variant="hero"
-              size="lg"
-              className="w-full"
-              onClick={handleGenerate}
-              disabled={!prompt.trim() || generating}
+          {/* Back button when in a flow */}
+          {activeEntry && (
+            <button
+              onClick={() => setActiveEntry(null)}
+              className="mb-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              {generating ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-5 w-5 mr-2" />
-                  Generate Deck
-                </>
-              )}
-            </Button>
-          </div>
+              ← Back to options
+            </button>
+          )}
+
+          {/* Studio Controls - shown when "scratch" is selected or directly */}
+          {(activeEntry === "scratch" || activeEntry === "quick" || activeEntry === "import") && (
+            <div className="space-y-8 bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 sm:p-8">
+              
+              {/* Output Type Toggle */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Output Type</Label>
+                <ToggleGroup
+                  type="single"
+                  value={outputType}
+                  onValueChange={(v) => v && setOutputType(v as OutputType)}
+                  className="justify-start"
+                >
+                  <ToggleGroupItem value="presentation" className="gap-2 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground">
+                    <Presentation className="h-4 w-4" />
+                    Presentation
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="social" className="gap-2 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground">
+                    <Share2 className="h-4 w-4" />
+                    Social Cards
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+
+              {/* Options Row */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                {/* Cards Count */}
+                <div className="space-y-2">
+                  <Label htmlFor="cards-count" className="text-sm font-medium">Cards</Label>
+                  <Select value={String(cardsCount)} onValueChange={(v) => setCardsCount(Number(v))}>
+                    <SelectTrigger id="cards-count" className="bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CARD_COUNT_OPTIONS.map((count) => (
+                        <SelectItem key={count} value={String(count)}>
+                          {count} cards
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Theme */}
+                <div className="space-y-2">
+                  <Label htmlFor="theme" className="text-sm font-medium">Theme</Label>
+                  <Select value={theme} onValueChange={(v) => setTheme(v as ThemeId)}>
+                    <SelectTrigger id="theme" className="bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(THEMES).map(([id, { label }]) => (
+                        <SelectItem key={id} value={id}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Language */}
+                <div className="space-y-2">
+                  <Label htmlFor="language" className="text-sm font-medium">Language</Label>
+                  <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger id="language" className="bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LANGUAGES.map((lang) => (
+                        <SelectItem key={lang.value} value={lang.value}>
+                          {lang.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Density */}
+                <div className="space-y-2">
+                  <Label htmlFor="density" className="text-sm font-medium">Density</Label>
+                  <Select value={density} onValueChange={(v) => setDensity(v as DensityLevel)}>
+                    <SelectTrigger id="density" className="bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DENSITY_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Visuals Mode */}
+                <div className="space-y-2">
+                  <Label htmlFor="visuals" className="text-sm font-medium">Visuals</Label>
+                  <Select value={visualsMode} onValueChange={(v) => setVisualsMode(v as VisualsMode)}>
+                    <SelectTrigger id="visuals" className="bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {VISUALS_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Preview Badge */}
+              <div className="flex flex-wrap gap-2 p-3 bg-muted/30 rounded-lg border border-border/30">
+                <Badge variant="secondary" className="text-xs">
+                  {outputType === "presentation" ? "📊 Presentation" : "📱 Social"}
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  {cardsCount} cards
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  {THEMES[theme].label}
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  {LANGUAGES.find(l => l.value === language)?.label}
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  {selectedDensity?.label}
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  {selectedVisuals?.label}
+                </Badge>
+              </div>
+
+              {/* Prompt Textarea */}
+              <div className="space-y-3">
+                <Label htmlFor="prompt" className="text-sm font-medium">
+                  What would you like to create?
+                </Label>
+                <Textarea
+                  id="prompt"
+                  placeholder="Describe your presentation topic, key points, or paste your notes..."
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="min-h-[120px] bg-muted/50 resize-none"
+                  disabled={generating}
+                />
+              </div>
+
+              {/* Example Prompts */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium text-muted-foreground">
+                  Example prompts
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {EXAMPLE_PROMPTS.map((example) => (
+                    <button
+                      key={example}
+                      onClick={() => handleExampleClick(example)}
+                      disabled={generating}
+                      className={cn(
+                        "px-3 py-1.5 text-xs rounded-full border border-border/50",
+                        "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                        "transition-colors disabled:opacity-50"
+                      )}
+                    >
+                      {example.length > 40 ? example.slice(0, 40) + "…" : example}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Generate Button */}
+              <Button
+                variant="hero"
+                size="lg"
+                className="w-full"
+                onClick={handleGenerate}
+                disabled={!prompt.trim() || generating}
+              >
+                {generating ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-5 w-5 mr-2" />
+                    Generate Deck
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       </main>
     </>

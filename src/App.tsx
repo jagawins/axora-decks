@@ -14,6 +14,7 @@ import Preview from "./pages/Preview";
 import PublicPreview from "./pages/PublicPreview";
 import Print from "./pages/Print";
 import Create from "./pages/Create";
+import Templates from "./pages/Templates";
 import GammaAlternative from "./pages/GammaAlternative";
 import PowerPointAI from "./pages/PowerPointAI";
 import PPTGenerator from "./pages/PPTGenerator";
@@ -42,6 +43,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/create" element={<Create />} />
+                <Route path="/templates" element={<Templates />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/editor/:id" element={<Editor />} />
