@@ -17,6 +17,7 @@ import GammaAlternative from "./pages/GammaAlternative";
 import PowerPointAI from "./pages/PowerPointAI";
 import PPTGenerator from "./pages/PPTGenerator";
 import ExecutiveDeckGenerator from "./pages/ExecutiveDeckGenerator";
+import AIDeckGenerator from "./pages/AIDeckGenerator";
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
 import AIIndex from "./pages/AIIndex";
@@ -45,6 +46,7 @@ const App = () => (
                 <Route path="/powerpoint-ai" element={<PowerPointAI />} />
                 <Route path="/ppt-generator" element={<PPTGenerator />} />
                 <Route path="/executive-deck-generator" element={<ExecutiveDeckGenerator />} />
+                <Route path="/ai-deck-generator" element={<AIDeckGenerator />} />
                 <Route path="/features" element={<Features />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/ai-index" element={<AIIndex />} />
