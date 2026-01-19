@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      assets: {
+        Row: {
+          alt: string
+          aspect: string | null
+          block_id: string | null
+          created_at: string
+          credit: string | null
+          id: string
+          project_id: string | null
+          provider: string | null
+          query: string | null
+          src: string
+        }
+        Insert: {
+          alt: string
+          aspect?: string | null
+          block_id?: string | null
+          created_at?: string
+          credit?: string | null
+          id?: string
+          project_id?: string | null
+          provider?: string | null
+          query?: string | null
+          src: string
+        }
+        Update: {
+          alt?: string
+          aspect?: string | null
+          block_id?: string | null
+          created_at?: string
+          credit?: string | null
+          id?: string
+          project_id?: string | null
+          provider?: string | null
+          query?: string | null
+          src?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blocks: {
         Row: {
           content: Json
@@ -99,6 +146,39 @@ export type Database = {
           id?: string
           name?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      image_cache: {
+        Row: {
+          alt: string
+          aspect: string | null
+          created_at: string
+          credit: string | null
+          id: string
+          provider: string
+          query: string
+          src: string
+        }
+        Insert: {
+          alt: string
+          aspect?: string | null
+          created_at?: string
+          credit?: string | null
+          id?: string
+          provider: string
+          query: string
+          src: string
+        }
+        Update: {
+          alt?: string
+          aspect?: string | null
+          created_at?: string
+          credit?: string | null
+          id?: string
+          provider?: string
+          query?: string
+          src?: string
         }
         Relationships: []
       }
