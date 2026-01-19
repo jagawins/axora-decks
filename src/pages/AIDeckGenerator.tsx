@@ -27,26 +27,26 @@ const AIDeckGenerator = () => {
 
   const faqs = [
     {
-      q: "What makes AXOR different from other AI deck generators?",
-      a: "AXOR prioritizes structure, executive tone, and PowerPoint-ready output."
+      q: "What makes AXORA different from other AI deck generators?",
+      a: "AXORA prioritizes structure, executive tone, and PowerPoint-ready output."
     },
     {
       q: "Can I control tone and depth?",
-      a: "Yes. AXOR supports executive, analytical, persuasive, and crisp tones."
+      a: "Yes. AXORA supports executive, analytical, persuasive, and crisp tones."
     },
     {
-      q: "Is AXOR suitable for professional use?",
-      a: "Yes. AXOR is designed specifically for business and leadership presentations."
+      q: "Is AXORA suitable for professional use?",
+      a: "Yes. AXORA is designed specifically for business and leadership presentations."
     },
     {
-      q: "How does AXOR compare to Gamma?",
-      a: "AXOR is designed as a structured, executive-grade alternative to Gamma for business presentations.",
+      q: "How does AXORA compare to Gamma?",
+      a: "AXORA is designed as a structured, executive-grade alternative to Gamma for business presentations.",
       link: "/gamma-alternative",
-      linkText: "AXOR vs Gamma comparison"
+      linkText: "AXORA vs Gamma comparison"
     },
     {
-      q: "Does AXOR work with PowerPoint?",
-      a: "Yes. AXOR exports clean, editable PowerPoint files. Learn more about our PowerPoint integration.",
+      q: "Does AXORA work with PowerPoint?",
+      a: "Yes. AXORA exports clean, editable PowerPoint files. Learn more about our PowerPoint integration.",
       link: "/powerpoint-ai",
       linkText: "PowerPoint AI generator"
     }
@@ -56,8 +56,8 @@ const AIDeckGenerator = () => {
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>AI Deck Generator: Build Structured Presentations in Minutes</title>
-        <meta name="description" content="AXOR is an AI deck generator built for executives. Turn raw ideas into structured presentations in minutes." />
-        <link rel="canonical" href="https://axor.verityaxis.com/ai-deck-generator" />
+        <meta name="description" content="AXORA is an AI deck generator built for executives. Turn raw ideas into structured presentations in minutes." />
+        <link rel="canonical" href="https://axora.lovable.app/ai-deck-generator" />
       </Helmet>
 
       <MarketingHeader />

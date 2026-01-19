@@ -74,10 +74,10 @@ const Features = () => {
           ))}
         </div>
 
-        {/* Why AXOR contextual link */}
+        {/* Why AXORA contextual link */}
         <div className="text-center mb-12">
           <p className="text-muted-foreground">
-            Unlike Gamma, AXOR generates structured blocks instead of free-form slides.{" "}
+            Unlike Gamma, AXORA generates structured blocks instead of free-form slides.{" "}
             <Link to="/gamma-alternative" className="text-accent hover:underline">
               See the full comparison →
             </Link>

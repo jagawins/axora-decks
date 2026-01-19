@@ -39,7 +39,7 @@ const PPTGenerator = () => {
               </h1>
               
               <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-                Not a design toy. AXOR builds structured slides with reasoning, clarity, 
+                Not a design toy. AXORA builds structured slides with reasoning, clarity, 
                 and decision-ready messaging.
               </p>
 
@@ -62,7 +62,7 @@ const PPTGenerator = () => {
             
             <div className="max-w-2xl mx-auto">
               <div className="glass-card p-8">
-                <p className="text-lg text-muted-foreground mb-6">AXOR creates:</p>
+                <p className="text-lg text-muted-foreground mb-6">AXORA creates:</p>
                 <ul className="space-y-4">
                   {slideTypes.map((item, i) => (
                     <li key={i} className="flex items-center gap-3">
@@ -87,7 +87,7 @@ const PPTGenerator = () => {
                 Exports That Don't Break
               </h2>
               <p className="text-lg text-muted-foreground">
-                Unlike other tools, AXOR exports clean PowerPoint files without 
+                Unlike other tools, AXORA exports clean PowerPoint files without 
                 broken layers or styling artifacts.
               </p>
             </div>

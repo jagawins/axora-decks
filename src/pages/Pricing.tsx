@@ -239,8 +239,8 @@ const Pricing = () => {
           <div className="container-narrow text-center">
             <p className="text-muted-foreground mb-8">
               Questions? Contact us at{" "}
-              <a href="mailto:hello@axor.verityaxis.com" className="text-accent hover:underline">
-                hello@axor.verityaxis.com
+              <a href="mailto:jagawins@gmail.com" className="text-accent hover:underline">
+                jagawins@gmail.com
               </a>
             </p>
             <p className="text-muted-foreground">
