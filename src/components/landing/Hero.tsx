@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Hero = () => {
@@ -26,39 +26,40 @@ const Hero = () => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-sm font-medium mb-8 animate-fade-in-up">
             <Sparkles className="h-4 w-4" />
-            <span>AI-Powered Executive Presentations</span>
+            <span>AI Presentation Generator for Executives</span>
           </div>
 
-          {/* Main headline */}
+          {/* Main headline - H1 for SEO */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animation-delay-100">
             Turn raw ideas into{" "}
             <span className="text-gradient">executive-grade</span>{" "}
-            decks with absolute clarity
+            PowerPoint decks in minutes
           </h1>
 
           {/* Subheadline */}
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
-            AXORA transforms your unstructured thoughts into polished, 
-            presentation-ready documents. From chaos to clarity in minutes.
+            AXOR transforms unstructured thinking into polished, board-ready presentations. 
+            Designed for leaders who need clarity, speed, and precision—not slides full of noise.
           </p>
 
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up animation-delay-300">
             <Link to="/auth">
               <Button variant="hero" size="xl" className="group">
-                Try AXORA Free
+                Try AXOR Free
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Button variant="hero-outline" size="xl">
+            <Button variant="hero-outline" size="xl" className="group">
+              <Play className="h-5 w-5 mr-1" />
               Watch Demo
             </Button>
           </div>
 
-          {/* Social proof */}
+          {/* Trust indicators */}
           <div className="mt-12 pt-8 border-t border-white/5 animate-fade-in-up animation-delay-400">
             <p className="text-sm text-muted-foreground mb-4">
-              Trusted by teams at forward-thinking companies
+              Trusted by leaders at consulting firms, enterprises, and startups
             </p>
             <div className="flex items-center justify-center gap-8 opacity-40">
               <span className="text-lg font-semibold tracking-wide">McKinsey</span>
