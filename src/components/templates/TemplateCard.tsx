@@ -1,6 +1,9 @@
 import { Badge } from '@/components/ui/badge';
-import { Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Star, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { TemplateBlock } from '@/lib/templates';
+import { TemplatePreview } from './TemplatePreview';
 
 interface TemplateCardProps {
   id: string;
@@ -9,6 +12,7 @@ interface TemplateCardProps {
   category: string;
   tags: string[];
   isFeatured: boolean;
+  previewBlocks: TemplateBlock[];
   onSelect: (id: string) => void;
 }
 
@@ -19,31 +23,49 @@ export function TemplateCard({
   category,
   tags,
   isFeatured,
+  previewBlocks,
   onSelect,
 }: TemplateCardProps) {
   return (
-    <button
-      onClick={() => onSelect(id)}
+    <div
       className={cn(
-        "group relative text-left w-full rounded-xl border bg-card p-5 transition-all duration-200",
-        "hover:border-accent/50 hover:shadow-lg hover:shadow-accent/5",
-        "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background",
-        isFeatured && "border-accent/30 bg-gradient-to-br from-accent/5 to-transparent"
+        "group relative flex flex-col rounded-xl border bg-card overflow-hidden transition-all duration-200",
+        "hover:border-accent/50 hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-1",
+        isFeatured && "border-accent/30 ring-1 ring-accent/20"
       )}
     >
       {/* Featured badge */}
       {isFeatured && (
-        <div className="absolute -top-2 -right-2">
-          <Badge variant="default" className="bg-accent text-accent-foreground gap-1">
+        <div className="absolute top-3 right-3 z-10">
+          <Badge variant="default" className="bg-accent text-accent-foreground gap-1 shadow-lg">
             <Star className="h-3 w-3 fill-current" />
             Featured
           </Badge>
         </div>
       )}
 
+      {/* Preview thumbnail */}
+      <button
+        onClick={() => onSelect(id)}
+        className="relative w-full focus:outline-none focus:ring-2 focus:ring-accent focus:ring-inset"
+      >
+        <TemplatePreview 
+          blocks={previewBlocks} 
+          className="border-0 rounded-none border-b"
+        />
+        
+        {/* Hover overlay with CTA */}
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <Button variant="hero" size="sm" className="gap-2 shadow-lg">
+            Use Template
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </button>
+
       {/* Content */}
-      <div className="space-y-3">
-        <div>
+      <div className="p-4 flex-1 flex flex-col">
+        <div className="flex-1">
           <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors line-clamp-1">
             {title}
           </h3>
@@ -53,7 +75,7 @@ export function TemplateCard({
         </div>
 
         {/* Category & Tags */}
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5 mt-3">
           <Badge variant="secondary" className="text-xs">
             {category.split(' ')[0]}
           </Badge>
@@ -64,9 +86,6 @@ export function TemplateCard({
           ))}
         </div>
       </div>
-
-      {/* Hover indicator */}
-      <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-transparent via-accent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-b-xl" />
-    </button>
+    </div>
   );
 }
