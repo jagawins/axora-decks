@@ -1,4 +1,4 @@
-import Navbar from "@/components/landing/Navbar";
+import MarketingHeader from "@/components/MarketingHeader";
 import Hero from "@/components/landing/Hero";
 import ValueTriplet from "@/components/landing/ValueTriplet";
 import Features from "@/components/landing/Features";
@@ -9,7 +9,7 @@ import Footer from "@/components/landing/Footer";
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <MarketingHeader />
       <main>
         <Hero />
         <ValueTriplet />
