@@ -32,6 +32,7 @@ import {
   Palette,
   FileDown,
   Upload,
+  LayoutTemplate,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
@@ -53,6 +54,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { CreateDeckModal } from "@/components/CreateDeckModal";
 import { ImportContentModal } from "@/components/ImportContentModal";
+import { ApplyTemplateModal } from "@/components/ApplyTemplateModal";
+import { getTemplateById } from "@/lib/block-templates";
 
 interface Project {
   id: string;
@@ -203,6 +206,9 @@ const Editor = () => {
   // AI deck generation modals
   const [createDeckOpen, setCreateDeckOpen] = useState(false);
   const [importContentOpen, setImportContentOpen] = useState(false);
+
+  // Apply template state
+  const [applyTemplateOpen, setApplyTemplateOpen] = useState(false);
 
   // Add block state
   const [addBlockOpen, setAddBlockOpen] = useState(false);
@@ -457,6 +463,83 @@ const Editor = () => {
       });
     } finally {
       setGenerating(false);
+    }
+  };
+
+  // Apply Template handler
+  const handleApplyTemplate = async (templateId: string, context?: string) => {
+    const block = blocks.find((b) => b.id === selectedBlockId);
+    if (!block) return;
+
+    const template = getTemplateById(templateId);
+    if (!template) {
+      toast({
+        title: "Template not found",
+        description: "The selected template could not be found.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Enforce type preservation on client side as well
+    if (template.type !== block.type) {
+      toast({
+        title: "Type mismatch",
+        description: `Template is for ${template.type} blocks, but selected block is ${block.type}.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Call refine-block with templateId instead of instruction
+      const { data, error } = await supabase.functions.invoke("refine-block", {
+        body: {
+          block: {
+            type: block.type,
+            content: block.content,
+            order_index: block.order_index,
+          },
+          templateId,
+          context,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const refinedBlock = data?.block;
+      if (!refinedBlock?.content) {
+        throw new Error("No content returned from template application");
+      }
+
+      // Enforce type preservation: reject if type changed
+      if (refinedBlock.type !== block.type) {
+        console.error("Type changed during template application, rejecting", refinedBlock.type, block.type);
+        throw new Error("Template output violated type preservation");
+      }
+
+      let sanitized = sanitizeContent(refinedBlock.content);
+      sanitized = normalizeBlockContent(block.type, sanitized);
+
+      if (block.type === "list" && Array.isArray(sanitized.items)) {
+        sanitized.items = sanitizeListItems(sanitized.items);
+      }
+
+      updateBlock(block.id, sanitized);
+
+      toast({
+        title: "Template applied",
+        description: `Block transformed using "${template.name}" template.`,
+      });
+    } catch (error) {
+      console.error("Apply template error:", error);
+      toast({
+        title: "Template application failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+      throw error; // Re-throw to let modal handle loading state
     }
   };
 
@@ -884,8 +967,13 @@ const Editor = () => {
                   <Wand2 className="h-4 w-4 mr-2" />
                   Agent Edit
                 </Button>
+
+                <Button variant="outline" className="w-full justify-start" onClick={() => setApplyTemplateOpen(true)}>
+                  <LayoutTemplate className="h-4 w-4 mr-2" />
+                  Apply Template
+                </Button>
                 <p className="text-xs text-muted-foreground px-1">
-                  Rewrites selected block only
+                  Transform block using a predefined format
                 </p>
 
                 <div className="pt-4 border-t border-border">
@@ -1144,6 +1232,17 @@ const Editor = () => {
 
       {/* Import Content Modal */}
       <ImportContentModal open={importContentOpen} onOpenChange={setImportContentOpen} onImport={handleImportContent} />
+
+      {/* Apply Template Modal */}
+      {selectedBlock && (
+        <ApplyTemplateModal
+          open={applyTemplateOpen}
+          onOpenChange={setApplyTemplateOpen}
+          blockType={selectedBlock.type}
+          blockPreview={getBlockPreview(selectedBlock)}
+          onApply={handleApplyTemplate}
+        />
+      )}
     </div>
   );
 };
