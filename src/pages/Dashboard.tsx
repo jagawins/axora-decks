@@ -16,7 +16,9 @@ import { CreateProjectModal } from '@/components/library/CreateProjectModal';
 import { RenameModal } from '@/components/library/RenameModal';
 import { CreateDeckModal } from '@/components/CreateDeckModal';
 import { ImportContentModal } from '@/components/ImportContentModal';
+import { TemplatesGrid } from '@/components/templates/TemplatesGrid';
 import { SUBSCRIPTION_TIERS, getProjectLimit } from '@/lib/subscription';
+import { fetchTemplates, Template } from '@/lib/templates';
 
 interface Project {
   id: string;
@@ -43,6 +45,8 @@ const Dashboard = () => {
   
   // State
   const [projects, setProjects] = useState<Project[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   
@@ -358,12 +362,30 @@ const Dashboard = () => {
     }
   };
 
-  const handleSidebarTabChange = (tab: string) => {
+  const handleSidebarTabChange = async (tab: string) => {
     if (tab === 'upgrade') {
       handleUpgrade();
       return;
     }
     setSidebarTab(tab);
+    
+    // Load templates when switching to templates tab
+    if (tab === 'templates' && templates.length === 0) {
+      setTemplatesLoading(true);
+      try {
+        const data = await fetchTemplates();
+        setTemplates(data);
+      } catch (error) {
+        console.error('Error loading templates:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load templates.',
+          variant: 'destructive',
+        });
+      } finally {
+        setTemplatesLoading(false);
+      }
+    }
   };
 
   if (authLoading || loading) {
@@ -529,11 +551,24 @@ const Dashboard = () => {
           )}
 
           {sidebarTab === 'templates' && (
-            <div className="text-center py-16">
-              <h1 className="text-2xl font-bold mb-4">Templates</h1>
-              <p className="text-muted-foreground">
-                Coming soon! Professional templates for every use case.
+            <div className="space-y-6">
+              <h1 className="text-2xl font-bold">Templates</h1>
+              <p className="text-muted-foreground max-w-2xl">
+                Professional templates for every use case. Click any template to create a new deck with pre-built content.
               </p>
+              <TemplatesGrid 
+                templates={templates} 
+                loading={templatesLoading} 
+                onRefresh={async () => {
+                  setTemplatesLoading(true);
+                  try {
+                    const data = await fetchTemplates();
+                    setTemplates(data);
+                  } finally {
+                    setTemplatesLoading(false);
+                  }
+                }}
+              />
             </div>
           )}
 
