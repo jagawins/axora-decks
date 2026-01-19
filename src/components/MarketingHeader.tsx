@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import axoraLogo from "@/assets/axora-logo.png";
+import axoraIcon from "@/assets/axora-icon.svg";
 
 const MarketingHeader = () => {
   const { user, loading } = useAuth();
@@ -16,8 +16,9 @@ const MarketingHeader = () => {
         <div className="hidden md:grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-4">
           {/* Left: Logo with fixed width */}
           <div className="flex items-center">
-            <Link to="/" className="w-40 shrink-0">
-              <img src={axoraLogo} alt="Axora" className="h-14 w-auto shrink-0" />
+            <Link to="/" className="flex items-center gap-2">
+              <img src={axoraIcon} alt="AXORA" className="h-8 w-8" />
+              <span className="text-lg font-bold tracking-tight">AXORA</span>
             </Link>
           </div>
 
@@ -64,8 +65,9 @@ const MarketingHeader = () => {
 
         {/* Mobile: Logo + hamburger */}
         <div className="flex md:hidden h-16 items-center justify-between">
-          <Link to="/" className="w-40 shrink-0">
-            <img src={axoraLogo} alt="Axora" className="h-14 w-auto shrink-0" />
+          <Link to="/" className="flex items-center gap-2">
+            <img src={axoraIcon} alt="AXORA" className="h-8 w-8" />
+            <span className="text-lg font-bold tracking-tight">AXORA</span>
           </Link>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
