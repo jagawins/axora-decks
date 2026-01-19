@@ -18,31 +18,31 @@ const PowerPointAI = () => {
 
   const faqs = [
     {
-      q: "Is AXOR a PowerPoint replacement?",
-      a: "No. AXOR generates the content and structure. PowerPoint remains the delivery format."
+      q: "Is AXORA a PowerPoint replacement?",
+      a: "No. AXORA generates the content and structure. PowerPoint remains the delivery format."
     },
     {
       q: "Can I edit slides after export?",
-      a: "Yes. AXOR exports editable PowerPoint files."
+      a: "Yes. AXORA exports editable PowerPoint files."
     },
     {
       q: "Is this better than PowerPoint Copilot?",
-      a: "AXOR focuses on structure and clarity first, before design or formatting."
+      a: "AXORA focuses on structure and clarity first, before design or formatting."
     },
     {
-      q: "How does AXOR compare to Gamma?",
-      a: "AXOR is built as a structured alternative to Gamma for executives. See our detailed comparison.",
+      q: "How does AXORA compare to Gamma?",
+      a: "AXORA is built as a structured alternative to Gamma for executives. See our detailed comparison.",
       link: "/gamma-alternative",
-      linkText: "AXOR vs Gamma"
+      linkText: "AXORA vs Gamma"
     }
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>PowerPoint AI Generator: Create Executive Slides with AXOR</title>
-        <meta name="description" content="Use AXOR as your PowerPoint AI generator. Create structured, executive-ready slides in minutes and export cleanly to PowerPoint." />
-        <link rel="canonical" href="https://axor.verityaxis.com/powerpoint-ai" />
+        <title>PowerPoint AI Generator: Create Executive Slides with AXORA</title>
+        <meta name="description" content="Use AXORA as your PowerPoint AI generator. Create structured, executive-ready slides in minutes and export cleanly to PowerPoint." />
+        <link rel="canonical" href="https://axora.lovable.app/powerpoint-ai" />
       </Helmet>
 
       <MarketingHeader />

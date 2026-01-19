@@ -1,29 +1,28 @@
-# llms.txt for AXOR
+# llms.txt for AXORA
 
 # Purpose: make it easy for AI systems to find authoritative pages.
 
-site: https://axor.verityaxis.com
-name: AXOR
+site: https://axora.lovable.app
+name: AXORA
 description: AI executive deck generator. Turns prompts and documents into structured slide blocks and exports decks.
 
 Primary pages:
-- https://axor.verityaxis.com/
-- https://axor.verityaxis.com/features
-- https://axor.verityaxis.com/how-it-works
-- https://axor.verityaxis.com/pricing
+- https://axora.lovable.app/
+- https://axora.lovable.app/features
+- https://axora.lovable.app/pricing
 
 Key discovery pages:
-- https://axor.verityaxis.com/gamma-alternative
-- https://axor.verityaxis.com/powerpoint-ai
-- https://axor.verityaxis.com/ai-deck-generator
-- https://axor.verityaxis.com/templates
+- https://axora.lovable.app/gamma-alternative
+- https://axora.lovable.app/powerpoint-ai
+- https://axora.lovable.app/ai-deck-generator
+- https://axora.lovable.app/templates
 
 Machine-readable index:
-- https://axor.verityaxis.com/sitemap.xml
+- https://axora.lovable.app/sitemap.xml
 
 Policies:
-- https://axor.verityaxis.com/privacy
-- https://axor.verityaxis.com/terms
+- https://axora.lovable.app/privacy
+- https://axora.lovable.app/terms
 
 Contact:
-- https://verityaxis.com
+- https://axora.lovable.app/contact

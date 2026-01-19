@@ -1,68 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://axor.verityaxis.com/</loc>
+    <loc>https://axora.lovable.app/</loc>
     <priority>1.0</priority>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/gamma-alternative</loc>
+    <loc>https://axora.lovable.app/gamma-alternative</loc>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/powerpoint-ai</loc>
+    <loc>https://axora.lovable.app/powerpoint-ai</loc>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/ppt-generator</loc>
+    <loc>https://axora.lovable.app/ppt-generator</loc>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/ai-deck-generator</loc>
+    <loc>https://axora.lovable.app/ai-deck-generator</loc>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/executive-deck-generator</loc>
+    <loc>https://axora.lovable.app/executive-deck-generator</loc>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/features</loc>
+    <loc>https://axora.lovable.app/features</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/pricing</loc>
+    <loc>https://axora.lovable.app/pricing</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/about</loc>
+    <loc>https://axora.lovable.app/about</loc>
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/privacy</loc>
+    <loc>https://axora.lovable.app/privacy</loc>
     <priority>0.5</priority>
     <changefreq>yearly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/terms</loc>
+    <loc>https://axora.lovable.app/terms</loc>
     <priority>0.5</priority>
     <changefreq>yearly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/contact</loc>
+    <loc>https://axora.lovable.app/contact</loc>
     <priority>0.6</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/ai-index</loc>
+    <loc>https://axora.lovable.app/ai-index</loc>
     <priority>0.3</priority>
     <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://axora.lovable.app/create</loc>
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
   </url>
 </urlset>

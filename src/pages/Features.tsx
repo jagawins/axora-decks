@@ -9,12 +9,12 @@ const Features = () => {
     {
       icon: Brain,
       title: "Structured Thinking Engine",
-      description: "AXOR is engineered for logic-first slides: headings → insights → supporting detail."
+      description: "AXORA is engineered for logic-first slides: headings → insights → supporting detail."
     },
     {
       icon: FileText,
       title: "AI Outline → Deck Pipeline",
-      description: "Upload notes, briefs, docs, or outlines. AXOR converts them into fully structured slides."
+      description: "Upload notes, briefs, docs, or outlines. AXORA converts them into fully structured slides."
     },
     {
       icon: MessageSquare,
@@ -57,7 +57,7 @@ const Features = () => {
               </h1>
               
               <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Every feature in AXOR serves one purpose: turning your ideas into 
+                Every feature in AXORA serves one purpose: turning your ideas into 
                 clear, structured, decision-ready presentations.
               </p>
             </div>
@@ -105,7 +105,7 @@ const Features = () => {
               </h2>
               <Link to="/auth">
                 <Button variant="hero" size="xl" className="group">
-                  Try AXOR Free
+                  Try AXORA Free
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
