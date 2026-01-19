@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import MarketingHeader from "@/components/MarketingHeader";
 import Footer from "@/components/landing/Footer";
 import FounderCard from "@/components/landing/FounderCard";
+import CreatorNote from "@/components/landing/CreatorNote";
 
 const ExecutiveDeckGenerator = () => {
   const qualities = [
@@ -101,6 +102,9 @@ const ExecutiveDeckGenerator = () => {
 
         {/* Founder Card */}
         <FounderCard />
+
+        {/* Creator Note for SEO */}
+        <CreatorNote />
 
         {/* CTA */}
         <section className="py-20 border-t border-white/5">

@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Linkedin, Twitter } from "lucide-react";
+import { ArrowRight, Linkedin, Globe } from "lucide-react";
 import MarketingHeader from "@/components/MarketingHeader";
 import Footer from "@/components/landing/Footer";
 import founderCardSquare from "@/assets/founder-card-square.png";
@@ -16,10 +16,7 @@ const About = () => {
         "@id": "https://axora.lovable.app/#organization",
         "name": "AXORA",
         "url": "https://axora.lovable.app",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://axora.lovable.app/favicon.png"
-        },
+        "logo": "https://axora.lovable.app/favicon.svg",
         "description": "AI-powered executive presentation generator. Turn raw ideas into structured, decision-ready decks.",
         "founder": {
           "@id": "https://axora.lovable.app/#person"
@@ -33,33 +30,68 @@ const About = () => {
         "@id": "https://axora.lovable.app/#person",
         "name": "Jag Mariappan",
         "jobTitle": "Founder",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "AXORA"
+        },
         "worksFor": {
           "@id": "https://axora.lovable.app/#organization"
         },
         "image": "https://axora.lovable.app/founder-card-og.png",
         "url": "https://axora.lovable.app/about",
         "sameAs": [
-          "https://x.com/inaxora",
-          "https://linkedin.com/in/jagmariappan"
+          "https://www.linkedin.com/in/jagwinstoday",
+          "https://jagmariappan.com"
         ],
-        "description": "Founder of AXORA. Building executive-grade AI presentation tools for leaders, consultants, and strategists."
+        "knowsAbout": [
+          "AI presentations",
+          "Executive communication",
+          "Digital transformation",
+          "Strategy development",
+          "Enterprise systems",
+          "Healthcare technology",
+          "AI-driven workflows"
+        ],
+        "description": "Founder of AXORA. Building executive-grade AI presentation tools for leaders, consultants, and strategists. Two decades of experience in technology, healthcare, enterprise systems, and AI-driven transformation."
       }
     ]
   };
 
+  const journeyItems = [
+    "Enterprise portfolio leadership at Stanford Medicine",
+    "Founder of multiple AI-driven platforms",
+    "Experience across Medtronic, HCL, IBM, public infrastructure, and healthtech",
+    "Real-world expertise in governance, digital strategy, and complex systems"
+  ];
+
+  const philosophyItems = [
+    {
+      title: "Structure reveals clarity",
+      description: "Great leaders don't speak more — they speak with intention. AXORA mirrors that mindset through structured blocks, meaningful hierarchy, and visual discipline."
+    },
+    {
+      title: "Precision matters more than decoration",
+      description: "Beautiful slides fail instantly if the logic is weak. AXORA prioritizes thinking, logic flow, and coherence."
+    },
+    {
+      title: "AI should enhance judgment, not replace it",
+      description: "The platform uses AI to accelerate clarity, not overwhelm it. AXORA is designed so users stay in control — every block, every refinement, every choice."
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>About AXORA — Jag Mariappan, Founder</title>
+        <title>About the Founder — Jag Mariappan | AXORA</title>
         <meta 
           name="description" 
-          content="Meet Jag Mariappan, founder of AXORA. Learn about the mission to build executive-grade AI presentation tools for leaders and strategists." 
+          content="Meet Jag Mariappan, founder of AXORA. Two decades of experience in technology, healthcare, and enterprise systems. Building executive-grade AI presentation tools for leaders." 
         />
         <link rel="canonical" href="https://axora.lovable.app/about" />
         
         {/* OG Tags with wide founder image */}
-        <meta property="og:title" content="About AXORA — Jag Mariappan, Founder" />
-        <meta property="og:description" content="Meet Jag Mariappan, founder of AXORA. Building executive-grade AI presentation tools." />
+        <meta property="og:title" content="About the Founder — Jag Mariappan | AXORA" />
+        <meta property="og:description" content="Meet Jag Mariappan, founder of AXORA. Building executive-grade AI presentation tools for leaders and strategists." />
         <meta property="og:image" content="https://axora.lovable.app/founder-card-og.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="628" />
@@ -68,7 +100,7 @@ const About = () => {
         
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="About AXORA — Jag Mariappan, Founder" />
+        <meta name="twitter:title" content="About the Founder — Jag Mariappan | AXORA" />
         <meta name="twitter:description" content="Meet Jag Mariappan, founder of AXORA. Building executive-grade AI presentation tools." />
         <meta name="twitter:image" content="https://axora.lovable.app/founder-card-og.png" />
         <meta name="twitter:creator" content="@inaxora" />
@@ -83,22 +115,27 @@ const About = () => {
       
       <main>
         {/* Hero Section */}
-        <section className="relative pt-32 pb-20 overflow-hidden">
+        <section className="relative pt-32 pb-16 overflow-hidden">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-accent/10 rounded-full blur-[120px] opacity-60" />
           </div>
           
           <div className="container-narrow relative z-10">
             <div className="max-w-4xl mx-auto">
+              {/* Page Title */}
+              <h1 className="text-4xl sm:text-5xl font-bold text-center mb-16">
+                About the Founder
+              </h1>
+
               {/* Founder Card */}
-              <div className="glass-card overflow-hidden mb-12">
+              <div className="glass-card overflow-hidden mb-16">
                 {/* Header gradient band */}
                 <div className="h-32 bg-gradient-to-r from-[hsl(210,100%,95%)] to-[hsl(210,100%,88%)]" />
                 
                 {/* Content area */}
                 <div className="px-8 pb-8 -mt-16">
-                  <div className="flex flex-col md:flex-row items-start md:items-end gap-6 mb-8">
-                    {/* Profile image - using square for page, with srcset for retina */}
+                  <div className="flex flex-col md:flex-row items-start md:items-end gap-6 mb-6">
+                    {/* Profile image - using square for page */}
                     <img 
                       src={founderCardSquare} 
                       alt="Jag Mariappan — Founder of AXORA" 
@@ -108,38 +145,22 @@ const About = () => {
                     {/* Name and title */}
                     <div className="flex-1">
                       <div className="flex items-center gap-3 flex-wrap mb-2">
-                        <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
                           Jag Mariappan
-                        </h1>
+                        </h2>
                         <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-sm font-semibold">
                           AXORA
                         </span>
                       </div>
                       <p className="text-lg text-muted-foreground">
-                        Founder of AXORA · <a 
-                          href="https://x.com/inaxora" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-accent hover:underline"
-                        >
-                          @inaxora
-                        </a>
+                        Founder & Creator of <span className="text-accent font-medium">AXORA</span>
                       </p>
                     </div>
                     
                     {/* Social links */}
                     <div className="flex gap-3">
                       <a 
-                        href="https://x.com/inaxora" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="p-2 rounded-lg bg-muted hover:bg-accent/10 transition-colors"
-                        aria-label="Follow on X (Twitter)"
-                      >
-                        <Twitter className="h-5 w-5" />
-                      </a>
-                      <a 
-                        href="https://linkedin.com/in/jagmariappan" 
+                        href="https://www.linkedin.com/in/jagwinstoday" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="p-2 rounded-lg bg-muted hover:bg-accent/10 transition-colors"
@@ -147,77 +168,110 @@ const About = () => {
                       >
                         <Linkedin className="h-5 w-5" />
                       </a>
+                      <a 
+                        href="https://jagmariappan.com" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="p-2 rounded-lg bg-muted hover:bg-accent/10 transition-colors"
+                        aria-label="Personal website"
+                      >
+                        <Globe className="h-5 w-5" />
+                      </a>
                     </div>
                   </div>
-                  
-                  {/* Tagline */}
-                  <p className="text-xl text-foreground font-medium mb-4">
-                    I build executive grade decks fast. Structured blocks in, polished slides out.
+                </div>
+              </div>
+
+              {/* The Commitment Section */}
+              <div className="mb-16">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-6">The commitment behind AXORA</h2>
+                
+                <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
+                  <p>
+                    AXORA was built from a simple idea: <span className="text-foreground font-medium">clarity is the foundation of leadership.</span>
+                  </p>
+                  <p>
+                    In every executive room, every board meeting, and every strategic review, the leaders who win are the ones who communicate with precision.
+                  </p>
+                  <p>
+                    Jag Mariappan has spent more than two decades operating at the intersection of 
+                    <span className="text-foreground font-medium"> technology, healthcare, enterprise systems, and AI-driven transformation</span>. 
+                    His work spans digital operations, enterprise governance, AI-enabled workflows, and large-scale transformation programs across institutions and emerging startups.
+                  </p>
+                  <p>
+                    AXORA reflects that experience. It is not a toy, not a writing assistant, not a generic deck generator — 
+                    it is a tool built for people who think, move, and lead at an executive level.
                   </p>
                 </div>
               </div>
 
-              {/* Biography Section */}
-              <div className="prose prose-lg prose-invert max-w-none">
-                <h2 className="text-2xl font-bold mb-6">About AXORA</h2>
+              {/* Philosophy Section */}
+              <div className="mb-16">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-8">The philosophy that shaped AXORA</h2>
                 
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  AXORA was born from a simple frustration: most AI presentation tools generate 
-                  slides that look impressive but say nothing. They prioritize design over substance, 
-                  creativity over clarity.
-                </p>
-                
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  After years of building strategy decks, investor updates, and board presentations, 
-                  I realized what executives actually need isn't another design tool—it's a thinking tool. 
-                  A system that structures ideas into clear, logical narratives before worrying about fonts 
-                  and gradients.
-                </p>
-                
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  AXORA approaches presentations differently. Instead of generating random slides, 
-                  it builds decks from structured blocks: headings, text, lists, tables, callouts, 
-                  and two-column layouts. Each block serves a purpose. Each slide advances an argument.
-                </p>
+                <div className="grid gap-6">
+                  {philosophyItems.map((item, i) => (
+                    <div key={i} className="glass-card p-6">
+                      <h3 className="text-xl font-bold mb-3 text-accent">{i + 1}. {item.title}</h3>
+                      <p className="text-muted-foreground leading-relaxed">{item.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-                <h3 className="text-xl font-bold mt-10 mb-4">The Philosophy</h3>
+              {/* Journey Section */}
+              <div className="mb-16">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-6">The journey behind the platform</h2>
                 
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  Great presentations aren't about visual impact—they're about decision impact. 
-                  The best executive decks are clear, concise, and structured for action. They 
-                  anticipate questions, address objections, and guide stakeholders toward decisions.
-                </p>
+                <p className="text-lg text-muted-foreground mb-6">Jag's work includes:</p>
                 
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  AXORA is built on this philosophy. It generates presentations that think like 
-                  executives: brevity over verbosity, hierarchy over chaos, clarity over cleverness.
-                </p>
-
-                <h3 className="text-xl font-bold mt-10 mb-4">Who It's For</h3>
-                
-                <ul className="space-y-3 mb-8">
-                  {[
-                    "Executives who need to communicate strategy clearly",
-                    "Founders pitching to investors or boards",
-                    "Consultants building client deliverables",
-                    "Product leaders presenting roadmaps and reviews",
-                    "Strategy teams preparing leadership briefings"
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-3 text-muted-foreground">
+                <ul className="space-y-4 mb-8">
+                  {journeyItems.map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
                       <span className="text-accent mt-1">→</span>
-                      {item}
+                      <span className="text-foreground">{item}</span>
                     </li>
                   ))}
                 </ul>
                 
-                <p className="text-muted-foreground leading-relaxed">
-                  If you care more about what your presentation says than how it looks, 
-                  AXORA is built for you.
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  AXORA is the convergence of those domains — a platform built by someone who has lived the work, not just observed it.
                 </p>
               </div>
 
+              {/* Name Origin Section */}
+              <div className="mb-16">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-6">Why the name AXORA?</h2>
+                
+                <div className="glass-card p-8 border-accent/20">
+                  <p className="text-lg text-muted-foreground mb-4">AXORA represents:</p>
+                  
+                  <div className="text-center py-6">
+                    <p className="text-2xl font-bold text-accent mb-2">Axiom + Aura</p>
+                    <p className="text-lg text-muted-foreground">Truth + Insight</p>
+                    <p className="text-lg text-muted-foreground">Clarity + Presence</p>
+                  </div>
+                  
+                  <p className="text-lg text-muted-foreground leading-relaxed">
+                    It blends logic with intuition, structure with brilliance — the exact balance required for high-stakes executive communication.
+                  </p>
+                </div>
+              </div>
+
+              {/* Mission Section */}
+              <div className="mb-16">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-6">The mission</h2>
+                
+                <div className="space-y-4 text-lg">
+                  <p className="text-foreground font-medium">To help leaders communicate with clarity, confidence, and conviction.</p>
+                  <p className="text-muted-foreground">To eliminate noise.</p>
+                  <p className="text-muted-foreground">To make structure the default.</p>
+                  <p className="text-accent font-medium">To make every idea sharp enough to matter.</p>
+                </div>
+              </div>
+
               {/* CTA */}
-              <div className="mt-12 flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-4">
                 <Link to="/auth">
                   <Button variant="hero" size="xl" className="group">
                     Try AXORA Free
