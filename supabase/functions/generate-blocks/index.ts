@@ -134,6 +134,82 @@ function validateRequest(body: unknown): ValidationResult {
   };
 }
 
+// Normalize block content to expected schema
+function normalizeBlockContent(type: string, content: BlockContent): BlockContent {
+  const normalized: BlockContent = { ...content };
+
+  switch (type) {
+    case "heading":
+      // Handle various heading formats
+      if (normalized.level === undefined) {
+        normalized.level = normalized.heading_level ?? normalized.size ?? 1;
+      }
+      if (normalized.text === undefined) {
+        normalized.text = normalized.heading ?? normalized.title ?? normalized.value ?? "";
+      }
+      break;
+
+    case "text":
+      // Handle various text formats
+      if (normalized.text === undefined) {
+        normalized.text = normalized.paragraph ?? normalized.body ?? normalized.content ?? normalized.value ?? "";
+      }
+      break;
+
+    case "list":
+      // Handle various list formats
+      if (!Array.isArray(normalized.items)) {
+        normalized.items = normalized.list ?? normalized.points ?? normalized.bullets ?? [];
+      }
+      if (normalized.ordered === undefined) {
+        normalized.ordered = normalized.is_ordered ?? normalized.numbered ?? false;
+      }
+      break;
+
+    case "callout":
+      // Handle various callout formats
+      if (normalized.text === undefined) {
+        normalized.text = normalized.message ?? normalized.content ?? normalized.body ?? "";
+      }
+      if (normalized.icon === undefined) {
+        normalized.icon = normalized.type ?? normalized.variant ?? "info";
+      }
+      break;
+
+    case "two_col":
+      // Handle various two-column formats
+      if (normalized.left === undefined) {
+        normalized.left = normalized.left_column ?? normalized.column1 ?? normalized.col1 ?? "";
+      }
+      if (normalized.right === undefined) {
+        normalized.right = normalized.right_column ?? normalized.column2 ?? normalized.col2 ?? "";
+      }
+      break;
+
+    case "table":
+      // Handle various table formats
+      if (!Array.isArray(normalized.headers)) {
+        normalized.headers = normalized.header ?? normalized.columns ?? [];
+      }
+      if (!Array.isArray(normalized.rows)) {
+        normalized.rows = normalized.data ?? normalized.cells ?? [];
+      }
+      break;
+
+    case "image":
+      // Handle various image formats
+      if (normalized.src === undefined) {
+        normalized.src = normalized.url ?? normalized.source ?? normalized.image_url ?? "";
+      }
+      if (normalized.alt === undefined) {
+        normalized.alt = normalized.alt_text ?? normalized.description ?? normalized.title ?? "";
+      }
+      break;
+  }
+
+  return normalized;
+}
+
 // Validate block content has required keys and non-empty values
 function validateBlockContent(type: string, content: BlockContent): { valid: boolean; missingKeys: string[] } {
   const requiredKeys = REQUIRED_KEYS[type];
@@ -141,10 +217,12 @@ function validateBlockContent(type: string, content: BlockContent): { valid: boo
     return { valid: false, missingKeys: [`unknown type: ${type}`] };
   }
 
+  // First normalize the content
+  const normalizedContent = normalizeBlockContent(type, content);
   const missingKeys: string[] = [];
 
   for (const key of requiredKeys) {
-    const value = content[key];
+    const value = normalizedContent[key];
     
     if (value === undefined || value === null) {
       missingKeys.push(key);
@@ -189,18 +267,21 @@ function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }
       continue;
     }
 
-    // Validate required keys
-    const contentValidation = validateBlockContent(block.type, block.content);
+    // Normalize the content first
+    const normalizedContent = normalizeBlockContent(block.type, block.content);
+
+    // Validate required keys on normalized content
+    const contentValidation = validateBlockContent(block.type, normalizedContent);
     if (!contentValidation.valid) {
       errors.push(`block[${i}] (${block.type}): missing keys [${contentValidation.missingKeys.join(", ")}]`);
       invalidCount++;
       continue;
     }
 
-    // Block is valid
+    // Block is valid - use normalized and sanitized content
     validBlocks.push({
       type: block.type as Block["type"],
-      content: sanitizeContent(block.content),
+      content: sanitizeContent(normalizedContent),
       order_index: i,
     });
   }
@@ -214,12 +295,13 @@ function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }
 }
 
 // Parse AI response and extract blocks
-function parseAIResponse(data: Record<string, unknown>): { blocks: Array<{ type: string; content: BlockContent }> | null; parseError?: string } {
+function parseAIResponse(data: Record<string, unknown>, requestId: string): { blocks: Array<{ type: string; content: BlockContent }> | null; parseError?: string } {
   // Try tool call first
   const toolCall = (data.choices as Array<{ message?: { tool_calls?: Array<{ function?: { arguments?: string } }> } }>)?.[0]?.message?.tool_calls?.[0];
   if (toolCall?.function?.arguments) {
     try {
       const result = JSON.parse(toolCall.function.arguments);
+      console.log(`[${requestId}] Raw tool call blocks sample:`, JSON.stringify(result.blocks?.[0] ?? {}).slice(0, 200));
       if (Array.isArray(result.blocks)) {
         return { blocks: result.blocks };
       }
@@ -235,6 +317,7 @@ function parseAIResponse(data: Record<string, unknown>): { blocks: Array<{ type:
     try {
       const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
       const result = JSON.parse(cleanContent);
+      console.log(`[${requestId}] Raw content blocks sample:`, JSON.stringify(result.blocks?.[0] ?? {}).slice(0, 200));
       if (Array.isArray(result.blocks)) {
         return { blocks: result.blocks };
       }
@@ -326,28 +409,40 @@ async function callAI(
             type: "function",
             function: {
               name: "create_blocks",
-              description: "Create presentation blocks from outline. MUST include all required content keys.",
+              description: "Create presentation blocks. Each block must have type and content with ALL required fields populated with actual text.",
               parameters: {
                 type: "object",
                 properties: {
                   blocks: {
                     type: "array",
+                    description: "Array of presentation blocks. Each block MUST have non-empty content fields.",
                     items: {
                       type: "object",
                       properties: {
                         type: { 
                           type: "string", 
                           enum: ["heading", "text", "list", "callout", "two_col", "table"],
-                          description: "The block type"
+                          description: "Block type"
                         },
                         content: { 
                           type: "object",
-                          description: "Content object with ALL required keys for the block type"
+                          description: "For heading: {level: 1|2|3, text: 'actual heading text'}. For text: {text: 'paragraph text'}. For list: {items: ['item1','item2'], ordered: false}. For callout: {text: 'callout text', icon: 'info'}. For two_col: {left: 'left text', right: 'right text'}. For table: {headers: ['col1'], rows: [['data']]}. ALL text fields MUST contain actual content, not empty strings.",
+                          properties: {
+                            level: { type: "number", description: "Heading level 1-3 (for heading type)" },
+                            text: { type: "string", description: "The actual text content - MUST NOT be empty" },
+                            items: { type: "array", items: { type: "string" }, description: "List items - MUST NOT be empty array" },
+                            ordered: { type: "boolean" },
+                            icon: { type: "string", enum: ["info", "warning", "success"] },
+                            left: { type: "string", description: "Left column text - MUST NOT be empty" },
+                            right: { type: "string", description: "Right column text - MUST NOT be empty" },
+                            headers: { type: "array", items: { type: "string" } },
+                            rows: { type: "array", items: { type: "array", items: { type: "string" } } }
+                          }
                         }
                       },
                       required: ["type", "content"]
                     },
-                    minItems: 1
+                    minItems: 5
                   }
                 },
                 required: ["blocks"]
@@ -447,7 +542,7 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
     const data1 = await response1.json();
     console.log(`[${requestId}] AI response received (attempt 1)`);
 
-    const parsed1 = parseAIResponse(data1);
+    const parsed1 = parseAIResponse(data1, requestId);
     
     if (parsed1.blocks) {
       const blockValidation1 = validateBlocks(parsed1.blocks);
@@ -489,7 +584,7 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
       const data2 = await result2.response.json();
       console.log(`[${requestId}] AI response received (attempt 2)`);
 
-      const parsed2 = parseAIResponse(data2);
+      const parsed2 = parseAIResponse(data2, requestId);
       
       if (parsed2.blocks) {
         const blockValidation2 = validateBlocks(parsed2.blocks);
@@ -517,7 +612,7 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
 
       if (result2.response?.ok) {
         const data2 = await result2.response.json();
-        const parsed2 = parseAIResponse(data2);
+        const parsed2 = parseAIResponse(data2, requestId);
         
         if (parsed2.blocks) {
           const blockValidation2 = validateBlocks(parsed2.blocks);
