@@ -106,24 +106,33 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-white/5 pt-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            {/* Logo */}
-            <div className="flex items-center">
-              <img src={axoraWordmark} alt="AXORA" className="h-6 w-auto" />
-            </div>
+        {/* Founder Signature */}
+        <div className="border-t border-white/5 pt-8 mb-8">
+          <p className="text-sm text-center text-muted-foreground">
+            Built by{" "}
+            <Link to="/about" className="text-accent hover:underline font-medium">
+              Jag Mariappan
+            </Link>{" "}
+            — Founder of AXORA
+          </p>
+        </div>
 
-            {/* Micro-copy */}
-            <p className="text-sm text-muted-foreground text-center max-w-md">
-              AXOR is an AI deck generator built for executives who need structured, presentation-ready slides — not generic content.
-            </p>
-
-            {/* Copyright */}
-            <p className="text-sm text-muted-foreground">
-              © 2024 AXORA. All rights reserved.
-            </p>
+        {/* Bottom Bar */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* Logo */}
+          <div className="flex items-center">
+            <img src={axoraWordmark} alt="AXORA" className="h-6 w-auto" />
           </div>
+
+          {/* Micro-copy */}
+          <p className="text-sm text-muted-foreground text-center max-w-md">
+            AXORA is an AI deck generator built for executives who need structured, presentation-ready slides — not generic content.
+          </p>
+
+          {/* Copyright */}
+          <p className="text-sm text-muted-foreground">
+            © 2024 AXORA. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

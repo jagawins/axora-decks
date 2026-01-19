@@ -5,6 +5,7 @@ import { Helmet } from "react-helmet-async";
 import MarketingHeader from "@/components/MarketingHeader";
 import Footer from "@/components/landing/Footer";
 import FounderCard from "@/components/landing/FounderCard";
+import CreatorNote from "@/components/landing/CreatorNote";
 
 const AIDeckGenerator = () => {
   const blockTypes = [
@@ -231,6 +232,9 @@ const AIDeckGenerator = () => {
 
         {/* Founder Card */}
         <FounderCard />
+
+        {/* Creator Note for SEO */}
+        <CreatorNote />
 
         {/* Internal Links */}
         <section className="py-12 border-t border-white/5">
