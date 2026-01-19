@@ -21,18 +21,23 @@
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/executive-deck-generator</loc>
+    <loc>https://axor.verityaxis.com/ai-deck-generator</loc>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://axor.verityaxis.com/pricing</loc>
-    <priority>0.5</priority>
-    <changefreq>monthly</changefreq>
+    <loc>https://axor.verityaxis.com/executive-deck-generator</loc>
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://axor.verityaxis.com/features</loc>
-    <priority>0.5</priority>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://axor.verityaxis.com/pricing</loc>
+    <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>

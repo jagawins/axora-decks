@@ -1,21 +1,42 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, FileText, BarChart, Users, Building, Heart, Landmark } from "lucide-react";
+import { ArrowRight, Sparkles, Check } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import MarketingHeader from "@/components/MarketingHeader";
 import Footer from "@/components/landing/Footer";
 
 const PowerPointAI = () => {
   const useCases = [
-    { icon: FileText, label: "Strategy decks" },
-    { icon: BarChart, label: "Investor updates" },
-    { icon: Users, label: "Operating reviews" },
-    { icon: Building, label: "Transformation plans" },
-    { icon: Landmark, label: "Board presentations" },
-    { icon: Heart, label: "Healthcare, finance & enterprise" },
+    "Board updates",
+    "Quarterly business reviews",
+    "Product strategy decks",
+    "Executive summaries",
+    "Investment memos"
+  ];
+
+  const faqs = [
+    {
+      q: "Is AXOR a PowerPoint replacement?",
+      a: "No. AXOR generates the content and structure. PowerPoint remains the delivery format."
+    },
+    {
+      q: "Can I edit slides after export?",
+      a: "Yes. AXOR exports editable PowerPoint files."
+    },
+    {
+      q: "Is this better than PowerPoint Copilot?",
+      a: "AXOR focuses on structure and clarity first, before design or formatting."
+    }
   ];
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>PowerPoint AI Generator: Create Executive Slides with AXOR</title>
+        <meta name="description" content="Use AXOR as your PowerPoint AI generator. Create structured, executive-ready slides in minutes and export cleanly to PowerPoint." />
+        <link rel="canonical" href="https://axor.verityaxis.com/powerpoint-ai" />
+      </Helmet>
+
       <MarketingHeader />
       
       <main>
@@ -29,16 +50,19 @@ const PowerPointAI = () => {
             <div className="text-center max-w-4xl mx-auto">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-sm font-medium mb-8">
                 <Sparkles className="h-4 w-4" />
-                <span>AI PowerPoint Generator</span>
+                <span>PowerPoint AI</span>
               </div>
               
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
-                AI PowerPoint Generator for{" "}
-                <span className="text-gradient">Leaders Who Need Clarity</span>
+                PowerPoint AI Generator for Executive Slides
               </h1>
               
-              <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-                Turn rough notes into structured, executive-grade PowerPoint decks in minutes.
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-4 leading-relaxed">
+                PowerPoint isn't broken. The way decks are created is.
+              </p>
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-10">
+                AXOR acts as an AI layer on top of PowerPoint thinking, helping you generate clear, 
+                structured slides before design ever begins.
               </p>
 
               <Link to="/auth">
@@ -51,17 +75,56 @@ const PowerPointAI = () => {
           </div>
         </section>
 
-        {/* Core Message */}
+        {/* AI That Thinks in Slides */}
         <section className="py-20 border-t border-white/5">
           <div className="container-narrow">
+            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8">
+              AI That Thinks in Slides, Not Prompts
+            </h2>
             <div className="max-w-3xl mx-auto text-center">
-              <p className="text-2xl sm:text-3xl font-medium leading-relaxed mb-6">
-                AI design tools create slides.<br />
-                <span className="text-accent">AXOR creates structured thinking.</span>
+              <p className="text-lg text-muted-foreground mb-8">
+                AXOR doesn't generate random slides. It generates:
               </p>
-              <p className="text-lg text-muted-foreground">
-                This is the difference. AXOR converts ideas into argument-driven narratives, 
-                not template-driven visuals.
+              <div className="grid sm:grid-cols-3 gap-4">
+                {["Slide hierarchy", "Logical flow", "Clear talking points"].map((item, i) => (
+                  <div key={i} className="glass-card p-6">
+                    <Check className="h-6 w-6 text-accent mx-auto mb-3" />
+                    <p className="font-medium">{item}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-muted-foreground mt-8">
+                Each block becomes a slide or slide section.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Built for PowerPoint Export */}
+        <section className="py-20 border-t border-white/5">
+          <div className="container-narrow">
+            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8">
+              Built for PowerPoint Export
+            </h2>
+            <div className="max-w-3xl mx-auto">
+              <p className="text-center text-lg text-muted-foreground mb-8">
+                AXOR decks export with:
+              </p>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  "Clean headings",
+                  "Consistent bullet logic",
+                  "Tables that survive export",
+                  "Layouts that don't collapse"
+                ].map((item, i) => (
+                  <div key={i} className="glass-card p-4 text-center">
+                    <Check className="h-5 w-5 text-accent mx-auto mb-2" />
+                    <p className="text-sm font-medium">{item}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-center text-lg font-medium text-accent mt-8">
+                No redesign required.
               </p>
             </div>
           </div>
@@ -70,41 +133,87 @@ const PowerPointAI = () => {
         {/* Use Cases */}
         <section className="py-20 border-t border-white/5">
           <div className="container-narrow">
-            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
-              What You Can Create
+            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
+              Typical PowerPoint Use Cases
             </h2>
-            
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 max-w-4xl mx-auto">
               {useCases.map((item, i) => (
-                <div key={i} className="glass-card p-6 flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                    <item.icon className="h-6 w-6 text-accent" />
-                  </div>
-                  <span className="text-lg font-medium">{item.label}</span>
+                <div key={i} className="glass-card p-4 text-center">
+                  <p className="font-medium">{item}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Why Better */}
+        {/* Improves Workflows */}
         <section className="py-20 border-t border-white/5">
           <div className="container-narrow">
-            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
-              Why It Outperforms PowerPoint Copilot & Gamma
+            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
+              How AXOR Improves PowerPoint Workflows
             </h2>
-            
-            <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
-              {[
-                "Sharper arguments",
-                "Cleaner hierarchy",
-                "Consistent slide logic",
-                "PPT-native exports"
-              ].map((item, i) => (
-                <div key={i} className="glass-card p-6 text-center">
-                  <p className="text-lg font-semibold text-accent">{item}</p>
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <div className="glass-card p-8">
+                <h3 className="text-xl font-bold mb-4 text-destructive/80">Instead of:</h3>
+                <ul className="space-y-3">
+                  {[
+                    "Staring at a blank slide",
+                    "Rewriting talking points",
+                    "Fixing structure late"
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-3 text-muted-foreground">
+                      <span className="text-destructive">✗</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="glass-card p-8 border-accent/20">
+                <h3 className="text-xl font-bold mb-4 text-accent">You start with:</h3>
+                <ul className="space-y-3">
+                  {[
+                    "A complete narrative",
+                    "Slide-ready structure",
+                    "AI-generated clarity"
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <Check className="h-5 w-5 text-accent shrink-0" />
+                      <span className="text-muted-foreground">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQs */}
+        <section className="py-20 border-t border-white/5">
+          <div className="container-narrow">
+            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
+              Frequently Asked Questions
+            </h2>
+            <div className="max-w-3xl mx-auto space-y-6">
+              {faqs.map((faq, i) => (
+                <div key={i} className="glass-card p-6">
+                  <h3 className="text-lg font-semibold mb-2">{faq.q}</h3>
+                  <p className="text-muted-foreground">{faq.a}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Internal Links */}
+        <section className="py-12 border-t border-white/5">
+          <div className="container-narrow">
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link to="/gamma-alternative" className="text-accent hover:underline">
+                AXOR vs Gamma →
+              </Link>
+              <Link to="/ai-deck-generator" className="text-accent hover:underline">
+                AI Deck Generator →
+              </Link>
             </div>
           </div>
         </section>
@@ -114,7 +223,7 @@ const PowerPointAI = () => {
           <div className="container-narrow">
             <div className="glass-card p-12 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold mb-6">
-                Ready to create executive-grade decks?
+                Start creating PowerPoint decks with AI
               </h2>
               <Link to="/auth">
                 <Button variant="hero" size="xl" className="group">
