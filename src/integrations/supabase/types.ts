@@ -191,6 +191,30 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          subscribed: boolean
+          subscription_end: string | null
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          subscribed?: boolean
+          subscription_end?: string | null
+          tier?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          subscribed?: boolean
+          subscription_end?: string | null
+          tier?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
