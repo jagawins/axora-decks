@@ -215,6 +215,77 @@ export type Database = {
         }
         Relationships: []
       }
+      template_blocks: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          order_index: number
+          template_id: string
+          type: Database["public"]["Enums"]["block_type"]
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          id?: string
+          order_index?: number
+          template_id: string
+          type: Database["public"]["Enums"]["block_type"]
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          order_index?: number
+          template_id?: string
+          type?: Database["public"]["Enums"]["block_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_blocks_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      templates: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_featured: boolean
+          slug: string
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean
+          slug: string
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean
+          slug?: string
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
