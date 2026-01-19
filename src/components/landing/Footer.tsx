@@ -88,19 +88,19 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                <Link to="/privacy" className="text-sm text-muted-foreground hover:text-accent transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                <Link to="/terms" className="text-sm text-muted-foreground hover:text-accent transition-colors">
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="mailto:hello@axor.verityaxis.com" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                <Link to="/contact" className="text-sm text-muted-foreground hover:text-accent transition-colors">
                   Contact
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
