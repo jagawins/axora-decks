@@ -46,6 +46,21 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
+    <loc>https://axor.verityaxis.com/privacy</loc>
+    <priority>0.5</priority>
+    <changefreq>yearly</changefreq>
+  </url>
+  <url>
+    <loc>https://axor.verityaxis.com/terms</loc>
+    <priority>0.5</priority>
+    <changefreq>yearly</changefreq>
+  </url>
+  <url>
+    <loc>https://axor.verityaxis.com/contact</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
     <loc>https://axor.verityaxis.com/ai-index</loc>
     <priority>0.3</priority>
     <changefreq>monthly</changefreq>

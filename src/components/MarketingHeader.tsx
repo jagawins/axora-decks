@@ -35,6 +35,9 @@ const MarketingHeader = () => {
             <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Pricing
             </Link>
+            <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Contact
+            </Link>
           </div>
 
           {/* Right: CTA Buttons */}
@@ -108,6 +111,13 @@ const MarketingHeader = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               Pricing
+            </Link>
+            <Link 
+              to="/contact" 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Contact
             </Link>
             <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
               {loading ? null : user ? (
