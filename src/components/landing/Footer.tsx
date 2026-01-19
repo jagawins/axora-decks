@@ -1,9 +1,32 @@
+import { Link } from "react-router-dom";
 import axoraLogo from "@/assets/axora-logo.png";
 
 const Footer = () => {
   return (
     <footer className="border-t border-border py-12">
       <div className="container-wide">
+        {/* SEO Links Section */}
+        <div className="flex flex-wrap justify-center gap-6 mb-8 pb-8 border-b border-white/5">
+          <Link 
+            to="/gamma-alternative" 
+            className="text-sm text-muted-foreground hover:text-accent transition-colors"
+          >
+            Gamma Alternative
+          </Link>
+          <Link 
+            to="/powerpoint-ai" 
+            className="text-sm text-muted-foreground hover:text-accent transition-colors"
+          >
+            PowerPoint AI
+          </Link>
+          <Link 
+            to="/ai-deck-generator" 
+            className="text-sm text-muted-foreground hover:text-accent transition-colors"
+          >
+            AI Deck Generator
+          </Link>
+        </div>
+
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Logo */}
           <div className="flex items-center gap-2">

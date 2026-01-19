@@ -35,6 +35,18 @@ const AIDeckGenerator = () => {
     {
       q: "Is AXOR suitable for professional use?",
       a: "Yes. AXOR is designed specifically for business and leadership presentations."
+    },
+    {
+      q: "How does AXOR compare to Gamma?",
+      a: "AXOR is designed as a structured, executive-grade alternative to Gamma for business presentations.",
+      link: "/gamma-alternative",
+      linkText: "AXOR vs Gamma comparison"
+    },
+    {
+      q: "Does AXOR work with PowerPoint?",
+      a: "Yes. AXOR exports clean, editable PowerPoint files. Learn more about our PowerPoint integration.",
+      link: "/powerpoint-ai",
+      linkText: "PowerPoint AI generator"
     }
   ];
 
@@ -199,7 +211,17 @@ const AIDeckGenerator = () => {
               {faqs.map((faq, i) => (
                 <div key={i} className="glass-card p-6">
                   <h3 className="text-lg font-semibold mb-2">{faq.q}</h3>
-                  <p className="text-muted-foreground">{faq.a}</p>
+                  <p className="text-muted-foreground">
+                    {faq.a}
+                    {faq.link && (
+                      <>
+                        {" "}
+                        <Link to={faq.link} className="text-accent hover:underline">
+                          {faq.linkText} →
+                        </Link>
+                      </>
+                    )}
+                  </p>
                 </div>
               ))}
             </div>
@@ -209,12 +231,15 @@ const AIDeckGenerator = () => {
         {/* Internal Links */}
         <section className="py-12 border-t border-white/5">
           <div className="container-narrow">
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-6">
               <Link to="/gamma-alternative" className="text-accent hover:underline">
-                AXOR vs Gamma →
+                Gamma alternative →
               </Link>
               <Link to="/powerpoint-ai" className="text-accent hover:underline">
-                PowerPoint AI Generator →
+                PowerPoint AI generator →
+              </Link>
+              <Link to="/" className="text-muted-foreground hover:text-accent transition-colors">
+                Home →
               </Link>
             </div>
           </div>

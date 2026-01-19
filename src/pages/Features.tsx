@@ -83,6 +83,19 @@ const Features = () => {
           </div>
         </section>
 
+        {/* SEO Link */}
+        <section className="py-12 border-t border-white/5">
+          <div className="container-narrow text-center">
+            <p className="text-muted-foreground">
+              Looking for a{" "}
+              <Link to="/gamma-alternative" className="text-accent hover:underline">
+                structured alternative to Gamma for business decks
+              </Link>
+              ?
+            </p>
+          </div>
+        </section>
+
         {/* CTA */}
         <section className="py-20 border-t border-white/5">
           <div className="container-narrow">

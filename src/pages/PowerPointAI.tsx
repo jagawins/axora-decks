@@ -26,6 +26,12 @@ const PowerPointAI = () => {
     {
       q: "Is this better than PowerPoint Copilot?",
       a: "AXOR focuses on structure and clarity first, before design or formatting."
+    },
+    {
+      q: "How does AXOR compare to Gamma?",
+      a: "AXOR is built as a structured alternative to Gamma for executives. See our detailed comparison.",
+      link: "/gamma-alternative",
+      linkText: "AXOR vs Gamma"
     }
   ];
 
@@ -197,7 +203,17 @@ const PowerPointAI = () => {
               {faqs.map((faq, i) => (
                 <div key={i} className="glass-card p-6">
                   <h3 className="text-lg font-semibold mb-2">{faq.q}</h3>
-                  <p className="text-muted-foreground">{faq.a}</p>
+                  <p className="text-muted-foreground">
+                    {faq.a}
+                    {faq.link && (
+                      <>
+                        {" "}
+                        <Link to={faq.link} className="text-accent hover:underline">
+                          {faq.linkText} →
+                        </Link>
+                      </>
+                    )}
+                  </p>
                 </div>
               ))}
             </div>
@@ -207,12 +223,15 @@ const PowerPointAI = () => {
         {/* Internal Links */}
         <section className="py-12 border-t border-white/5">
           <div className="container-narrow">
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-6">
               <Link to="/gamma-alternative" className="text-accent hover:underline">
-                AXOR vs Gamma →
+                Gamma alternative →
               </Link>
               <Link to="/ai-deck-generator" className="text-accent hover:underline">
-                AI Deck Generator →
+                AI deck generator →
+              </Link>
+              <Link to="/" className="text-muted-foreground hover:text-accent transition-colors">
+                Home →
               </Link>
             </div>
           </div>

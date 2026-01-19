@@ -130,11 +130,18 @@ const Pricing = () => {
         {/* FAQ or Trust */}
         <section className="py-20 border-t border-white/5">
           <div className="container-narrow text-center">
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground mb-8">
               Questions? Contact us at{" "}
               <a href="mailto:hello@axor.verityaxis.com" className="text-accent hover:underline">
                 hello@axor.verityaxis.com
               </a>
+            </p>
+            <p className="text-muted-foreground">
+              Explore our{" "}
+              <Link to="/ai-deck-generator" className="text-accent hover:underline">
+                features designed for executive AI deck generation
+              </Link>
+              .
             </p>
           </div>
         </section>
