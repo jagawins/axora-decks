@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import MarketingHeader from "@/components/MarketingHeader";
 import Footer from "@/components/landing/Footer";
+import FounderCard from "@/components/landing/FounderCard";
 
 const AIDeckGenerator = () => {
   const blockTypes = [
@@ -227,6 +228,9 @@ const AIDeckGenerator = () => {
             </div>
           </div>
         </section>
+
+        {/* Founder Card */}
+        <FounderCard />
 
         {/* Internal Links */}
         <section className="py-12 border-t border-white/5">

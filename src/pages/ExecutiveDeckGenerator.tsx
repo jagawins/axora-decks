@@ -3,6 +3,7 @@ import { ArrowRight, Sparkles, Target, BarChart3, Shield, Activity, CheckCircle 
 import { Link } from "react-router-dom";
 import MarketingHeader from "@/components/MarketingHeader";
 import Footer from "@/components/landing/Footer";
+import FounderCard from "@/components/landing/FounderCard";
 
 const ExecutiveDeckGenerator = () => {
   const qualities = [
@@ -97,6 +98,9 @@ const ExecutiveDeckGenerator = () => {
             </div>
           </div>
         </section>
+
+        {/* Founder Card */}
+        <FounderCard />
 
         {/* CTA */}
         <section className="py-20 border-t border-white/5">

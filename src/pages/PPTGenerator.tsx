@@ -3,6 +3,7 @@ import { ArrowRight, Sparkles, CheckCircle, FileOutput } from "lucide-react";
 import { Link } from "react-router-dom";
 import MarketingHeader from "@/components/MarketingHeader";
 import Footer from "@/components/landing/Footer";
+import FounderCard from "@/components/landing/FounderCard";
 
 const PPTGenerator = () => {
   const slideTypes = [
@@ -91,6 +92,9 @@ const PPTGenerator = () => {
             </div>
           </div>
         </section>
+
+        {/* Founder Card */}
+        <FounderCard />
 
         {/* CTA */}
         <section className="py-20 border-t border-white/5">
