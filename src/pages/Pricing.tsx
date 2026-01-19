@@ -1,15 +1,29 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowRight, Check, Sparkles, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import MarketingHeader from "@/components/MarketingHeader";
 import Footer from "@/components/landing/Footer";
+import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { SUBSCRIPTION_TIERS } from "@/lib/subscription";
+import { useToast } from "@/hooks/use-toast";
 
 const Pricing = () => {
+  const { user } = useAuth();
+  const { subscription, createCheckout } = useSubscription();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loadingTier, setLoadingTier] = useState<string | null>(null);
+  const [isAnnual, setIsAnnual] = useState(true);
+
   const plans = [
     {
       name: "Free",
       description: "For trying the product",
-      price: "$0",
+      monthlyPrice: "$0",
+      yearlyPrice: "$0",
       period: "forever",
       features: [
         "Limited deck generation",
@@ -17,27 +31,33 @@ const Pricing = () => {
         "Standard themes"
       ],
       cta: "Get Started",
-      featured: false
+      featured: false,
+      tier: "free" as const,
+      perUser: false,
     },
     {
       name: "Pro",
       description: "For operators, leaders, consultants",
-      price: "$29",
-      period: "/month",
+      monthlyPrice: "$28",
+      yearlyPrice: "$269",
+      yearlySavings: "Save 20%",
       features: [
         "Unlimited deck generation",
         "PPTX export",
         "Advanced themes",
         "Priority AI processing"
       ],
-      cta: "Start Pro Trial",
-      featured: true
+      cta: "Start Pro",
+      featured: true,
+      tier: "pro" as const,
+      perUser: false,
     },
     {
       name: "Team",
       description: "For companies and departments",
-      price: "$79",
-      period: "/user/month",
+      monthlyPrice: "$78",
+      yearlyPrice: "$749",
+      yearlySavings: "Save 20%",
       features: [
         "Everything in Pro",
         "Shared workspaces",
@@ -45,10 +65,49 @@ const Pricing = () => {
         "Centralized billing",
         "Admin dashboard"
       ],
-      cta: "Contact Sales",
-      featured: false
+      cta: "Start Team",
+      featured: false,
+      tier: "team" as const,
+      perUser: true,
     }
   ];
+
+  const handlePlanClick = async (tier: "free" | "pro" | "team") => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    if (tier === 'free') {
+      navigate('/dashboard');
+      return;
+    }
+
+    if (subscription.tier === tier) {
+      navigate('/dashboard');
+      return;
+    }
+
+    const tierConfig = SUBSCRIPTION_TIERS[tier];
+    const priceId = isAnnual ? tierConfig.yearlyPriceId : tierConfig.monthlyPriceId;
+    if (!priceId) return;
+
+    setLoadingTier(tier);
+    try {
+      const url = await createCheckout(priceId);
+      if (url) {
+        window.open(url, '_blank');
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to create checkout session. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setLoadingTier(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,9 +132,29 @@ const Pricing = () => {
                 <span className="text-gradient">professionals and teams</span>
               </h1>
               
-              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
                 Start free. Upgrade when you're ready for more power.
               </p>
+              
+              {/* Billing toggle */}
+              <div className="flex items-center justify-center gap-3">
+                <span className={`text-sm font-medium ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+                  Monthly
+                </span>
+                <Switch
+                  checked={isAnnual}
+                  onCheckedChange={setIsAnnual}
+                  className="data-[state=checked]:bg-accent"
+                />
+                <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+                  Annual
+                </span>
+                {isAnnual && (
+                  <span className="ml-2 px-2 py-0.5 bg-accent/20 text-accent text-xs font-semibold rounded-full">
+                    Save 20%
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -87,21 +166,36 @@ const Pricing = () => {
               {plans.map((plan, i) => (
                 <div 
                   key={i} 
-                  className={`glass-card p-8 relative ${plan.featured ? 'border-accent/50 ring-1 ring-accent/20' : ''}`}
+                  className={`glass-card p-8 relative ${plan.featured ? 'border-accent/50 ring-1 ring-accent/20' : ''} ${user && subscription.tier === plan.tier ? 'ring-2 ring-success' : ''}`}
                 >
-                  {plan.featured && (
+                  {plan.featured && !(user && subscription.tier === plan.tier) && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-accent text-accent-foreground text-sm font-medium rounded-full">
                       Most Popular
+                    </div>
+                  )}
+                  
+                  {user && subscription.tier === plan.tier && (
+                    <div className="absolute -top-3 right-4 px-3 py-1 bg-success text-success-foreground text-xs font-semibold rounded-full">
+                      Your Plan
                     </div>
                   )}
                   
                   <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                   <p className="text-muted-foreground mb-6">{plan.description}</p>
                   
-                  <div className="mb-6">
-                    <span className="text-4xl font-bold">{plan.price}</span>
-                    <span className="text-muted-foreground">{plan.period}</span>
+                  <div className="mb-2">
+                    <span className="text-4xl font-bold">
+                      {isAnnual ? plan.yearlyPrice : plan.monthlyPrice}
+                    </span>
+                    <span className="text-muted-foreground">
+                      /{isAnnual ? 'year' : 'month'}
+                      {plan.perUser && '/user'}
+                    </span>
                   </div>
+                  {isAnnual && plan.yearlySavings && (
+                    <p className="text-xs text-accent font-medium mb-4">{plan.yearlySavings}</p>
+                  )}
+                  {!plan.yearlySavings && <div className="mb-4" />}
                   
                   <ul className="space-y-3 mb-8">
                     {plan.features.map((feature, j) => (
@@ -112,15 +206,23 @@ const Pricing = () => {
                     ))}
                   </ul>
                   
-                  <Link to="/auth" className="block">
-                    <Button 
-                      variant={plan.featured ? "hero" : "outline"} 
-                      className="w-full"
-                    >
-                      {plan.cta}
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  </Link>
+                  <Button 
+                    variant={plan.featured ? "hero" : "outline"} 
+                    className="w-full"
+                    onClick={() => handlePlanClick(plan.tier)}
+                    disabled={loadingTier === plan.tier || (user && subscription.tier === plan.tier)}
+                  >
+                    {loadingTier === plan.tier ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : user && subscription.tier === plan.tier ? (
+                      "Current Plan"
+                    ) : (
+                      <>
+                        {plan.cta}
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </>
+                    )}
+                  </Button>
                 </div>
               ))}
             </div>
@@ -138,9 +240,9 @@ const Pricing = () => {
             </p>
             <p className="text-muted-foreground">
               Explore our{" "}
-              <Link to="/ai-deck-generator" className="text-accent hover:underline">
+              <a href="/ai-deck-generator" className="text-accent hover:underline">
                 features designed for executive AI deck generation
-              </Link>
+              </a>
               .
             </p>
           </div>

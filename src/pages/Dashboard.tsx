@@ -347,7 +347,7 @@ const Dashboard = () => {
   };
 
   const handleUpgrade = async () => {
-    const priceId = SUBSCRIPTION_TIERS.pro.priceId;
+    const priceId = SUBSCRIPTION_TIERS.pro.monthlyPriceId;
     if (!priceId) return;
 
     const url = await createCheckout(priceId);
