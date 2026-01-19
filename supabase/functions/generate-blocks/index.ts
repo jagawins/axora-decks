@@ -22,7 +22,7 @@ interface BlockContent {
 }
 
 interface Block {
-  type: "text" | "heading" | "list" | "callout" | "two_col" | "table";
+  type: "text" | "heading" | "list" | "callout" | "two_col" | "table" | "image";
   content: BlockContent;
   order_index: number;
 }
@@ -32,6 +32,26 @@ interface ValidationResult {
   error?: string;
   outline?: Outline;
 }
+
+interface BlockValidationResult {
+  valid: boolean;
+  invalidCount: number;
+  errors: string[];
+  blocks: Block[];
+}
+
+// Required content keys by block type
+const REQUIRED_KEYS: Record<string, string[]> = {
+  heading: ["level", "text"],
+  text: ["text"],
+  list: ["items", "ordered"],
+  callout: ["text", "icon"],
+  two_col: ["left", "right"],
+  table: ["headers", "rows"],
+  image: ["src", "alt"],
+};
+
+const VALID_BLOCK_TYPES = ["heading", "text", "list", "callout", "two_col", "table", "image"];
 
 // Utility to strip any Markdown formatting that slips through
 function stripMarkdown(s: unknown): unknown {
@@ -114,6 +134,237 @@ function validateRequest(body: unknown): ValidationResult {
   };
 }
 
+// Validate block content has required keys and non-empty values
+function validateBlockContent(type: string, content: BlockContent): { valid: boolean; missingKeys: string[] } {
+  const requiredKeys = REQUIRED_KEYS[type];
+  if (!requiredKeys) {
+    return { valid: false, missingKeys: [`unknown type: ${type}`] };
+  }
+
+  const missingKeys: string[] = [];
+
+  for (const key of requiredKeys) {
+    const value = content[key];
+    
+    if (value === undefined || value === null) {
+      missingKeys.push(key);
+      continue;
+    }
+
+    // Check for empty values
+    if (typeof value === "string" && value.trim() === "") {
+      missingKeys.push(`${key} (empty string)`);
+      continue;
+    }
+
+    if (Array.isArray(value) && value.length === 0) {
+      missingKeys.push(`${key} (empty array)`);
+      continue;
+    }
+  }
+
+  return { valid: missingKeys.length === 0, missingKeys };
+}
+
+// Validate all blocks and return detailed errors
+function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }>): BlockValidationResult {
+  const validBlocks: Block[] = [];
+  const errors: string[] = [];
+  let invalidCount = 0;
+
+  for (let i = 0; i < rawBlocks.length; i++) {
+    const block = rawBlocks[i];
+
+    // Check type
+    if (!block.type || !VALID_BLOCK_TYPES.includes(block.type)) {
+      errors.push(`block[${i}]: invalid type "${block.type || 'undefined'}"`);
+      invalidCount++;
+      continue;
+    }
+
+    // Check content exists
+    if (!block.content || typeof block.content !== "object") {
+      errors.push(`block[${i}] (${block.type}): content missing or not an object`);
+      invalidCount++;
+      continue;
+    }
+
+    // Validate required keys
+    const contentValidation = validateBlockContent(block.type, block.content);
+    if (!contentValidation.valid) {
+      errors.push(`block[${i}] (${block.type}): missing keys [${contentValidation.missingKeys.join(", ")}]`);
+      invalidCount++;
+      continue;
+    }
+
+    // Block is valid
+    validBlocks.push({
+      type: block.type as Block["type"],
+      content: sanitizeContent(block.content),
+      order_index: i,
+    });
+  }
+
+  return {
+    valid: invalidCount === 0 && validBlocks.length > 0,
+    invalidCount,
+    errors,
+    blocks: validBlocks,
+  };
+}
+
+// Parse AI response and extract blocks
+function parseAIResponse(data: Record<string, unknown>): { blocks: Array<{ type: string; content: BlockContent }> | null; parseError?: string } {
+  // Try tool call first
+  const toolCall = (data.choices as Array<{ message?: { tool_calls?: Array<{ function?: { arguments?: string } }> } }>)?.[0]?.message?.tool_calls?.[0];
+  if (toolCall?.function?.arguments) {
+    try {
+      const result = JSON.parse(toolCall.function.arguments);
+      if (Array.isArray(result.blocks)) {
+        return { blocks: result.blocks };
+      }
+      return { blocks: null, parseError: "tool call result missing blocks array" };
+    } catch (e) {
+      return { blocks: null, parseError: `tool call parse error: ${e}` };
+    }
+  }
+
+  // Fallback: try content
+  const content = (data.choices as Array<{ message?: { content?: string } }>)?.[0]?.message?.content;
+  if (content) {
+    try {
+      const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      const result = JSON.parse(cleanContent);
+      if (Array.isArray(result.blocks)) {
+        return { blocks: result.blocks };
+      }
+      return { blocks: null, parseError: "content result missing blocks array" };
+    } catch (e) {
+      return { blocks: null, parseError: `content parse error: ${e}` };
+    }
+  }
+
+  return { blocks: null, parseError: "no tool call or content in response" };
+}
+
+// Build the system prompt
+function buildSystemPrompt(isRetry: boolean, validationErrors?: string[]): string {
+  const strictSchema = `
+STRICT OUTPUT SCHEMA (JSON only, no markdown):
+{
+  "blocks": [
+    { "type": "heading", "content": { "level": 1, "text": "string" } },
+    { "type": "text", "content": { "text": "string" } },
+    { "type": "list", "content": { "items": ["string"], "ordered": false } },
+    { "type": "callout", "content": { "text": "string", "icon": "info|warning|success" } },
+    { "type": "two_col", "content": { "left": "string", "right": "string" } },
+    { "type": "table", "content": { "headers": ["string"], "rows": [["string"]] } }
+  ]
+}`;
+
+  let prompt = `You are an expert presentation designer. Convert outlines into presentation blocks.
+
+CRITICAL OUTPUT RULES (non-negotiable):
+- Return ONLY valid JSON matching the schema below. NO markdown, NO code fences.
+- Every block MUST have "type" and "content" fields.
+- Content MUST include ALL required keys for the block type.
+- All text must be plain strings - no asterisks, no bold markers, no bullet characters.
+- List items must be plain strings WITHOUT leading bullet/number characters.
+${strictSchema}
+
+REQUIRED CONTENT KEYS BY TYPE:
+- heading: { "level": number (1-3), "text": string }
+- text: { "text": string }
+- list: { "items": string[], "ordered": boolean }
+- callout: { "text": string, "icon": "info"|"warning"|"success" }
+- two_col: { "left": string, "right": string }
+- table: { "headers": string[], "rows": string[][] }
+
+Guidelines:
+- Start with H1 heading for title
+- Use H2 for main sections
+- Convert bullets to list blocks
+- Use callouts for key takeaways
+- Keep text blocks to 2-4 sentences max
+- Create 8-15 blocks total
+
+You MUST call the create_blocks function with valid blocks.`;
+
+  if (isRetry && validationErrors?.length) {
+    prompt += `
+
+CORRECTION REQUIRED: Your previous response had validation errors:
+${validationErrors.slice(0, 5).join("\n")}
+
+Fix ALL blocks to include required content keys. Do not return empty strings or empty arrays.`;
+  }
+
+  return prompt;
+}
+
+// Call the AI gateway
+async function callAI(
+  apiKey: string,
+  systemPrompt: string,
+  userPrompt: string
+): Promise<{ response?: Response; error?: string }> {
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "create_blocks",
+              description: "Create presentation blocks from outline. MUST include all required content keys.",
+              parameters: {
+                type: "object",
+                properties: {
+                  blocks: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        type: { 
+                          type: "string", 
+                          enum: ["heading", "text", "list", "callout", "two_col", "table"],
+                          description: "The block type"
+                        },
+                        content: { 
+                          type: "object",
+                          description: "Content object with ALL required keys for the block type"
+                        }
+                      },
+                      required: ["type", "content"]
+                    },
+                    minItems: 1
+                  }
+                },
+                required: ["blocks"]
+              }
+            }
+          }
+        ],
+        tool_choice: { type: "function", function: { name: "create_blocks" } }
+      }),
+    });
+
+    return { response };
+  } catch (e) {
+    return { error: `fetch error: ${e}` };
+  }
+}
+
 serve(async (req) => {
   const requestId = crypto.randomUUID();
 
@@ -146,34 +397,7 @@ serve(async (req) => {
 
     console.log(`[${requestId}] Generating blocks from outline: "${outline.title}"`);
 
-    const systemPrompt = `You are an expert presentation designer. Convert outlines into presentation blocks.
-
-CRITICAL OUTPUT RULES (non-negotiable):
-- Return plain text only. NO Markdown formatting whatsoever.
-- No asterisks (*), no bold (**), no italic (_), no headings (#), no backticks.
-- List items must be plain strings WITHOUT leading bullet characters (*, -, •) or numbers.
-- All text content must be clean sentences without formatting symbols.
-
-Available block types:
-- heading: { "level": 1|2|3, "text": "plain text" }
-- text: { "text": "plain text paragraph" }
-- list: { "items": ["plain string", "plain string"], "ordered": false }
-- callout: { "text": "plain text", "icon": "info"|"warning"|"success" }
-- two_col: { "left": "plain text", "right": "plain text" }
-- table: { "headers": ["plain text"], "rows": [["plain text"]] }
-
-Guidelines:
-- Start with H1 heading for title
-- Use H2 for main sections
-- Convert bullets to list blocks (items as plain strings, no bullet characters)
-- Use callouts for key takeaways
-- Keep text blocks to 2-4 sentences max
-- Create 8-15 blocks total for a good presentation
-
-You MUST call the create_blocks function. If you cannot use the function, return ONLY valid JSON - no markdown:
-{ "blocks": [{ "type": "...", "content": {...} }] }`;
-
-    const userPrompt = `Convert this outline into presentation blocks:
+    const userPrompt = `Convert this outline into presentation blocks (return valid JSON only):
 
 Title: ${outline.title}
 Summary: ${outline.summary}
@@ -184,50 +408,21 @@ ${outline.sections.map((s, i) => `${i + 1}. ${s.heading}\n${s.points.map(p => ` 
 Key Takeaways:
 ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "create_blocks",
-              description: "Create presentation blocks from outline",
-              parameters: {
-                type: "object",
-                properties: {
-                  blocks: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        type: { type: "string", enum: ["heading", "text", "list", "callout", "two_col", "table"] },
-                        content: { type: "object" }
-                      },
-                      required: ["type", "content"]
-                    }
-                  }
-                },
-                required: ["blocks"]
-              }
-            }
-          }
-        ],
-        tool_choice: { type: "function", function: { name: "create_blocks" } }
-      }),
-    });
+    // First attempt
+    const systemPrompt1 = buildSystemPrompt(false);
+    const result1 = await callAI(LOVABLE_API_KEY, systemPrompt1, userPrompt);
 
-    if (!response.ok) {
-      const status = response.status;
+    if (result1.error) {
+      console.error(`[${requestId}] AI call failed:`, result1.error);
+      return new Response(
+        JSON.stringify({ error: "AI service temporarily unavailable", requestId }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const response1 = result1.response!;
+    if (!response1.ok) {
+      const status = response1.status;
       console.error(`[${requestId}] AI gateway error: ${status}`);
 
       if (status === 429) {
@@ -249,59 +444,99 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
       );
     }
 
-    const data = await response.json();
-    console.log(`[${requestId}] AI response received`);
+    const data1 = await response1.json();
+    console.log(`[${requestId}] AI response received (attempt 1)`);
 
-    // Try tool call first
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (toolCall?.function?.arguments) {
-      try {
-        const result = JSON.parse(toolCall.function.arguments);
-        const rawBlocks = result.blocks as Array<{ type: string; content: BlockContent }>;
-        
-        const blocks: Block[] = rawBlocks.map((b, i) => ({
-          type: b.type as Block["type"],
-          content: sanitizeContent(b.content),
-          order_index: i,
-        }));
-
-        console.log(`[${requestId}] Generated ${blocks.length} blocks`);
+    const parsed1 = parseAIResponse(data1);
+    
+    if (parsed1.blocks) {
+      const blockValidation1 = validateBlocks(parsed1.blocks);
+      
+      if (blockValidation1.valid) {
+        console.log(`[${requestId}] Generated ${blockValidation1.blocks.length} valid blocks`);
         return new Response(
-          JSON.stringify({ blocks, requestId }),
+          JSON.stringify({ blocks: blockValidation1.blocks, requestId }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
-      } catch (parseError) {
-        console.error(`[${requestId}] Failed to parse tool call:`, parseError);
+      }
+
+      // Log validation issues and retry
+      console.warn(`[${requestId}] Block validation failed (attempt 1): invalidBlocksCount=${blockValidation1.invalidCount}, errors=${blockValidation1.errors.slice(0, 3).join("; ")}`);
+
+      // If we have some valid blocks, we can still use them
+      if (blockValidation1.blocks.length >= 3) {
+        console.log(`[${requestId}] Using ${blockValidation1.blocks.length} partially valid blocks`);
+        return new Response(
+          JSON.stringify({ blocks: blockValidation1.blocks, requestId }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Retry with stricter prompt
+      console.log(`[${requestId}] Retrying with correction prompt...`);
+      
+      const systemPrompt2 = buildSystemPrompt(true, blockValidation1.errors);
+      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt);
+
+      if (result2.error || !result2.response?.ok) {
+        console.error(`[${requestId}] Retry AI call failed`);
+        return new Response(
+          JSON.stringify({ error: "Failed to generate valid blocks after retry", requestId }),
+          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const data2 = await result2.response.json();
+      console.log(`[${requestId}] AI response received (attempt 2)`);
+
+      const parsed2 = parseAIResponse(data2);
+      
+      if (parsed2.blocks) {
+        const blockValidation2 = validateBlocks(parsed2.blocks);
+        
+        if (blockValidation2.valid || blockValidation2.blocks.length >= 3) {
+          console.log(`[${requestId}] Generated ${blockValidation2.blocks.length} blocks after retry`);
+          return new Response(
+            JSON.stringify({ blocks: blockValidation2.blocks, requestId }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        console.error(`[${requestId}] Block validation still failed after retry: invalidBlocksCount=${blockValidation2.invalidCount}, errors=${blockValidation2.errors.slice(0, 3).join("; ")}`);
+      } else {
+        console.error(`[${requestId}] Parse failed on retry: ${parsed2.parseError}`);
+      }
+    } else {
+      console.error(`[${requestId}] Parse failed (attempt 1): ${parsed1.parseError}`);
+      
+      // Single retry for parse failures too
+      console.log(`[${requestId}] Retrying after parse failure...`);
+      
+      const systemPrompt2 = buildSystemPrompt(true, ["Previous response was not valid JSON"]);
+      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt);
+
+      if (result2.response?.ok) {
+        const data2 = await result2.response.json();
+        const parsed2 = parseAIResponse(data2);
+        
+        if (parsed2.blocks) {
+          const blockValidation2 = validateBlocks(parsed2.blocks);
+          
+          if (blockValidation2.valid || blockValidation2.blocks.length >= 3) {
+            console.log(`[${requestId}] Generated ${blockValidation2.blocks.length} blocks after retry`);
+            return new Response(
+              JSON.stringify({ blocks: blockValidation2.blocks, requestId }),
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        }
       }
     }
 
-    // Fallback: try content
-    const content = data.choices?.[0]?.message?.content;
-    if (content) {
-      try {
-        const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-        const result = JSON.parse(cleanContent);
-        const rawBlocks = result.blocks as Array<{ type: string; content: BlockContent }>;
-        
-        const blocks: Block[] = rawBlocks.map((b, i) => ({
-          type: b.type as Block["type"],
-          content: sanitizeContent(b.content),
-          order_index: i,
-        }));
-
-        console.log(`[${requestId}] Generated ${blocks.length} blocks (fallback)`);
-        return new Response(
-          JSON.stringify({ blocks, requestId }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      } catch (parseError) {
-        console.error(`[${requestId}] Failed to parse content fallback:`, parseError);
-      }
-    }
-
-    console.error(`[${requestId}] No valid parseable response`);
+    // Final failure
+    console.error(`[${requestId}] Failed to generate valid blocks after all attempts`);
     return new Response(
-      JSON.stringify({ error: "Failed to generate blocks. Please try again.", requestId }),
+      JSON.stringify({ error: "Failed to generate valid presentation blocks. Please try again with a different topic.", requestId }),
       { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
