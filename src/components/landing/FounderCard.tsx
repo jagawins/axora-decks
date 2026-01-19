@@ -11,17 +11,17 @@ interface FounderCardProps {
 const FounderCard = ({ variant = "default", className = "" }: FounderCardProps) => {
   if (variant === "compact") {
     return (
-      <div className={`flex items-center gap-4 ${className}`}>
+      <Link to="/about" className={`flex items-center gap-4 hover:opacity-80 transition-opacity ${className}`}>
         <img 
           src={founderCardSquare} 
-          alt="Jag Mariappan, Founder of AXORA" 
+          alt="Jag Mariappan — Founder of AXORA" 
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
           <p className="font-semibold text-foreground">Jag Mariappan</p>
           <p className="text-sm text-muted-foreground">Founder of AXORA</p>
         </div>
-      </div>
+      </Link>
     );
   }
 
@@ -36,24 +36,28 @@ const FounderCard = ({ variant = "default", className = "" }: FounderCardProps) 
           <div className="px-8 pb-8 -mt-12">
             <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 mb-6">
               {/* Profile image */}
-              <img 
-                src={founderCardSquare} 
-                alt="Jag Mariappan, Founder of AXORA" 
-                className="w-24 h-24 rounded-2xl border-4 border-background shadow-lg object-cover"
-              />
+              <Link to="/about">
+                <img 
+                  src={founderCardSquare} 
+                  alt="Jag Mariappan — Founder of AXORA" 
+                  className="w-24 h-24 rounded-2xl border-4 border-background shadow-lg object-cover hover:shadow-xl transition-shadow"
+                />
+              </Link>
               
               {/* Name and title */}
               <div className="flex-1">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <h3 className="text-2xl sm:text-3xl font-bold text-foreground">
-                    Jag Mariappan
-                  </h3>
+                  <Link to="/about" className="hover:opacity-80 transition-opacity">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-foreground">
+                      Jag Mariappan
+                    </h3>
+                  </Link>
                   <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-sm font-semibold">
                     AXORA
                   </span>
                 </div>
                 <p className="text-muted-foreground mt-1">
-                  Founder · <a 
+                  Founder of AXORA · <a 
                     href="https://x.com/inaxora" 
                     target="_blank" 
                     rel="noopener noreferrer"

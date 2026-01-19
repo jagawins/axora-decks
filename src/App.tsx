@@ -22,6 +22,7 @@ import AIDeckGenerator from "./pages/AIDeckGenerator";
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
 import AIIndex from "./pages/AIIndex";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
                 <Route path="/features" element={<Features />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/ai-index" element={<AIIndex />} />
+                <Route path="/about" element={<About />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
