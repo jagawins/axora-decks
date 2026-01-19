@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { invokeFunction } from "@/lib/supabase-function-client";
 import PreviewDeck from "@/components/PreviewDeck";
 import { Loader2, AlertCircle } from "lucide-react";
-import axoraLogo from "@/assets/axora-logo.png";
+import axoraIcon from "@/assets/axora-icon.svg";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
 
 type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
@@ -101,7 +101,8 @@ export default function PublicPreview() {
         <div className="flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-4">
             <a href="/" className="flex items-center gap-2">
-              <img src={axoraLogo} alt="Axora" className="h-6 w-auto" />
+              <img src={axoraIcon} alt="AXORA" className="h-6 w-6" />
+              <span className="font-bold tracking-tight">AXORA</span>
             </a>
             <span className="text-muted-foreground">|</span>
             <h1 className="font-semibold truncate max-w-[300px]">

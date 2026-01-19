@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
-import axoraLogo from "@/assets/axora-logo.png";
+import axoraIcon from "@/assets/axora-icon.svg";
 
 // Validation schemas
 const emailSchema = z.string().email('Please enter a valid email address');
@@ -145,7 +145,8 @@ const Auth = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <a href="/" className="inline-flex items-center gap-2 mb-4">
-            <img src={axoraLogo} alt="Axora" className="h-10 w-auto" />
+            <img src={axoraIcon} alt="AXORA" className="h-10 w-10" />
+            <span className="text-xl font-bold tracking-tight">AXORA</span>
           </a>
           <h1 className="text-2xl font-bold">
             {isSignUp ? 'Create your account' : 'Welcome back'}
