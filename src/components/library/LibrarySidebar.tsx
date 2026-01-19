@@ -50,10 +50,10 @@ export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }:
       <div className="p-4 border-t border-border">
         <div className="glass-card p-4 space-y-3">
           <div className="flex items-center gap-2">
-            {subscription.tier === 'executive' && <Crown className="h-4 w-4 text-success" />}
+            {subscription.tier === 'team' && <Crown className="h-4 w-4 text-success" />}
             <span className={cn(
               "text-xs font-medium uppercase tracking-wider",
-              subscription.tier === 'executive' 
+              subscription.tier === 'team' 
                 ? "text-success" 
                 : subscription.tier === 'pro' 
                   ? "text-accent" 

@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Loader2 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { SUBSCRIPTION_TIERS } from "@/lib/subscription";
 import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
 
 const plans = [
   {
     name: "Free",
-    price: "$0",
+    monthlyPrice: "$0",
+    yearlyPrice: "$0",
     description: "Perfect for trying AXORA",
     features: [
       "3 projects",
@@ -22,11 +24,13 @@ const plans = [
     variant: "outline" as const,
     popular: false,
     tier: "free" as const,
+    perUser: false,
   },
   {
     name: "Pro",
-    price: "$29",
-    period: "/month",
+    monthlyPrice: "$28",
+    yearlyPrice: "$269",
+    yearlySavings: "Save 20%",
     description: "For professionals and small teams",
     features: [
       "Unlimited projects",
@@ -35,28 +39,30 @@ const plans = [
       "Advanced AI actions",
       "Priority support"
     ],
-    cta: "Start Pro Trial",
+    cta: "Start Pro",
     variant: "hero" as const,
     popular: true,
     tier: "pro" as const,
+    perUser: false,
   },
   {
-    name: "Executive",
-    price: "$149",
-    period: "/month",
-    description: "For leaders who need the best",
+    name: "Team",
+    monthlyPrice: "$78",
+    yearlyPrice: "$749",
+    yearlySavings: "Save 20%",
+    description: "For companies and departments",
     features: [
       "Everything in Pro",
-      "Premium framework packs",
-      "Vertical templates",
-      "Priority AI processing",
-      "Dedicated account manager",
-      "Custom integrations"
+      "Shared workspaces",
+      "Governance controls",
+      "Centralized billing",
+      "Admin dashboard"
     ],
-    cta: "Contact Sales",
+    cta: "Start Team",
     variant: "outline" as const,
     popular: false,
-    tier: "executive" as const,
+    tier: "team" as const,
+    perUser: true,
   }
 ];
 
@@ -66,8 +72,9 @@ const Pricing = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
+  const [isAnnual, setIsAnnual] = useState(true);
 
-  const handlePlanClick = async (tier: "free" | "pro" | "executive") => {
+  const handlePlanClick = async (tier: "free" | "pro" | "team") => {
     // If not logged in, redirect to auth
     if (!user) {
       navigate('/auth');
@@ -86,17 +93,9 @@ const Pricing = () => {
       return;
     }
 
-    // For executive, contact sales for now
-    if (tier === 'executive') {
-      toast({
-        title: "Contact Sales",
-        description: "Please reach out to our sales team for Executive plan.",
-      });
-      return;
-    }
-
-    // Create checkout session
-    const priceId = SUBSCRIPTION_TIERS[tier].priceId;
+    // Get the correct price ID based on billing interval
+    const tierConfig = SUBSCRIPTION_TIERS[tier];
+    const priceId = isAnnual ? tierConfig.yearlyPriceId : tierConfig.monthlyPriceId;
     if (!priceId) return;
 
     setLoadingTier(tier);
@@ -132,16 +131,36 @@ const Pricing = () => {
     <section id="pricing" className="section-padding relative">
       <div className="container-wide">
         {/* Section header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <p className="text-accent font-medium text-sm uppercase tracking-wider mb-3">
             Pricing
           </p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
             Choose your plan
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
             Start free, scale as you grow. Every plan includes our core AI engine.
           </p>
+          
+          {/* Billing toggle */}
+          <div className="flex items-center justify-center gap-3">
+            <span className={`text-sm font-medium ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+              Monthly
+            </span>
+            <Switch
+              checked={isAnnual}
+              onCheckedChange={setIsAnnual}
+              className="data-[state=checked]:bg-accent"
+            />
+            <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+              Annual
+            </span>
+            {isAnnual && (
+              <span className="ml-2 px-2 py-0.5 bg-accent/20 text-accent text-xs font-semibold rounded-full">
+                Save 20%
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Pricing cards */}
@@ -172,13 +191,19 @@ const Pricing = () => {
               {/* Plan header */}
               <div className="mb-6">
                 <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  {plan.period && (
-                    <span className="text-muted-foreground">{plan.period}</span>
-                  )}
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-4xl font-bold">
+                    {isAnnual ? plan.yearlyPrice : plan.monthlyPrice}
+                  </span>
+                  <span className="text-muted-foreground">
+                    /{isAnnual ? 'year' : 'month'}
+                    {plan.perUser && '/user'}
+                  </span>
                 </div>
-                <p className="text-sm text-muted-foreground">{plan.description}</p>
+                {isAnnual && plan.yearlySavings && (
+                  <p className="text-xs text-accent font-medium">{plan.yearlySavings}</p>
+                )}
+                <p className="text-sm text-muted-foreground mt-2">{plan.description}</p>
               </div>
 
               {/* Features */}

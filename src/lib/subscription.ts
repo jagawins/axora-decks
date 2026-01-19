@@ -2,8 +2,10 @@
 export const SUBSCRIPTION_TIERS = {
   free: {
     name: "Free",
-    price: "$0",
-    priceId: null,
+    monthlyPrice: "$0",
+    yearlyPrice: "$0",
+    monthlyPriceId: null,
+    yearlyPriceId: null,
     productId: null,
     limits: {
       projects: 3,
@@ -15,9 +17,11 @@ export const SUBSCRIPTION_TIERS = {
   },
   pro: {
     name: "Pro",
-    price: "$29",
-    priceId: "price_1Sr4dFQ6moo5x0SKYW1vLUnc",
-    productId: "prod_Toi3RAGTB6H3C3",
+    monthlyPrice: "$28",
+    yearlyPrice: "$269",
+    monthlyPriceId: "price_1Sr8V3Q6moo5x0SK85qbutky",
+    yearlyPriceId: "price_1Sr8VnQ6moo5x0SKOtT54UPI",
+    productId: "prod_Tom3u0hOZl3W1x",
     limits: {
       projects: -1, // unlimited
       aiGenerationsPerMonth: -1, // unlimited
@@ -26,11 +30,13 @@ export const SUBSCRIPTION_TIERS = {
       teamCollaboration: false,
     },
   },
-  executive: {
-    name: "Executive",
-    price: "$149",
-    priceId: "price_1Sr4eVQ6moo5x0SKJpQRVbEL",
-    productId: "prod_Toi4DgsyndvaAa",
+  team: {
+    name: "Team",
+    monthlyPrice: "$78",
+    yearlyPrice: "$749",
+    monthlyPriceId: "price_1Sr8WEQ6moo5x0SKQr2wz73w",
+    yearlyPriceId: "price_1Sr8X2Q6moo5x0SKwpWZWe8M",
+    productId: "prod_Tom4q2CWLmIvbK",
     limits: {
       projects: -1, // unlimited
       aiGenerationsPerMonth: -1, // unlimited
@@ -58,6 +64,10 @@ export function getTierFromProductId(productId: string | null): SubscriptionTier
       return tier as SubscriptionTier;
     }
   }
+  
+  // Also check for annual product IDs (they share the same tier)
+  if (productId === "prod_Tom3PNmumxhLNa") return "pro"; // Annual Pro
+  if (productId === "prod_Tom5ILmCmZ2mAh") return "team"; // Annual Team
   
   return "free";
 }
