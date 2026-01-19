@@ -33,6 +33,7 @@ import {
   FileDown,
   Upload,
   LayoutTemplate,
+  MoreVertical,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
@@ -56,6 +57,10 @@ import { CreateDeckModal } from "@/components/CreateDeckModal";
 import { ImportContentModal } from "@/components/ImportContentModal";
 import { ApplyTemplateModal } from "@/components/ApplyTemplateModal";
 import { getTemplateById } from "@/lib/block-templates";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileEditorTabs, { MobileTab } from "@/components/editor/MobileEditorTabs";
+import MobileBlocksPanel from "@/components/editor/MobileBlocksPanel";
+import MobileAIPanel from "@/components/editor/MobileAIPanel";
 
 interface Project {
   id: string;
@@ -185,6 +190,7 @@ const Editor = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const [project, setProject] = useState<Project | null>(null);
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -221,6 +227,11 @@ const Editor = () => {
 
   // Theme state
   const [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME);
+
+  // Mobile panel state
+  const [mobileTab, setMobileTab] = useState<MobileTab>("blocks");
+  const [mobileBlocksOpen, setMobileBlocksOpen] = useState(false);
+  const [mobileAIOpen, setMobileAIOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -752,23 +763,31 @@ const Editor = () => {
     );
   }
 
+  // Mobile tab handler
+  const handleMobileTabChange = (tab: MobileTab) => {
+    setMobileTab(tab);
+    if (tab === "blocks") setMobileBlocksOpen(true);
+    else if (tab === "ai") setMobileAIOpen(true);
+  };
+
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen-safe bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50">
-        <div className="flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-4">
+      <header className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50 safe-area-top">
+        <div className="flex h-14 items-center justify-between px-2 sm:px-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="flex items-center gap-3">
-              <img src={axoraWordmark} alt="AXORA" className="h-4 w-auto" />
-              <span className="text-muted-foreground">|</span>
-              <span className="font-semibold truncate max-w-[200px]">{project?.title || "Untitled"}</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <img src={axoraWordmark} alt="AXORA" className="h-4 w-auto hidden sm:block" />
+              <span className="text-muted-foreground hidden sm:inline">|</span>
+              <span className="font-semibold truncate max-w-[120px] sm:max-w-[200px] text-sm sm:text-base">{project?.title || "Untitled"}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Desktop header actions */}
+          <div className="hidden md:flex items-center gap-2">
             {hasUnsavedChanges && <span className="text-xs text-muted-foreground">Unsaved changes</span>}
 
             <Button
@@ -828,13 +847,45 @@ const Editor = () => {
               )}
             </Button>
           </div>
+
+          {/* Mobile header actions */}
+          <div className="flex md:hidden items-center gap-1">
+            <Button variant="hero" size="sm" onClick={handleSave} disabled={saving || !hasUnsavedChanges}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setCreateDeckOpen(true)}>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate Deck
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate(`/preview/${projectId}`)}>
+                  <Play className="h-4 w-4 mr-2" />
+                  Preview
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportPdf}>
+                  <FileDown className="h-4 w-4 mr-2" />
+                  Export PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShareDialogOpen(true)}>
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </header>
 
       {/* Editor layout */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left sidebar - Block list */}
-        <aside className="w-64 border-r border-border bg-card/30 overflow-y-auto">
+      <div className="flex-1 flex overflow-hidden pb-14 md:pb-0">
+        {/* Left sidebar - Block list (Desktop only) */}
+        <aside className="hidden md:block w-64 border-r border-border bg-card/30 overflow-y-auto">
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-sm">Blocks</h3>
@@ -946,8 +997,8 @@ const Editor = () => {
           </div>
         </main>
 
-        {/* Right sidebar - AI Panel */}
-        <aside className="w-72 border-l border-border bg-card/30 overflow-y-auto">
+        {/* Right sidebar - AI Panel (Desktop only) */}
+        <aside className="hidden md:block w-72 border-l border-border bg-card/30 overflow-y-auto">
           <div className="p-4">
             <h3 className="font-semibold text-sm mb-4">AI Actions</h3>
 
@@ -1032,6 +1083,40 @@ const Editor = () => {
           </div>
         </aside>
       </div>
+
+      {/* Mobile Bottom Tabs */}
+      <MobileEditorTabs
+        activeTab={mobileTab}
+        onTabChange={handleMobileTabChange}
+        hasSelectedBlock={!!selectedBlock}
+      />
+
+      {/* Mobile Blocks Panel */}
+      <MobileBlocksPanel
+        open={mobileBlocksOpen}
+        onOpenChange={setMobileBlocksOpen}
+        blocks={blocks}
+        selectedBlockId={selectedBlockId}
+        onSelectBlock={setSelectedBlockId}
+        onMoveBlock={moveBlock}
+        onDeleteBlock={deleteBlock}
+        onAddBlock={() => setAddBlockOpen(true)}
+        getBlockPreview={getBlockPreview}
+      />
+
+      {/* Mobile AI Panel */}
+      <MobileAIPanel
+        open={mobileAIOpen}
+        onOpenChange={setMobileAIOpen}
+        selectedBlock={selectedBlock || null}
+        onGenerate={() => setGenerateOpen(true)}
+        onRefine={() => setRefineOpen(true)}
+        onApplyTemplate={() => setApplyTemplateOpen(true)}
+        onQuickEdit={(instruction) => {
+          setRefineInstruction(instruction);
+          setRefineOpen(true);
+        }}
+      />
 
       {/* Add Block Dialog */}
       <Dialog open={addBlockOpen} onOpenChange={setAddBlockOpen}>

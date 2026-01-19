@@ -3,10 +3,10 @@ import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-border py-16">
+    <footer className="border-t border-border py-12 md:py-16 pb-safe">
       <div className="container-wide">
-        {/* 4-Column Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+        {/* 4-Column Grid - stacks on mobile */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           {/* Column 1: Product */}
           <div>
             <h4 className="text-sm font-semibold mb-4">Product</h4>
@@ -122,20 +122,20 @@ const Footer = () => {
           </p>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        {/* Bottom Bar - stacks on mobile */}
+        <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between md:gap-6">
           {/* Logo */}
           <div className="flex items-center">
-            <img src={axoraWordmark} alt="AXORA" className="h-6 w-auto" />
+            <img src={axoraWordmark} alt="AXORA" className="h-5 sm:h-6 w-auto" />
           </div>
 
           {/* Micro-copy */}
-          <p className="text-sm text-muted-foreground text-center max-w-md">
+          <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md order-3 md:order-2">
             AXORA is an AI deck generator built for executives who need structured, presentation-ready slides — not generic content.
           </p>
 
           {/* Copyright */}
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground order-2 md:order-3">
             © 2024 AXORA. All rights reserved.
           </p>
         </div>
