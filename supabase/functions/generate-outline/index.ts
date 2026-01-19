@@ -17,6 +17,13 @@ interface OutlineRequest {
   tone?: string;
 }
 
+interface Outline {
+  title: string;
+  sections: Array<{ heading: string; points: string[] }>;
+  bullets: string[];
+  summary: string;
+}
+
 interface ValidationResult {
   valid: boolean;
   error?: string;
@@ -27,6 +34,11 @@ interface ValidationResult {
   };
 }
 
+interface OutlineValidation {
+  valid: boolean;
+  errors: string[];
+}
+
 function validateRequest(body: unknown): ValidationResult {
   if (!body || typeof body !== "object") {
     return { valid: false, error: "Request body must be a JSON object" };
@@ -34,7 +46,6 @@ function validateRequest(body: unknown): ValidationResult {
 
   const { prompt, topic, tone } = body as OutlineRequest;
 
-  // Topic is required
   if (!topic || typeof topic !== "string" || topic.trim().length === 0) {
     return { valid: false, error: "topic is required and must be a non-empty string" };
   }
@@ -43,10 +54,8 @@ function validateRequest(body: unknown): ValidationResult {
     return { valid: false, error: `topic must be ${MAX_TOPIC_LENGTH} characters or less` };
   }
 
-  // Prompt is optional but must be string if provided
   const sanitizedPrompt = typeof prompt === "string" ? prompt.slice(0, MAX_PROMPT_LENGTH).trim() : "";
 
-  // Tone with default
   let sanitizedTone = DEFAULT_TONE;
   if (typeof tone === "string" && VALID_TONES.includes(tone.toLowerCase() as typeof VALID_TONES[number])) {
     sanitizedTone = tone.toLowerCase();
@@ -60,6 +69,180 @@ function validateRequest(body: unknown): ValidationResult {
       tone: sanitizedTone,
     },
   };
+}
+
+// Validate outline has required content
+function validateOutline(outline: unknown): OutlineValidation {
+  const errors: string[] = [];
+
+  if (!outline || typeof outline !== "object") {
+    return { valid: false, errors: ["outline is not an object"] };
+  }
+
+  const o = outline as Partial<Outline>;
+
+  if (!o.title || typeof o.title !== "string" || o.title.length < 5) {
+    errors.push("title missing or too short (min 5 chars)");
+  }
+
+  if (!Array.isArray(o.sections) || o.sections.length < 3) {
+    errors.push(`sections missing or too few (got ${Array.isArray(o.sections) ? o.sections.length : 0}, need 3+)`);
+  } else {
+    for (let i = 0; i < o.sections.length; i++) {
+      const s = o.sections[i];
+      if (!s.heading || typeof s.heading !== "string" || s.heading.length < 3) {
+        errors.push(`section[${i}].heading missing or too short`);
+      }
+      if (!Array.isArray(s.points) || s.points.length < 2) {
+        errors.push(`section[${i}].points missing or too few (need 2+)`);
+      }
+    }
+  }
+
+  if (!Array.isArray(o.bullets) || o.bullets.length < 3) {
+    errors.push(`bullets missing or too few (got ${Array.isArray(o.bullets) ? o.bullets.length : 0}, need 3+)`);
+  }
+
+  if (!o.summary || typeof o.summary !== "string" || o.summary.length < 20) {
+    errors.push("summary missing or too short (min 20 chars)");
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+function getToolSchema() {
+  return {
+    type: "function",
+    function: {
+      name: "create_outline",
+      description: "Create a structured outline for a presentation. You MUST provide at least 3 sections with 2+ points each, and 3+ key takeaways.",
+      parameters: {
+        type: "object",
+        properties: {
+          title: { 
+            type: "string", 
+            description: "The title of the presentation",
+            minLength: 5
+          },
+          sections: {
+            type: "array",
+            minItems: 3,
+            maxItems: 6,
+            items: {
+              type: "object",
+              properties: {
+                heading: { type: "string", minLength: 3 },
+                points: { 
+                  type: "array", 
+                  items: { type: "string", minLength: 10 },
+                  minItems: 2,
+                  maxItems: 5
+                }
+              },
+              required: ["heading", "points"],
+              additionalProperties: false
+            }
+          },
+          bullets: { 
+            type: "array", 
+            items: { type: "string", minLength: 10 }, 
+            description: "Key takeaways - exactly 3 to 5 bullet points",
+            minItems: 3,
+            maxItems: 5
+          },
+          summary: { 
+            type: "string", 
+            description: "2-3 sentence executive summary",
+            minLength: 50
+          }
+        },
+        required: ["title", "sections", "bullets", "summary"]
+      }
+    }
+  };
+}
+
+function buildSystemPrompt(tone: string, isRetry: boolean, validationErrors?: string[]): string {
+  let prompt = `You are an expert executive presentation consultant. Create structured outlines for executive-grade presentations.
+
+CRITICAL REQUIREMENTS (non-negotiable):
+1. You MUST provide 3-6 sections with at least 2 bullet points each
+2. You MUST provide 3-5 key takeaways in the bullets array
+3. All text must be plain text - NO Markdown formatting
+4. No asterisks, bold, italic, headings, or bullet characters
+5. Use a ${tone} tone throughout
+
+Structure requirements:
+- Title: Clear, compelling title (5+ characters)
+- Sections: 3-6 sections, each with heading and 2-5 talking points
+- Bullets: 3-5 key takeaways for the audience
+- Summary: 2-3 sentence executive summary (50+ characters)
+
+You MUST call create_outline with ALL fields populated. Empty arrays will fail.`;
+
+  if (isRetry && validationErrors?.length) {
+    prompt += `
+
+CORRECTION REQUIRED - Previous response failed validation:
+${validationErrors.join("\n")}
+
+Fix ALL issues above. Provide complete sections with points and bullets.`;
+  }
+
+  return prompt;
+}
+
+async function callAI(
+  apiKey: string,
+  systemPrompt: string,
+  userPrompt: string
+): Promise<{ response?: Response; error?: string }> {
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        tools: [getToolSchema()],
+        tool_choice: { type: "function", function: { name: "create_outline" } }
+      }),
+    });
+
+    return { response };
+  } catch (e) {
+    return { error: `fetch error: ${e}` };
+  }
+}
+
+function parseAIResponse(data: Record<string, unknown>): { outline: Outline | null; parseError?: string } {
+  const toolCall = (data.choices as Array<{ message?: { tool_calls?: Array<{ function?: { arguments?: string } }> } }>)?.[0]?.message?.tool_calls?.[0];
+  
+  if (toolCall?.function?.arguments) {
+    try {
+      return { outline: JSON.parse(toolCall.function.arguments) };
+    } catch (e) {
+      return { outline: null, parseError: `tool call parse error: ${e}` };
+    }
+  }
+
+  const content = (data.choices as Array<{ message?: { content?: string } }>)?.[0]?.message?.content;
+  if (content) {
+    try {
+      const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      return { outline: JSON.parse(cleanContent) };
+    } catch (e) {
+      return { outline: null, parseError: `content parse error: ${e}` };
+    }
+  }
+
+  return { outline: null, parseError: "no tool call or content in response" };
 }
 
 serve(async (req) => {
@@ -94,83 +277,28 @@ serve(async (req) => {
 
     console.log(`[${requestId}] Generating outline for topic: "${topic}" with tone: ${tone}`);
 
-    const systemPrompt = `You are an expert executive presentation consultant. Create structured outlines for executive-grade presentations.
-
-CRITICAL OUTPUT RULES (non-negotiable):
-- Return plain text only. NO Markdown formatting whatsoever.
-- No asterisks (*), no bold (**), no italic (_), no headings (#), no backticks.
-- No bullet characters (*, -, •) in any text - just plain strings.
-- Section points must be clean sentences without leading bullets or numbers.
-- Use a ${tone} tone throughout.
-
-Guidelines:
-- Create clear, hierarchical structures with 3-6 main sections
-- Focus on executive-level communication
-- Be concise but comprehensive
-- Ensure logical flow between sections
-
-You MUST call the create_outline function with your response. If for any reason you cannot use the function, return ONLY valid JSON matching this schema - no markdown, no commentary:
-{
-  "title": "string",
-  "sections": [{"heading": "string", "points": ["plain string without bullets"]}],
-  "bullets": ["plain string without bullets"],
-  "summary": "string"
-}`;
-
     const userPrompt = `Create a detailed outline for:
 
 Topic: ${topic}
 ${prompt ? `\nAdditional context:\n${prompt}` : ""}
 
-Generate a structured outline suitable for an executive presentation.`;
+Generate a structured outline suitable for an executive presentation with 3-6 main sections.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "create_outline",
-              description: "Create a structured outline for a presentation",
-              parameters: {
-                type: "object",
-                properties: {
-                  title: { type: "string", description: "The title of the presentation" },
-                  sections: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        heading: { type: "string" },
-                        points: { type: "array", items: { type: "string" } }
-                      },
-                      required: ["heading", "points"]
-                    }
-                  },
-                  bullets: { type: "array", items: { type: "string" }, description: "Key takeaways" },
-                  summary: { type: "string", description: "2-3 sentence executive summary" }
-                },
-                required: ["title", "sections", "bullets", "summary"]
-              }
-            }
-          }
-        ],
-        tool_choice: { type: "function", function: { name: "create_outline" } }
-      }),
-    });
+    // First attempt
+    const systemPrompt1 = buildSystemPrompt(tone, false);
+    const result1 = await callAI(LOVABLE_API_KEY, systemPrompt1, userPrompt);
 
-    if (!response.ok) {
-      const status = response.status;
+    if (result1.error) {
+      console.error(`[${requestId}] AI call failed:`, result1.error);
+      return new Response(
+        JSON.stringify({ error: "AI service temporarily unavailable", requestId }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const response1 = result1.response!;
+    if (!response1.ok) {
+      const status = response1.status;
       console.error(`[${requestId}] AI gateway error: ${status}`);
       
       if (status === 429) {
@@ -192,46 +320,64 @@ Generate a structured outline suitable for an executive presentation.`;
       );
     }
 
-    const data = await response.json();
+    const data1 = await response1.json();
     console.log(`[${requestId}] AI response received`);
 
-    // Try tool call first
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (toolCall?.function?.arguments) {
-      try {
-        const outline = JSON.parse(toolCall.function.arguments);
-        console.log(`[${requestId}] Parsed tool call response successfully`);
+    const parsed1 = parseAIResponse(data1);
+
+    if (parsed1.outline) {
+      const outlineValidation1 = validateOutline(parsed1.outline);
+
+      if (outlineValidation1.valid) {
+        console.log(`[${requestId}] Generated valid outline with ${parsed1.outline.sections.length} sections`);
         return new Response(
-          JSON.stringify({ outline, requestId }),
+          JSON.stringify({ outline: parsed1.outline, requestId }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
-      } catch (parseError) {
-        console.error(`[${requestId}] Failed to parse tool call:`, parseError);
       }
-    }
 
-    // Fallback: try to parse content directly
-    const content = data.choices?.[0]?.message?.content;
-    if (content) {
-      try {
-        // Strip markdown code blocks if present
-        const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-        const outline = JSON.parse(cleanContent);
-        console.log(`[${requestId}] Parsed content fallback successfully`);
-        return new Response(
-          JSON.stringify({ outline, requestId }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      } catch (parseError) {
-        console.error(`[${requestId}] Failed to parse content fallback:`, parseError);
+      // Retry with correction
+      console.warn(`[${requestId}] Outline validation failed (attempt 1): ${outlineValidation1.errors.join("; ")}`);
+      console.log(`[${requestId}] Retrying with correction prompt...`);
+
+      const systemPrompt2 = buildSystemPrompt(tone, true, outlineValidation1.errors);
+      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt);
+
+      if (result2.response?.ok) {
+        const data2 = await result2.response.json();
+        const parsed2 = parseAIResponse(data2);
+
+        if (parsed2.outline) {
+          const outlineValidation2 = validateOutline(parsed2.outline);
+
+          if (outlineValidation2.valid) {
+            console.log(`[${requestId}] Generated valid outline after retry with ${parsed2.outline.sections.length} sections`);
+            return new Response(
+              JSON.stringify({ outline: parsed2.outline, requestId }),
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+
+          console.error(`[${requestId}] Outline still invalid after retry: ${outlineValidation2.errors.join("; ")}`);
+        }
       }
-    }
 
-    console.error(`[${requestId}] No valid parseable response from AI`);
-    return new Response(
-      JSON.stringify({ error: "Failed to generate valid outline. Please try again.", requestId }),
-      { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to generate valid outline after retry", 
+          requestId,
+          validationErrors: outlineValidation1.errors.slice(0, 5)
+        }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+
+    } else {
+      console.error(`[${requestId}] Parse failed: ${parsed1.parseError}`);
+      return new Response(
+        JSON.stringify({ error: "Failed to parse AI response", requestId }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
   } catch (error) {
     console.error(`[${requestId}] Unexpected error:`, error);
