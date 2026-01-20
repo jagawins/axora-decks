@@ -15,6 +15,13 @@ import PublicPreview from "./pages/PublicPreview";
 import Print from "./pages/Print";
 import Create from "./pages/Create";
 import Templates from "./pages/Templates";
+import TemplateDetail from "./pages/TemplateDetail";
+import HowItWorks from "./pages/HowItWorks";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
+import Press from "./pages/Press";
+import Founder from "./pages/Founder";
+import Roadmap from "./pages/Roadmap";
 import GammaAlternative from "./pages/GammaAlternative";
 import PowerPointAI from "./pages/PowerPointAI";
 import PPTGenerator from "./pages/PPTGenerator";
@@ -44,6 +51,13 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/create" element={<Create />} />
                 <Route path="/templates" element={<Templates />} />
+                <Route path="/template/:slug" element={<TemplateDetail />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/press" element={<Press />} />
+                <Route path="/founder" element={<Founder />} />
+                <Route path="/roadmap" element={<Roadmap />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/editor/:id" element={<Editor />} />
