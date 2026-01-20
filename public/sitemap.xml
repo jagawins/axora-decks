@@ -6,6 +6,16 @@
     <changefreq>daily</changefreq>
   </url>
   <url>
+    <loc>https://axora.lovable.app/how-it-works</loc>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://axora.lovable.app/templates</loc>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
     <loc>https://axora.lovable.app/gamma-alternative</loc>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
@@ -28,6 +38,41 @@
   <url>
     <loc>https://axora.lovable.app/executive-deck-generator</loc>
     <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://axora.lovable.app/blog</loc>
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://axora.lovable.app/blog/ai-presentations-executive-guide</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://axora.lovable.app/blog/board-deck-best-practices</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://axora.lovable.app/blog/gamma-vs-axora-comparison</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://axora.lovable.app/founder</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://axora.lovable.app/press</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://axora.lovable.app/roadmap</loc>
+    <priority>0.7</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
@@ -58,11 +103,6 @@
   <url>
     <loc>https://axora.lovable.app/contact</loc>
     <priority>0.6</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://axora.lovable.app/ai-index</loc>
-    <priority>0.3</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
