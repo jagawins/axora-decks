@@ -123,6 +123,7 @@ export function TemplatesGrid({ templates, loading, onRefresh }: TemplatesGridPr
                   tags={template.tags}
                   isFeatured={template.is_featured}
                   previewBlocks={template.preview_blocks || []}
+                  previewUrl={template.thumbnail_url || template.preview_url}
                   onSelect={handleSelectTemplate}
                 />
               </div>
@@ -152,6 +153,7 @@ export function TemplatesGrid({ templates, loading, onRefresh }: TemplatesGridPr
                 tags={template.tags}
                 isFeatured={template.is_featured}
                 previewBlocks={template.preview_blocks || []}
+                previewUrl={template.thumbnail_url || template.preview_url}
                 onSelect={handleSelectTemplate}
               />
             </div>
