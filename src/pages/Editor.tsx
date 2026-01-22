@@ -2,8 +2,17 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { aiEngine, Block as AIBlock, BlockType } from "@/lib/ai-engine";
-import { sanitizeContent, sanitizeListItems } from "@/lib/sanitize";
+import { aiEngine } from "@/lib/ai-engine";
+import {
+  Block,
+  BlockType,
+  toEditorBlocks,
+  sanitizeContent,
+  normalizeBlockContent,
+  getDefaultContent,
+  BLOCK_LABELS,
+} from "@/lib/blocks";
+import { sanitizeListItems } from "@/lib/sanitize";
 import { THEMES, DEFAULT_THEME, ThemeId } from "@/lib/themes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,13 +77,6 @@ interface Project {
   description: string | null;
 }
 
-interface Block {
-  id: string;
-  type: BlockType;
-  content: Record<string, unknown>;
-  order_index: number;
-}
-
 const BLOCK_ICONS: Record<BlockType, typeof FileText> = {
   text: FileText,
   heading: Heading,
@@ -84,106 +86,6 @@ const BLOCK_ICONS: Record<BlockType, typeof FileText> = {
   table: Table,
   image: Image,
 };
-
-const BLOCK_LABELS: Record<BlockType, string> = {
-  text: "Text",
-  heading: "Heading",
-  list: "List",
-  callout: "Callout",
-  two_col: "Two Column",
-  table: "Table",
-  image: "Image",
-};
-
-/**
- * Normalization helpers
- * Purpose: make AI outputs consistent with your renderer expectations, and strip markdown artifacts.
- */
-function stripMarkdown(s: string) {
-  return s
-    .replace(/\*\*(.*?)\*\*/g, "$1")
-    .replace(/\*(.*?)\*\*/g, "$1") // defensive: odd patterns
-    .replace(/\*(.*?)\*/g, "$1")
-    .replace(/`(.*?)`/g, "$1")
-    .replace(/^#+\s+/gm, "")
-    .trim();
-}
-
-function normalizeBlockContent(type: BlockType, raw: Record<string, unknown>) {
-  const text = stripMarkdown(String(raw.text ?? raw.content ?? raw.value ?? raw.message ?? ""));
-
-  switch (type) {
-    case "heading":
-      return {
-        level: Number(raw.level ?? 2),
-        text: text || "New Heading",
-      };
-
-    case "text":
-      return {
-        text: text || "Enter your text here...",
-      };
-
-    case "callout":
-      return {
-        text: text || "Important point here",
-        icon: String(raw.icon ?? "info"),
-      };
-
-    case "two_col":
-      return {
-        left: stripMarkdown(String(raw.left ?? raw.col1 ?? raw.column1 ?? raw.a ?? "")) || "Left content",
-        right: stripMarkdown(String(raw.right ?? raw.col2 ?? raw.column2 ?? raw.b ?? "")) || "Right content",
-      };
-
-    case "list": {
-      const itemsRaw = raw.items ?? raw.bullets ?? raw.points ?? [];
-      const items = Array.isArray(itemsRaw)
-        ? itemsRaw
-            .map((x) => stripMarkdown(String(x)))
-            .map((x) => x.replace(/^[-•\d.]+\s*/, "").trim())
-            .filter(Boolean)
-        : stripMarkdown(String(itemsRaw))
-            .split("\n")
-            .map((x) => stripMarkdown(x.replace(/^[-•\d.]+\s*/, "")))
-            .filter(Boolean);
-
-      return {
-        items: items.length ? items : ["Item 1", "Item 2"],
-        ordered: Boolean(raw.ordered),
-      };
-    }
-
-    case "table": {
-      const headersRaw = raw.headers ?? [];
-      const rowsRaw = raw.rows ?? [];
-
-      const headers = Array.isArray(headersRaw)
-        ? headersRaw.map((h) => stripMarkdown(String(h))).filter(Boolean)
-        : ["Column 1", "Column 2"];
-
-      const rows =
-        Array.isArray(rowsRaw) && rowsRaw.every((r) => Array.isArray(r))
-          ? (rowsRaw as unknown[][]).map((r) => r.map((c) => stripMarkdown(String(c))))
-          : [["Data", "Data"]];
-
-      return {
-        headers: headers.length ? headers : ["Column 1", "Column 2"],
-        rows,
-      };
-    }
-
-    case "image":
-      return {
-        src: String(raw.src ?? raw.url ?? ""),
-        alt: stripMarkdown(String(raw.alt ?? "")),
-        caption: stripMarkdown(String(raw.caption ?? "")),
-      };
-
-    default:
-      return raw;
-  }
-}
 
 const Editor = () => {
   const { id: projectId } = useParams<{ id: string }>();
@@ -376,26 +278,7 @@ const Editor = () => {
     setHasUnsavedChanges(true);
   };
 
-  const getDefaultContent = (type: BlockType): Record<string, unknown> => {
-    switch (type) {
-      case "heading":
-        return { level: 2, text: "New Heading" };
-      case "text":
-        return { text: "Enter your text here..." };
-      case "list":
-        return { items: ["Item 1", "Item 2"], ordered: false };
-      case "callout":
-        return { text: "Important point here", icon: "info" };
-      case "two_col":
-        return { left: "Left content", right: "Right content" };
-      case "table":
-        return { headers: ["Column 1", "Column 2"], rows: [["Data", "Data"]] };
-      case "image":
-        return { src: "", alt: "", caption: "" };
-      default:
-        return {};
-    }
-  };
+  // getDefaultContent is imported from @/lib/blocks
 
   const handleRefine = async () => {
     const block = blocks.find((b) => b.id === selectedBlockId);
@@ -576,21 +459,8 @@ const Editor = () => {
         tone: params.tone,
       });
 
-      const newBlocks: Block[] = result.blocks.map((b, i) => {
-        let sanitized = sanitizeContent(b.content);
-        sanitized = normalizeBlockContent(b.type, sanitized);
-
-        if (b.type === "list" && Array.isArray(sanitized.items)) {
-          sanitized.items = sanitizeListItems(sanitized.items);
-        }
-
-        return {
-          id: crypto.randomUUID(),
-          type: b.type,
-          content: sanitized,
-          order_index: i,
-        };
-      });
+      // Use shared pipeline for normalization
+      const newBlocks = toEditorBlocks(result.blocks);
 
       setBlocks(newBlocks);
       setHasUnsavedChanges(true);
@@ -618,21 +488,8 @@ const Editor = () => {
         tone: "professional",
       });
 
-      const newBlocks: Block[] = result.blocks.map((b, i) => {
-        let sanitized = sanitizeContent(b.content);
-        sanitized = normalizeBlockContent(b.type, sanitized);
-
-        if (b.type === "list" && Array.isArray(sanitized.items)) {
-          sanitized.items = sanitizeListItems(sanitized.items);
-        }
-
-        return {
-          id: crypto.randomUUID(),
-          type: b.type,
-          content: sanitized,
-          order_index: i,
-        };
-      });
+      // Use shared pipeline for normalization
+      const newBlocks = toEditorBlocks(result.blocks);
 
       setBlocks(newBlocks);
       setHasUnsavedChanges(true);
