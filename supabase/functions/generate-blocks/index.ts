@@ -503,26 +503,18 @@ You MUST fill in actual text for every content field.`;
   return prompt;
 }
 
-// Simplified tool schema - no oneOf, explicit content structure in description
+// Strict oneOf schema per block type
 function getToolSchema() {
   return {
     type: "function",
     function: {
       name: "create_blocks",
-      description: `Create presentation blocks. CRITICAL: Each block's content object MUST have the required fields filled with actual text.
-
-Block content requirements:
-- heading: {"level": 1|2|3, "text": "heading text"}
-- text: {"text": "paragraph text at least 10 chars"}
-- list: {"items": ["item1", "item2"], "ordered": true|false}
-- callout: {"text": "callout message", "icon": "info"|"warning"|"success"}
-- two_col: {"left": "left column text", "right": "right column text"}
-- table: {"headers": ["col1", "col2"], "rows": [["data1", "data2"]]}
-
-NEVER return empty content objects like {}. Every content field must have actual text.`,
+      description: "Create presentation blocks with type-specific validated content",
+      strict: true,
       parameters: {
         type: "object",
         required: ["blocks"],
+        additionalProperties: false,
         properties: {
           blocks: {
             type: "array",
@@ -530,6 +522,7 @@ NEVER return empty content objects like {}. Every content field must have actual
             items: {
               type: "object",
               required: ["type", "content"],
+              additionalProperties: false,
               properties: {
                 type: {
                   type: "string",
@@ -537,7 +530,56 @@ NEVER return empty content objects like {}. Every content field must have actual
                 },
                 content: {
                   type: "object",
-                  description: "Block content with type-specific fields. heading needs {level, text}. text needs {text}. list needs {items, ordered}. callout needs {text, icon}. two_col needs {left, right}. table needs {headers, rows}."
+                  additionalProperties: false,
+                  oneOf: [
+                    {
+                      title: "heading",
+                      required: ["level", "text"],
+                      properties: {
+                        level: { type: "integer", minimum: 1, maximum: 3 },
+                        text: { type: "string", minLength: 2 }
+                      }
+                    },
+                    {
+                      title: "text",
+                      required: ["text"],
+                      properties: {
+                        text: { type: "string", minLength: 10 }
+                      }
+                    },
+                    {
+                      title: "list",
+                      required: ["items", "ordered"],
+                      properties: {
+                        items: { type: "array", minItems: 2, items: { type: "string", minLength: 2 } },
+                        ordered: { type: "boolean" }
+                      }
+                    },
+                    {
+                      title: "callout",
+                      required: ["text", "icon"],
+                      properties: {
+                        text: { type: "string", minLength: 10 },
+                        icon: { type: "string", enum: ["info", "warning", "success"] }
+                      }
+                    },
+                    {
+                      title: "two_col",
+                      required: ["left", "right"],
+                      properties: {
+                        left: { type: "string", minLength: 5 },
+                        right: { type: "string", minLength: 5 }
+                      }
+                    },
+                    {
+                      title: "table",
+                      required: ["headers", "rows"],
+                      properties: {
+                        headers: { type: "array", minItems: 2, items: { type: "string", minLength: 1 } },
+                        rows: { type: "array", minItems: 1, items: { type: "array", minItems: 2, items: { type: "string" } } }
+                      }
+                    }
+                  ]
                 }
               }
             }
