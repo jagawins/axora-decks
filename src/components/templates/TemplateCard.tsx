@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Star, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TemplateBlock } from '@/lib/templates';
-import { TemplatePreview } from './TemplatePreview';
+import { TemplatePreviewImage } from './TemplatePreviewImage';
 
 interface TemplateCardProps {
   id: string;
@@ -13,6 +13,7 @@ interface TemplateCardProps {
   tags: string[];
   isFeatured: boolean;
   previewBlocks: TemplateBlock[];
+  previewUrl?: string | null;
   onSelect: (id: string) => void;
 }
 
@@ -24,6 +25,7 @@ export function TemplateCard({
   tags,
   isFeatured,
   previewBlocks,
+  previewUrl,
   onSelect,
 }: TemplateCardProps) {
   return (
@@ -49,7 +51,9 @@ export function TemplateCard({
         onClick={() => onSelect(id)}
         className="relative w-full focus:outline-none focus:ring-2 focus:ring-accent focus:ring-inset"
       >
-        <TemplatePreview 
+        <TemplatePreviewImage 
+          templateId={id}
+          previewUrl={previewUrl}
           blocks={previewBlocks} 
           className="border-0 rounded-none border-b"
         />

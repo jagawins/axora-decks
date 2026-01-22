@@ -13,6 +13,8 @@ export interface Template {
   created_at: string;
   // Preview blocks (first 3 blocks for thumbnail)
   preview_blocks?: TemplateBlock[];
+  // Cached preview image URL
+  preview_url?: string | null;
 }
 
 export interface TemplateBlock {
