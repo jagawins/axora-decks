@@ -35,6 +35,10 @@
     --success: 160 84% 39%;
     --success-foreground: 210 20% 98%;
 
+    /* Amber warning */
+    --warning: 45 93% 47%;
+    --warning-foreground: 220 20% 10%;
+
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 20% 98%;
 
