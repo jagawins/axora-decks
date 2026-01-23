@@ -477,7 +477,7 @@ const Editor = () => {
     }
   };
 
-  // Import content handler
+  // Import content handler (legacy flow - converts content to blocks)
   const handleImportContent = async (content: string) => {
     if (!projectId) return;
 
@@ -504,6 +504,24 @@ const Editor = () => {
         variant: "destructive",
       });
     }
+  };
+
+  // Direct insert blocks handler (new flow - appends blocks to existing deck)
+  const handleInsertBlocks = (newBlocks: Block[]) => {
+    if (!projectId || newBlocks.length === 0) return;
+
+    // Re-index new blocks to continue after existing blocks
+    const startIndex = blocks.length;
+    const reindexedBlocks = newBlocks.map((block, i) => ({
+      ...block,
+      id: crypto.randomUUID(), // Ensure unique IDs
+      order_index: startIndex + i,
+    }));
+
+    const updatedBlocks = [...blocks, ...reindexedBlocks];
+    setBlocks(updatedBlocks);
+    setHasUnsavedChanges(true);
+    setImportContentOpen(false);
   };
 
   // Helper to save blocks and navigate to preview
@@ -1173,7 +1191,12 @@ const Editor = () => {
       <CreateDeckModal open={createDeckOpen} onOpenChange={setCreateDeckOpen} onGenerate={handleCreateDeck} />
 
       {/* Import Content Modal */}
-      <ImportContentModal open={importContentOpen} onOpenChange={setImportContentOpen} onImport={handleImportContent} />
+      <ImportContentModal 
+        open={importContentOpen} 
+        onOpenChange={setImportContentOpen} 
+        onImport={handleImportContent}
+        onInsertBlocks={handleInsertBlocks}
+      />
 
       {/* Apply Template Modal */}
       {selectedBlock && (
