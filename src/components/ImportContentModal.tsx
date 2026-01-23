@@ -11,14 +11,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Loader2, FileText, Sparkles, Plus, Eye } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, FileText, Sparkles, Plus, Eye, Brain } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { aiEngine } from "@/lib/ai-engine";
 import { Block, toEditorBlocks, AIBlock } from "@/lib/blocks";
 import { BlockPreviewList } from "@/components/import/BlockPreviewList";
-
+import { BlockIntelligencePreview } from "@/components/BlockIntelligencePreview";
 interface ImportContentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -205,7 +206,28 @@ export function ImportContentModal({
 
         {showPreview ? (
           <div className="flex-1 overflow-y-auto py-4 min-h-0">
-            <BlockPreviewList blocks={previewBlocks} />
+            <Tabs defaultValue="intelligence" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="intelligence" className="gap-2">
+                  <Brain className="h-3.5 w-3.5" />
+                  Intelligence
+                </TabsTrigger>
+                <TabsTrigger value="list" className="gap-2">
+                  <FileText className="h-3.5 w-3.5" />
+                  Block List
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="intelligence" className="mt-0">
+                <BlockIntelligencePreview 
+                  blocks={previewBlocks} 
+                  showRecommendedOrder 
+                  showDeckSummary 
+                />
+              </TabsContent>
+              <TabsContent value="list" className="mt-0">
+                <BlockPreviewList blocks={previewBlocks} />
+              </TabsContent>
+            </Tabs>
           </div>
         ) : (
           <div className="space-y-4 py-4">
