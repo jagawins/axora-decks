@@ -122,6 +122,8 @@ export function TemplatesGrid({ templates, loading, onRefresh }: TemplatesGridPr
                   category={template.category}
                   tags={template.tags}
                   isFeatured={template.is_featured}
+                  version={template.version}
+                  defaultThemeId={template.default_theme_id}
                   previewBlocks={template.preview_blocks || []}
                   previewUrl={template.thumbnail_url || template.preview_url}
                   onSelect={handleSelectTemplate}
@@ -152,6 +154,8 @@ export function TemplatesGrid({ templates, loading, onRefresh }: TemplatesGridPr
                 category={template.category}
                 tags={template.tags}
                 isFeatured={template.is_featured}
+                version={template.version}
+                defaultThemeId={template.default_theme_id}
                 previewBlocks={template.preview_blocks || []}
                 previewUrl={template.thumbnail_url || template.preview_url}
                 onSelect={handleSelectTemplate}

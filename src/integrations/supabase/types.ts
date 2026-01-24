@@ -297,6 +297,8 @@ export type Database = {
       }
       template_blocks: {
         Row: {
+          block_meta: Json | null
+          block_payload: Json | null
           content: Json
           created_at: string
           id: string
@@ -305,6 +307,8 @@ export type Database = {
           type: Database["public"]["Enums"]["block_type"]
         }
         Insert: {
+          block_meta?: Json | null
+          block_payload?: Json | null
           content?: Json
           created_at?: string
           id?: string
@@ -313,6 +317,8 @@ export type Database = {
           type: Database["public"]["Enums"]["block_type"]
         }
         Update: {
+          block_meta?: Json | null
+          block_payload?: Json | null
           content?: Json
           created_at?: string
           id?: string
@@ -330,10 +336,52 @@ export type Database = {
           },
         ]
       }
+      template_previews: {
+        Row: {
+          created_at: string
+          id: string
+          image_base64: string
+          renderer_version: number
+          template_id: string
+          template_version: number
+          theme_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_base64: string
+          renderer_version?: number
+          template_id: string
+          template_version?: number
+          theme_id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_base64?: string
+          renderer_version?: number
+          template_id?: string
+          template_version?: number
+          theme_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_previews_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       templates: {
         Row: {
           category: string
           created_at: string
+          default_theme_id: string | null
           description: string | null
           id: string
           is_featured: boolean
@@ -341,10 +389,13 @@ export type Database = {
           tags: string[] | null
           thumbnail_url: string | null
           title: string
+          updated_at: string
+          version: number
         }
         Insert: {
           category: string
           created_at?: string
+          default_theme_id?: string | null
           description?: string | null
           id?: string
           is_featured?: boolean
@@ -352,10 +403,13 @@ export type Database = {
           tags?: string[] | null
           thumbnail_url?: string | null
           title: string
+          updated_at?: string
+          version?: number
         }
         Update: {
           category?: string
           created_at?: string
+          default_theme_id?: string | null
           description?: string | null
           id?: string
           is_featured?: boolean
@@ -363,6 +417,8 @@ export type Database = {
           tags?: string[] | null
           thumbnail_url?: string | null
           title?: string
+          updated_at?: string
+          version?: number
         }
         Relationships: []
       }

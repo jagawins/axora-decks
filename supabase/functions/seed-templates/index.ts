@@ -14,6 +14,8 @@ interface TemplateData {
   tags: string[];
   thumbnail_url: string | null;
   is_featured: boolean;
+  version?: number;
+  default_theme_id?: string;
 }
 
 interface TemplateBlockData {
@@ -89,13 +91,15 @@ serve(async (req) => {
       slugToId[t.slug] = t.id;
     });
 
-    // Map template_blocks to include template_id
+    // Map template_blocks to include template_id and new schema fields
     const blocksWithIds = seedData.template_blocks
       .filter((block) => slugToId[block.template_slug])
       .map((block) => ({
         template_id: slugToId[block.template_slug],
         type: block.type,
         content: block.content,
+        block_payload: block.content, // New field - same as content for migration
+        block_meta: {}, // Empty metadata for seeded templates
         order_index: block.order_index,
       }));
 
