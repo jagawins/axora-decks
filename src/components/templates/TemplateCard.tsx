@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Star, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { TemplateBlock } from '@/lib/templates';
+import { type TemplateBlock } from '@/lib/templates';
 import { TemplatePreviewImage } from './TemplatePreviewImage';
 
 interface TemplateCardProps {
@@ -12,6 +12,8 @@ interface TemplateCardProps {
   category: string;
   tags: string[];
   isFeatured: boolean;
+  version?: number;
+  defaultThemeId?: string;
   previewBlocks: TemplateBlock[];
   previewUrl?: string | null;
   onSelect: (id: string) => void;
@@ -24,6 +26,8 @@ export function TemplateCard({
   category,
   tags,
   isFeatured,
+  version = 1,
+  defaultThemeId = 'classic',
   previewBlocks,
   previewUrl,
   onSelect,
@@ -53,6 +57,8 @@ export function TemplateCard({
       >
         <TemplatePreviewImage 
           templateId={id}
+          templateVersion={version}
+          themeId={defaultThemeId}
           previewUrl={previewUrl}
           blocks={previewBlocks} 
           className="border-0 rounded-none border-b"
