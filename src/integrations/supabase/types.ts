@@ -438,6 +438,17 @@ export type Database = {
         | "table"
         | "list"
         | "callout"
+        | "stat_block"
+        | "quote_block"
+        | "timeline_block"
+        | "comparison_table"
+        | "card_grid"
+        | "hero_header"
+        | "exec_summary"
+        | "cta_section"
+        | "section_divider"
+        | "icon_text_block"
+        | "framed_insight"
       export_format: "pdf" | "slides" | "web"
       user_tier: "free" | "pro" | "executive"
     }
@@ -575,6 +586,17 @@ export const Constants = {
         "table",
         "list",
         "callout",
+        "stat_block",
+        "quote_block",
+        "timeline_block",
+        "comparison_table",
+        "card_grid",
+        "hero_header",
+        "exec_summary",
+        "cta_section",
+        "section_divider",
+        "icon_text_block",
+        "framed_insight",
       ],
       export_format: ["pdf", "slides", "web"],
       user_tier: ["free", "pro", "executive"],
