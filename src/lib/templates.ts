@@ -5,7 +5,25 @@ import type { Json } from '@/integrations/supabase/types';
 // TYPES
 // =============================================================================
 
-export type BlockType = 'text' | 'heading' | 'image' | 'two_col' | 'table' | 'list' | 'callout';
+// Legacy block types
+export type LegacyBlockType = 'text' | 'heading' | 'image' | 'two_col' | 'table' | 'list' | 'callout';
+
+// Visual block types (new)
+export type VisualBlockType = 
+  | 'stat_block' 
+  | 'quote_block' 
+  | 'timeline_block' 
+  | 'comparison_table' 
+  | 'card_grid' 
+  | 'hero_header' 
+  | 'exec_summary' 
+  | 'cta_section' 
+  | 'section_divider' 
+  | 'icon_text_block' 
+  | 'framed_insight';
+
+// All block types
+export type BlockType = LegacyBlockType | VisualBlockType;
 
 export interface BlockMeta {
   purpose?: string | null;

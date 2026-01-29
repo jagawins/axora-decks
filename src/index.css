@@ -48,22 +48,87 @@
 
     --radius: 0.75rem;
 
+    /* =====================================================
+       AXORA VISUAL BLOCK DESIGN TOKENS
+       ===================================================== */
+    
+    /* Typographic Scale (fluid, executive-grade) */
+    --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+    --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+    --text-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+    --text-lg: clamp(1.125rem, 1rem + 0.6vw, 1.25rem);
+    --text-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+    --text-2xl: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+    --text-3xl: clamp(1.875rem, 1.5rem + 1.5vw, 2.5rem);
+    --text-4xl: clamp(2.25rem, 1.75rem + 2vw, 3rem);
+    --text-5xl: clamp(3rem, 2rem + 3vw, 4rem);
+    --text-6xl: clamp(3.75rem, 2.5rem + 4vw, 5rem);
+    
+    /* Spacing Scale */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+    --space-24: 6rem;
+    
+    /* Border Radius Scale */
+    --radius-none: 0;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
+    --radius-3xl: 2rem;
+    --radius-full: 9999px;
+    
+    /* Shadow Scale */
+    --shadow-xs: 0 1px 2px hsla(0, 0%, 0%, 0.05);
+    --shadow-sm: 0 1px 3px hsla(0, 0%, 0%, 0.1), 0 1px 2px hsla(0, 0%, 0%, 0.06);
+    --shadow-md: 0 4px 6px -1px hsla(0, 0%, 0%, 0.1), 0 2px 4px -1px hsla(0, 0%, 0%, 0.06);
+    --shadow-lg: 0 10px 15px -3px hsla(0, 0%, 0%, 0.1), 0 4px 6px -2px hsla(0, 0%, 0%, 0.05);
+    --shadow-xl: 0 20px 25px -5px hsla(0, 0%, 0%, 0.1), 0 10px 10px -5px hsla(0, 0%, 0%, 0.04);
+    --shadow-2xl: 0 25px 50px -12px hsla(0, 0%, 0%, 0.25);
+    --shadow-inner: inset 0 2px 4px 0 hsla(0, 0%, 0%, 0.06);
+    
+    /* Visual Block Colors */
+    --block-stat-bg: 210 100% 55%;
+    --block-stat-fg: 210 20% 98%;
+    --block-quote-bg: 220 14% 10%;
+    --block-quote-border: 210 100% 55%;
+    --block-timeline-line: 210 100% 55%;
+    --block-card-hover: 210 100% 55%;
+    --block-divider: 220 12% 25%;
+    --block-insight-bg: 45 93% 47%;
+    --block-insight-fg: 220 20% 10%;
+    
+    /* Icon sizes */
+    --icon-xs: 0.75rem;
+    --icon-sm: 1rem;
+    --icon-md: 1.25rem;
+    --icon-lg: 1.5rem;
+    --icon-xl: 2rem;
+    --icon-2xl: 2.5rem;
+    --icon-3xl: 3rem;
+
     /* Premium gradients */
     --gradient-hero: linear-gradient(135deg, hsl(220 20% 4%) 0%, hsl(220 25% 8%) 50%, hsl(210 30% 10%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(210 100% 55%) 0%, hsl(200 100% 45%) 100%);
     --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
     --gradient-card: linear-gradient(180deg, hsl(220 18% 10%) 0%, hsl(220 18% 7%) 100%);
+    --gradient-stat: linear-gradient(135deg, hsl(210 100% 55%) 0%, hsl(200 100% 45%) 100%);
+    --gradient-cta: linear-gradient(135deg, hsl(160 84% 39%) 0%, hsl(170 80% 35%) 100%);
     
     /* Glow effects */
     --glow-accent: 0 0 60px hsla(210, 100%, 55%, 0.3);
     --glow-subtle: 0 0 40px hsla(210, 100%, 55%, 0.15);
-
-    /* Shadows */
-    --shadow-sm: 0 1px 2px hsla(0, 0%, 0%, 0.3);
-    --shadow-md: 0 4px 6px -1px hsla(0, 0%, 0%, 0.4), 0 2px 4px -2px hsla(0, 0%, 0%, 0.3);
-    --shadow-lg: 0 10px 15px -3px hsla(0, 0%, 0%, 0.5), 0 4px 6px -4px hsla(0, 0%, 0%, 0.4);
-    --shadow-xl: 0 20px 25px -5px hsla(0, 0%, 0%, 0.5), 0 8px 10px -6px hsla(0, 0%, 0%, 0.4);
-    --shadow-glow: 0 0 0 1px hsla(210, 100%, 55%, 0.1), 0 0 20px hsla(210, 100%, 55%, 0.1);
+    --glow-stat: 0 0 30px hsla(210, 100%, 55%, 0.4);
 
     --sidebar-background: 220 18% 6%;
     --sidebar-foreground: 210 20% 90%;

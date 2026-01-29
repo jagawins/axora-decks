@@ -8,7 +8,7 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import { toPng } from 'html-to-image';
 import { Loader2 } from 'lucide-react';
 import { type TemplateBlock } from '@/lib/templates';
-import { TemplateBlockRenderer } from './TemplateBlockRenderer';
+import { VisualBlockRenderer } from '@/components/blocks';
 import { cn } from '@/lib/utils';
 
 // Design size for the slide (16:9 aspect ratio)
@@ -156,7 +156,7 @@ export function TemplatePreviewRenderer({
             </div>
           ) : (
             previewBlocks.map((block, index) => (
-              <TemplateBlockRenderer
+              <VisualBlockRenderer
                 key={block.id || index}
                 block={block}
                 readOnly
