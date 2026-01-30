@@ -1,7 +1,24 @@
 import { invokeFunction } from "@/lib/supabase-function-client";
 
-// Consistent types
-export type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
+// Basic block types
+export type BasicBlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
+
+// Visual block types from the layout engine
+export type VisualBlockType = 
+  | "stat_block" 
+  | "quote_block" 
+  | "timeline_block" 
+  | "comparison_table"
+  | "card_grid" 
+  | "hero_header" 
+  | "exec_summary" 
+  | "cta_section"
+  | "section_divider" 
+  | "icon_text_block" 
+  | "framed_insight";
+
+// All block types
+export type BlockType = BasicBlockType | VisualBlockType;
 
 export interface Block {
   type: BlockType;
@@ -23,6 +40,7 @@ export interface GenerateOutlineParams {
   prompt?: string;
   topic: string;
   tone?: "professional" | "crisp" | "analytical" | "persuasive" | "executive" | "casual";
+  enableVisualBlocks?: boolean;
 }
 
 export interface RefineBlockParams {

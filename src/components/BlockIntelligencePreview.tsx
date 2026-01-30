@@ -27,7 +27,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Block, BlockType } from "@/lib/blocks";
+import { Block, BlockType, BasicBlockType } from "@/lib/blocks";
+import { BLOCK_ICONS, getBlockIcon } from "@/lib/block-icons";
 import {
   BlockPurpose,
   IntelligentBlock,
@@ -60,17 +61,6 @@ const PURPOSE_COLORS: Record<BlockPurpose, string> = {
   transition: "bg-gray-500/10 text-gray-600 border-gray-500/30",
   visual: "bg-pink-500/10 text-pink-600 border-pink-500/30",
   unknown: "bg-muted text-muted-foreground border-border",
-};
-
-// Block type icons
-const BLOCK_TYPE_ICONS: Record<BlockType, typeof FileText> = {
-  heading: Type,
-  text: FileText,
-  list: List,
-  callout: MessageSquare,
-  two_col: Columns,
-  table: Table2,
-  image: Image,
 };
 
 interface BlockIntelligencePreviewProps {
@@ -133,7 +123,7 @@ function BlockPreviewItem({
 }) {
   const { metadata } = block;
   const PurposeIcon = PURPOSE_ICONS[metadata.purpose];
-  const TypeIcon = BLOCK_TYPE_ICONS[block.type];
+  const TypeIcon = getBlockIcon(block.type);
   
   if (compact) {
     return (

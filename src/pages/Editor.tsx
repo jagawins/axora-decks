@@ -27,13 +27,6 @@ import {
   ChevronDown,
   Wand2,
   Sparkles,
-  FileText,
-  Heading,
-  List,
-  AlertCircle,
-  Columns,
-  Table,
-  Image,
   Play,
   Share2,
   Copy,
@@ -43,6 +36,7 @@ import {
   Upload,
   LayoutTemplate,
   MoreVertical,
+  AlertCircle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
@@ -70,22 +64,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileEditorTabs, { MobileTab } from "@/components/editor/MobileEditorTabs";
 import MobileBlocksPanel from "@/components/editor/MobileBlocksPanel";
 import MobileAIPanel from "@/components/editor/MobileAIPanel";
+import { BLOCK_ICONS, getBlockIcon } from "@/lib/block-icons";
 
 interface Project {
   id: string;
   title: string;
   description: string | null;
 }
-
-const BLOCK_ICONS: Record<BlockType, typeof FileText> = {
-  text: FileText,
-  heading: Heading,
-  list: List,
-  callout: AlertCircle,
-  two_col: Columns,
-  table: Table,
-  image: Image,
-};
 
 const Editor = () => {
   const { id: projectId } = useParams<{ id: string }>();
@@ -776,7 +761,7 @@ const Editor = () => {
                 </p>
               ) : (
                 blocks.map((block, index) => {
-                  const Icon = BLOCK_ICONS[block.type] || FileText;
+                  const Icon = getBlockIcon(block.type);
                   return (
                     <div
                       key={block.id}

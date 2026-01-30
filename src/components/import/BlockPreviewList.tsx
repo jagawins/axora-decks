@@ -1,5 +1,6 @@
-import { Type, FileText, List, AlertCircle, Columns, Table, Image } from 'lucide-react';
+import { Image, FileText } from 'lucide-react';
 import { Block, BlockType, getPreviewLabel } from '@/lib/blocks';
+import { BLOCK_ICONS, getBlockIcon } from '@/lib/block-icons';
 import { cn } from '@/lib/utils';
 import type { Json } from '@/integrations/supabase/types';
 
@@ -7,16 +8,6 @@ interface BlockPreviewListProps {
   blocks: Block[];
   className?: string;
 }
-
-const BLOCK_ICONS: Record<BlockType, React.ElementType> = {
-  heading: Type,
-  text: FileText,
-  list: List,
-  callout: AlertCircle,
-  two_col: Columns,
-  table: Table,
-  image: Image,
-};
 
 /**
  * Renders a list preview of blocks with icons and labels.
@@ -41,7 +32,7 @@ export function BlockPreviewList({ blocks, className = '' }: BlockPreviewListPro
 }
 
 function BlockPreviewItem({ block, index }: { block: Block; index: number }) {
-  const Icon = BLOCK_ICONS[block.type] || FileText;
+  const Icon = getBlockIcon(block.type);
   const label = getPreviewLabel(block);
 
   return (
@@ -156,6 +147,10 @@ export function BlockMiniPreview({ block }: { block: Block }) {
     }
 
     default:
-      return null;
+      return (
+        <div className="text-xs text-muted-foreground">
+          {block.type.replace('_', ' ')}
+        </div>
+      );
   }
 }

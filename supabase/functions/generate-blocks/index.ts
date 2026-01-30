@@ -21,8 +21,15 @@ interface BlockContent {
   [key: string]: unknown;
 }
 
+// All supported block types including visual blocks
+type BlockType = 
+  | "text" | "heading" | "list" | "callout" | "two_col" | "table" | "image"
+  | "stat_block" | "quote_block" | "timeline_block" | "comparison_table"
+  | "card_grid" | "hero_header" | "exec_summary" | "cta_section"
+  | "section_divider" | "icon_text_block" | "framed_insight";
+
 interface Block {
-  type: "text" | "heading" | "list" | "callout" | "two_col" | "table" | "image";
+  type: BlockType;
   content: BlockContent;
   order_index: number;
 }
@@ -32,6 +39,7 @@ interface ValidationResult {
   error?: string;
   outline?: Outline;
   density?: string;
+  enableVisualBlocks?: boolean;
 }
 
 interface BlockValidationResult {
@@ -41,7 +49,13 @@ interface BlockValidationResult {
   blocks: Block[];
 }
 
-const VALID_BLOCK_TYPES = ["heading", "text", "list", "callout", "two_col", "table", "image"];
+const BASIC_BLOCK_TYPES = ["heading", "text", "list", "callout", "two_col", "table", "image"];
+const VISUAL_BLOCK_TYPES = [
+  "stat_block", "quote_block", "timeline_block", "comparison_table",
+  "card_grid", "hero_header", "exec_summary", "cta_section",
+  "section_divider", "icon_text_block", "framed_insight"
+];
+const ALL_BLOCK_TYPES = [...BASIC_BLOCK_TYPES, ...VISUAL_BLOCK_TYPES];
 
 // Utility to strip any Markdown formatting
 function stripMarkdown(s: unknown): unknown {
@@ -78,7 +92,11 @@ function validateRequest(body: unknown): ValidationResult {
     return { valid: false, error: "Request body must be a JSON object" };
   }
 
-  const { outline, density } = body as { outline?: unknown; density?: string };
+  const { outline, density, enableVisualBlocks } = body as { 
+    outline?: unknown; 
+    density?: string;
+    enableVisualBlocks?: boolean;
+  };
 
   if (!outline || typeof outline !== "object") {
     return { valid: false, error: "outline is required and must be an object" };
@@ -116,6 +134,7 @@ function validateRequest(body: unknown): ValidationResult {
       summary: typeof o.summary === "string" ? o.summary : "",
     },
     density: sanitizedDensity,
+    enableVisualBlocks: enableVisualBlocks !== false, // Default to true
   };
 }
 
@@ -225,6 +244,21 @@ function normalizeBlockContent(type: string, content: BlockContent): BlockConten
         normalized.alt = content.description;
       }
       break;
+      
+    // Visual block types - minimal normalization as they have well-defined schemas
+    case "stat_block":
+    case "quote_block":
+    case "timeline_block":
+    case "comparison_table":
+    case "card_grid":
+    case "hero_header":
+    case "exec_summary":
+    case "cta_section":
+    case "section_divider":
+    case "icon_text_block":
+    case "framed_insight":
+      // Pass through - these have strict schemas
+      break;
   }
 
   return normalized;
@@ -317,12 +351,130 @@ function validateBlockContent(type: string, sanitizedContent: BlockContent): { v
     }
     case "image": {
       const src = sanitizedContent.src;
+      const prompt = sanitizedContent.prompt;
       const alt = sanitizedContent.alt;
-      if (typeof src !== "string" || src.trim().length < 5) {
-        missingKeys.push("src (minLength: 5)");
+      // Either src or prompt must be present
+      if ((typeof src !== "string" || src.trim().length < 5) && 
+          (typeof prompt !== "string" || prompt.trim().length < 5)) {
+        missingKeys.push("src or prompt (minLength: 5)");
       }
       if (typeof alt !== "string" || alt.trim().length < 2) {
         missingKeys.push("alt (minLength: 2)");
+      }
+      break;
+    }
+    // Visual block validations
+    case "stat_block": {
+      const stats = sanitizedContent.stats;
+      if (!Array.isArray(stats) || stats.length < 2) {
+        missingKeys.push("stats (minItems: 2)");
+      } else {
+        for (let i = 0; i < stats.length; i++) {
+          const stat = stats[i] as { value?: unknown; label?: unknown };
+          if (typeof stat?.value !== "string" || stat.value.trim().length < 1) {
+            missingKeys.push(`stats[${i}].value required`);
+            break;
+          }
+          if (typeof stat?.label !== "string" || stat.label.trim().length < 1) {
+            missingKeys.push(`stats[${i}].label required`);
+            break;
+          }
+        }
+      }
+      break;
+    }
+    case "quote_block": {
+      const quote = sanitizedContent.quote;
+      if (typeof quote !== "string" || quote.trim().length < 10) {
+        missingKeys.push("quote (minLength: 10)");
+      }
+      break;
+    }
+    case "timeline_block": {
+      const events = sanitizedContent.events;
+      if (!Array.isArray(events) || events.length < 2) {
+        missingKeys.push("events (minItems: 2)");
+      } else {
+        for (let i = 0; i < events.length; i++) {
+          const event = events[i] as { date?: unknown; title?: unknown };
+          if (typeof event?.date !== "string") {
+            missingKeys.push(`events[${i}].date required`);
+            break;
+          }
+          if (typeof event?.title !== "string") {
+            missingKeys.push(`events[${i}].title required`);
+            break;
+          }
+        }
+      }
+      break;
+    }
+    case "comparison_table": {
+      const headers = sanitizedContent.headers;
+      const rows = sanitizedContent.rows;
+      if (!Array.isArray(headers) || headers.length < 2) {
+        missingKeys.push("headers (minItems: 2)");
+      }
+      if (!Array.isArray(rows) || rows.length < 1) {
+        missingKeys.push("rows (minItems: 1)");
+      }
+      break;
+    }
+    case "card_grid": {
+      const cards = sanitizedContent.cards;
+      if (!Array.isArray(cards) || cards.length < 2) {
+        missingKeys.push("cards (minItems: 2)");
+      } else {
+        for (let i = 0; i < cards.length; i++) {
+          const card = cards[i] as { title?: unknown };
+          if (typeof card?.title !== "string") {
+            missingKeys.push(`cards[${i}].title required`);
+            break;
+          }
+        }
+      }
+      break;
+    }
+    case "hero_header": {
+      const heading = sanitizedContent.heading;
+      if (typeof heading !== "string" || heading.trim().length < 3) {
+        missingKeys.push("heading (minLength: 3)");
+      }
+      break;
+    }
+    case "exec_summary": {
+      const summary = sanitizedContent.summary;
+      const keyPoints = sanitizedContent.keyPoints;
+      if (typeof summary !== "string" || summary.trim().length < 20) {
+        missingKeys.push("summary (minLength: 20)");
+      }
+      if (!Array.isArray(keyPoints) || keyPoints.length < 2) {
+        missingKeys.push("keyPoints (minItems: 2)");
+      }
+      break;
+    }
+    case "cta_section": {
+      const heading = sanitizedContent.heading;
+      if (typeof heading !== "string" || heading.trim().length < 3) {
+        missingKeys.push("heading (minLength: 3)");
+      }
+      break;
+    }
+    case "section_divider": {
+      // Section dividers have no required content
+      break;
+    }
+    case "icon_text_block": {
+      const items = sanitizedContent.items;
+      if (!Array.isArray(items) || items.length < 2) {
+        missingKeys.push("items (minItems: 2)");
+      }
+      break;
+    }
+    case "framed_insight": {
+      const insight = sanitizedContent.insight;
+      if (typeof insight !== "string" || insight.trim().length < 10) {
+        missingKeys.push("insight (minLength: 10)");
       }
       break;
     }
@@ -334,16 +486,18 @@ function validateBlockContent(type: string, sanitizedContent: BlockContent): { v
 }
 
 // Pipeline: normalize → sanitize → validate
-function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }>): BlockValidationResult {
+function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }>, enableVisualBlocks: boolean): BlockValidationResult {
   const validBlocks: Block[] = [];
   const errors: string[] = [];
   let invalidCount = 0;
+  
+  const allowedTypes = enableVisualBlocks ? ALL_BLOCK_TYPES : BASIC_BLOCK_TYPES;
 
   for (let i = 0; i < rawBlocks.length; i++) {
     const block = rawBlocks[i];
 
     // Check type
-    if (!block.type || !VALID_BLOCK_TYPES.includes(block.type)) {
+    if (!block.type || !allowedTypes.includes(block.type)) {
       errors.push(`block[${i}]: invalid type "${block.type || 'undefined'}"`);
       invalidCount++;
       continue;
@@ -372,7 +526,7 @@ function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }
 
     // Block is valid
     validBlocks.push({
-      type: block.type as Block["type"],
+      type: block.type as BlockType,
       content: sanitizedContent,
       order_index: i,
     });
@@ -428,7 +582,8 @@ function getDensityBlockConstraints(density: string): string {
     case "vibes":
       return `
 DENSITY CONSTRAINTS (STRICT - JUST VIBES):
-- Prefer heading blocks and image placeholders
+- Prefer hero_header and section_divider blocks
+- Use stat_block for impressive numbers
 - Lists: maximum 2-3 very short items
 - Text blocks: maximum 1 short sentence
 - NO tables
@@ -439,15 +594,17 @@ DENSITY CONSTRAINTS (STRICT - JUST VIBES):
 DENSITY CONSTRAINTS (STRICT - MINIMAL TEXT):
 - Lists: maximum 3 bullet points
 - Text blocks: maximum 2 sentences
-- Tables: avoid unless essential
-- Keep everything concise`;
+- Use card_grid for 3-4 key points
+- Use stat_block for metrics
+- Tables: avoid unless essential`;
     
     case "context":
       return `
 DENSITY CONSTRAINTS (A LITTLE CONTEXT):
 - Lists: 3-5 bullet points allowed
 - Text blocks: 2-3 sentences
-- One table allowed if relevant`;
+- Use visual blocks where appropriate
+- One comparison_table allowed if relevant`;
     
     case "plenty":
       return `
@@ -455,6 +612,7 @@ DENSITY CONSTRAINTS (PLENTY OF TEXT):
 - Lists: 5+ items allowed
 - Text blocks: paragraphs permitted
 - Multiple tables allowed
+- Use exec_summary for detailed overviews
 - Detailed explanations welcome`;
     
     default:
@@ -462,16 +620,74 @@ DENSITY CONSTRAINTS (PLENTY OF TEXT):
   }
 }
 
-// Build system prompt
-function buildSystemPrompt(isRetry: boolean, validationErrors?: string[], density?: string): string {
+// Build system prompt with visual block layout rules
+function buildSystemPrompt(isRetry: boolean, validationErrors?: string[], density?: string, enableVisualBlocks?: boolean): string {
   const densityConstraints = getDensityBlockConstraints(density || "context");
   
-  let prompt = `You are an expert presentation designer. Convert outlines into presentation blocks.
+  const visualBlockRules = enableVisualBlocks ? `
+VISUAL BLOCK SELECTION RULES (use these to choose the right block type):
+
+1. NUMBERS/METRICS → stat_block
+   - When content has 2-6 numeric values (percentages, money, counts)
+   - Example: "50% increase", "$1.2M ARR", "3x faster"
+   
+2. QUOTES/TESTIMONIALS → quote_block
+   - When content contains quoted text or attribution
+   - Example: "Our customers love it" - CEO
+
+3. CHRONOLOGICAL/SEQUENTIAL → timeline_block
+   - Dates, phases, steps, quarters, years
+   - Example: Q1 2024, Phase 1, Step 1, January 2024
+
+4. COMPARISONS/VS → comparison_table
+   - Pros vs cons, before vs after, option A vs B
+   - Example: "compared to", "versus", "advantages and disadvantages"
+
+5. 3-4 DISTINCT ITEMS → card_grid
+   - Features, benefits, services, products
+   - NOT for bullet lists (use list block for those)
+
+6. LONG TEXT (>200 words) → two_col
+   - Split for readability
+
+7. KEY INSIGHT/TIP → framed_insight
+   - Important callouts that need emphasis
+   - Types: tip, warning, insight, note
+
+8. PRESENTATION TITLE → hero_header
+   - For the main title slide with optional CTA
+
+9. SUMMARY WITH KEY POINTS → exec_summary
+   - Executive summary with bullet points
+
+10. CALL TO ACTION → cta_section
+    - Final slide with next steps
+
+11. TOPIC TRANSITIONS → section_divider
+    - Between major sections
+
+VISUAL BLOCK FORMATS:
+- stat_block: {"stats": [{"value": "50%", "label": "Growth Rate", "trend": "up"}]}
+- quote_block: {"quote": "The quote text", "author": "Name", "role": "Title"}
+- timeline_block: {"events": [{"date": "Q1 2024", "title": "Launch", "status": "completed"}]}
+- comparison_table: {"headers": ["Feature", "Option A", "Option B"], "rows": [{"label": "Price", "values": ["$10", "$20"]}]}
+- card_grid: {"cards": [{"title": "Card 1", "description": "Details", "icon": "Star"}], "columns": 3}
+- hero_header: {"heading": "Main Title", "subheading": "Subtitle", "cta": {"text": "Get Started"}}
+- exec_summary: {"summary": "Overview text", "keyPoints": ["Point 1", "Point 2"], "bottomLine": "Conclusion"}
+- cta_section: {"heading": "Ready to Start?", "primaryCta": {"text": "Sign Up"}}
+- section_divider: {"style": "gradient", "label": "Next Section"}
+- icon_text_block: {"items": [{"icon": "Star", "title": "Feature", "description": "Details"}]}
+- framed_insight: {"insight": "Key insight here", "type": "tip", "source": "Research"}
+` : '';
+
+  let prompt = `You are an expert presentation designer. Convert outlines into visually rich presentation blocks.
 
 CRITICAL: You MUST populate the content object with actual data. Empty content {} will fail.
 ${densityConstraints}
 
-BLOCK FORMATS (copy exactly):
+${enableVisualBlocks ? visualBlockRules : ''}
+
+BASIC BLOCK FORMATS (always available):
 - heading: {"level": 1, "text": "Your Heading Text Here"}
 - text: {"text": "Your paragraph text here, at least 10 characters"}
 - list: {"items": ["First item", "Second item", "Third item"], "ordered": false}
@@ -480,41 +696,40 @@ BLOCK FORMATS (copy exactly):
 - table: {"headers": ["Column 1", "Column 2"], "rows": [["Row 1 Data", "More Data"]]}
 
 STRUCTURE:
-1. Start with H1 heading (level: 1) for the title
-2. Use H2 (level: 2) for section headings
-3. Convert bullet points to list blocks
-4. Use callouts for key takeaways (icon: "info", "warning", or "success")
+1. Start with hero_header for the title (or H1 heading if visual blocks disabled)
+2. Use section_divider between major topics
+3. Apply visual block rules to select the best block type for each piece of content
+4. End with cta_section or exec_summary for conclusion
 5. Create 8-15 blocks total
-
-EXAMPLE BLOCK:
-{"type": "heading", "content": {"level": 1, "text": "AI in Healthcare: A Strategic Overview"}}
 
 NEVER return {"type": "heading", "content": {}} - this will fail validation.`;
 
   if (isRetry && validationErrors?.length) {
     prompt += `
 
-CORRECTION REQUIRED - Your previous response had empty content objects.
+CORRECTION REQUIRED - Your previous response had invalid blocks.
 Errors: ${validationErrors.slice(0, 3).join("; ")}
 
-You MUST fill in actual text for every content field.`;
+You MUST fill in actual content for every block. Check the required fields for each block type.`;
   }
 
   return prompt;
 }
 
-// Strict oneOf schema per block type
-function getToolSchema() {
+// Tool schema with all visual block types
+function getToolSchema(enableVisualBlocks: boolean) {
+  const blockTypes = enableVisualBlocks 
+    ? ["heading", "text", "list", "callout", "two_col", "table", "stat_block", "quote_block", "timeline_block", "comparison_table", "card_grid", "hero_header", "exec_summary", "cta_section", "section_divider", "icon_text_block", "framed_insight"]
+    : ["heading", "text", "list", "callout", "two_col", "table"];
+
   return {
     type: "function",
     function: {
       name: "create_blocks",
-      description: "Create presentation blocks with type-specific validated content",
-      strict: true,
+      description: "Create presentation blocks with type-specific validated content. Use visual block types for richer presentations.",
       parameters: {
         type: "object",
         required: ["blocks"],
-        additionalProperties: false,
         properties: {
           blocks: {
             type: "array",
@@ -522,64 +737,15 @@ function getToolSchema() {
             items: {
               type: "object",
               required: ["type", "content"],
-              additionalProperties: false,
               properties: {
                 type: {
                   type: "string",
-                  enum: ["heading", "text", "list", "callout", "two_col", "table"]
+                  enum: blockTypes,
+                  description: "Block type - choose based on content characteristics"
                 },
                 content: {
                   type: "object",
-                  additionalProperties: false,
-                  oneOf: [
-                    {
-                      title: "heading",
-                      required: ["level", "text"],
-                      properties: {
-                        level: { type: "integer", minimum: 1, maximum: 3 },
-                        text: { type: "string", minLength: 2 }
-                      }
-                    },
-                    {
-                      title: "text",
-                      required: ["text"],
-                      properties: {
-                        text: { type: "string", minLength: 10 }
-                      }
-                    },
-                    {
-                      title: "list",
-                      required: ["items", "ordered"],
-                      properties: {
-                        items: { type: "array", minItems: 2, items: { type: "string", minLength: 2 } },
-                        ordered: { type: "boolean" }
-                      }
-                    },
-                    {
-                      title: "callout",
-                      required: ["text", "icon"],
-                      properties: {
-                        text: { type: "string", minLength: 10 },
-                        icon: { type: "string", enum: ["info", "warning", "success"] }
-                      }
-                    },
-                    {
-                      title: "two_col",
-                      required: ["left", "right"],
-                      properties: {
-                        left: { type: "string", minLength: 5 },
-                        right: { type: "string", minLength: 5 }
-                      }
-                    },
-                    {
-                      title: "table",
-                      required: ["headers", "rows"],
-                      properties: {
-                        headers: { type: "array", minItems: 2, items: { type: "string", minLength: 1 } },
-                        rows: { type: "array", minItems: 1, items: { type: "array", minItems: 2, items: { type: "string" } } }
-                      }
-                    }
-                  ]
+                  description: "Block content - structure depends on type"
                 }
               }
             }
@@ -594,7 +760,8 @@ function getToolSchema() {
 async function callAI(
   apiKey: string,
   systemPrompt: string,
-  userPrompt: string
+  userPrompt: string,
+  enableVisualBlocks: boolean
 ): Promise<{ response?: Response; error?: string }> {
   try {
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -609,7 +776,7 @@ async function callAI(
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        tools: [getToolSchema()],
+        tools: [getToolSchema(enableVisualBlocks)],
         tool_choice: { type: "function", function: { name: "create_blocks" } }
       }),
     });
@@ -641,6 +808,7 @@ serve(async (req) => {
 
     const outline = validation.outline!;
     const density = validation.density;
+    const enableVisualBlocks = validation.enableVisualBlocks ?? true;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -651,9 +819,9 @@ serve(async (req) => {
       );
     }
 
-    console.log(`[${requestId}] Generating blocks for: "${outline.title}" with density: ${density || "default"}`);
+    console.log(`[${requestId}] Generating blocks for: "${outline.title}" with density: ${density || "default"}, visualBlocks: ${enableVisualBlocks}`);
 
-    const userPrompt = `Convert this outline into presentation blocks:
+    const userPrompt = `Convert this outline into presentation blocks. Use visual block types where content matches the rules.
 
 Title: ${outline.title}
 Summary: ${outline.summary}
@@ -662,11 +830,13 @@ Sections:
 ${outline.sections.map((s, i) => `${i + 1}. ${s.heading}\n${s.points.map(p => `   - ${p}`).join("\n")}`).join("\n\n")}
 
 Key Takeaways:
-${outline.bullets.map(b => `- ${b}`).join("\n")}`;
+${outline.bullets.map(b => `- ${b}`).join("\n")}
+
+IMPORTANT: Analyze each section and choose the most appropriate visual block type based on the content rules.`;
 
     // First attempt
-    const systemPrompt1 = buildSystemPrompt(false, undefined, density);
-    const result1 = await callAI(LOVABLE_API_KEY, systemPrompt1, userPrompt);
+    const systemPrompt1 = buildSystemPrompt(false, undefined, density, enableVisualBlocks);
+    const result1 = await callAI(LOVABLE_API_KEY, systemPrompt1, userPrompt, enableVisualBlocks);
 
     if (result1.error) {
       console.error(`[${requestId}] AI call failed:`, result1.error);
@@ -704,7 +874,7 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
     const parsed1 = parseAIResponse(data1, requestId);
 
     if (parsed1.blocks) {
-      const blockValidation1 = validateBlocks(parsed1.blocks);
+      const blockValidation1 = validateBlocks(parsed1.blocks, enableVisualBlocks);
 
       if (blockValidation1.valid) {
         console.log(`[${requestId}] Generated ${blockValidation1.blocks.length} valid blocks`);
@@ -718,8 +888,8 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
       console.warn(`[${requestId}] Validation failed (attempt 1): invalidBlocksCount=${blockValidation1.invalidCount}, missingKeys=${blockValidation1.errors.slice(0, 3).join("; ")}`);
       console.log(`[${requestId}] Retrying with correction prompt...`);
 
-      const systemPrompt2 = buildSystemPrompt(true, blockValidation1.errors, density);
-      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt);
+      const systemPrompt2 = buildSystemPrompt(true, blockValidation1.errors, density, enableVisualBlocks);
+      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks);
 
       if (result2.error || !result2.response?.ok) {
         console.error(`[${requestId}] Retry failed: ${result2.error || result2.response?.status}`);
@@ -737,7 +907,7 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
       const parsed2 = parseAIResponse(data2, requestId);
 
       if (parsed2.blocks) {
-        const blockValidation2 = validateBlocks(parsed2.blocks);
+        const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks);
 
         if (blockValidation2.valid) {
           console.log(`[${requestId}] Generated ${blockValidation2.blocks.length} valid blocks after retry`);
@@ -770,15 +940,15 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}`;
       // Single retry for parse failures
       console.log(`[${requestId}] Retrying after parse failure...`);
 
-      const systemPrompt2 = buildSystemPrompt(true, ["Previous response was not valid JSON"]);
-      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt);
+      const systemPrompt2 = buildSystemPrompt(true, ["Previous response was not valid JSON"], density, enableVisualBlocks);
+      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks);
 
       if (result2.response?.ok) {
         const data2 = await result2.response.json();
         const parsed2 = parseAIResponse(data2, requestId);
 
         if (parsed2.blocks) {
-          const blockValidation2 = validateBlocks(parsed2.blocks);
+          const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks);
 
           if (blockValidation2.valid) {
             console.log(`[${requestId}] Generated ${blockValidation2.blocks.length} valid blocks after retry`);

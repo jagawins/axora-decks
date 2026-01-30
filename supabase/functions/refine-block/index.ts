@@ -7,7 +7,15 @@ const corsHeaders = {
 
 const MAX_INSTRUCTION_LENGTH = 500;
 const MAX_CONTEXT_LENGTH = 200;
-const VALID_BLOCK_TYPES = ["text", "heading", "list", "callout", "two_col", "table", "image"] as const;
+
+// All supported block types including visual blocks
+const BASIC_BLOCK_TYPES = ["text", "heading", "list", "callout", "two_col", "table", "image"] as const;
+const VISUAL_BLOCK_TYPES = [
+  "stat_block", "quote_block", "timeline_block", "comparison_table",
+  "card_grid", "hero_header", "exec_summary", "cta_section",
+  "section_divider", "icon_text_block", "framed_insight"
+] as const;
+const VALID_BLOCK_TYPES = [...BASIC_BLOCK_TYPES, ...VISUAL_BLOCK_TYPES] as const;
 
 interface BlockContent {
   [key: string]: unknown;

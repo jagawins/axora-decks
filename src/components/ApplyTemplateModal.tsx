@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { BlockType } from "@/lib/ai-engine";
-import { getTemplatesForType, BlockTemplate } from "@/lib/block-templates";
+import { BlockType, BLOCK_LABELS } from "@/lib/blocks";
+import { BLOCK_ICONS } from "@/lib/block-icons";
+import { getTemplatesForType } from "@/lib/block-templates";
 import {
   Dialog,
   DialogContent,
@@ -19,27 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FileText, Heading, List, AlertCircle, Columns, Table, Image, Loader2, LayoutTemplate } from "lucide-react";
-
-const BLOCK_ICONS: Record<BlockType, typeof FileText> = {
-  text: FileText,
-  heading: Heading,
-  list: List,
-  callout: AlertCircle,
-  two_col: Columns,
-  table: Table,
-  image: Image,
-};
-
-const BLOCK_LABELS: Record<BlockType, string> = {
-  text: "Text",
-  heading: "Heading",
-  list: "List",
-  callout: "Callout",
-  two_col: "Two Column",
-  table: "Table",
-  image: "Image",
-};
+import { Loader2, LayoutTemplate } from "lucide-react";
 
 interface ApplyTemplateModalProps {
   open: boolean;
