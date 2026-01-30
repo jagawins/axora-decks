@@ -7,7 +7,25 @@
 // TYPES
 // ============================================
 
-export type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
+// Basic block types
+export type BasicBlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
+
+// Visual block types from the layout engine
+export type VisualBlockType = 
+  | "stat_block" 
+  | "quote_block" 
+  | "timeline_block" 
+  | "comparison_table"
+  | "card_grid" 
+  | "hero_header" 
+  | "exec_summary" 
+  | "cta_section"
+  | "section_divider" 
+  | "icon_text_block" 
+  | "framed_insight";
+
+// All block types
+export type BlockType = BasicBlockType | VisualBlockType;
 
 export interface Block {
   id: string;
@@ -85,11 +103,21 @@ export function sanitizeContent(content: Record<string, unknown>): Record<string
 // NORMALIZE BLOCK CONTENT
 // ============================================
 
+// Check if block type is a basic block type
+export function isBasicBlockType(type: BlockType): type is BasicBlockType {
+  return ["text", "heading", "image", "two_col", "table", "list", "callout"].includes(type);
+}
+
 /**
  * Normalize AI outputs to consistent renderer-friendly shapes.
  * Maps alternative key names to standard keys and ensures defaults.
  */
 export function normalizeBlockContent(type: BlockType, raw: Record<string, unknown>): Record<string, unknown> {
+  // Visual blocks pass through - they have well-defined schemas from the AI
+  if (!isBasicBlockType(type)) {
+    return raw;
+  }
+  
   const text = stripMarkdown(String(raw.text ?? raw.content ?? raw.value ?? raw.message ?? ""));
 
   switch (type) {
@@ -180,6 +208,11 @@ export interface ValidationResult {
  */
 export function validateBlock(type: BlockType, content: Record<string, unknown>): ValidationResult {
   const errors: string[] = [];
+
+  // Visual blocks are validated at generation time - pass through here
+  if (!isBasicBlockType(type)) {
+    return { valid: true, errors: [] };
+  }
 
   switch (type) {
     case "heading": {
@@ -297,6 +330,29 @@ export function getPreviewLabel(block: AIBlock | Block): string {
     }
     case "image":
       return String(content.alt || content.caption || "Image").substring(0, 40);
+    // Visual block types
+    case "stat_block":
+      return "Statistics Block";
+    case "quote_block":
+      return String(content.quote || "Quote").substring(0, 40);
+    case "timeline_block":
+      return "Timeline";
+    case "comparison_table":
+      return "Comparison Table";
+    case "card_grid":
+      return "Card Grid";
+    case "hero_header":
+      return String(content.heading || "Hero Header").substring(0, 40);
+    case "exec_summary":
+      return "Executive Summary";
+    case "cta_section":
+      return "Call to Action";
+    case "section_divider":
+      return "Section Divider";
+    case "icon_text_block":
+      return "Icon Text Block";
+    case "framed_insight":
+      return String(content.insight || "Insight").substring(0, 40);
     default:
       return type;
   }
@@ -358,6 +414,29 @@ export function getDefaultContent(type: BlockType): Record<string, unknown> {
       return { headers: ["Column 1", "Column 2"], rows: [["Data", "Data"]] };
     case "image":
       return { src: "", alt: "", caption: "" };
+    // Visual block defaults
+    case "stat_block":
+      return { stats: [{ value: "0", label: "Metric", trend: "neutral" }] };
+    case "quote_block":
+      return { quote: "Enter quote here", author: "", role: "" };
+    case "timeline_block":
+      return { events: [{ date: "2024", title: "Event", status: "current" }] };
+    case "comparison_table":
+      return { headers: ["Feature", "Option A", "Option B"], rows: [{ label: "Feature 1", values: ["Yes", "No"] }] };
+    case "card_grid":
+      return { cards: [{ title: "Card 1", description: "" }], columns: 3 };
+    case "hero_header":
+      return { heading: "Main Title", subheading: "" };
+    case "exec_summary":
+      return { summary: "Summary text", keyPoints: ["Point 1", "Point 2"] };
+    case "cta_section":
+      return { heading: "Ready to get started?", primaryCta: { text: "Get Started" } };
+    case "section_divider":
+      return { style: "gradient", label: "" };
+    case "icon_text_block":
+      return { items: [{ icon: "Star", title: "Feature", description: "" }] };
+    case "framed_insight":
+      return { insight: "Key insight here", type: "tip" };
     default:
       return {};
   }
@@ -368,6 +447,7 @@ export function getDefaultContent(type: BlockType): Record<string, unknown> {
 // ============================================
 
 export const BLOCK_LABELS: Record<BlockType, string> = {
+  // Basic blocks
   text: "Text",
   heading: "Heading",
   list: "List",
@@ -375,4 +455,16 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   two_col: "Two Column",
   table: "Table",
   image: "Image",
+  // Visual blocks
+  stat_block: "Statistics",
+  quote_block: "Quote",
+  timeline_block: "Timeline",
+  comparison_table: "Comparison",
+  card_grid: "Card Grid",
+  hero_header: "Hero Header",
+  exec_summary: "Summary",
+  cta_section: "CTA",
+  section_divider: "Divider",
+  icon_text_block: "Icon Text",
+  framed_insight: "Insight",
 };

@@ -1,17 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Plus, ChevronUp, ChevronDown, Trash2, FileText, Heading, List, AlertCircle, Columns, Table, Image } from "lucide-react";
+import { Plus, ChevronUp, ChevronDown, Trash2, FileText } from "lucide-react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-import { BlockType } from "@/lib/ai-engine";
-
-const BLOCK_ICONS: Record<BlockType, typeof FileText> = {
-  text: FileText,
-  heading: Heading,
-  list: List,
-  callout: AlertCircle,
-  two_col: Columns,
-  table: Table,
-  image: Image,
-};
+import { BlockType } from "@/lib/blocks";
+import { BLOCK_ICONS } from "@/lib/block-icons";
 
 interface Block {
   id: string;
