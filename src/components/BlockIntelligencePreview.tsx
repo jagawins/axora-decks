@@ -14,6 +14,7 @@ import {
   ArrowRight,
   Layers,
   Image,
+  Scale,
   FileText,
   List,
   Table2,
@@ -47,6 +48,7 @@ const PURPOSE_ICONS: Record<BlockPurpose, typeof Lightbulb> = {
   context: FileText,
   transition: ArrowRight,
   visual: Image,
+  decision: Scale,
   unknown: HelpCircle,
 };
 
@@ -60,6 +62,7 @@ const PURPOSE_COLORS: Record<BlockPurpose, string> = {
   context: "bg-slate-500/10 text-slate-600 border-slate-500/30",
   transition: "bg-gray-500/10 text-gray-600 border-gray-500/30",
   visual: "bg-pink-500/10 text-pink-600 border-pink-500/30",
+  decision: "bg-cyan-500/10 text-cyan-600 border-cyan-500/30",
   unknown: "bg-muted text-muted-foreground border-border",
 };
 

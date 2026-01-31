@@ -82,10 +82,10 @@ export const aiEngine = {
   /**
    * Generate blocks from an outline
    */
-  async generateBlocks(outline: Outline): Promise<Block[]> {
+  async generateBlocks(outline: Outline, enableVisualBlocks = true): Promise<Block[]> {
     const response = await invokeFunction<{ blocks: Block[]; requestId?: string }>(
       "generate-blocks",
-      { outline }
+      { outline, enableVisualBlocks }
     );
 
     if (response.error || !response.data?.blocks) {
@@ -144,8 +144,9 @@ export const aiEngine = {
     // Step 1: Generate outline
     const outline = await this.generateOutline(params);
 
-    // Step 2: Generate blocks from outline
-    const blocks = await this.generateBlocks(outline);
+    // Step 2: Generate blocks from outline with visual blocks enabled
+    const enableVisual = params.enableVisualBlocks !== false;
+    const blocks = await this.generateBlocks(outline, enableVisual);
 
     return { outline, blocks };
   },

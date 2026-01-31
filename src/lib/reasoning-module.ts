@@ -47,6 +47,10 @@ const SECTION_MARKERS: Record<BlockPurpose, RegExp[]> = {
   transition: [
     /^(now|next|moving on|let's|turning to|speaking of)/i,
   ],
+  decision: [
+    /^(the decision|we decided|choosing|compare|versus)/i,
+    /^(option|alternative|which is better|pros and cons)/i,
+  ],
   visual: [],
   unknown: [],
 };

@@ -1,0 +1,206 @@
+{
+  "template": {
+    "title": "Visual Blocks Showcase",
+    "slug": "visual-blocks-showcase",
+    "description": "A comprehensive demonstration of all visual block types available in Axora, featuring statistics, quotes, timelines, comparisons, and more.",
+    "category": "Demo",
+    "tags": ["demo", "showcase", "visual", "blocks", "example"],
+    "is_featured": true,
+    "default_theme_id": "midnight"
+  },
+  "blocks": [
+    {
+      "type": "hero_header",
+      "order_index": 0,
+      "block_payload": {
+        "heading": "Visual Blocks Showcase",
+        "subheading": "Discover all the visual block types available in Axora",
+        "cta": {
+          "text": "Explore Now",
+          "variant": "primary"
+        }
+      }
+    },
+    {
+      "type": "section_divider",
+      "order_index": 1,
+      "block_payload": {
+        "style": "gradient",
+        "label": "Statistics"
+      }
+    },
+    {
+      "type": "stat_block",
+      "order_index": 2,
+      "block_payload": {
+        "stats": [
+          { "value": "95%", "label": "Customer Satisfaction", "trend": "up" },
+          { "value": "$2.4M", "label": "Revenue Growth", "trend": "up" },
+          { "value": "3.2x", "label": "Faster Delivery", "trend": "up" },
+          { "value": "500+", "label": "Active Users", "trend": "neutral" }
+        ]
+      }
+    },
+    {
+      "type": "section_divider",
+      "order_index": 3,
+      "block_payload": {
+        "style": "dots"
+      }
+    },
+    {
+      "type": "quote_block",
+      "order_index": 4,
+      "block_payload": {
+        "quote": "Axora transformed how we create presentations. What used to take hours now takes minutes.",
+        "author": "Sarah Chen",
+        "role": "VP of Marketing, TechCorp"
+      }
+    },
+    {
+      "type": "section_divider",
+      "order_index": 5,
+      "block_payload": {
+        "style": "line",
+        "label": "Timeline"
+      }
+    },
+    {
+      "type": "timeline_block",
+      "order_index": 6,
+      "block_payload": {
+        "events": [
+          { "date": "Q1 2024", "title": "Platform Launch", "description": "Initial release with core features", "status": "completed" },
+          { "date": "Q2 2024", "title": "Visual Blocks", "description": "Introduction of 11 new block types", "status": "completed" },
+          { "date": "Q3 2024", "title": "AI Integration", "description": "Smart layout engine for automatic block selection", "status": "current" },
+          { "date": "Q4 2024", "title": "Enterprise Features", "description": "Team collaboration and brand kits", "status": "upcoming" }
+        ]
+      }
+    },
+    {
+      "type": "heading",
+      "order_index": 7,
+      "block_payload": {
+        "level": 2,
+        "text": "Feature Comparison"
+      }
+    },
+    {
+      "type": "comparison_table",
+      "order_index": 8,
+      "block_payload": {
+        "headers": ["Feature", "Axora", "Competitor A", "Competitor B"],
+        "rows": [
+          { "label": "AI-Powered Generation", "values": ["✓ Full", "Partial", "✗"] },
+          { "label": "Visual Block Types", "values": ["18+", "8", "5"] },
+          { "label": "Real-time Collaboration", "values": ["✓", "✓", "✗"] },
+          { "label": "Custom Themes", "values": ["Unlimited", "10", "3"] }
+        ],
+        "highlightColumn": 1
+      }
+    },
+    {
+      "type": "section_divider",
+      "order_index": 9,
+      "block_payload": {
+        "style": "gradient"
+      }
+    },
+    {
+      "type": "card_grid",
+      "order_index": 10,
+      "block_payload": {
+        "cards": [
+          { "title": "Speed", "description": "Generate presentations 10x faster", "icon": "Zap" },
+          { "title": "Quality", "description": "Executive-grade visual design", "icon": "Award" },
+          { "title": "Intelligence", "description": "AI selects optimal block types", "icon": "Brain" },
+          { "title": "Flexibility", "description": "Full customization control", "icon": "Sliders" }
+        ],
+        "columns": 4
+      }
+    },
+    {
+      "type": "icon_text_block",
+      "order_index": 11,
+      "block_payload": {
+        "items": [
+          { "icon": "CheckCircle", "title": "Easy to Use", "description": "No design skills required" },
+          { "icon": "Sparkles", "title": "AI-Powered", "description": "Smart content suggestions" },
+          { "icon": "Palette", "title": "Beautiful Themes", "description": "Professional designs out of the box" }
+        ]
+      }
+    },
+    {
+      "type": "framed_insight",
+      "order_index": 12,
+      "block_payload": {
+        "insight": "Organizations using visual-first presentation tools report 40% higher audience engagement and 25% better information retention.",
+        "type": "insight",
+        "source": "Presentation Effectiveness Study 2024"
+      }
+    },
+    {
+      "type": "exec_summary",
+      "order_index": 13,
+      "block_payload": {
+        "summary": "Axora's visual block system transforms raw content into executive-ready presentations through intelligent layout decisions and professional design patterns.",
+        "keyPoints": [
+          "18+ visual block types for every content scenario",
+          "AI-powered automatic block type selection",
+          "Executive-grade design tokens and typography",
+          "Seamless integration with existing workflows"
+        ],
+        "bottomLine": "Create presentations that impress, in a fraction of the time."
+      }
+    },
+    {
+      "type": "heading",
+      "order_index": 14,
+      "block_payload": {
+        "level": 2,
+        "text": "Basic Block Types"
+      }
+    },
+    {
+      "type": "text",
+      "order_index": 15,
+      "block_payload": {
+        "text": "In addition to visual blocks, Axora supports all standard content types including text paragraphs, headings, lists, tables, and images. These basic blocks work seamlessly alongside visual blocks to create comprehensive presentations."
+      }
+    },
+    {
+      "type": "list",
+      "order_index": 16,
+      "block_payload": {
+        "items": [
+          "Heading blocks with multiple levels (H1, H2, H3)",
+          "Text blocks for paragraphs and descriptions",
+          "List blocks for bullet points and numbered lists",
+          "Table blocks for structured data",
+          "Image blocks with placeholder support",
+          "Callout blocks for important highlights",
+          "Two-column layouts for side-by-side content"
+        ],
+        "ordered": false
+      }
+    },
+    {
+      "type": "callout",
+      "order_index": 17,
+      "block_payload": {
+        "text": "Pro tip: Mix basic and visual blocks to create dynamic, engaging presentations that guide your audience through complex information.",
+        "icon": "info"
+      }
+    },
+    {
+      "type": "cta_section",
+      "order_index": 18,
+      "block_payload": {
+        "heading": "Ready to Create Your First Visual Deck?",
+        "description": "Start with this template or create from scratch using our AI-powered generation.",
+        "primaryCta": { "text": "Use This Template", "variant": "hero" },
+        "secondaryCta": { "text": "Learn More", "variant": "outline" }
+      }
+    }
+  ]
+}

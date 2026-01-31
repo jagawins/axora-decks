@@ -108,6 +108,15 @@ export function isBasicBlockType(type: BlockType): type is BasicBlockType {
   return ["text", "heading", "image", "two_col", "table", "list", "callout"].includes(type);
 }
 
+// Check if block type is a visual block type  
+export function isVisualBlockType(type: BlockType): type is VisualBlockType {
+  return [
+    "stat_block", "quote_block", "timeline_block", "comparison_table",
+    "card_grid", "hero_header", "exec_summary", "cta_section",
+    "section_divider", "icon_text_block", "framed_insight"
+  ].includes(type);
+}
+
 /**
  * Normalize AI outputs to consistent renderer-friendly shapes.
  * Maps alternative key names to standard keys and ensures defaults.
@@ -203,15 +212,138 @@ export interface ValidationResult {
 }
 
 /**
+ * Validate visual block content with strict schema enforcement
+ */
+function validateVisualBlock(type: VisualBlockType, content: Record<string, unknown>): ValidationResult {
+  const errors: string[] = [];
+
+  switch (type) {
+    case "stat_block": {
+      const stats = content.stats;
+      if (!Array.isArray(stats) || stats.length < 1) {
+        errors.push("stats must be an array with at least 1 item");
+      } else {
+        for (let i = 0; i < stats.length; i++) {
+          const stat = stats[i] as { value?: unknown; label?: unknown };
+          if (typeof stat?.value !== "string" || stat.value.trim().length < 1) {
+            errors.push(`stats[${i}].value required`);
+          }
+          if (typeof stat?.label !== "string" || stat.label.trim().length < 1) {
+            errors.push(`stats[${i}].label required`);
+          }
+        }
+      }
+      break;
+    }
+    case "quote_block": {
+      const quote = content.quote;
+      if (typeof quote !== "string" || quote.trim().length < 5) {
+        errors.push("quote must be at least 5 characters");
+      }
+      break;
+    }
+    case "timeline_block": {
+      const events = content.events;
+      if (!Array.isArray(events) || events.length < 2) {
+        errors.push("events must have at least 2 items");
+      } else {
+        for (let i = 0; i < events.length; i++) {
+          const event = events[i] as { date?: unknown; title?: unknown };
+          if (typeof event?.date !== "string") {
+            errors.push(`events[${i}].date required`);
+          }
+          if (typeof event?.title !== "string") {
+            errors.push(`events[${i}].title required`);
+          }
+        }
+      }
+      break;
+    }
+    case "comparison_table": {
+      const headers = content.headers;
+      const rows = content.rows;
+      if (!Array.isArray(headers) || headers.length < 2) {
+        errors.push("headers must have at least 2 items");
+      }
+      if (!Array.isArray(rows) || rows.length < 1) {
+        errors.push("rows must have at least 1 item");
+      }
+      break;
+    }
+    case "card_grid": {
+      const cards = content.cards;
+      if (!Array.isArray(cards) || cards.length < 1) {
+        errors.push("cards must have at least 1 item");
+      } else {
+        for (let i = 0; i < cards.length; i++) {
+          const card = cards[i] as { title?: unknown };
+          if (typeof card?.title !== "string") {
+            errors.push(`cards[${i}].title required`);
+          }
+        }
+      }
+      break;
+    }
+    case "hero_header": {
+      const heading = content.heading;
+      if (typeof heading !== "string" || heading.trim().length < 2) {
+        errors.push("heading must be at least 2 characters");
+      }
+      break;
+    }
+    case "exec_summary": {
+      const summary = content.summary;
+      const keyPoints = content.keyPoints;
+      if (typeof summary !== "string" || summary.trim().length < 10) {
+        errors.push("summary must be at least 10 characters");
+      }
+      if (!Array.isArray(keyPoints) || keyPoints.length < 1) {
+        errors.push("keyPoints must have at least 1 item");
+      }
+      break;
+    }
+    case "cta_section": {
+      const heading = content.heading;
+      if (typeof heading !== "string" || heading.trim().length < 2) {
+        errors.push("heading must be at least 2 characters");
+      }
+      break;
+    }
+    case "section_divider":
+      // Section dividers have no required content - always valid
+      break;
+    case "icon_text_block": {
+      const items = content.items;
+      if (!Array.isArray(items) || items.length < 1) {
+        errors.push("items must have at least 1 item");
+      }
+      break;
+    }
+    case "framed_insight": {
+      const insight = content.insight;
+      if (typeof insight !== "string" || insight.trim().length < 5) {
+        errors.push("insight must be at least 5 characters");
+      }
+      break;
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}
+
+/**
  * Validate a single block's content after normalization.
  * Returns validation status and any error messages.
  */
 export function validateBlock(type: BlockType, content: Record<string, unknown>): ValidationResult {
   const errors: string[] = [];
 
-  // Visual blocks are validated at generation time - pass through here
-  if (!isBasicBlockType(type)) {
-    return { valid: true, errors: [] };
+  // Visual blocks have their own validation logic
+  if (isVisualBlockType(type)) {
+    return validateVisualBlock(type, content);
   }
 
   switch (type) {
