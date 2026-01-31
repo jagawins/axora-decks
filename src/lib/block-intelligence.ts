@@ -3,7 +3,11 @@
  * Stores metadata for each block: purpose, position, clarity score, recommendations
  */
 
-import { BlockType, Block } from "./blocks";
+import { BlockType, Block, VisualBlockType, isBasicBlockType } from "./blocks";
+import { getBlockIcon } from "./block-icons";
+
+// Re-export getBlockIcon for convenience
+export { getBlockIcon };
 
 // Executive block purposes for intelligent categorization
 export type BlockPurpose = 
@@ -15,6 +19,7 @@ export type BlockPurpose =
   | "context"      // Background information
   | "transition"   // Connecting narrative between sections
   | "visual"       // Visual element (chart, image, diagram)
+  | "decision"     // Decision-making content
   | "unknown";     // Unclassified
 
 export interface BlockMetadata {
@@ -39,7 +44,22 @@ const CLARITY_WEIGHTS = {
   structure: 0.25,
 };
 
-// Purpose detection patterns
+// Visual block type → purpose mapping (hardcoded for deterministic behavior)
+const VISUAL_BLOCK_PURPOSE_MAP: Record<VisualBlockType, BlockPurpose> = {
+  stat_block: "proof",
+  quote_block: "proof",
+  timeline_block: "context",
+  comparison_table: "decision",
+  card_grid: "insight",
+  hero_header: "transition",
+  exec_summary: "summary",
+  cta_section: "action",
+  section_divider: "transition",
+  icon_text_block: "insight",
+  framed_insight: "insight",
+};
+
+// Purpose detection patterns for basic blocks
 const PURPOSE_PATTERNS: Record<BlockPurpose, RegExp[]> = {
   summary: [
     /\b(summary|overview|takeaway|key point|in short|bottom line|tldr|executive summary)\b/i,
@@ -72,6 +92,10 @@ const PURPOSE_PATTERNS: Record<BlockPurpose, RegExp[]> = {
   visual: [
     /\b(chart|graph|diagram|figure|image|illustration|visualization)\b/i,
   ],
+  decision: [
+    /\b(decide|decision|choose|option|alternative|recommend)\b/i,
+    /\b(pros? and cons?|compare|versus|vs\.?)\b/i,
+  ],
   unknown: [],
 };
 
@@ -83,6 +107,7 @@ const POSITION_WEIGHTS: Record<BlockPurpose, number> = {
   insight: 4,      // Share findings
   proof: 5,        // Back up with data
   visual: 6,       // Visualize the data
+  decision: 6,     // Decision-making typically mid-deck
   action: 7,       // End with actions
   transition: 0,   // Flexible positioning
   unknown: 5,      // Middle of deck
@@ -123,6 +148,12 @@ function extractBlockText(block: Block): string {
 export function detectPurpose(block: Block): BlockPurpose {
   // Image blocks are always visual
   if (block.type === "image") return "visual";
+  
+  // Visual block types have hardcoded purpose mappings
+  if (!isBasicBlockType(block.type)) {
+    const visualType = block.type as VisualBlockType;
+    return VISUAL_BLOCK_PURPOSE_MAP[visualType] || "insight";
+  }
   
   const text = extractBlockText(block).toLowerCase();
   
@@ -232,6 +263,7 @@ export function calculateExecutiveWeight(block: Block, purpose: BlockPurpose): n
     summary: 10,
     action: 9,
     insight: 8,
+    decision: 8,
     problem: 7,
     proof: 6,
     visual: 5,
@@ -313,7 +345,7 @@ export function getDeckIntelligence(blocks: IntelligentBlock[]): {
   
   const purposeDistribution: Record<BlockPurpose, number> = {
     summary: 0, problem: 0, insight: 0, proof: 0,
-    action: 0, context: 0, transition: 0, visual: 0, unknown: 0,
+    action: 0, context: 0, transition: 0, visual: 0, decision: 0, unknown: 0,
   };
   
   let totalClarity = 0;

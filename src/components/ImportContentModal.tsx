@@ -53,6 +53,7 @@ export function ImportContentModal({
       const result = await aiEngine.generateFromPrompt({
         topic: content.trim(),
         tone: 'professional',
+        enableVisualBlocks: true, // Enable visual block generation
       });
 
       if (result.blocks.length > 0) {
@@ -135,10 +136,11 @@ export function ImportContentModal({
         throw new Error('Failed to create project');
       }
 
-      // Generate blocks from content using proper API
+      // Generate blocks from content using proper API with visual blocks
       const result = await aiEngine.generateFromPrompt({
         topic: content.trim(),
         tone: 'professional',
+        enableVisualBlocks: true, // Enable visual block generation
       });
 
       if (result.blocks.length > 0) {

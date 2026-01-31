@@ -716,17 +716,176 @@ You MUST fill in actual content for every block. Check the required fields for e
   return prompt;
 }
 
-// Tool schema with all visual block types
+// Tool schema with strict content shapes for visual block types
 function getToolSchema(enableVisualBlocks: boolean) {
   const blockTypes = enableVisualBlocks 
     ? ["heading", "text", "list", "callout", "two_col", "table", "stat_block", "quote_block", "timeline_block", "comparison_table", "card_grid", "hero_header", "exec_summary", "cta_section", "section_divider", "icon_text_block", "framed_insight"]
     : ["heading", "text", "list", "callout", "two_col", "table"];
 
+  // Define strict content schemas for each block type
+  const contentSchemas: Record<string, object> = {
+    heading: { 
+      type: "object", 
+      required: ["level", "text"],
+      properties: { level: { type: "number", enum: [1, 2, 3] }, text: { type: "string", minLength: 2 } }
+    },
+    text: { 
+      type: "object", 
+      required: ["text"],
+      properties: { text: { type: "string", minLength: 10 } }
+    },
+    list: { 
+      type: "object", 
+      required: ["items", "ordered"],
+      properties: { items: { type: "array", minItems: 2, items: { type: "string", minLength: 2 } }, ordered: { type: "boolean" } }
+    },
+    stat_block: {
+      type: "object",
+      required: ["stats"],
+      properties: {
+        stats: { 
+          type: "array", 
+          minItems: 2,
+          maxItems: 6,
+          items: { 
+            type: "object", 
+            required: ["value", "label"],
+            properties: {
+              value: { type: "string", minLength: 1 },
+              label: { type: "string", minLength: 1 },
+              trend: { type: "string", enum: ["up", "down", "neutral"] }
+            }
+          }
+        }
+      }
+    },
+    quote_block: {
+      type: "object",
+      required: ["quote"],
+      properties: {
+        quote: { type: "string", minLength: 10 },
+        author: { type: "string" },
+        role: { type: "string" }
+      }
+    },
+    timeline_block: {
+      type: "object",
+      required: ["events"],
+      properties: {
+        events: {
+          type: "array",
+          minItems: 2,
+          items: {
+            type: "object",
+            required: ["date", "title"],
+            properties: {
+              date: { type: "string" },
+              title: { type: "string" },
+              description: { type: "string" },
+              status: { type: "string", enum: ["completed", "current", "upcoming"] }
+            }
+          }
+        }
+      }
+    },
+    comparison_table: {
+      type: "object",
+      required: ["headers", "rows"],
+      properties: {
+        headers: { type: "array", minItems: 2, items: { type: "string" } },
+        rows: { type: "array", minItems: 1 }
+      }
+    },
+    card_grid: {
+      type: "object",
+      required: ["cards"],
+      properties: {
+        cards: {
+          type: "array",
+          minItems: 2,
+          maxItems: 6,
+          items: {
+            type: "object",
+            required: ["title"],
+            properties: {
+              title: { type: "string" },
+              description: { type: "string" },
+              icon: { type: "string" }
+            }
+          }
+        },
+        columns: { type: "number", enum: [2, 3, 4] }
+      }
+    },
+    hero_header: {
+      type: "object",
+      required: ["heading"],
+      properties: {
+        heading: { type: "string", minLength: 3 },
+        subheading: { type: "string" },
+        cta: { type: "object" }
+      }
+    },
+    exec_summary: {
+      type: "object",
+      required: ["summary", "keyPoints"],
+      properties: {
+        summary: { type: "string", minLength: 20 },
+        keyPoints: { type: "array", minItems: 2, items: { type: "string" } },
+        bottomLine: { type: "string" }
+      }
+    },
+    cta_section: {
+      type: "object",
+      required: ["heading"],
+      properties: {
+        heading: { type: "string", minLength: 3 },
+        description: { type: "string" },
+        primaryCta: { type: "object" }
+      }
+    },
+    section_divider: {
+      type: "object",
+      properties: {
+        style: { type: "string", enum: ["line", "gradient", "dots", "space"] },
+        label: { type: "string" }
+      }
+    },
+    icon_text_block: {
+      type: "object",
+      required: ["items"],
+      properties: {
+        items: {
+          type: "array",
+          minItems: 2,
+          items: {
+            type: "object",
+            required: ["icon", "title"],
+            properties: {
+              icon: { type: "string" },
+              title: { type: "string" },
+              description: { type: "string" }
+            }
+          }
+        }
+      }
+    },
+    framed_insight: {
+      type: "object",
+      required: ["insight"],
+      properties: {
+        insight: { type: "string", minLength: 10 },
+        type: { type: "string", enum: ["tip", "warning", "insight", "note"] },
+        source: { type: "string" }
+      }
+    }
+  };
+
   return {
     type: "function",
     function: {
       name: "create_blocks",
-      description: "Create presentation blocks with type-specific validated content. Use visual block types for richer presentations.",
+      description: "Create presentation blocks with type-specific validated content. Use visual block types for richer presentations. Each block type has specific required fields.",
       parameters: {
         type: "object",
         required: ["blocks"],
@@ -745,7 +904,15 @@ function getToolSchema(enableVisualBlocks: boolean) {
                 },
                 content: {
                   type: "object",
-                  description: "Block content - structure depends on type"
+                  description: "Block content with required fields per type: " + 
+                    "stat_block needs stats[{value,label}], " +
+                    "quote_block needs quote, " +
+                    "timeline_block needs events[{date,title}], " +
+                    "card_grid needs cards[{title}], " +
+                    "hero_header needs heading, " +
+                    "exec_summary needs summary+keyPoints, " +
+                    "cta_section needs heading, " +
+                    "framed_insight needs insight"
                 }
               }
             }
