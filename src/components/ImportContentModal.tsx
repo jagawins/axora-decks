@@ -17,7 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { aiEngine } from "@/lib/ai-engine";
-import { Block, toEditorBlocks, AIBlock } from "@/lib/blocks";
+import { Block } from "@/lib/blocks";
 import { BlockPreviewList } from "@/components/import/BlockPreviewList";
 import { BlockIntelligencePreview } from "@/components/BlockIntelligencePreview";
 interface ImportContentModalProps {
@@ -50,14 +50,18 @@ export function ImportContentModal({
 
     setGenerating(true);
     try {
-      const result = await aiEngine.generateFromPrompt({
-        topic: content.trim(),
-        tone: 'professional',
-        enableVisualBlocks: true, // Enable visual block generation
-      });
+      // Use generateBlocksFromText to bypass outline generation
+      // This preserves original text without AI rewriting
+      const blocks = await aiEngine.generateBlocksFromText(content.trim(), true);
 
-      if (result.blocks.length > 0) {
-        const editorBlocks = toEditorBlocks(result.blocks as AIBlock[]);
+      if (blocks.length > 0) {
+        // Pass raw blocks directly - only add id and order_index
+        const editorBlocks = blocks.map((block, index) => ({
+          id: crypto.randomUUID(),
+          type: block.type,
+          content: block.content,
+          order_index: index,
+        })) as Block[];
         setPreviewBlocks(editorBlocks);
         setShowPreview(true);
       } else {
@@ -136,22 +140,17 @@ export function ImportContentModal({
         throw new Error('Failed to create project');
       }
 
-      // Generate blocks from content using proper API with visual blocks
-      const result = await aiEngine.generateFromPrompt({
-        topic: content.trim(),
-        tone: 'professional',
-        enableVisualBlocks: true, // Enable visual block generation
-      });
+      // Generate blocks from content using generateBlocksFromText (bypasses outline)
+      const blocks = await aiEngine.generateBlocksFromText(content.trim(), true);
 
-      if (result.blocks.length > 0) {
-        const editorBlocks = toEditorBlocks(result.blocks as AIBlock[]);
-        const blocksToInsert = editorBlocks.map((block, index) => ({
+      if (blocks.length > 0) {
+        // Pass raw blocks directly - only add required fields for database
+        const blocksToInsert = blocks.map((block, index) => ({
           project_id: newProject.id,
           type: block.type,
           content: block.content as Record<string, unknown>,
           order_index: index,
         }));
-
         await supabase.from('blocks').insert(blocksToInsert as any);
       }
 

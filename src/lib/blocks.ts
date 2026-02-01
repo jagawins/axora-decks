@@ -220,8 +220,10 @@ function validateVisualBlock(type: VisualBlockType, content: Record<string, unkn
   switch (type) {
     case "stat_block": {
       const stats = content.stats;
-      if (!Array.isArray(stats) || stats.length < 1) {
-        errors.push("stats must be an array with at least 1 item");
+      if (!Array.isArray(stats) || stats.length < 2) {
+        errors.push("stats must have 2-6 items");
+      } else if (stats.length > 6) {
+        errors.push("stats must have 2-6 items");
       } else {
         for (let i = 0; i < stats.length; i++) {
           const stat = stats[i] as { value?: unknown; label?: unknown };
@@ -267,13 +269,26 @@ function validateVisualBlock(type: VisualBlockType, content: Record<string, unkn
       }
       if (!Array.isArray(rows) || rows.length < 1) {
         errors.push("rows must have at least 1 item");
+      } else {
+        // Validate row structure: {label: string, values: (string|boolean)[]}
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i] as { label?: unknown; values?: unknown };
+          if (typeof row?.label !== "string") {
+            errors.push(`rows[${i}].label required`);
+          }
+          if (!Array.isArray(row?.values)) {
+            errors.push(`rows[${i}].values must be array`);
+          }
+        }
       }
       break;
     }
     case "card_grid": {
       const cards = content.cards;
-      if (!Array.isArray(cards) || cards.length < 1) {
-        errors.push("cards must have at least 1 item");
+      if (!Array.isArray(cards) || cards.length < 2) {
+        errors.push("cards must have 2-6 items");
+      } else if (cards.length > 6) {
+        errors.push("cards must have 2-6 items");
       } else {
         for (let i = 0; i < cards.length; i++) {
           const card = cards[i] as { title?: unknown };
@@ -289,6 +304,16 @@ function validateVisualBlock(type: VisualBlockType, content: Record<string, unkn
       if (typeof heading !== "string" || heading.trim().length < 2) {
         errors.push("heading must be at least 2 characters");
       }
+      // Validate cta structure if present
+      const cta = content.cta as { text?: unknown; href?: unknown } | undefined;
+      if (cta && typeof cta === "object") {
+        if (cta.text !== undefined && typeof cta.text !== "string") {
+          errors.push("cta.text must be string");
+        }
+        if (cta.href !== undefined && typeof cta.href !== "string") {
+          errors.push("cta.href must be string");
+        }
+      }
       break;
     }
     case "exec_summary": {
@@ -297,8 +322,8 @@ function validateVisualBlock(type: VisualBlockType, content: Record<string, unkn
       if (typeof summary !== "string" || summary.trim().length < 10) {
         errors.push("summary must be at least 10 characters");
       }
-      if (!Array.isArray(keyPoints) || keyPoints.length < 1) {
-        errors.push("keyPoints must have at least 1 item");
+      if (!Array.isArray(keyPoints) || keyPoints.length < 2) {
+        errors.push("keyPoints must have at least 2 items");
       }
       break;
     }
@@ -307,6 +332,26 @@ function validateVisualBlock(type: VisualBlockType, content: Record<string, unkn
       if (typeof heading !== "string" || heading.trim().length < 2) {
         errors.push("heading must be at least 2 characters");
       }
+      // Validate primaryCta structure if present
+      const primaryCta = content.primaryCta as { text?: unknown; href?: unknown } | undefined;
+      if (primaryCta && typeof primaryCta === "object") {
+        if (primaryCta.text !== undefined && typeof primaryCta.text !== "string") {
+          errors.push("primaryCta.text must be string");
+        }
+        if (primaryCta.href !== undefined && typeof primaryCta.href !== "string") {
+          errors.push("primaryCta.href must be string");
+        }
+      }
+      // Validate secondaryCta structure if present
+      const secondaryCta = content.secondaryCta as { text?: unknown; href?: unknown } | undefined;
+      if (secondaryCta && typeof secondaryCta === "object") {
+        if (secondaryCta.text !== undefined && typeof secondaryCta.text !== "string") {
+          errors.push("secondaryCta.text must be string");
+        }
+        if (secondaryCta.href !== undefined && typeof secondaryCta.href !== "string") {
+          errors.push("secondaryCta.href must be string");
+        }
+      }
       break;
     }
     case "section_divider":
@@ -314,8 +359,8 @@ function validateVisualBlock(type: VisualBlockType, content: Record<string, unkn
       break;
     case "icon_text_block": {
       const items = content.items;
-      if (!Array.isArray(items) || items.length < 1) {
-        errors.push("items must have at least 1 item");
+      if (!Array.isArray(items) || items.length < 2) {
+        errors.push("items must have at least 2 items");
       }
       break;
     }
@@ -496,13 +541,24 @@ export function getPreviewLabel(block: AIBlock | Block): string {
 
 /**
  * Convert AI-generated blocks to editor-ready Block format.
- * Applies sanitization, normalization, and generates IDs.
+ * Raw AI blocks are passed through with only id and order_index added.
+ * No second normalization step - preserves exact AI payloads.
  */
 export function toEditorBlocks(aiBlocks: AIBlock[]): Block[] {
   return aiBlocks.map((b, i) => {
-    // Sanitize first
+    // For visual blocks, pass through raw content without normalization
+    // The edge function already validated and sanitized the content
+    if (isVisualBlockType(b.type)) {
+      return {
+        id: crypto.randomUUID(),
+        type: b.type,
+        content: b.content,
+        order_index: i,
+      };
+    }
+
+    // For basic blocks, apply minimal sanitization only
     let content = sanitizeContent(b.content);
-    // Then normalize to renderer-friendly shape
     content = normalizeBlockContent(b.type, content);
 
     // Extra cleanup for list items
