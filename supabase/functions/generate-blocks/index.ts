@@ -716,176 +716,408 @@ You MUST fill in actual content for every block. Check the required fields for e
   return prompt;
 }
 
-// Tool schema with strict content shapes for visual block types
+// Tool schema with per-type oneOf validated schemas
 function getToolSchema(enableVisualBlocks: boolean) {
-  const blockTypes = enableVisualBlocks 
-    ? ["heading", "text", "list", "callout", "two_col", "table", "stat_block", "quote_block", "timeline_block", "comparison_table", "card_grid", "hero_header", "exec_summary", "cta_section", "section_divider", "icon_text_block", "framed_insight"]
-    : ["heading", "text", "list", "callout", "two_col", "table"];
-
-  // Define strict content schemas for each block type
-  const contentSchemas: Record<string, object> = {
-    heading: { 
-      type: "object", 
-      required: ["level", "text"],
-      properties: { level: { type: "number", enum: [1, 2, 3] }, text: { type: "string", minLength: 2 } }
-    },
-    text: { 
-      type: "object", 
-      required: ["text"],
-      properties: { text: { type: "string", minLength: 10 } }
-    },
-    list: { 
-      type: "object", 
-      required: ["items", "ordered"],
-      properties: { items: { type: "array", minItems: 2, items: { type: "string", minLength: 2 } }, ordered: { type: "boolean" } }
-    },
-    stat_block: {
-      type: "object",
-      required: ["stats"],
-      properties: {
-        stats: { 
-          type: "array", 
-          minItems: 2,
-          maxItems: 6,
-          items: { 
-            type: "object", 
-            required: ["value", "label"],
-            properties: {
-              value: { type: "string", minLength: 1 },
-              label: { type: "string", minLength: 1 },
-              trend: { type: "string", enum: ["up", "down", "neutral"] }
-            }
-          }
+  // Define strict content schemas per block type
+  const headingSchema = { 
+    type: "object", 
+    required: ["type", "content"],
+    properties: { 
+      type: { type: "string", const: "heading" },
+      content: { 
+        type: "object", 
+        required: ["level", "text"],
+        properties: { 
+          level: { type: "number", enum: [1, 2, 3] }, 
+          text: { type: "string", minLength: 2 } 
         }
-      }
-    },
-    quote_block: {
-      type: "object",
-      required: ["quote"],
-      properties: {
-        quote: { type: "string", minLength: 10 },
-        author: { type: "string" },
-        role: { type: "string" }
-      }
-    },
-    timeline_block: {
-      type: "object",
-      required: ["events"],
-      properties: {
-        events: {
-          type: "array",
-          minItems: 2,
-          items: {
-            type: "object",
-            required: ["date", "title"],
-            properties: {
-              date: { type: "string" },
-              title: { type: "string" },
-              description: { type: "string" },
-              status: { type: "string", enum: ["completed", "current", "upcoming"] }
-            }
-          }
-        }
-      }
-    },
-    comparison_table: {
-      type: "object",
-      required: ["headers", "rows"],
-      properties: {
-        headers: { type: "array", minItems: 2, items: { type: "string" } },
-        rows: { type: "array", minItems: 1 }
-      }
-    },
-    card_grid: {
-      type: "object",
-      required: ["cards"],
-      properties: {
-        cards: {
-          type: "array",
-          minItems: 2,
-          maxItems: 6,
-          items: {
-            type: "object",
-            required: ["title"],
-            properties: {
-              title: { type: "string" },
-              description: { type: "string" },
-              icon: { type: "string" }
-            }
-          }
-        },
-        columns: { type: "number", enum: [2, 3, 4] }
-      }
-    },
-    hero_header: {
-      type: "object",
-      required: ["heading"],
-      properties: {
-        heading: { type: "string", minLength: 3 },
-        subheading: { type: "string" },
-        cta: { type: "object" }
-      }
-    },
-    exec_summary: {
-      type: "object",
-      required: ["summary", "keyPoints"],
-      properties: {
-        summary: { type: "string", minLength: 20 },
-        keyPoints: { type: "array", minItems: 2, items: { type: "string" } },
-        bottomLine: { type: "string" }
-      }
-    },
-    cta_section: {
-      type: "object",
-      required: ["heading"],
-      properties: {
-        heading: { type: "string", minLength: 3 },
-        description: { type: "string" },
-        primaryCta: { type: "object" }
-      }
-    },
-    section_divider: {
-      type: "object",
-      properties: {
-        style: { type: "string", enum: ["line", "gradient", "dots", "space"] },
-        label: { type: "string" }
-      }
-    },
-    icon_text_block: {
-      type: "object",
-      required: ["items"],
-      properties: {
-        items: {
-          type: "array",
-          minItems: 2,
-          items: {
-            type: "object",
-            required: ["icon", "title"],
-            properties: {
-              icon: { type: "string" },
-              title: { type: "string" },
-              description: { type: "string" }
-            }
-          }
-        }
-      }
-    },
-    framed_insight: {
-      type: "object",
-      required: ["insight"],
-      properties: {
-        insight: { type: "string", minLength: 10 },
-        type: { type: "string", enum: ["tip", "warning", "insight", "note"] },
-        source: { type: "string" }
       }
     }
   };
+
+  const textSchema = { 
+    type: "object", 
+    required: ["type", "content"],
+    properties: { 
+      type: { type: "string", const: "text" },
+      content: { 
+        type: "object", 
+        required: ["text"],
+        properties: { text: { type: "string", minLength: 10 } }
+      }
+    }
+  };
+
+  const listSchema = { 
+    type: "object", 
+    required: ["type", "content"],
+    properties: { 
+      type: { type: "string", const: "list" },
+      content: { 
+        type: "object", 
+        required: ["items", "ordered"],
+        properties: { 
+          items: { type: "array", minItems: 2, items: { type: "string", minLength: 2 } }, 
+          ordered: { type: "boolean" } 
+        }
+      }
+    }
+  };
+
+  const calloutSchema = { 
+    type: "object", 
+    required: ["type", "content"],
+    properties: { 
+      type: { type: "string", const: "callout" },
+      content: { 
+        type: "object", 
+        required: ["text", "icon"],
+        properties: { 
+          text: { type: "string", minLength: 10 }, 
+          icon: { type: "string", enum: ["info", "warning", "success"] } 
+        }
+      }
+    }
+  };
+
+  const twoColSchema = { 
+    type: "object", 
+    required: ["type", "content"],
+    properties: { 
+      type: { type: "string", const: "two_col" },
+      content: { 
+        type: "object", 
+        required: ["left", "right"],
+        properties: { 
+          left: { type: "string", minLength: 5 }, 
+          right: { type: "string", minLength: 5 } 
+        }
+      }
+    }
+  };
+
+  const tableSchema = { 
+    type: "object", 
+    required: ["type", "content"],
+    properties: { 
+      type: { type: "string", const: "table" },
+      content: { 
+        type: "object", 
+        required: ["headers", "rows"],
+        properties: { 
+          headers: { type: "array", minItems: 2, items: { type: "string" } }, 
+          rows: { type: "array", minItems: 1, items: { type: "array", items: { type: "string" } } } 
+        }
+      }
+    }
+  };
+
+  const imageSchema = { 
+    type: "object", 
+    required: ["type", "content"],
+    properties: { 
+      type: { type: "string", const: "image" },
+      content: { 
+        type: "object", 
+        required: ["alt"],
+        properties: { 
+          src: { type: "string" }, 
+          prompt: { type: "string" },
+          alt: { type: "string", minLength: 2 } 
+        }
+      }
+    }
+  };
+
+  // Visual block schemas - unified min/max constraints
+  const statBlockSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "stat_block" },
+      content: {
+        type: "object",
+        required: ["stats"],
+        properties: {
+          title: { type: "string" },
+          stats: { 
+            type: "array", 
+            minItems: 2,
+            maxItems: 6,
+            items: { 
+              type: "object", 
+              required: ["value", "label"],
+              properties: {
+                value: { type: "string", minLength: 1 },
+                label: { type: "string", minLength: 1 },
+                change: { type: "string" },
+                trend: { type: "string", enum: ["up", "down", "neutral"] }
+              }
+            }
+          },
+          layout: { type: "string", enum: ["row", "grid"] }
+        }
+      }
+    }
+  };
+
+  const quoteBlockSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "quote_block" },
+      content: {
+        type: "object",
+        required: ["quote"],
+        properties: {
+          quote: { type: "string", minLength: 10 },
+          author: { type: "string" },
+          role: { type: "string" },
+          company: { type: "string" }
+        }
+      }
+    }
+  };
+
+  const timelineBlockSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "timeline_block" },
+      content: {
+        type: "object",
+        required: ["events"],
+        properties: {
+          title: { type: "string" },
+          events: {
+            type: "array",
+            minItems: 2,
+            items: {
+              type: "object",
+              required: ["date", "title"],
+              properties: {
+                date: { type: "string" },
+                title: { type: "string" },
+                description: { type: "string" },
+                status: { type: "string", enum: ["completed", "current", "upcoming"] }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  const comparisonTableSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "comparison_table" },
+      content: {
+        type: "object",
+        required: ["headers", "rows"],
+        properties: {
+          title: { type: "string" },
+          headers: { type: "array", minItems: 2, items: { type: "string" } },
+          rows: { 
+            type: "array", 
+            minItems: 1,
+            items: {
+              type: "object",
+              required: ["label", "values"],
+              properties: {
+                label: { type: "string" },
+                values: { type: "array", items: { oneOf: [{ type: "string" }, { type: "boolean" }] } }
+              }
+            }
+          },
+          highlightColumn: { type: "number" }
+        }
+      }
+    }
+  };
+
+  const cardGridSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "card_grid" },
+      content: {
+        type: "object",
+        required: ["cards"],
+        properties: {
+          title: { type: "string" },
+          cards: {
+            type: "array",
+            minItems: 2,
+            maxItems: 6,
+            items: {
+              type: "object",
+              required: ["title"],
+              properties: {
+                title: { type: "string" },
+                description: { type: "string" },
+                icon: { type: "string" }
+              }
+            }
+          },
+          columns: { type: "number", enum: [2, 3, 4] }
+        }
+      }
+    }
+  };
+
+  const heroHeaderSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "hero_header" },
+      content: {
+        type: "object",
+        required: ["heading"],
+        properties: {
+          heading: { type: "string", minLength: 3 },
+          subheading: { type: "string" },
+          cta: { 
+            type: "object",
+            properties: {
+              text: { type: "string" },
+              href: { type: "string" }
+            }
+          },
+          backgroundStyle: { type: "string", enum: ["gradient", "image", "solid"] }
+        }
+      }
+    }
+  };
+
+  const execSummarySchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "exec_summary" },
+      content: {
+        type: "object",
+        required: ["summary", "keyPoints"],
+        properties: {
+          title: { type: "string" },
+          summary: { type: "string", minLength: 20 },
+          keyPoints: { type: "array", minItems: 2, items: { type: "string" } },
+          bottomLine: { type: "string" }
+        }
+      }
+    }
+  };
+
+  const ctaSectionSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "cta_section" },
+      content: {
+        type: "object",
+        required: ["heading"],
+        properties: {
+          heading: { type: "string", minLength: 3 },
+          subheading: { type: "string" },
+          primaryCta: { 
+            type: "object",
+            properties: {
+              text: { type: "string" },
+              href: { type: "string" }
+            }
+          },
+          secondaryCta: { 
+            type: "object",
+            properties: {
+              text: { type: "string" },
+              href: { type: "string" }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  const sectionDividerSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "section_divider" },
+      content: {
+        type: "object",
+        properties: {
+          style: { type: "string", enum: ["line", "gradient", "dots", "space"] },
+          label: { type: "string" }
+        }
+      }
+    }
+  };
+
+  const iconTextBlockSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "icon_text_block" },
+      content: {
+        type: "object",
+        required: ["items"],
+        properties: {
+          title: { type: "string" },
+          items: {
+            type: "array",
+            minItems: 2,
+            items: {
+              type: "object",
+              required: ["icon", "title"],
+              properties: {
+                icon: { type: "string" },
+                title: { type: "string" },
+                description: { type: "string" }
+              }
+            }
+          },
+          layout: { type: "string", enum: ["vertical", "horizontal"] }
+        }
+      }
+    }
+  };
+
+  const framedInsightSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "framed_insight" },
+      content: {
+        type: "object",
+        required: ["insight"],
+        properties: {
+          insight: { type: "string", minLength: 10 },
+          context: { type: "string" },
+          source: { type: "string" },
+          type: { type: "string", enum: ["tip", "warning", "insight", "note"] }
+        }
+      }
+    }
+  };
+
+  // Build oneOf array based on enableVisualBlocks flag
+  const basicBlockSchemas = [headingSchema, textSchema, listSchema, calloutSchema, twoColSchema, tableSchema, imageSchema];
+  const visualBlockSchemas = [
+    statBlockSchema, quoteBlockSchema, timelineBlockSchema, comparisonTableSchema, 
+    cardGridSchema, heroHeaderSchema, execSummarySchema, ctaSectionSchema, 
+    sectionDividerSchema, iconTextBlockSchema, framedInsightSchema
+  ];
+
+  const blockSchemas = enableVisualBlocks 
+    ? [...basicBlockSchemas, ...visualBlockSchemas]
+    : basicBlockSchemas;
 
   return {
     type: "function",
     function: {
       name: "create_blocks",
-      description: "Create presentation blocks with type-specific validated content. Use visual block types for richer presentations. Each block type has specific required fields.",
+      description: "Create presentation blocks. Each block type has specific required fields. Use visual block types for richer presentations.",
       parameters: {
         type: "object",
         required: ["blocks"],
@@ -894,27 +1126,7 @@ function getToolSchema(enableVisualBlocks: boolean) {
             type: "array",
             minItems: 5,
             items: {
-              type: "object",
-              required: ["type", "content"],
-              properties: {
-                type: {
-                  type: "string",
-                  enum: blockTypes,
-                  description: "Block type - choose based on content characteristics"
-                },
-                content: {
-                  type: "object",
-                  description: "Block content with required fields per type: " + 
-                    "stat_block needs stats[{value,label}], " +
-                    "quote_block needs quote, " +
-                    "timeline_block needs events[{date,title}], " +
-                    "card_grid needs cards[{title}], " +
-                    "hero_header needs heading, " +
-                    "exec_summary needs summary+keyPoints, " +
-                    "cta_section needs heading, " +
-                    "framed_insight needs insight"
-                }
-              }
+              oneOf: blockSchemas
             }
           }
         }

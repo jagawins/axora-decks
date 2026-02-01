@@ -50,6 +50,14 @@ function getPayload(block: TemplateBlock): BlockPayload {
   return block.block_payload || (block.content as BlockPayload) || {};
 }
 
+/**
+ * Get schema version from block metadata, defaulting to 1 if not present
+ */
+function getSchemaVersion(block: TemplateBlock): number {
+  const meta = block.block_meta as { schema_version?: number } | undefined;
+  return meta?.schema_version ?? 1;
+}
+
 export function VisualBlockRenderer({ 
   block, 
   readOnly = true,
@@ -57,6 +65,12 @@ export function VisualBlockRenderer({
 }: VisualBlockRendererProps) {
   const payload = getPayload(block);
   const type = block.type;
+  const schemaVersion = getSchemaVersion(block);
+
+  // Log schema version for debugging (can be removed in production)
+  if (schemaVersion !== 1) {
+    console.debug(`[VisualBlockRenderer] Block type=${type} using schema_version=${schemaVersion}`);
+  }
 
   // Visual block types - cast through unknown for type safety
   switch (type) {
