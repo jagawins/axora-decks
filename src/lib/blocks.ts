@@ -27,6 +27,21 @@ export type VisualBlockType =
 // All block types
 export type BlockType = BasicBlockType | VisualBlockType;
 
+// Visual block type array for runtime checks
+export const VISUAL_BLOCK_TYPES: VisualBlockType[] = [
+  "stat_block", 
+  "quote_block", 
+  "timeline_block", 
+  "comparison_table",
+  "card_grid", 
+  "hero_header", 
+  "exec_summary", 
+  "cta_section",
+  "section_divider", 
+  "icon_text_block", 
+  "framed_insight"
+];
+
 export interface Block {
   id: string;
   type: BlockType;

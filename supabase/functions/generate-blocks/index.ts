@@ -87,15 +87,16 @@ function sanitizeContent(content: BlockContent): BlockContent {
   return out;
 }
 
-function validateRequest(body: unknown): ValidationResult {
+function validateRequest(body: unknown): ValidationResult & { preserveWording?: boolean } {
   if (!body || typeof body !== "object") {
     return { valid: false, error: "Request body must be a JSON object" };
   }
 
-  const { outline, density, enableVisualBlocks } = body as { 
+  const { outline, density, enableVisualBlocks, preserveWording } = body as { 
     outline?: unknown; 
     density?: string;
     enableVisualBlocks?: boolean;
+    preserveWording?: boolean;
   };
 
   if (!outline || typeof outline !== "object") {
@@ -135,6 +136,7 @@ function validateRequest(body: unknown): ValidationResult {
     },
     density: sanitizedDensity,
     enableVisualBlocks: enableVisualBlocks !== false, // Default to true
+    preserveWording: preserveWording !== false, // Default to true
   };
 }
 
@@ -621,9 +623,17 @@ DENSITY CONSTRAINTS (PLENTY OF TEXT):
 }
 
 // Build system prompt with visual block layout rules
-function buildSystemPrompt(isRetry: boolean, validationErrors?: string[], density?: string, enableVisualBlocks?: boolean): string {
+function buildSystemPrompt(isRetry: boolean, validationErrors?: string[], density?: string, enableVisualBlocks?: boolean, preserveWording?: boolean): string {
   const densityConstraints = getDensityBlockConstraints(density || "context");
   
+  const preserveWordingRule = preserveWording ? `
+PRESERVE ORIGINAL WORDING (CRITICAL):
+- For text, list, callout, and two_col blocks: Keep the user's exact phrasing verbatim. Do NOT paraphrase, rewrite, or summarize.
+- Only adjust text if absolutely required to fit schema constraints (e.g., minimum length).
+- For visual blocks (stat_block, timeline_block, etc.): You may restructure, but ONLY quote user text directly. Do not rewrite.
+- Treat the user's content as sacred. Your job is to structure, not rewrite.
+` : '';
+
   const visualBlockRules = enableVisualBlocks ? `
 VISUAL BLOCK SELECTION RULES (use these to choose the right block type):
 
@@ -683,6 +693,7 @@ VISUAL BLOCK FORMATS:
   let prompt = `You are an expert presentation designer. Convert outlines into visually rich presentation blocks.
 
 CRITICAL: You MUST populate the content object with actual data. Empty content {} will fail.
+${preserveWordingRule}
 ${densityConstraints}
 
 ${enableVisualBlocks ? visualBlockRules : ''}
@@ -1188,6 +1199,7 @@ serve(async (req) => {
     const outline = validation.outline!;
     const density = validation.density;
     const enableVisualBlocks = validation.enableVisualBlocks ?? true;
+    const preserveWording = validation.preserveWording ?? true;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -1198,7 +1210,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`[${requestId}] Generating blocks for: "${outline.title}" with density: ${density || "default"}, visualBlocks: ${enableVisualBlocks}`);
+    console.log(`[${requestId}] Generating blocks for: "${outline.title}" with density: ${density || "default"}, visualBlocks: ${enableVisualBlocks}, preserveWording: ${preserveWording}`);
 
     const userPrompt = `Convert this outline into presentation blocks. Use visual block types where content matches the rules.
 
@@ -1214,7 +1226,7 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}
 IMPORTANT: Analyze each section and choose the most appropriate visual block type based on the content rules.`;
 
     // First attempt
-    const systemPrompt1 = buildSystemPrompt(false, undefined, density, enableVisualBlocks);
+    const systemPrompt1 = buildSystemPrompt(false, undefined, density, enableVisualBlocks, preserveWording);
     const result1 = await callAI(LOVABLE_API_KEY, systemPrompt1, userPrompt, enableVisualBlocks);
 
     if (result1.error) {
@@ -1267,7 +1279,7 @@ IMPORTANT: Analyze each section and choose the most appropriate visual block typ
       console.warn(`[${requestId}] Validation failed (attempt 1): invalidBlocksCount=${blockValidation1.invalidCount}, missingKeys=${blockValidation1.errors.slice(0, 3).join("; ")}`);
       console.log(`[${requestId}] Retrying with correction prompt...`);
 
-      const systemPrompt2 = buildSystemPrompt(true, blockValidation1.errors, density, enableVisualBlocks);
+      const systemPrompt2 = buildSystemPrompt(true, blockValidation1.errors, density, enableVisualBlocks, preserveWording);
       const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks);
 
       if (result2.error || !result2.response?.ok) {
@@ -1319,7 +1331,7 @@ IMPORTANT: Analyze each section and choose the most appropriate visual block typ
       // Single retry for parse failures
       console.log(`[${requestId}] Retrying after parse failure...`);
 
-      const systemPrompt2 = buildSystemPrompt(true, ["Previous response was not valid JSON"], density, enableVisualBlocks);
+      const systemPrompt2 = buildSystemPrompt(true, ["Previous response was not valid JSON"], density, enableVisualBlocks, preserveWording);
       const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks);
 
       if (result2.response?.ok) {
