@@ -99,7 +99,11 @@ export const aiEngine = {
    * Generate blocks directly from text, bypassing outline generation.
    * Preserves original text and uses it directly for block generation.
    */
-  async generateBlocksFromText(text: string, enableVisualBlocks = true): Promise<Block[]> {
+  async generateBlocksFromText(
+    text: string, 
+    enableVisualBlocks = true,
+    preserveWording = true
+  ): Promise<Block[]> {
     // Create a minimal outline structure from the raw text
     // This preserves the original content without AI rewriting
     const lines = text.trim().split('\n').filter(l => l.trim());
@@ -118,7 +122,7 @@ export const aiEngine = {
 
     const response = await invokeFunction<{ blocks: Block[]; requestId?: string }>(
       "generate-blocks",
-      { outline, enableVisualBlocks }
+      { outline, enableVisualBlocks, preserveWording }
     );
 
     if (response.error || !response.data?.blocks) {
