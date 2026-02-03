@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -10,9 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, FileText, Sparkles, Plus, Eye, Brain } from "lucide-react";
+import { Loader2, FileText, Sparkles, Plus, Eye, Brain, Wand2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -20,12 +19,16 @@ import { aiEngine } from "@/lib/ai-engine";
 import { Block } from "@/lib/blocks";
 import { BlockPreviewList } from "@/components/import/BlockPreviewList";
 import { BlockIntelligencePreview } from "@/components/BlockIntelligencePreview";
+import { ContentDropZone, FilePreviewBadge } from "@/components/import/ContentDropZone";
+import { ContentStats } from "@/components/import/ContentStats";
+import { ContentTypeDetector } from "@/components/import/ContentTypeDetector";
+import { ImportSettings, ImportSettingsState } from "@/components/import/ImportSettings";
+import { ConversionPlan } from "@/components/import/ConversionPlan";
+
 interface ImportContentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Callback when import is complete (for Editor integration) */
   onImport?: (content: string) => Promise<void>;
-  /** Direct callback to insert generated blocks (for Editor integration) */
   onInsertBlocks?: (blocks: Block[]) => void;
 }
 
@@ -44,18 +47,79 @@ export function ImportContentModal({
   const [generating, setGenerating] = useState(false);
   const [previewBlocks, setPreviewBlocks] = useState<Block[]>([]);
   const [showPreview, setShowPreview] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [parsingFile, setParsingFile] = useState(false);
+  const [settings, setSettings] = useState<ImportSettingsState>({
+    enableVisualBlocks: true,
+    preserveWording: true,
+  });
+
+  const handleFileSelect = useCallback(async (file: File) => {
+    setUploadedFile(file);
+    setParsingFile(true);
+
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase();
+
+      if (ext === "txt" || ext === "md") {
+        // Read text files directly
+        const text = await file.text();
+        setContent(text);
+      } else if (ext === "pdf" || ext === "docx") {
+        // For PDF/DOCX, we'd need server-side parsing
+        // For now, show a message that complex files need the AI pipeline
+        toast({
+          title: "File uploaded",
+          description: `${file.name} will be processed. For best results with PDFs and DOCX, paste the text content directly.`,
+        });
+        // Try to read as text anyway (won't work well for binary)
+        try {
+          const text = await file.text();
+          if (text && text.length > 0 && !text.includes("\x00")) {
+            setContent(text);
+          } else {
+            toast({
+              title: "Complex file format",
+              description: "Please paste the text content from this file for best results.",
+              variant: "destructive",
+            });
+          }
+        } catch {
+          toast({
+            title: "Unable to read file",
+            description: "Please paste the text content from this file.",
+            variant: "destructive",
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error reading file:", error);
+      toast({
+        title: "Error reading file",
+        description: "Please try pasting the content instead.",
+        variant: "destructive",
+      });
+    } finally {
+      setParsingFile(false);
+    }
+  }, [toast]);
+
+  const handleRemoveFile = useCallback(() => {
+    setUploadedFile(null);
+    setContent("");
+  }, []);
 
   const handleGeneratePreview = async () => {
     if (!content.trim()) return;
 
     setGenerating(true);
     try {
-      // Use generateBlocksFromText to bypass outline generation
-      // This preserves original text without AI rewriting
-      const blocks = await aiEngine.generateBlocksFromText(content.trim(), true);
+      const blocks = await aiEngine.generateBlocksFromText(
+        content.trim(), 
+        settings.enableVisualBlocks
+      );
 
       if (blocks.length > 0) {
-        // Pass raw blocks directly - only add id and order_index
         const editorBlocks = blocks.map((block, index) => ({
           id: crypto.randomUUID(),
           type: block.type,
@@ -65,11 +129,19 @@ export function ImportContentModal({
         setPreviewBlocks(editorBlocks);
         setShowPreview(true);
       } else {
-        toast({ title: 'No blocks generated', description: 'Try adding more detail to your content.', variant: 'destructive' });
+        toast({ 
+          title: "No blocks generated", 
+          description: "Try adding more detail to your content.", 
+          variant: "destructive" 
+        });
       }
     } catch (error) {
-      console.error('Error generating blocks:', error);
-      toast({ title: 'Error', description: 'Failed to generate blocks from content.', variant: 'destructive' });
+      console.error("Error generating blocks:", error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to generate blocks from content.", 
+        variant: "destructive" 
+      });
     } finally {
       setGenerating(false);
     }
@@ -81,11 +153,13 @@ export function ImportContentModal({
     if (onInsertBlocks) {
       onInsertBlocks(previewBlocks);
       resetAndClose();
-      toast({ title: 'Blocks inserted!', description: `${previewBlocks.length} blocks added to your deck.` });
+      toast({ 
+        title: "Blocks inserted!", 
+        description: `${previewBlocks.length} blocks added to your deck.` 
+      });
       return;
     }
 
-    // Fallback: use onImport if available (legacy flow)
     if (onImport) {
       onImport(content.trim());
       resetAndClose();
@@ -96,13 +170,11 @@ export function ImportContentModal({
   const handleSubmit = async () => {
     if (!content.trim()) return;
 
-    // If we have preview blocks and onInsertBlocks, use direct insert
     if (previewBlocks.length > 0 && onInsertBlocks) {
       handleInsertBlocks();
       return;
     }
 
-    // If onImport callback is provided (Editor mode), use it
     if (onImport) {
       setImporting(true);
       try {
@@ -114,21 +186,22 @@ export function ImportContentModal({
       return;
     }
 
-    // Library mode: create new project first
     if (!user) {
-      toast({ title: 'Error', description: 'You must be logged in.', variant: 'destructive' });
+      toast({ 
+        title: "Error", 
+        description: "You must be logged in.", 
+        variant: "destructive" 
+      });
       return;
     }
 
     setImporting(true);
     try {
-      // Extract a title from the content (first line or first 50 chars)
-      const firstLine = content.trim().split('\n')[0].replace(/^[#*-\s]+/, '');
-      const title = firstLine.substring(0, 100) || 'Imported Deck';
+      const firstLine = content.trim().split("\n")[0].replace(/^[#*-\s]+/, "");
+      const title = firstLine.substring(0, 100) || "Imported Deck";
 
-      // Create new project
       const { data: newProject, error: projectError } = await supabase
-        .from('projects')
+        .from("projects")
         .insert({
           title,
           user_id: user.id,
@@ -137,29 +210,37 @@ export function ImportContentModal({
         .single();
 
       if (projectError || !newProject) {
-        throw new Error('Failed to create project');
+        throw new Error("Failed to create project");
       }
 
-      // Generate blocks from content using generateBlocksFromText (bypasses outline)
-      const blocks = await aiEngine.generateBlocksFromText(content.trim(), true);
+      const blocks = await aiEngine.generateBlocksFromText(
+        content.trim(), 
+        settings.enableVisualBlocks
+      );
 
       if (blocks.length > 0) {
-        // Pass raw blocks directly - only add required fields for database
         const blocksToInsert = blocks.map((block, index) => ({
           project_id: newProject.id,
           type: block.type,
           content: block.content as Record<string, unknown>,
           order_index: index,
         }));
-        await supabase.from('blocks').insert(blocksToInsert as any);
+        await supabase.from("blocks").insert(blocksToInsert as any);
       }
 
       resetAndClose();
       navigate(`/preview/${newProject.id}`);
-      toast({ title: 'Deck created!', description: 'Your content has been converted to a deck.' });
+      toast({ 
+        title: "Deck created!", 
+        description: "Your content has been converted to a deck." 
+      });
     } catch (error) {
-      console.error('Error importing content:', error);
-      toast({ title: 'Error', description: 'Failed to import content.', variant: 'destructive' });
+      console.error("Error importing content:", error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to import content.", 
+        variant: "destructive" 
+      });
     } finally {
       setImporting(false);
     }
@@ -169,6 +250,8 @@ export function ImportContentModal({
     setContent("");
     setPreviewBlocks([]);
     setShowPreview(false);
+    setUploadedFile(null);
+    setSettings({ enableVisualBlocks: true, preserveWording: true });
     onOpenChange(false);
   };
 
@@ -177,12 +260,14 @@ export function ImportContentModal({
     setPreviewBlocks([]);
   };
 
+  const isLoading = importing || generating || parsingFile;
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => {
       if (!isOpen) resetAndClose();
       else onOpenChange(isOpen);
     }}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {showPreview ? (
@@ -192,7 +277,7 @@ export function ImportContentModal({
               </>
             ) : (
               <>
-                <FileText className="h-5 w-5 text-accent" />
+                <Wand2 className="h-5 w-5 text-accent" />
                 Import Content
               </>
             )}
@@ -200,7 +285,7 @@ export function ImportContentModal({
           <DialogDescription>
             {showPreview 
               ? `${previewBlocks.length} blocks generated. Review and insert them into your deck.`
-              : 'Paste your existing content below. AI will convert it into structured presentation blocks.'
+              : "Import any content—Axora will structure it into executive-grade slides."
             }
           </DialogDescription>
         </DialogHeader>
@@ -231,30 +316,52 @@ export function ImportContentModal({
             </Tabs>
           </div>
         ) : (
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="content">
-                Content <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                id="content"
-                placeholder="Paste your text, notes, article, or outline here. The AI will analyze it and create presentation slides automatically.
+          <div className="flex-1 overflow-y-auto space-y-4 py-4 min-h-0">
+            {/* Drag and drop zone */}
+            <ContentDropZone 
+              onFileSelect={handleFileSelect} 
+              disabled={isLoading} 
+            />
 
-Example:
-- Meeting notes
-- Article text
-- Bullet points
-- Existing outline
-- Report summary"
+            {/* File badge */}
+            {uploadedFile && (
+              <FilePreviewBadge 
+                fileName={uploadedFile.name} 
+                onRemove={handleRemoveFile} 
+              />
+            )}
+
+            {/* Textarea */}
+            <div className="space-y-2">
+              <Textarea
+                placeholder="Paste text, meeting notes, transcripts, or upload a file. Axora identifies structure, detects insights, and converts it into a clean narrative."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="bg-muted/50 min-h-[200px] font-mono text-sm"
-                disabled={importing || generating}
+                className="bg-muted/50 min-h-[140px] font-mono text-sm resize-none"
+                disabled={isLoading}
               />
-              <p className="text-xs text-muted-foreground">
-                Supports plain text, bullet points, and structured outlines.
-              </p>
+              
+              {/* Stats and detection row */}
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <ContentStats content={content} />
+                <ContentTypeDetector content={content} />
+              </div>
             </div>
+
+            {/* Settings toggles */}
+            <ImportSettings 
+              settings={settings} 
+              onChange={setSettings} 
+              disabled={isLoading} 
+            />
+
+            {/* Conversion plan */}
+            {content.trim() && (
+              <ConversionPlan 
+                content={content} 
+                enableVisualBlocks={settings.enableVisualBlocks} 
+              />
+            )}
           </div>
         )}
 
@@ -275,21 +382,24 @@ Example:
             </>
           ) : (
             <>
-              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={importing || generating}>
+              <Button 
+                variant="outline" 
+                onClick={() => onOpenChange(false)} 
+                disabled={isLoading}
+              >
                 Cancel
               </Button>
               
-              {/* Generate Preview button - shows preview before inserting */}
               {onInsertBlocks && (
                 <Button
                   variant="outline"
                   onClick={handleGeneratePreview}
-                  disabled={!content.trim() || generating || importing}
+                  disabled={!content.trim() || isLoading}
                 >
                   {generating ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Generating...
+                      Analyzing...
                     </>
                   ) : (
                     <>
@@ -303,7 +413,7 @@ Example:
               <Button
                 variant="hero"
                 onClick={handleSubmit}
-                disabled={!content.trim() || importing || generating}
+                disabled={!content.trim() || isLoading}
               >
                 {importing ? (
                   <>
@@ -312,7 +422,7 @@ Example:
                   </>
                 ) : (
                   <>
-                    <FileText className="h-4 w-4 mr-2" />
+                    <Wand2 className="h-4 w-4 mr-2" />
                     Convert to Deck
                   </>
                 )}
