@@ -159,6 +159,9 @@ function ConversionPlan({ content, enableVisualBlocks }: { content: string; enab
   );
 }
 
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 export function ImportContentModal({
   open,
   onOpenChange,
@@ -173,29 +176,38 @@ export function ImportContentModal({
   const [importing, setImporting] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [rawGeneratedBlocks, setRawGeneratedBlocks] = useState<AIBlock[] | null>(null);
+  const [previewBlocks, setPreviewBlocks] = useState<Block[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [parsingFile, setParsingFile] = useState(false);
   const [enableVisualBlocks, setEnableVisualBlocks] = useState(true);
   const [preserveWording, setPreserveWording] = useState(true);
 
-  // Convert raw AI blocks to editor blocks by adding id and order_index only
-  const previewBlocks = useMemo((): Block[] => {
-    if (!rawGeneratedBlocks) return [];
-    return rawGeneratedBlocks.map((block, index) => {
+  // Build stable preview blocks when raw blocks change
+  const buildPreviewBlocks = useCallback((blocks: AIBlock[]): Block[] => {
+    return blocks.map((block, index) => {
       const isVisual = VISUAL_BLOCK_TYPES.includes(block.type as any);
       return {
         id: crypto.randomUUID(),
         type: block.type,
         content: block.content,
         order_index: index,
-        // Add block_meta with schema_version for visual blocks
         ...(isVisual && { block_meta: { schema_version: 1 } }),
       } as Block;
     });
-  }, [rawGeneratedBlocks]);
+  }, []);
 
   const handleFileSelect = useCallback(async (file: File) => {
+    // Check file size limit
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast({
+        title: "File too large",
+        description: `Maximum file size is ${MAX_FILE_SIZE_MB}MB. Please use a smaller file.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setUploadedFile(file);
     setParsingFile(true);
 
@@ -212,12 +224,14 @@ export function ImportContentModal({
         formData.append("file", file);
 
         const { data: { session } } = await supabase.auth.getSession();
+        const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parse-file`,
           {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              Authorization: `Bearer ${session?.access_token || anonKey}`,
+              apikey: anonKey,
             },
             body: formData,
           }
@@ -276,6 +290,9 @@ export function ImportContentModal({
 
       if (blocks.length > 0) {
         setRawGeneratedBlocks(blocks);
+        // Build and store preview blocks with stable IDs
+        const editorBlocks = buildPreviewBlocks(blocks);
+        setPreviewBlocks(editorBlocks);
         setShowPreview(true);
       } else {
         toast({ 
@@ -320,8 +337,8 @@ export function ImportContentModal({
   const handleSubmit = async () => {
     if (!content.trim()) return;
 
-    // If we already have generated blocks, use them directly
-    if (rawGeneratedBlocks && rawGeneratedBlocks.length > 0 && onInsertBlocks) {
+    // If we already have generated blocks, use them directly (no re-generation)
+    if (previewBlocks.length > 0 && onInsertBlocks) {
       handleInsertBlocks();
       return;
     }
@@ -355,22 +372,24 @@ export function ImportContentModal({
 
       if (projectError || !newProject) throw new Error("Failed to create project");
 
-      // Generate blocks with settings
-      const blocks = await aiEngine.generateBlocksFromText(
-        content.trim(), 
-        enableVisualBlocks,
-        preserveWording
-      );
+      // Reuse already generated blocks if available, otherwise generate new ones
+      let blocksToUse = rawGeneratedBlocks;
+      if (!blocksToUse || blocksToUse.length === 0) {
+        blocksToUse = await aiEngine.generateBlocksFromText(
+          content.trim(), 
+          enableVisualBlocks,
+          preserveWording
+        );
+      }
 
-      if (blocks.length > 0) {
-        const blocksToInsert = blocks.map((block, index) => {
+      if (blocksToUse && blocksToUse.length > 0) {
+        const blocksToInsert = blocksToUse.map((block, index) => {
           const isVisual = VISUAL_BLOCK_TYPES.includes(block.type as any);
           return {
             project_id: newProject.id,
             type: block.type,
             content: block.content as Record<string, unknown>,
             order_index: index,
-            // Add block_meta for visual blocks
             ...(isVisual && { block_meta: { schema_version: 1 } }),
           };
         });
@@ -391,6 +410,7 @@ export function ImportContentModal({
   const resetAndClose = () => {
     setContent("");
     setRawGeneratedBlocks(null);
+    setPreviewBlocks([]);
     setShowPreview(false);
     setUploadedFile(null);
     setEnableVisualBlocks(true);
@@ -401,6 +421,7 @@ export function ImportContentModal({
   const handleBack = () => {
     setShowPreview(false);
     setRawGeneratedBlocks(null);
+    setPreviewBlocks([]);
   };
 
   const isLoading = importing || generating || parsingFile;
