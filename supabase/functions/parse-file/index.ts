@@ -31,17 +31,14 @@ function extractDocxText(arrayBuffer: ArrayBuffer): string {
   
   const documentXml = strFromU8(documentXmlBytes);
 
-  // Extract text content from XML by removing all tags
+  // Extract text content from XML
   const text = documentXml
     .replace(/<w:p[^>]*>/g, "\n") // Paragraph breaks
     .replace(/<w:br[^>]*>/g, "\n") // Line breaks
     .replace(/<w:tab[^>]*>/g, "\t") // Tabs
     .replace(/<[^>]+>/g, "") // Remove all XML tags
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
+    .replace(/\s+/g, " ") // Collapse whitespace
+    .replace(/\n /g, "\n") // Clean up newlines
     .replace(/\n{3,}/g, "\n\n") // Collapse multiple newlines
     .trim();
 
@@ -81,8 +78,8 @@ async function extractWithAI(arrayBuffer: ArrayBuffer, mimeType: string): Promis
               text: "Extract ALL text content from this document. Preserve the original structure. Return only the extracted text, no additional commentary."
             },
             {
-              type: "image_url",
-              image_url: { url: dataUrl }
+              type: "file",
+              file: { url: dataUrl }
             }
           ]
         }
