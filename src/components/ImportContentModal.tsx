@@ -224,7 +224,7 @@ export function ImportContentModal({
         formData.append("file", file);
 
         const { data: { session } } = await supabase.auth.getSession();
-        const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parse-file`,
           {
@@ -489,12 +489,27 @@ export function ImportContentModal({
               <FilePreviewBadge fileName={uploadedFile.name} onRemove={handleRemoveFile} />
             )}
 
+            {/* PDF warning banner */}
+            {uploadedFile?.name.toLowerCase().endsWith('.pdf') && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-muted border border-border text-muted-foreground text-xs">
+                <FileText className="h-3.5 w-3.5 flex-shrink-0" />
+                <span>PDF extraction is best effort. For perfect results, paste text directly.</span>
+              </div>
+            )}
+
             {/* Textarea */}
             <div className="space-y-2">
               <Textarea
                 placeholder="Paste text, meeting notes, transcripts, or upload a file. Axora identifies structure, detects insights, and converts it into a clean narrative."
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  // Clear stale preview when content changes
+                  if (rawGeneratedBlocks) {
+                    setRawGeneratedBlocks(null);
+                    setPreviewBlocks([]);
+                  }
+                }}
                 className="bg-muted/50 min-h-[140px] font-mono text-sm resize-none"
                 disabled={isLoading}
               />
