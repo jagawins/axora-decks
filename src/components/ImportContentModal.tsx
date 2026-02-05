@@ -218,13 +218,17 @@ export function ImportContentModal({
         // Read text files directly on client
         const text = await file.text();
         setContent(text);
+        // Clear any stale preview/generation state when content changes via upload
+        setRawGeneratedBlocks(null);
+        setPreviewBlocks([]);
+        setShowPreview(false);
       } else if (ext === "pdf" || ext === "docx") {
         // Use edge function for PDF/DOCX parsing
         const formData = new FormData();
         formData.append("file", file);
 
         const { data: { session } } = await supabase.auth.getSession();
-        const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parse-file`,
           {
@@ -245,6 +249,10 @@ export function ImportContentModal({
         const result = await response.json();
         if (result.text) {
           setContent(result.text);
+          // Clear any stale preview/generation state when content changes via upload
+          setRawGeneratedBlocks(null);
+          setPreviewBlocks([]);
+          setShowPreview(false);
           toast({
             title: "File parsed",
             description: `Extracted ${result.meta?.wordCount || 0} words from ${file.name}`,
@@ -361,6 +369,25 @@ export function ImportContentModal({
 
     setImporting(true);
     try {
+      // Always generate blocks first so we never create an empty deck.
+      let blocksToUse = rawGeneratedBlocks;
+      if (!blocksToUse || blocksToUse.length === 0) {
+        blocksToUse = await aiEngine.generateBlocksFromText(
+          content.trim(),
+          enableVisualBlocks,
+          preserveWording
+        );
+      }
+
+      if (!blocksToUse || blocksToUse.length === 0) {
+        toast({
+          title: "Error",
+          description: "Failed to generate blocks from content.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const firstLine = content.trim().split("\n")[0].replace(/^[#*-\s]+/, "");
       const title = firstLine.substring(0, 100) || "Imported Deck";
 
@@ -371,16 +398,6 @@ export function ImportContentModal({
         .single();
 
       if (projectError || !newProject) throw new Error("Failed to create project");
-
-      // Reuse already generated blocks if available, otherwise generate new ones
-      let blocksToUse = rawGeneratedBlocks;
-      if (!blocksToUse || blocksToUse.length === 0) {
-        blocksToUse = await aiEngine.generateBlocksFromText(
-          content.trim(), 
-          enableVisualBlocks,
-          preserveWording
-        );
-      }
 
       if (blocksToUse && blocksToUse.length > 0) {
         const blocksToInsert = blocksToUse.map((block, index) => {

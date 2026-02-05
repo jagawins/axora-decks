@@ -5,8 +5,7 @@ import PreviewDeck from "@/components/PreviewDeck";
 import { Loader2, AlertCircle } from "lucide-react";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
-
-type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
+import type { BlockType } from "@/lib/blocks";
 
 interface Block {
   id: string;
