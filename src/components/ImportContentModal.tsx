@@ -384,16 +384,18 @@ export function ImportContentModal({
 
       if (blocksToUse && blocksToUse.length > 0) {
         const blocksToInsert = blocksToUse.map((block, index) => {
-          const isVisual = VISUAL_BLOCK_TYPES.includes(block.type as any);
           return {
             project_id: newProject.id,
             type: block.type,
             content: block.content as Record<string, unknown>,
             order_index: index,
-            ...(isVisual && { block_meta: { schema_version: 1 } }),
           };
         });
-        await supabase.from("blocks").insert(blocksToInsert as any);
+        const { error: insertError } = await supabase.from("blocks").insert(blocksToInsert as any);
+        if (insertError) {
+          console.error("Failed to insert blocks:", insertError);
+          throw new Error(insertError.message);
+        }
       }
 
       resetAndClose();
