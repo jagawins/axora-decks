@@ -224,7 +224,7 @@ export function ImportContentModal({
         formData.append("file", file);
 
         const { data: { session } } = await supabase.auth.getSession();
-        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parse-file`,
           {
