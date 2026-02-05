@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { unzipSync, strFromU8 } from "https://esm.sh/fflate@0.8.2";
+import { extractText } from "https://esm.sh/unpdf";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,7 +9,6 @@ const corsHeaders = {
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MIN_TEXT_LENGTH = 200; // Fallback to AI if less than this
-const PDF_REQUIRES_AI = true; // PDFs always use AI extraction
 
 interface ParseResult {
   text: string;
@@ -43,6 +43,12 @@ function extractDocxText(arrayBuffer: ArrayBuffer): string {
     .replace(/\n{3,}/g, "\n\n") // Collapse multiple newlines
     .trim();
 
+  return text;
+}
+
+async function extractPdfText(arrayBuffer: ArrayBuffer): Promise<string> {
+  const data = new Uint8Array(arrayBuffer);
+  const { text } = await extractText(data, { mergePages: true });
   return text;
 }
 
@@ -134,10 +140,21 @@ serve(async (req) => {
       // Plain text files - read directly
       text = await file.text();
     } else if (fileType === "pdf") {
-      // PDF parsing - always use AI extraction (no good Deno-native PDF parser)
-      console.log(`[${requestId}] PDF file detected, using AI extraction`);
+      // PDF parsing - use pdfjs-serverless for deterministic extraction
+      console.log(`[${requestId}] PDF file detected, using pdfjs-serverless`);
       const arrayBuffer = await file.arrayBuffer();
-      text = await extractWithAI(arrayBuffer, "application/pdf");
+      try {
+        text = await extractPdfText(arrayBuffer);
+      } catch (pdfError) {
+        console.log(`[${requestId}] PDF parsing failed, falling back to AI:`, pdfError);
+        text = await extractWithAI(arrayBuffer, "application/pdf");
+      }
+
+      // Fallback to AI if text is too short (likely scanned PDF)
+      if (text.trim().length < MIN_TEXT_LENGTH) {
+        console.log(`[${requestId}] PDF text too short (${text.trim().length} chars), falling back to AI`);
+        text = await extractWithAI(arrayBuffer, "application/pdf");
+      }
     } else if (fileType === "docx") {
       // DOCX parsing using fflate (deterministic)
       const arrayBuffer = await file.arrayBuffer();
