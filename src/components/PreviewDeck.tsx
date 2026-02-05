@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
-
-type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
+import type { BlockType } from "@/lib/blocks";
+import { VisualBlockRenderer } from "@/components/blocks/VisualBlockRenderer";
 
 interface Block {
   id: string;
@@ -155,6 +155,31 @@ const PreviewDeck = ({ blocks, title, theme = DEFAULT_THEME }: PreviewDeckProps)
 // Slide Content Renderer
 const SlideContent = ({ block }: { block: Block }) => {
   const content = block.content;
+
+  const isBasic =
+    block.type === "heading" ||
+    block.type === "text" ||
+    block.type === "list" ||
+    block.type === "callout" ||
+    block.type === "two_col" ||
+    block.type === "table" ||
+    block.type === "image";
+
+  if (!isBasic) {
+    // Render visual blocks (and any extended block types) via the shared renderer
+    return (
+      <div className="w-full">
+        <VisualBlockRenderer
+          block={{
+            // VisualBlockRenderer reads payload from `content` when `block_payload` is absent
+            type: block.type as any,
+            content: block.content as any,
+          } as any}
+          readOnly
+        />
+      </div>
+    );
+  }
 
   switch (block.type) {
     case "heading":

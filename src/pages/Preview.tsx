@@ -6,8 +6,7 @@ import PreviewDeck from "@/components/PreviewDeck";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
-
-type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
+import type { BlockType } from "@/lib/blocks";
 
 interface Block {
   id: string;
