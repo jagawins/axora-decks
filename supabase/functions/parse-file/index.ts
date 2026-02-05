@@ -8,6 +8,7 @@ const corsHeaders = {
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MIN_TEXT_LENGTH = 200; // Fallback to AI if less than this
+const PDF_REQUIRES_AI = true; // PDFs always use AI extraction
 
 interface ParseResult {
   text: string;
@@ -133,7 +134,8 @@ serve(async (req) => {
       // Plain text files - read directly
       text = await file.text();
     } else if (fileType === "pdf") {
-      // PDF parsing - use AI extraction (no good Deno-native PDF parser)
+      // PDF parsing - always use AI extraction (no good Deno-native PDF parser)
+      console.log(`[${requestId}] PDF file detected, using AI extraction`);
       const arrayBuffer = await file.arrayBuffer();
       text = await extractWithAI(arrayBuffer, "application/pdf");
     } else if (fileType === "docx") {
