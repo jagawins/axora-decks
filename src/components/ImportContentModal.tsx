@@ -184,9 +184,40 @@ export function ImportContentModal({
   const [preserveWording, setPreserveWording] = useState(true);
   const [decisionMode, setDecisionMode] = useState(false);
 
+  // Fixed decision block order
+  const DECISION_BLOCK_ORDER = ['decision_summary', 'evidence_map', 'scenario_set', 'recommendation_panel'];
+
+  // Sort blocks with decision blocks in fixed order (for saving, not just rendering)
+  const sortDecisionBlocks = useCallback((blocks: AIBlock[]): AIBlock[] => {
+    const hasDecisionBlocks = blocks.some(b => DECISION_BLOCK_TYPES.includes(b.type as any));
+    if (!hasDecisionBlocks) return blocks;
+
+    const decisionBlocks: AIBlock[] = [];
+    const otherBlocks: AIBlock[] = [];
+
+    for (const block of blocks) {
+      if (DECISION_BLOCK_TYPES.includes(block.type as any)) {
+        decisionBlocks.push(block);
+      } else {
+        otherBlocks.push(block);
+      }
+    }
+
+    // Sort decision blocks by fixed order
+    decisionBlocks.sort((a, b) => {
+      const aIndex = DECISION_BLOCK_ORDER.indexOf(a.type);
+      const bIndex = DECISION_BLOCK_ORDER.indexOf(b.type);
+      return aIndex - bIndex;
+    });
+
+    return [...decisionBlocks, ...otherBlocks];
+  }, []);
+
   // Build stable preview blocks when raw blocks change
   const buildPreviewBlocks = useCallback((blocks: AIBlock[]): Block[] => {
-    return blocks.map((block, index) => {
+    // Apply decision ordering before building
+    const orderedBlocks = sortDecisionBlocks(blocks);
+    return orderedBlocks.map((block, index) => {
       const isVisual = VISUAL_BLOCK_TYPES.includes(block.type as any);
       const isDecision = DECISION_BLOCK_TYPES.includes(block.type as any);
       return {
@@ -194,10 +225,13 @@ export function ImportContentModal({
         type: block.type,
         content: block.content,
         order_index: index,
-        ...((isVisual || isDecision) && { block_meta: { schema_version: 1 } }),
+        ...((isVisual || isDecision) && { 
+          block_payload: block.content,
+          block_meta: { schema_version: 1 } 
+        }),
       } as Block;
     });
-  }, []);
+  }, [sortDecisionBlocks]);
 
   const handleFileSelect = useCallback(async (file: File) => {
     // Check file size limit
@@ -404,14 +438,20 @@ export function ImportContentModal({
       if (projectError || !newProject) throw new Error("Failed to create project");
 
       if (blocksToUse && blocksToUse.length > 0) {
-        const blocksToInsert = blocksToUse.map((block, index) => {
+        // Apply decision ordering before saving (order is persisted, not just rendered)
+        const orderedBlocks = sortDecisionBlocks(blocksToUse as AIBlock[]);
+        const blocksToInsert = orderedBlocks.map((block, index) => {
           const isVisual = VISUAL_BLOCK_TYPES.includes(block.type as any);
+          const isDecision = DECISION_BLOCK_TYPES.includes(block.type as any);
           return {
             project_id: newProject.id,
             type: block.type,
             content: block.content as Record<string, unknown>,
             order_index: index,
-            ...(isVisual && { block_meta: { schema_version: 1 } }),
+            ...((isVisual || isDecision) && { 
+              block_payload: block.content,
+              block_meta: { schema_version: 1 } 
+            }),
           };
         });
         const { error: insertError } = await supabase.from("blocks").insert(blocksToInsert as any);
