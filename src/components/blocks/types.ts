@@ -143,6 +143,52 @@ export interface TwoColumnPayload extends BaseBlockPayload {
   ratio?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70';
 }
 
+// =============================================================================
+// Decision Layer Block Payloads
+// =============================================================================
+
+// Decision Summary Block
+export interface DecisionSummaryPayload extends BaseBlockPayload {
+  question: string;
+  context?: string;
+  recommendation: string;
+  confidence?: 'high' | 'medium' | 'low';
+  decisionDate?: string;
+}
+
+// Evidence Map Block
+export interface EvidenceMapPayload extends BaseBlockPayload {
+  evidenceItems: Array<{
+    label: string;
+    value: string;
+    source?: string;
+    confidence?: 'verified' | 'estimated' | 'not_provided';
+  }>;
+  missingData?: string[];
+}
+
+// Scenario Set Block
+export interface ScenarioSetPayload extends BaseBlockPayload {
+  scenarios: Array<{
+    name: string;
+    description?: string;
+    outcome?: string;
+    probability?: string;
+    risk?: 'low' | 'medium' | 'high';
+  }>;
+  baselineScenario?: string;
+}
+
+// Recommendation Panel Block
+export interface RecommendationPanelPayload extends BaseBlockPayload {
+  recommendation: string;
+  rationale?: string;
+  nextSteps?: string[];
+  risks?: string[];
+  owner?: string;
+  deadline?: string;
+}
+
 // Union type for all visual block payloads
 export type VisualBlockPayload =
   | StatBlockPayload
@@ -156,7 +202,11 @@ export type VisualBlockPayload =
   | SectionDividerPayload
   | IconTextBlockPayload
   | FramedInsightPayload
-  | TwoColumnPayload;
+  | TwoColumnPayload
+  | DecisionSummaryPayload
+  | EvidenceMapPayload
+  | ScenarioSetPayload
+  | RecommendationPanelPayload;
 
 // Visual block type names
 export type VisualBlockType =
@@ -172,6 +222,16 @@ export type VisualBlockType =
   | 'icon_text_block'
   | 'framed_insight'
   | 'two_col';
+
+// Decision block type names
+export type DecisionBlockType =
+  | 'decision_summary'
+  | 'evidence_map'
+  | 'scenario_set'
+  | 'recommendation_panel';
+
+// All extended visual block types (including decision)
+export type ExtendedVisualBlockType = VisualBlockType | DecisionBlockType;
 
 // Props for visual block components
 export interface VisualBlockProps<T extends BaseBlockPayload = BaseBlockPayload> {

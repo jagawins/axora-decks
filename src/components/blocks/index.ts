@@ -20,5 +20,11 @@ export { IconTextBlock } from './IconTextBlock';
 export { FramedInsight } from './FramedInsight';
 export { TwoColumnBlock } from './TwoColumnBlock';
 
+// Decision Block Components
+export { DecisionSummary } from './DecisionSummary';
+export { EvidenceMap } from './EvidenceMap';
+export { ScenarioSet } from './ScenarioSet';
+export { RecommendationPanel } from './RecommendationPanel';
+
 // Unified Renderer
 export { VisualBlockRenderer, getPayload } from './VisualBlockRenderer';

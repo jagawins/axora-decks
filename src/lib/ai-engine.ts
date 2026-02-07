@@ -17,8 +17,15 @@ export type VisualBlockType =
   | "icon_text_block" 
   | "framed_insight";
 
+// Decision block types (Decision Layer)
+export type DecisionBlockType =
+  | "decision_summary"
+  | "evidence_map"
+  | "scenario_set"
+  | "recommendation_panel";
+
 // All block types
-export type BlockType = BasicBlockType | VisualBlockType;
+export type BlockType = BasicBlockType | VisualBlockType | DecisionBlockType;
 
 export interface Block {
   type: BlockType;
@@ -102,7 +109,8 @@ export const aiEngine = {
   async generateBlocksFromText(
     text: string, 
     enableVisualBlocks = true,
-    preserveWording = true
+    preserveWording = true,
+    decisionMode = false
   ): Promise<Block[]> {
     // Create a minimal outline structure from the raw text
     // This preserves the original content without AI rewriting
@@ -122,7 +130,7 @@ export const aiEngine = {
 
     const response = await invokeFunction<{ blocks: Block[]; requestId?: string }>(
       "generate-blocks",
-      { outline, enableVisualBlocks, preserveWording }
+      { outline, enableVisualBlocks, preserveWording, decisionMode }
     );
 
     if (response.error || !response.data?.blocks) {

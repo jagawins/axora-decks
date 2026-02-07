@@ -24,8 +24,15 @@ export type VisualBlockType =
   | "icon_text_block" 
   | "framed_insight";
 
+// Decision block types (Decision Layer)
+export type DecisionBlockType =
+  | "decision_summary"
+  | "evidence_map"
+  | "scenario_set"
+  | "recommendation_panel";
+
 // All block types
-export type BlockType = BasicBlockType | VisualBlockType;
+export type BlockType = BasicBlockType | VisualBlockType | DecisionBlockType;
 
 // Visual block type array for runtime checks
 export const VISUAL_BLOCK_TYPES: VisualBlockType[] = [
@@ -40,6 +47,14 @@ export const VISUAL_BLOCK_TYPES: VisualBlockType[] = [
   "section_divider", 
   "icon_text_block", 
   "framed_insight"
+];
+
+// Decision block type array for runtime checks
+export const DECISION_BLOCK_TYPES: DecisionBlockType[] = [
+  "decision_summary",
+  "evidence_map",
+  "scenario_set",
+  "recommendation_panel"
 ];
 
 export interface Block {
@@ -130,6 +145,11 @@ export function isVisualBlockType(type: BlockType): type is VisualBlockType {
     "card_grid", "hero_header", "exec_summary", "cta_section",
     "section_divider", "icon_text_block", "framed_insight"
   ].includes(type);
+}
+
+// Check if block type is a decision block type
+export function isDecisionBlockType(type: BlockType): type is DecisionBlockType {
+  return DECISION_BLOCK_TYPES.includes(type as DecisionBlockType);
 }
 
 /**
@@ -395,6 +415,70 @@ function validateVisualBlock(type: VisualBlockType, content: Record<string, unkn
 }
 
 /**
+ * Validate decision block content with strict schema enforcement
+ */
+function validateDecisionBlock(type: DecisionBlockType, content: Record<string, unknown>): ValidationResult {
+  const errors: string[] = [];
+
+  switch (type) {
+    case "decision_summary": {
+      const question = content.question;
+      const recommendation = content.recommendation;
+      if (typeof question !== "string" || question.trim().length < 5) {
+        errors.push("question must be at least 5 characters");
+      }
+      if (typeof recommendation !== "string" || recommendation.trim().length < 5) {
+        errors.push("recommendation must be at least 5 characters");
+      }
+      break;
+    }
+    case "evidence_map": {
+      const evidenceItems = content.evidenceItems;
+      if (!Array.isArray(evidenceItems) || evidenceItems.length < 1) {
+        errors.push("evidenceItems must have at least 1 item");
+      } else {
+        for (let i = 0; i < evidenceItems.length; i++) {
+          const item = evidenceItems[i] as { label?: unknown; value?: unknown };
+          if (typeof item?.label !== "string" || item.label.trim().length < 1) {
+            errors.push(`evidenceItems[${i}].label required`);
+          }
+          if (typeof item?.value !== "string") {
+            errors.push(`evidenceItems[${i}].value required`);
+          }
+        }
+      }
+      break;
+    }
+    case "scenario_set": {
+      const scenarios = content.scenarios;
+      if (!Array.isArray(scenarios) || scenarios.length < 2) {
+        errors.push("scenarios must have at least 2 items");
+      } else {
+        for (let i = 0; i < scenarios.length; i++) {
+          const scenario = scenarios[i] as { name?: unknown };
+          if (typeof scenario?.name !== "string" || scenario.name.trim().length < 2) {
+            errors.push(`scenarios[${i}].name required`);
+          }
+        }
+      }
+      break;
+    }
+    case "recommendation_panel": {
+      const recommendation = content.recommendation;
+      if (typeof recommendation !== "string" || recommendation.trim().length < 5) {
+        errors.push("recommendation must be at least 5 characters");
+      }
+      break;
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}
+
+/**
  * Validate a single block's content after normalization.
  * Returns validation status and any error messages.
  */
@@ -404,6 +488,11 @@ export function validateBlock(type: BlockType, content: Record<string, unknown>)
   // Visual blocks have their own validation logic
   if (isVisualBlockType(type)) {
     return validateVisualBlock(type, content);
+  }
+
+  // Decision blocks have their own validation logic
+  if (isDecisionBlockType(type)) {
+    return validateDecisionBlock(type, content);
   }
 
   switch (type) {
@@ -545,6 +634,15 @@ export function getPreviewLabel(block: AIBlock | Block): string {
       return "Icon Text Block";
     case "framed_insight":
       return String(content.insight || "Insight").substring(0, 40);
+    // Decision block types
+    case "decision_summary":
+      return String(content.question || "Decision").substring(0, 40);
+    case "evidence_map":
+      return "Evidence Map";
+    case "scenario_set":
+      return "Scenario Set";
+    case "recommendation_panel":
+      return String(content.recommendation || "Recommendation").substring(0, 40);
     default:
       return type;
   }
@@ -561,9 +659,9 @@ export function getPreviewLabel(block: AIBlock | Block): string {
  */
 export function toEditorBlocks(aiBlocks: AIBlock[]): Block[] {
   return aiBlocks.map((b, i) => {
-    // For visual blocks, pass through raw content without normalization
+    // For visual blocks and decision blocks, pass through raw content without normalization
     // The edge function already validated and sanitized the content
-    if (isVisualBlockType(b.type)) {
+    if (isVisualBlockType(b.type) || isDecisionBlockType(b.type)) {
       return {
         id: crypto.randomUUID(),
         type: b.type,
@@ -640,6 +738,15 @@ export function getDefaultContent(type: BlockType): Record<string, unknown> {
       return { items: [{ icon: "Star", title: "Feature", description: "" }] };
     case "framed_insight":
       return { insight: "Key insight here", type: "tip" };
+    // Decision block defaults
+    case "decision_summary":
+      return { question: "What should we decide?", recommendation: "Not provided", confidence: "medium" };
+    case "evidence_map":
+      return { evidenceItems: [{ label: "Evidence", value: "Not provided", confidence: "not_provided" }], missingData: [] };
+    case "scenario_set":
+      return { scenarios: [{ name: "Scenario A", outcome: "Not provided" }, { name: "Scenario B", outcome: "Not provided" }] };
+    case "recommendation_panel":
+      return { recommendation: "Not provided", nextSteps: [], risks: [] };
     default:
       return {};
   }
@@ -670,4 +777,9 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   section_divider: "Divider",
   icon_text_block: "Icon Text",
   framed_insight: "Insight",
+  // Decision blocks
+  decision_summary: "Decision Summary",
+  evidence_map: "Evidence Map",
+  scenario_set: "Scenario Set",
+  recommendation_panel: "Recommendation",
 };

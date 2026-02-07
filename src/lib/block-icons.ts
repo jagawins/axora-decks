@@ -22,6 +22,10 @@ import {
   icons,
   Lightbulb,
   LucideIcon,
+  HelpCircle,
+  MapPin,
+  Layers,
+  CheckSquare,
 } from "lucide-react";
 import { BlockType } from "./blocks";
 
@@ -49,6 +53,11 @@ export const BLOCK_ICONS: Record<BlockType, LucideIcon> = {
   section_divider: Minus,
   icon_text_block: icons.Star as LucideIcon,
   framed_insight: Lightbulb,
+  // Decision blocks
+  decision_summary: HelpCircle,
+  evidence_map: MapPin,
+  scenario_set: Layers,
+  recommendation_panel: CheckSquare,
 };
 
 /**
