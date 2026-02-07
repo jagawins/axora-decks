@@ -154,14 +154,15 @@ export function CreateDeckModal({
         const blocksToInsert = orderedBlocks.map((block, index) => {
           const isVisual = VISUAL_BLOCK_TYPES.includes(block.type as any);
           const isDecision = DECISION_BLOCK_TYPES.includes(block.type as any);
+          const payload = block.block_payload ?? block.content;
           return {
             project_id: newProject.id,
             type: block.type,
-            content: block.content as Record<string, unknown>,
+            content: payload as Record<string, unknown>,
             order_index: index,
             ...((isVisual || isDecision) && {
-              block_payload: block.content,
-              block_meta: { schema_version: 1 },
+              block_payload: payload,
+              block_meta: block.block_meta ?? { schema_version: 1 },
             }),
           };
         });
