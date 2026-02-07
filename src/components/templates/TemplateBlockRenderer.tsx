@@ -6,6 +6,8 @@
 
 import { type TemplateBlock, type BlockPayload } from '@/lib/templates';
 import { Image as ImageIcon } from 'lucide-react';
+import { VisualBlockRenderer } from '@/components/blocks/VisualBlockRenderer';
+import { DECISION_BLOCK_TYPES, VISUAL_BLOCK_TYPES } from '@/lib/blocks';
 
 interface TemplateBlockRendererProps {
   block: TemplateBlock;
@@ -20,12 +22,34 @@ function getPayload(block: TemplateBlock): BlockPayload {
   return block.block_payload || (block.content as BlockPayload) || {};
 }
 
+/**
+ * Check if block is a visual or decision block type
+ */
+function isVisualOrDecisionBlock(type: string): boolean {
+  return VISUAL_BLOCK_TYPES.includes(type as any) || DECISION_BLOCK_TYPES.includes(type as any);
+}
+
 export function TemplateBlockRenderer({ 
   block, 
   readOnly = true,
   className = '' 
 }: TemplateBlockRendererProps) {
   const payload = getPayload(block);
+
+  // Route visual and decision blocks to VisualBlockRenderer
+  if (isVisualOrDecisionBlock(block.type)) {
+    return (
+      <VisualBlockRenderer
+        block={{
+          type: block.type as any,
+          content: payload as any,
+          block_payload: block.block_payload,
+        } as any}
+        readOnly={readOnly}
+        className={className}
+      />
+    );
+  }
 
   switch (block.type) {
     case 'heading':

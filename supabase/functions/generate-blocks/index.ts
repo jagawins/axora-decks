@@ -92,18 +92,21 @@ function sanitizeContent(content: BlockContent): BlockContent {
   return out;
 }
 
-function validateRequest(body: unknown): ValidationResult & { preserveWording?: boolean; decisionMode?: boolean } {
+function validateRequest(body: unknown): ValidationResult & { preserveWording?: boolean } {
   if (!body || typeof body !== "object") {
     return { valid: false, error: "Request body must be a JSON object" };
   }
 
-  const { outline, density, enableVisualBlocks, preserveWording, decisionMode } = body as { 
+  const { outline, density, enableVisualBlocks, preserveWording, decision_mode } = body as { 
     outline?: unknown; 
     density?: string;
     enableVisualBlocks?: boolean;
     preserveWording?: boolean;
-    decisionMode?: boolean;
+    decision_mode?: boolean;
   };
+
+  // Log decision_mode flag
+  console.log(`[validateRequest] decision_mode: ${decision_mode === true}`);
 
   if (!outline || typeof outline !== "object") {
     return { valid: false, error: "outline is required and must be an object" };
@@ -143,7 +146,7 @@ function validateRequest(body: unknown): ValidationResult & { preserveWording?: 
     density: sanitizedDensity,
     enableVisualBlocks: enableVisualBlocks !== false, // Default to true
     preserveWording: preserveWording !== false, // Default to true
-    decisionMode: decisionMode === true, // Default to false
+    decisionMode: decision_mode === true, // Default to false - read from decision_mode
   };
 }
 

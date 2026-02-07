@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
-import type { BlockType } from "@/lib/blocks";
+import type { BlockType, DECISION_BLOCK_TYPES } from "@/lib/blocks";
 import { VisualBlockRenderer } from "@/components/blocks/VisualBlockRenderer";
 
 interface Block {
@@ -18,7 +18,43 @@ interface PreviewDeckProps {
   theme?: ThemeId;
 }
 
-const PreviewDeck = ({ blocks, title, theme = DEFAULT_THEME }: PreviewDeckProps) => {
+// Fixed decision block render order
+const DECISION_BLOCK_ORDER = ['decision_summary', 'evidence_map', 'scenario_set', 'recommendation_panel'];
+
+/**
+ * Sort blocks with decision blocks in fixed order
+ */
+function getOrderedBlocks(blocks: Block[]): Block[] {
+  const hasDecisionBlocks = blocks.some(b => DECISION_BLOCK_ORDER.includes(b.type));
+  
+  if (!hasDecisionBlocks) {
+    return blocks;
+  }
+  
+  const decisionBlocks: Block[] = [];
+  const otherBlocks: Block[] = [];
+  
+  for (const block of blocks) {
+    if (DECISION_BLOCK_ORDER.includes(block.type)) {
+      decisionBlocks.push(block);
+    } else {
+      otherBlocks.push(block);
+    }
+  }
+  
+  // Sort decision blocks by fixed order
+  decisionBlocks.sort((a, b) => {
+    const aIndex = DECISION_BLOCK_ORDER.indexOf(a.type);
+    const bIndex = DECISION_BLOCK_ORDER.indexOf(b.type);
+    return aIndex - bIndex;
+  });
+  
+  return [...decisionBlocks, ...otherBlocks];
+}
+
+const PreviewDeck = ({ blocks: rawBlocks, title, theme = DEFAULT_THEME }: PreviewDeckProps) => {
+  // Apply fixed order for decision blocks
+  const blocks = useMemo(() => getOrderedBlocks(rawBlocks), [rawBlocks]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
