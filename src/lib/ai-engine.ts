@@ -130,7 +130,7 @@ export const aiEngine = {
 
     const response = await invokeFunction<{ blocks: Block[]; requestId?: string }>(
       "generate-blocks",
-      { outline, enableVisualBlocks, preserveWording, decisionMode }
+      { outline, enableVisualBlocks, preserveWording, decision_mode: decisionMode }
     );
 
     if (response.error || !response.data?.blocks) {
