@@ -19,12 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Loader2, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { aiEngine, BlockType } from "@/lib/ai-engine";
-import { sanitizeContent, sanitizeListItems } from "@/lib/sanitize";
+import { aiEngine, BlockType, Block } from "@/lib/ai-engine";
 
 interface CreateDeckModalProps {
   open: boolean;
@@ -50,6 +50,11 @@ const TONE_OPTIONS = [
 
 const SLIDE_COUNT_OPTIONS = [5, 8, 10, 12, 15];
 
+// Decision block types and ordering
+const DECISION_BLOCK_TYPES = ['decision_summary', 'evidence_map', 'scenario_set', 'recommendation_panel'] as const;
+const DECISION_BLOCK_ORDER = ['decision_summary', 'evidence_map', 'scenario_set', 'recommendation_panel'];
+const VISUAL_BLOCK_TYPES = ['stat_block', 'quote_block', 'timeline_block', 'comparison_table', 'card_grid', 'hero_header', 'exec_summary', 'cta_section', 'section_divider', 'icon_text_block', 'framed_insight'] as const;
+
 export function CreateDeckModal({
   open,
   onOpenChange,
@@ -64,7 +69,33 @@ export function CreateDeckModal({
   const [goal, setGoal] = useState("");
   const [tone, setTone] = useState<"professional" | "crisp" | "analytical" | "persuasive" | "executive" | "casual">("professional");
   const [slideCount, setSlideCount] = useState(8);
+  const [decisionMode, setDecisionMode] = useState(false);
   const [generating, setGenerating] = useState(false);
+
+  // Sort decision blocks to fixed order
+  const sortDecisionBlocks = (blocks: Block[]): Block[] => {
+    const hasDecisionBlocks = blocks.some(b => DECISION_BLOCK_TYPES.includes(b.type as any));
+    if (!hasDecisionBlocks) return blocks;
+
+    const decisionBlocks: Block[] = [];
+    const otherBlocks: Block[] = [];
+
+    for (const block of blocks) {
+      if (DECISION_BLOCK_TYPES.includes(block.type as any)) {
+        decisionBlocks.push(block);
+      } else {
+        otherBlocks.push(block);
+      }
+    }
+
+    decisionBlocks.sort((a, b) => {
+      const aIndex = DECISION_BLOCK_ORDER.indexOf(a.type);
+      const bIndex = DECISION_BLOCK_ORDER.indexOf(b.type);
+      return aIndex - bIndex;
+    });
+
+    return [...decisionBlocks, ...otherBlocks];
+  };
 
   const handleSubmit = async () => {
     if (!topic.trim()) return;
@@ -114,15 +145,26 @@ export function CreateDeckModal({
       const result = await aiEngine.generateFromPrompt({
         topic: prompt,
         tone,
+        decisionMode,
       });
 
       if (result.blocks.length > 0) {
-        const blocksToInsert = result.blocks.map((block, index) => ({
-          project_id: newProject.id,
-          type: block.type,
-          content: block.content as Record<string, unknown>,
-          order_index: index,
-        }));
+        // Apply decision ordering before saving
+        const orderedBlocks = sortDecisionBlocks(result.blocks);
+        const blocksToInsert = orderedBlocks.map((block, index) => {
+          const isVisual = VISUAL_BLOCK_TYPES.includes(block.type as any);
+          const isDecision = DECISION_BLOCK_TYPES.includes(block.type as any);
+          return {
+            project_id: newProject.id,
+            type: block.type,
+            content: block.content as Record<string, unknown>,
+            order_index: index,
+            ...((isVisual || isDecision) && {
+              block_payload: block.content,
+              block_meta: { schema_version: 1 },
+            }),
+          };
+        });
 
         await supabase.from('blocks').insert(blocksToInsert as any);
       }
@@ -145,6 +187,7 @@ export function CreateDeckModal({
     setGoal("");
     setTone("professional");
     setSlideCount(8);
+    setDecisionMode(false);
   };
 
   return (
@@ -221,9 +264,9 @@ export function CreateDeckModal({
               <Select 
                 value={String(slideCount)} 
                 onValueChange={(v) => setSlideCount(Number(v))}
-                disabled={generating}
+                disabled={generating || decisionMode}
               >
-                <SelectTrigger id="slideCount" className="bg-muted/50">
+                <SelectTrigger id="slideCount" className={`bg-muted/50 ${decisionMode ? 'opacity-50' : ''}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -235,6 +278,24 @@ export function CreateDeckModal({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Decision Mode Toggle */}
+          <div className="flex items-center justify-between rounded-lg border border-border/50 p-4 bg-muted/30">
+            <div className="space-y-0.5">
+              <Label htmlFor="decisionMode" className="text-sm font-medium cursor-pointer">
+                Decision Mode
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Generates an executive brief with evidence and recommendations
+              </p>
+            </div>
+            <Switch
+              id="decisionMode"
+              checked={decisionMode}
+              onCheckedChange={setDecisionMode}
+              disabled={generating}
+            />
           </div>
         </div>
 

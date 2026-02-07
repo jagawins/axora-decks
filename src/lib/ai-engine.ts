@@ -48,6 +48,7 @@ export interface GenerateOutlineParams {
   topic: string;
   tone?: "professional" | "crisp" | "analytical" | "persuasive" | "executive" | "casual";
   enableVisualBlocks?: boolean;
+  decisionMode?: boolean;
 }
 
 export interface RefineBlockParams {
@@ -89,10 +90,10 @@ export const aiEngine = {
   /**
    * Generate blocks from an outline
    */
-  async generateBlocks(outline: Outline, enableVisualBlocks = true): Promise<Block[]> {
+  async generateBlocks(outline: Outline, enableVisualBlocks = true, decisionMode = false): Promise<Block[]> {
     const response = await invokeFunction<{ blocks: Block[]; requestId?: string }>(
       "generate-blocks",
-      { outline, enableVisualBlocks }
+      { outline, enableVisualBlocks, decision_mode: decisionMode }
     );
 
     if (response.error || !response.data?.blocks) {
@@ -191,7 +192,7 @@ export const aiEngine = {
 
     // Step 2: Generate blocks from outline with visual blocks enabled
     const enableVisual = params.enableVisualBlocks !== false;
-    const blocks = await this.generateBlocks(outline, enableVisual);
+    const blocks = await this.generateBlocks(outline, enableVisual, params.decisionMode ?? false);
 
     return { outline, blocks };
   },
