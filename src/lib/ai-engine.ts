@@ -31,6 +31,8 @@ export interface Block {
   type: BlockType;
   content: Record<string, unknown>;
   order_index: number;
+  block_payload?: Record<string, unknown>;
+  block_meta?: { schema_version: number };
 }
 
 export interface Outline {
