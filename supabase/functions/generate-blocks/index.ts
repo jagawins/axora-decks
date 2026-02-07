@@ -33,6 +33,8 @@ interface Block {
   type: BlockType;
   content: BlockContent;
   order_index: number;
+  block_payload?: BlockContent;
+  block_meta?: { schema_version: number };
 }
 
 interface ValidationResult {
@@ -580,11 +582,16 @@ function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }
       continue;
     }
 
-    // Block is valid
+    // Block is valid - for visual/decision blocks, also set block_payload
+    const isVisualOrDecision = VISUAL_BLOCK_TYPES.includes(block.type) || DECISION_BLOCK_TYPES.includes(block.type);
     validBlocks.push({
       type: block.type as BlockType,
       content: sanitizedContent,
       order_index: i,
+      ...(isVisualOrDecision && { 
+        block_payload: sanitizedContent,
+        block_meta: { schema_version: 1 }
+      }),
     });
   }
 
