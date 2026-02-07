@@ -1,15 +1,15 @@
 /**
  * Scenario Set Block
- * Displays multiple scenarios with outcomes and risk levels
+ * Displays multiple scenarios with assumptions, outcomes, and risks
  */
 
 import type { ScenarioSetPayload, VisualBlockProps } from './types';
-import { Layers, TrendingUp, AlertTriangle, Shield } from 'lucide-react';
+import { Layers, TrendingUp, AlertTriangle, Lightbulb } from 'lucide-react';
 
-const riskConfig = {
-  low: { color: 'text-success', bg: 'bg-success/10', border: 'border-success/30', label: 'Low Risk' },
-  medium: { color: 'text-warning', bg: 'bg-warning/10', border: 'border-warning/30', label: 'Medium Risk' },
-  high: { color: 'text-destructive', bg: 'bg-destructive/10', border: 'border-destructive/30', label: 'High Risk' },
+const scenarioColors: Record<string, { bg: string; border: string; accent: string }> = {
+  best_case: { bg: 'bg-success/10', border: 'border-success/30', accent: 'text-success' },
+  base_case: { bg: 'bg-primary/10', border: 'border-primary/30', accent: 'text-primary' },
+  worst_case: { bg: 'bg-destructive/10', border: 'border-destructive/30', accent: 'text-destructive' },
 };
 
 export function ScenarioSet({ 
@@ -17,7 +17,7 @@ export function ScenarioSet({
   readOnly = true, 
   className = '' 
 }: VisualBlockProps<ScenarioSetPayload>) {
-  const { scenarios = [], baselineScenario, title } = payload;
+  const { title, scenarios = [] } = payload;
 
   return (
     <div className={`rounded-radius-xl border border-border bg-card p-space-6 ${className}`}>
@@ -28,49 +28,74 @@ export function ScenarioSet({
         </h3>
       </div>
 
-      {baselineScenario && (
-        <p className="text-fluid-sm text-muted-foreground mb-space-4">
-          Baseline: {baselineScenario}
-        </p>
-      )}
-
       {/* Scenarios Grid */}
-      <div className="grid gap-space-3 md:grid-cols-2">
+      <div className="grid gap-space-4">
         {scenarios.map((scenario, index) => {
-          const risk = scenario.risk || 'medium';
-          const config = riskConfig[risk] || riskConfig.medium;
+          const colors = scenarioColors[scenario.name] || { bg: 'bg-muted/20', border: 'border-border', accent: 'text-foreground' };
+          const displayName = scenario.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
           return (
             <div 
               key={index} 
-              className={`rounded-radius-lg border ${config.border} ${config.bg} p-space-4`}
+              className={`rounded-radius-lg border ${colors.border} ${colors.bg} p-space-4`}
             >
-              <div className="flex items-center justify-between mb-space-2">
-                <h4 className="text-fluid-base font-semibold text-foreground">{scenario.name}</h4>
-                <span className={`text-fluid-xs font-medium ${config.color}`}>
-                  {config.label}
-                </span>
-              </div>
-              
-              {scenario.description && (
-                <p className="text-fluid-sm text-muted-foreground mb-space-2">
-                  {scenario.description}
-                </p>
-              )}
-              
-              {scenario.outcome && (
-                <div className="flex items-start gap-space-2 mt-space-2">
-                  <TrendingUp className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                  <p className="text-fluid-sm text-foreground">
-                    {scenario.outcome}
-                  </p>
+              {/* Scenario Name */}
+              <h4 className={`text-fluid-base font-semibold ${colors.accent} mb-space-3`}>
+                {displayName}
+              </h4>
+
+              {/* Assumptions */}
+              {scenario.assumptions && scenario.assumptions.length > 0 && (
+                <div className="mb-space-3">
+                  <h5 className="text-fluid-xs font-medium text-muted-foreground mb-space-1 flex items-center gap-space-1">
+                    <Lightbulb className="h-3 w-3" />
+                    Assumptions
+                  </h5>
+                  <ul className="space-y-space-1">
+                    {scenario.assumptions.map((assumption, i) => (
+                      <li key={i} className="text-fluid-sm text-foreground flex items-start gap-space-2">
+                        <span className="text-muted-foreground flex-shrink-0">•</span>
+                        {assumption}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
 
-              {scenario.probability && (
-                <p className="text-fluid-xs text-muted-foreground mt-space-2">
-                  Probability: {scenario.probability}
-                </p>
+              {/* Outcomes */}
+              {scenario.outcomes && scenario.outcomes.length > 0 && (
+                <div className="mb-space-3">
+                  <h5 className="text-fluid-xs font-medium text-muted-foreground mb-space-1 flex items-center gap-space-1">
+                    <TrendingUp className="h-3 w-3" />
+                    Outcomes
+                  </h5>
+                  <ul className="space-y-space-1">
+                    {scenario.outcomes.map((outcome, i) => (
+                      <li key={i} className="text-fluid-sm text-foreground flex items-start gap-space-2">
+                        <span className={`${colors.accent} flex-shrink-0`}>→</span>
+                        {outcome}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Risks */}
+              {scenario.risks && scenario.risks.length > 0 && (
+                <div>
+                  <h5 className="text-fluid-xs font-medium text-muted-foreground mb-space-1 flex items-center gap-space-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    Risks
+                  </h5>
+                  <ul className="space-y-space-1">
+                    {scenario.risks.map((risk, i) => (
+                      <li key={i} className="text-fluid-sm text-foreground flex items-start gap-space-2">
+                        <span className="text-warning flex-shrink-0">!</span>
+                        {risk}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
           );

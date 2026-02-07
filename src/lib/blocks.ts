@@ -415,58 +415,87 @@ function validateVisualBlock(type: VisualBlockType, content: Record<string, unkn
 }
 
 /**
- * Validate decision block content with strict schema enforcement
+ * Validate decision block content with strict schema enforcement (Contract v2)
  */
 function validateDecisionBlock(type: DecisionBlockType, content: Record<string, unknown>): ValidationResult {
   const errors: string[] = [];
 
   switch (type) {
     case "decision_summary": {
-      const question = content.question;
-      const recommendation = content.recommendation;
-      if (typeof question !== "string" || question.trim().length < 5) {
-        errors.push("question must be at least 5 characters");
+      // Required: summary (string), key_points (string[])
+      const summary = content.summary;
+      const key_points = content.key_points;
+      if (typeof summary !== "string" || summary.trim().length < 5) {
+        errors.push("summary must be at least 5 characters");
       }
-      if (typeof recommendation !== "string" || recommendation.trim().length < 5) {
-        errors.push("recommendation must be at least 5 characters");
+      if (!Array.isArray(key_points) || key_points.length < 1) {
+        errors.push("key_points must have at least 1 item");
       }
+      // risks is optional
       break;
     }
     case "evidence_map": {
-      const evidenceItems = content.evidenceItems;
-      if (!Array.isArray(evidenceItems) || evidenceItems.length < 1) {
-        errors.push("evidenceItems must have at least 1 item");
+      // Required: claims[{claim, evidence[], confidence}]
+      const claims = content.claims;
+      if (!Array.isArray(claims) || claims.length < 1) {
+        errors.push("claims must have at least 1 item");
       } else {
-        for (let i = 0; i < evidenceItems.length; i++) {
-          const item = evidenceItems[i] as { label?: unknown; value?: unknown };
-          if (typeof item?.label !== "string" || item.label.trim().length < 1) {
-            errors.push(`evidenceItems[${i}].label required`);
+        for (let i = 0; i < claims.length; i++) {
+          const item = claims[i] as { claim?: unknown; evidence?: unknown; confidence?: unknown };
+          if (typeof item?.claim !== "string" || item.claim.trim().length < 1) {
+            errors.push(`claims[${i}].claim required`);
           }
-          if (typeof item?.value !== "string") {
-            errors.push(`evidenceItems[${i}].value required`);
+          if (!Array.isArray(item?.evidence)) {
+            errors.push(`claims[${i}].evidence must be array`);
+          }
+          if (!["high", "medium", "low"].includes(String(item?.confidence))) {
+            errors.push(`claims[${i}].confidence must be high|medium|low`);
           }
         }
       }
       break;
     }
     case "scenario_set": {
+      // Required: scenarios[{name, assumptions[], outcomes[], risks[]}]
       const scenarios = content.scenarios;
-      if (!Array.isArray(scenarios) || scenarios.length < 2) {
-        errors.push("scenarios must have at least 2 items");
+      if (!Array.isArray(scenarios) || scenarios.length < 1) {
+        errors.push("scenarios must have at least 1 item");
       } else {
         for (let i = 0; i < scenarios.length; i++) {
-          const scenario = scenarios[i] as { name?: unknown };
+          const scenario = scenarios[i] as { name?: unknown; assumptions?: unknown; outcomes?: unknown; risks?: unknown };
           if (typeof scenario?.name !== "string" || scenario.name.trim().length < 2) {
             errors.push(`scenarios[${i}].name required`);
+          }
+          if (!Array.isArray(scenario?.assumptions)) {
+            errors.push(`scenarios[${i}].assumptions must be array`);
+          }
+          if (!Array.isArray(scenario?.outcomes)) {
+            errors.push(`scenarios[${i}].outcomes must be array`);
+          }
+          if (!Array.isArray(scenario?.risks)) {
+            errors.push(`scenarios[${i}].risks must be array`);
           }
         }
       }
       break;
     }
     case "recommendation_panel": {
+      // Required: recommendation (string), rationale[], alternatives[], next_steps[]
       const recommendation = content.recommendation;
+      const rationale = content.rationale;
+      const alternatives = content.alternatives;
+      const next_steps = content.next_steps;
       if (typeof recommendation !== "string" || recommendation.trim().length < 5) {
         errors.push("recommendation must be at least 5 characters");
+      }
+      if (!Array.isArray(rationale)) {
+        errors.push("rationale must be array");
+      }
+      if (!Array.isArray(alternatives)) {
+        errors.push("alternatives must be array");
+      }
+      if (!Array.isArray(next_steps)) {
+        errors.push("next_steps must be array");
       }
       break;
     }

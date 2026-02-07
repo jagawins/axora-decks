@@ -144,49 +144,41 @@ export interface TwoColumnPayload extends BaseBlockPayload {
 }
 
 // =============================================================================
-// Decision Layer Block Payloads
+// Decision Layer Block Payloads (Contract v2)
 // =============================================================================
 
 // Decision Summary Block
 export interface DecisionSummaryPayload extends BaseBlockPayload {
-  question: string;
-  context?: string;
-  recommendation: string;
-  confidence?: 'high' | 'medium' | 'low';
-  decisionDate?: string;
+  summary: string;
+  key_points: string[];
+  risks?: string[];
 }
 
 // Evidence Map Block
 export interface EvidenceMapPayload extends BaseBlockPayload {
-  evidenceItems: Array<{
-    label: string;
-    value: string;
-    source?: string;
-    confidence?: 'verified' | 'estimated' | 'not_provided';
+  claims: Array<{
+    claim: string;
+    evidence: string[];
+    confidence: 'high' | 'medium' | 'low';
   }>;
-  missingData?: string[];
 }
 
-// Scenario Set Block
+// Scenario Set Block (OPTIONAL in decision mode)
 export interface ScenarioSetPayload extends BaseBlockPayload {
   scenarios: Array<{
-    name: string;
-    description?: string;
-    outcome?: string;
-    probability?: string;
-    risk?: 'low' | 'medium' | 'high';
+    name: 'best_case' | 'base_case' | 'worst_case' | string;
+    assumptions: string[];
+    outcomes: string[];
+    risks: string[];
   }>;
-  baselineScenario?: string;
 }
 
 // Recommendation Panel Block
 export interface RecommendationPanelPayload extends BaseBlockPayload {
   recommendation: string;
-  rationale?: string;
-  nextSteps?: string[];
-  risks?: string[];
-  owner?: string;
-  deadline?: string;
+  rationale: string[];
+  alternatives: string[];
+  next_steps: string[];
 }
 
 // Union type for all visual block payloads
