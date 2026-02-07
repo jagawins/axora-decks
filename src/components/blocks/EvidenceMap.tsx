@@ -1,15 +1,15 @@
 /**
  * Evidence Map Block
- * Displays evidence items with source attribution and confidence indicators
+ * Displays claims with supporting evidence and confidence levels
  */
 
 import type { EvidenceMapPayload, VisualBlockProps } from './types';
-import { CheckCircle, AlertTriangle, HelpCircle } from 'lucide-react';
+import { CheckCircle, AlertCircle, MinusCircle, FileSearch } from 'lucide-react';
 
 const confidenceConfig = {
-  verified: { icon: CheckCircle, color: 'text-success', label: 'Verified' },
-  estimated: { icon: AlertTriangle, color: 'text-warning', label: 'Estimated' },
-  not_provided: { icon: HelpCircle, color: 'text-muted-foreground', label: 'Not Provided' },
+  high: { icon: CheckCircle, color: 'text-success', bg: 'bg-success/10', label: 'High' },
+  medium: { icon: AlertCircle, color: 'text-warning', bg: 'bg-warning/10', label: 'Medium' },
+  low: { icon: MinusCircle, color: 'text-muted-foreground', bg: 'bg-muted/20', label: 'Low' },
 };
 
 export function EvidenceMap({ 
@@ -17,57 +17,60 @@ export function EvidenceMap({
   readOnly = true, 
   className = '' 
 }: VisualBlockProps<EvidenceMapPayload>) {
-  const { evidenceItems = [], missingData = [], title } = payload;
+  const { title, claims = [] } = payload;
 
   return (
     <div className={`rounded-radius-xl border border-border bg-card p-space-6 ${className}`}>
-      {title && (
-        <h3 className="text-fluid-lg font-semibold text-foreground mb-space-4">{title}</h3>
-      )}
+      <div className="flex items-center gap-space-2 mb-space-4">
+        <FileSearch className="h-5 w-5 text-primary" />
+        <h3 className="text-fluid-lg font-semibold text-foreground">
+          {title || 'Evidence Map'}
+        </h3>
+      </div>
 
-      {/* Evidence Items */}
-      <div className="space-y-space-3">
-        {evidenceItems.map((item, index) => {
-          const conf = item.confidence || 'not_provided';
-          const config = confidenceConfig[conf] || confidenceConfig.not_provided;
+      {/* Claims */}
+      <div className="space-y-space-4">
+        {claims.map((item, index) => {
+          const conf = item.confidence || 'medium';
+          const config = confidenceConfig[conf] || confidenceConfig.medium;
           const Icon = config.icon;
 
           return (
             <div 
               key={index} 
-              className="flex items-start gap-space-3 p-space-3 rounded-radius-lg bg-muted/30"
+              className={`rounded-radius-lg border ${config.bg} p-space-4`}
             >
-              <Icon className={`h-5 w-5 ${config.color} flex-shrink-0 mt-0.5`} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline justify-between gap-space-2">
-                  <span className="text-fluid-sm font-medium text-foreground">{item.label}</span>
-                  <span className={`text-fluid-xs ${config.color}`}>{config.label}</span>
-                </div>
-                <p className="text-fluid-base text-foreground mt-1">
-                  {item.value || 'Not provided'}
+              {/* Claim Header */}
+              <div className="flex items-start justify-between gap-space-2 mb-space-2">
+                <p className="text-fluid-base font-medium text-foreground flex-1">
+                  {item.claim}
                 </p>
-                {item.source && (
-                  <p className="text-fluid-xs text-muted-foreground mt-1">
-                    Source: {item.source}
-                  </p>
-                )}
+                <div className="flex items-center gap-space-1 flex-shrink-0">
+                  <Icon className={`h-4 w-4 ${config.color}`} />
+                  <span className={`text-fluid-xs font-medium ${config.color}`}>
+                    {config.label}
+                  </span>
+                </div>
               </div>
+
+              {/* Evidence List */}
+              {item.evidence && item.evidence.length > 0 && (
+                <ul className="space-y-space-1 mt-space-2">
+                  {item.evidence.map((ev, evIndex) => (
+                    <li 
+                      key={evIndex} 
+                      className="text-fluid-sm text-muted-foreground flex items-start gap-space-2"
+                    >
+                      <span className="text-primary flex-shrink-0">→</span>
+                      {ev}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           );
         })}
       </div>
-
-      {/* Missing Data */}
-      {missingData.length > 0 && (
-        <div className="mt-space-4 p-space-3 rounded-radius-lg bg-destructive/10 border border-destructive/20">
-          <p className="text-fluid-sm font-medium text-destructive mb-space-2">Missing Data:</p>
-          <ul className="list-disc list-inside text-fluid-sm text-destructive/80">
-            {missingData.map((item, index) => (
-              <li key={index}>{item}</li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }

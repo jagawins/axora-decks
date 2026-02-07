@@ -487,37 +487,48 @@ function validateBlockContent(type: string, sanitizedContent: BlockContent): { v
       }
       break;
     }
-    // Decision block validations
+    // Decision block validations (Contract v2)
     case "decision_summary": {
-      const question = sanitizedContent.question;
-      const recommendation = sanitizedContent.recommendation;
-      if (typeof question !== "string" || question.trim().length < 5) {
-        missingKeys.push("question (minLength: 5)");
+      const summary = sanitizedContent.summary;
+      const key_points = sanitizedContent.key_points;
+      if (typeof summary !== "string" || summary.trim().length < 5) {
+        missingKeys.push("summary (minLength: 5)");
       }
-      if (typeof recommendation !== "string" || recommendation.trim().length < 5) {
-        missingKeys.push("recommendation (minLength: 5)");
+      if (!Array.isArray(key_points) || key_points.length < 1) {
+        missingKeys.push("key_points (minItems: 1)");
       }
       break;
     }
     case "evidence_map": {
-      const evidenceItems = sanitizedContent.evidenceItems;
-      if (!Array.isArray(evidenceItems) || evidenceItems.length < 1) {
-        missingKeys.push("evidenceItems (minItems: 1)");
+      const claims = sanitizedContent.claims;
+      if (!Array.isArray(claims) || claims.length < 1) {
+        missingKeys.push("claims (minItems: 1)");
+      } else {
+        for (let i = 0; i < claims.length; i++) {
+          const item = claims[i] as { claim?: unknown; evidence?: unknown; confidence?: unknown };
+          if (typeof item?.claim !== "string") missingKeys.push(`claims[${i}].claim required`);
+          if (!Array.isArray(item?.evidence)) missingKeys.push(`claims[${i}].evidence must be array`);
+          if (!["high", "medium", "low"].includes(String(item?.confidence))) missingKeys.push(`claims[${i}].confidence required`);
+        }
       }
       break;
     }
     case "scenario_set": {
       const scenarios = sanitizedContent.scenarios;
-      if (!Array.isArray(scenarios) || scenarios.length < 2) {
-        missingKeys.push("scenarios (minItems: 2)");
+      if (!Array.isArray(scenarios) || scenarios.length < 1) {
+        missingKeys.push("scenarios (minItems: 1)");
       }
       break;
     }
     case "recommendation_panel": {
       const recommendation = sanitizedContent.recommendation;
+      const rationale = sanitizedContent.rationale;
+      const next_steps = sanitizedContent.next_steps;
       if (typeof recommendation !== "string" || recommendation.trim().length < 5) {
         missingKeys.push("recommendation (minLength: 5)");
       }
+      if (!Array.isArray(rationale)) missingKeys.push("rationale must be array");
+      if (!Array.isArray(next_steps)) missingKeys.push("next_steps must be array");
       break;
     }
     default:
@@ -678,33 +689,28 @@ PRESERVE ORIGINAL WORDING (CRITICAL):
   const decisionModePrompt = decisionMode ? `
 DECISION MODE (ACTIVE) - EXECUTIVE DECISION SUPPORT:
 
-You are generating a DECISION DECK. Use ONLY these 4 block types in this EXACT ORDER:
+Generate a DECISION DECK using these block types in this FIXED ORDER:
 
 1. decision_summary (REQUIRED FIRST)
-   - Frame the decision question clearly
-   - Provide a recommendation with confidence level
-   - Format: {"question": "What is the core decision?", "recommendation": "Clear recommendation", "confidence": "high|medium|low", "context": "Brief context"}
+   Format: {"summary": "Brief executive summary", "key_points": ["Point 1", "Point 2"], "risks": ["Risk 1"] (optional)}
 
 2. evidence_map (REQUIRED SECOND)
-   - List all available evidence with sources
-   - Mark confidence: "verified", "estimated", or "not_provided"
-   - NEVER invent numbers - use "Not provided" if data is missing
-   - Format: {"evidenceItems": [{"label": "Metric Name", "value": "Value or 'Not provided'", "source": "Source", "confidence": "verified|estimated|not_provided"}], "missingData": ["List of missing data points"]}
+   Format: {"claims": [{"claim": "Claim text", "evidence": ["Evidence 1", "Evidence 2"], "confidence": "high|medium|low"}]}
+   - NEVER invent numbers. Use "Not provided" if data is missing.
 
-3. scenario_set (REQUIRED THIRD)
-   - Present 2-4 scenarios with outcomes and risks
-   - Format: {"scenarios": [{"name": "Scenario Name", "description": "Brief description", "outcome": "Expected outcome", "probability": "Probability if known", "risk": "low|medium|high"}], "baselineScenario": "Current state"}
+3. scenario_set (OPTIONAL - only if meaningful scenarios exist)
+   Format: {"scenarios": [{"name": "best_case|base_case|worst_case", "assumptions": ["..."], "outcomes": ["..."], "risks": ["..."]}]}
+   - Only include if the content has distinct scenario variations
 
 4. recommendation_panel (REQUIRED LAST)
-   - Final recommendation with next steps and risks
-   - Format: {"recommendation": "Clear action", "rationale": "Why this recommendation", "nextSteps": ["Step 1", "Step 2"], "risks": ["Risk 1"], "owner": "Who is responsible", "deadline": "When"}
+   Format: {"recommendation": "Clear action", "rationale": ["Why 1", "Why 2"], "alternatives": ["Alt 1"], "next_steps": ["Step 1", "Step 2"]}
 
 CRITICAL DECISION MODE RULES:
-- Generate EXACTLY 4 blocks in the order above
+- Generate 3-4 blocks: decision_summary → evidence_map → scenario_set (if present) → recommendation_panel
 - NEVER invent numbers, percentages, or metrics not in the source content
 - If data is missing, explicitly state "Not provided" - do not guess
-- Focus on structuring the decision, not making assumptions
-- Use "confidence: not_provided" for any unverified claims
+- All arrays (key_points, evidence, rationale, etc.) must have at least 1 item
+- Do NOT output empty content {} - every block must have real content
 ` : '';
 
   const visualBlockRules = enableVisualBlocks && !decisionMode ? `
@@ -1193,7 +1199,7 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
     }
   };
 
-  // Decision block schemas
+  // Decision block schemas (Contract v2)
   const decisionSummarySchema = {
     type: "object",
     required: ["type", "content"],
@@ -1201,13 +1207,12 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
       type: { type: "string", const: "decision_summary" },
       content: {
         type: "object",
-        required: ["question", "recommendation"],
+        required: ["summary", "key_points"],
         properties: {
-          question: { type: "string", minLength: 5 },
-          context: { type: "string" },
-          recommendation: { type: "string", minLength: 5 },
-          confidence: { type: "string", enum: ["high", "medium", "low"] },
-          decisionDate: { type: "string" }
+          title: { type: "string" },
+          summary: { type: "string", minLength: 5 },
+          key_points: { type: "array", minItems: 1, items: { type: "string" } },
+          risks: { type: "array", items: { type: "string" } }
         }
       }
     }
@@ -1220,24 +1225,22 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
       type: { type: "string", const: "evidence_map" },
       content: {
         type: "object",
-        required: ["evidenceItems"],
+        required: ["claims"],
         properties: {
           title: { type: "string" },
-          evidenceItems: {
+          claims: {
             type: "array",
             minItems: 1,
             items: {
               type: "object",
-              required: ["label", "value"],
+              required: ["claim", "evidence", "confidence"],
               properties: {
-                label: { type: "string" },
-                value: { type: "string" },
-                source: { type: "string" },
-                confidence: { type: "string", enum: ["verified", "estimated", "not_provided"] }
+                claim: { type: "string" },
+                evidence: { type: "array", items: { type: "string" } },
+                confidence: { type: "string", enum: ["high", "medium", "low"] }
               }
             }
-          },
-          missingData: { type: "array", items: { type: "string" } }
+          }
         }
       }
     }
@@ -1255,20 +1258,18 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
           title: { type: "string" },
           scenarios: {
             type: "array",
-            minItems: 2,
+            minItems: 1,
             items: {
               type: "object",
-              required: ["name"],
+              required: ["name", "assumptions", "outcomes", "risks"],
               properties: {
-                name: { type: "string", minLength: 2 },
-                description: { type: "string" },
-                outcome: { type: "string" },
-                probability: { type: "string" },
-                risk: { type: "string", enum: ["low", "medium", "high"] }
+                name: { type: "string", enum: ["best_case", "base_case", "worst_case"] },
+                assumptions: { type: "array", items: { type: "string" } },
+                outcomes: { type: "array", items: { type: "string" } },
+                risks: { type: "array", items: { type: "string" } }
               }
             }
-          },
-          baselineScenario: { type: "string" }
+          }
         }
       }
     }
@@ -1281,15 +1282,13 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
       type: { type: "string", const: "recommendation_panel" },
       content: {
         type: "object",
-        required: ["recommendation"],
+        required: ["recommendation", "rationale", "alternatives", "next_steps"],
         properties: {
           title: { type: "string" },
           recommendation: { type: "string", minLength: 5 },
-          rationale: { type: "string" },
-          nextSteps: { type: "array", items: { type: "string" } },
-          risks: { type: "array", items: { type: "string" } },
-          owner: { type: "string" },
-          deadline: { type: "string" }
+          rationale: { type: "array", items: { type: "string" } },
+          alternatives: { type: "array", items: { type: "string" } },
+          next_steps: { type: "array", items: { type: "string" } }
         }
       }
     }
@@ -1306,20 +1305,20 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
     decisionSummarySchema, evidenceMapSchema, scenarioSetSchema, recommendationPanelSchema
   ];
 
-  // If decision mode is enabled, only use decision block schemas
+  // If decision mode is enabled, only use decision block schemas (3-4 blocks, scenario_set optional)
   if (decisionMode) {
     return {
       type: "function",
       function: {
         name: "create_blocks",
-        description: "Create a decision deck with exactly 4 blocks: decision_summary, evidence_map, scenario_set, recommendation_panel.",
+        description: "Create a decision deck with 3-4 blocks: decision_summary (required first), evidence_map (required second), scenario_set (optional, only if meaningful), recommendation_panel (required last).",
         parameters: {
           type: "object",
           required: ["blocks"],
           properties: {
             blocks: {
               type: "array",
-              minItems: 4,
+              minItems: 3,
               maxItems: 4,
               items: {
                 oneOf: decisionBlockSchemas
