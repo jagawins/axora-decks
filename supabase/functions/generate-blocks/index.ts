@@ -26,7 +26,8 @@ type BlockType =
   | "text" | "heading" | "list" | "callout" | "two_col" | "table" | "image"
   | "stat_block" | "quote_block" | "timeline_block" | "comparison_table"
   | "card_grid" | "hero_header" | "exec_summary" | "cta_section"
-  | "section_divider" | "icon_text_block" | "framed_insight";
+  | "section_divider" | "icon_text_block" | "framed_insight"
+  | "decision_summary" | "evidence_map" | "scenario_set" | "recommendation_panel";
 
 interface Block {
   type: BlockType;
@@ -40,6 +41,7 @@ interface ValidationResult {
   outline?: Outline;
   density?: string;
   enableVisualBlocks?: boolean;
+  decisionMode?: boolean;
 }
 
 interface BlockValidationResult {
@@ -55,7 +57,10 @@ const VISUAL_BLOCK_TYPES = [
   "card_grid", "hero_header", "exec_summary", "cta_section",
   "section_divider", "icon_text_block", "framed_insight"
 ];
-const ALL_BLOCK_TYPES = [...BASIC_BLOCK_TYPES, ...VISUAL_BLOCK_TYPES];
+const DECISION_BLOCK_TYPES = [
+  "decision_summary", "evidence_map", "scenario_set", "recommendation_panel"
+];
+const ALL_BLOCK_TYPES = [...BASIC_BLOCK_TYPES, ...VISUAL_BLOCK_TYPES, ...DECISION_BLOCK_TYPES];
 
 // Utility to strip any Markdown formatting
 function stripMarkdown(s: unknown): unknown {
@@ -87,16 +92,17 @@ function sanitizeContent(content: BlockContent): BlockContent {
   return out;
 }
 
-function validateRequest(body: unknown): ValidationResult & { preserveWording?: boolean } {
+function validateRequest(body: unknown): ValidationResult & { preserveWording?: boolean; decisionMode?: boolean } {
   if (!body || typeof body !== "object") {
     return { valid: false, error: "Request body must be a JSON object" };
   }
 
-  const { outline, density, enableVisualBlocks, preserveWording } = body as { 
+  const { outline, density, enableVisualBlocks, preserveWording, decisionMode } = body as { 
     outline?: unknown; 
     density?: string;
     enableVisualBlocks?: boolean;
     preserveWording?: boolean;
+    decisionMode?: boolean;
   };
 
   if (!outline || typeof outline !== "object") {
@@ -137,6 +143,7 @@ function validateRequest(body: unknown): ValidationResult & { preserveWording?: 
     density: sanitizedDensity,
     enableVisualBlocks: enableVisualBlocks !== false, // Default to true
     preserveWording: preserveWording !== false, // Default to true
+    decisionMode: decisionMode === true, // Default to false
   };
 }
 
@@ -480,6 +487,39 @@ function validateBlockContent(type: string, sanitizedContent: BlockContent): { v
       }
       break;
     }
+    // Decision block validations
+    case "decision_summary": {
+      const question = sanitizedContent.question;
+      const recommendation = sanitizedContent.recommendation;
+      if (typeof question !== "string" || question.trim().length < 5) {
+        missingKeys.push("question (minLength: 5)");
+      }
+      if (typeof recommendation !== "string" || recommendation.trim().length < 5) {
+        missingKeys.push("recommendation (minLength: 5)");
+      }
+      break;
+    }
+    case "evidence_map": {
+      const evidenceItems = sanitizedContent.evidenceItems;
+      if (!Array.isArray(evidenceItems) || evidenceItems.length < 1) {
+        missingKeys.push("evidenceItems (minItems: 1)");
+      }
+      break;
+    }
+    case "scenario_set": {
+      const scenarios = sanitizedContent.scenarios;
+      if (!Array.isArray(scenarios) || scenarios.length < 2) {
+        missingKeys.push("scenarios (minItems: 2)");
+      }
+      break;
+    }
+    case "recommendation_panel": {
+      const recommendation = sanitizedContent.recommendation;
+      if (typeof recommendation !== "string" || recommendation.trim().length < 5) {
+        missingKeys.push("recommendation (minLength: 5)");
+      }
+      break;
+    }
     default:
       missingKeys.push(`unknown type: ${type}`);
   }
@@ -623,7 +663,7 @@ DENSITY CONSTRAINTS (PLENTY OF TEXT):
 }
 
 // Build system prompt with visual block layout rules
-function buildSystemPrompt(isRetry: boolean, validationErrors?: string[], density?: string, enableVisualBlocks?: boolean, preserveWording?: boolean): string {
+function buildSystemPrompt(isRetry: boolean, validationErrors?: string[], density?: string, enableVisualBlocks?: boolean, preserveWording?: boolean, decisionMode?: boolean): string {
   const densityConstraints = getDensityBlockConstraints(density || "context");
   
   const preserveWordingRule = preserveWording ? `
@@ -634,7 +674,40 @@ PRESERVE ORIGINAL WORDING (CRITICAL):
 - Treat the user's content as sacred. Your job is to structure, not rewrite.
 ` : '';
 
-  const visualBlockRules = enableVisualBlocks ? `
+  // Decision Mode prompt segment - only appended when decisionMode is true
+  const decisionModePrompt = decisionMode ? `
+DECISION MODE (ACTIVE) - EXECUTIVE DECISION SUPPORT:
+
+You are generating a DECISION DECK. Use ONLY these 4 block types in this EXACT ORDER:
+
+1. decision_summary (REQUIRED FIRST)
+   - Frame the decision question clearly
+   - Provide a recommendation with confidence level
+   - Format: {"question": "What is the core decision?", "recommendation": "Clear recommendation", "confidence": "high|medium|low", "context": "Brief context"}
+
+2. evidence_map (REQUIRED SECOND)
+   - List all available evidence with sources
+   - Mark confidence: "verified", "estimated", or "not_provided"
+   - NEVER invent numbers - use "Not provided" if data is missing
+   - Format: {"evidenceItems": [{"label": "Metric Name", "value": "Value or 'Not provided'", "source": "Source", "confidence": "verified|estimated|not_provided"}], "missingData": ["List of missing data points"]}
+
+3. scenario_set (REQUIRED THIRD)
+   - Present 2-4 scenarios with outcomes and risks
+   - Format: {"scenarios": [{"name": "Scenario Name", "description": "Brief description", "outcome": "Expected outcome", "probability": "Probability if known", "risk": "low|medium|high"}], "baselineScenario": "Current state"}
+
+4. recommendation_panel (REQUIRED LAST)
+   - Final recommendation with next steps and risks
+   - Format: {"recommendation": "Clear action", "rationale": "Why this recommendation", "nextSteps": ["Step 1", "Step 2"], "risks": ["Risk 1"], "owner": "Who is responsible", "deadline": "When"}
+
+CRITICAL DECISION MODE RULES:
+- Generate EXACTLY 4 blocks in the order above
+- NEVER invent numbers, percentages, or metrics not in the source content
+- If data is missing, explicitly state "Not provided" - do not guess
+- Focus on structuring the decision, not making assumptions
+- Use "confidence: not_provided" for any unverified claims
+` : '';
+
+  const visualBlockRules = enableVisualBlocks && !decisionMode ? `
 VISUAL BLOCK SELECTION RULES (use these to choose the right block type):
 
 1. NUMBERS/METRICS → stat_block
@@ -690,7 +763,15 @@ VISUAL BLOCK FORMATS:
 - framed_insight: {"insight": "Key insight here", "type": "tip", "source": "Research"}
 ` : '';
 
-  let prompt = `You are an expert presentation designer. Convert outlines into visually rich presentation blocks.
+  let prompt = decisionMode 
+    ? `You are an expert executive decision support analyst. Generate a structured DECISION DECK.
+
+CRITICAL: You MUST populate the content object with actual data. Empty content {} will fail.
+${preserveWordingRule}
+${decisionModePrompt}
+
+NEVER return {"type": "decision_summary", "content": {}} - this will fail validation.`
+    : `You are an expert presentation designer. Convert outlines into visually rich presentation blocks.
 
 CRITICAL: You MUST populate the content object with actual data. Empty content {} will fail.
 ${preserveWordingRule}
@@ -728,7 +809,7 @@ You MUST fill in actual content for every block. Check the required fields for e
 }
 
 // Tool schema with per-type oneOf validated schemas
-function getToolSchema(enableVisualBlocks: boolean) {
+function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = false) {
   // Define strict content schemas per block type
   const headingSchema = { 
     type: "object", 
@@ -1112,13 +1193,143 @@ function getToolSchema(enableVisualBlocks: boolean) {
     }
   };
 
-  // Build oneOf array based on enableVisualBlocks flag
+  // Decision block schemas
+  const decisionSummarySchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "decision_summary" },
+      content: {
+        type: "object",
+        required: ["question", "recommendation"],
+        properties: {
+          question: { type: "string", minLength: 5 },
+          context: { type: "string" },
+          recommendation: { type: "string", minLength: 5 },
+          confidence: { type: "string", enum: ["high", "medium", "low"] },
+          decisionDate: { type: "string" }
+        }
+      }
+    }
+  };
+
+  const evidenceMapSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "evidence_map" },
+      content: {
+        type: "object",
+        required: ["evidenceItems"],
+        properties: {
+          title: { type: "string" },
+          evidenceItems: {
+            type: "array",
+            minItems: 1,
+            items: {
+              type: "object",
+              required: ["label", "value"],
+              properties: {
+                label: { type: "string" },
+                value: { type: "string" },
+                source: { type: "string" },
+                confidence: { type: "string", enum: ["verified", "estimated", "not_provided"] }
+              }
+            }
+          },
+          missingData: { type: "array", items: { type: "string" } }
+        }
+      }
+    }
+  };
+
+  const scenarioSetSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "scenario_set" },
+      content: {
+        type: "object",
+        required: ["scenarios"],
+        properties: {
+          title: { type: "string" },
+          scenarios: {
+            type: "array",
+            minItems: 2,
+            items: {
+              type: "object",
+              required: ["name"],
+              properties: {
+                name: { type: "string", minLength: 2 },
+                description: { type: "string" },
+                outcome: { type: "string" },
+                probability: { type: "string" },
+                risk: { type: "string", enum: ["low", "medium", "high"] }
+              }
+            }
+          },
+          baselineScenario: { type: "string" }
+        }
+      }
+    }
+  };
+
+  const recommendationPanelSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "recommendation_panel" },
+      content: {
+        type: "object",
+        required: ["recommendation"],
+        properties: {
+          title: { type: "string" },
+          recommendation: { type: "string", minLength: 5 },
+          rationale: { type: "string" },
+          nextSteps: { type: "array", items: { type: "string" } },
+          risks: { type: "array", items: { type: "string" } },
+          owner: { type: "string" },
+          deadline: { type: "string" }
+        }
+      }
+    }
+  };
+
+  // Build oneOf array based on enableVisualBlocks and decisionMode flags
   const basicBlockSchemas = [headingSchema, textSchema, listSchema, calloutSchema, twoColSchema, tableSchema, imageSchema];
   const visualBlockSchemas = [
     statBlockSchema, quoteBlockSchema, timelineBlockSchema, comparisonTableSchema, 
     cardGridSchema, heroHeaderSchema, execSummarySchema, ctaSectionSchema, 
     sectionDividerSchema, iconTextBlockSchema, framedInsightSchema
   ];
+  const decisionBlockSchemas = [
+    decisionSummarySchema, evidenceMapSchema, scenarioSetSchema, recommendationPanelSchema
+  ];
+
+  // If decision mode is enabled, only use decision block schemas
+  if (decisionMode) {
+    return {
+      type: "function",
+      function: {
+        name: "create_blocks",
+        description: "Create a decision deck with exactly 4 blocks: decision_summary, evidence_map, scenario_set, recommendation_panel.",
+        parameters: {
+          type: "object",
+          required: ["blocks"],
+          properties: {
+            blocks: {
+              type: "array",
+              minItems: 4,
+              maxItems: 4,
+              items: {
+                oneOf: decisionBlockSchemas
+              }
+            }
+          }
+        }
+      }
+    };
+  }
 
   const blockSchemas = enableVisualBlocks 
     ? [...basicBlockSchemas, ...visualBlockSchemas]
@@ -1151,7 +1362,8 @@ async function callAI(
   apiKey: string,
   systemPrompt: string,
   userPrompt: string,
-  enableVisualBlocks: boolean
+  enableVisualBlocks: boolean,
+  decisionMode: boolean = false
 ): Promise<{ response?: Response; error?: string }> {
   try {
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -1166,7 +1378,7 @@ async function callAI(
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        tools: [getToolSchema(enableVisualBlocks)],
+        tools: [getToolSchema(enableVisualBlocks, decisionMode)],
         tool_choice: { type: "function", function: { name: "create_blocks" } }
       }),
     });
@@ -1200,6 +1412,7 @@ serve(async (req) => {
     const density = validation.density;
     const enableVisualBlocks = validation.enableVisualBlocks ?? true;
     const preserveWording = validation.preserveWording ?? true;
+    const decisionMode = validation.decisionMode ?? false;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -1210,9 +1423,22 @@ serve(async (req) => {
       );
     }
 
-    console.log(`[${requestId}] Generating blocks for: "${outline.title}" with density: ${density || "default"}, visualBlocks: ${enableVisualBlocks}, preserveWording: ${preserveWording}`);
+    console.log(`[${requestId}] Generating blocks for: "${outline.title}" with density: ${density || "default"}, visualBlocks: ${enableVisualBlocks}, preserveWording: ${preserveWording}, decisionMode: ${decisionMode}`);
 
-    const userPrompt = `Convert this outline into presentation blocks. Use visual block types where content matches the rules.
+    const userPrompt = decisionMode 
+      ? `Analyze this content and create a DECISION DECK with exactly 4 blocks.
+
+Title: ${outline.title}
+Summary: ${outline.summary}
+
+Content:
+${outline.sections.map((s, i) => `${i + 1}. ${s.heading}\n${s.points.map(p => `   - ${p}`).join("\n")}`).join("\n\n")}
+
+Key Points:
+${outline.bullets.map(b => `- ${b}`).join("\n")}
+
+CRITICAL: Generate exactly 4 blocks in order: decision_summary, evidence_map, scenario_set, recommendation_panel. Never invent numbers - use "Not provided" if missing.`
+      : `Convert this outline into presentation blocks. Use visual block types where content matches the rules.
 
 Title: ${outline.title}
 Summary: ${outline.summary}
@@ -1226,8 +1452,8 @@ ${outline.bullets.map(b => `- ${b}`).join("\n")}
 IMPORTANT: Analyze each section and choose the most appropriate visual block type based on the content rules.`;
 
     // First attempt
-    const systemPrompt1 = buildSystemPrompt(false, undefined, density, enableVisualBlocks, preserveWording);
-    const result1 = await callAI(LOVABLE_API_KEY, systemPrompt1, userPrompt, enableVisualBlocks);
+    const systemPrompt1 = buildSystemPrompt(false, undefined, density, enableVisualBlocks, preserveWording, decisionMode);
+    const result1 = await callAI(LOVABLE_API_KEY, systemPrompt1, userPrompt, enableVisualBlocks, decisionMode);
 
     if (result1.error) {
       console.error(`[${requestId}] AI call failed:`, result1.error);
@@ -1279,8 +1505,8 @@ IMPORTANT: Analyze each section and choose the most appropriate visual block typ
       console.warn(`[${requestId}] Validation failed (attempt 1): invalidBlocksCount=${blockValidation1.invalidCount}, missingKeys=${blockValidation1.errors.slice(0, 3).join("; ")}`);
       console.log(`[${requestId}] Retrying with correction prompt...`);
 
-      const systemPrompt2 = buildSystemPrompt(true, blockValidation1.errors, density, enableVisualBlocks, preserveWording);
-      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks);
+      const systemPrompt2 = buildSystemPrompt(true, blockValidation1.errors, density, enableVisualBlocks, preserveWording, decisionMode);
+      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks, decisionMode);
 
       if (result2.error || !result2.response?.ok) {
         console.error(`[${requestId}] Retry failed: ${result2.error || result2.response?.status}`);
@@ -1331,8 +1557,8 @@ IMPORTANT: Analyze each section and choose the most appropriate visual block typ
       // Single retry for parse failures
       console.log(`[${requestId}] Retrying after parse failure...`);
 
-      const systemPrompt2 = buildSystemPrompt(true, ["Previous response was not valid JSON"], density, enableVisualBlocks, preserveWording);
-      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks);
+      const systemPrompt2 = buildSystemPrompt(true, ["Previous response was not valid JSON"], density, enableVisualBlocks, preserveWording, decisionMode);
+      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks, decisionMode);
 
       if (result2.response?.ok) {
         const data2 = await result2.response.json();

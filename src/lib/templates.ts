@@ -22,8 +22,15 @@ export type VisualBlockType =
   | 'icon_text_block' 
   | 'framed_insight';
 
+// Decision block types (Decision Layer)
+export type DecisionBlockType =
+  | 'decision_summary'
+  | 'evidence_map'
+  | 'scenario_set'
+  | 'recommendation_panel';
+
 // All block types
-export type BlockType = LegacyBlockType | VisualBlockType;
+export type BlockType = LegacyBlockType | VisualBlockType | DecisionBlockType;
 
 export interface BlockMeta {
   purpose?: string | null;

@@ -1,6 +1,6 @@
 /**
  * Unified Visual Block Renderer
- * Renders all block types (legacy + visual) with theme support
+ * Renders all block types (legacy + visual + decision) with theme support
  */
 
 import { type BlockPayload, type TemplateBlock } from '@/lib/templates';
@@ -22,6 +22,12 @@ import {
   TwoColumnBlock,
 } from '@/components/blocks';
 
+// Decision block components
+import { DecisionSummary } from './DecisionSummary';
+import { EvidenceMap } from './EvidenceMap';
+import { ScenarioSet } from './ScenarioSet';
+import { RecommendationPanel } from './RecommendationPanel';
+
 import type {
   StatBlockPayload,
   QuoteBlockPayload,
@@ -35,6 +41,10 @@ import type {
   IconTextBlockPayload,
   FramedInsightPayload,
   TwoColumnPayload,
+  DecisionSummaryPayload,
+  EvidenceMapPayload,
+  ScenarioSetPayload,
+  RecommendationPanelPayload,
 } from '@/components/blocks/types';
 
 interface VisualBlockRendererProps {
@@ -96,6 +106,16 @@ export function VisualBlockRenderer({
       return <IconTextBlock payload={payload as unknown as IconTextBlockPayload} readOnly={readOnly} className={className} />;
     case 'framed_insight':
       return <FramedInsight payload={payload as unknown as FramedInsightPayload} readOnly={readOnly} className={className} />;
+    
+    // Decision block types
+    case 'decision_summary':
+      return <DecisionSummary payload={payload as unknown as DecisionSummaryPayload} readOnly={readOnly} className={className} />;
+    case 'evidence_map':
+      return <EvidenceMap payload={payload as unknown as EvidenceMapPayload} readOnly={readOnly} className={className} />;
+    case 'scenario_set':
+      return <ScenarioSet payload={payload as unknown as ScenarioSetPayload} readOnly={readOnly} className={className} />;
+    case 'recommendation_panel':
+      return <RecommendationPanel payload={payload as unknown as RecommendationPanelPayload} readOnly={readOnly} className={className} />;
     
     // Legacy block types
     case 'heading':

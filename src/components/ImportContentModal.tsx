@@ -21,7 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { aiEngine, Block as AIBlock } from "@/lib/ai-engine";
-import { Block, VISUAL_BLOCK_TYPES } from "@/lib/blocks";
+import { Block, VISUAL_BLOCK_TYPES, DECISION_BLOCK_TYPES } from "@/lib/blocks";
 import { BlockPreviewList } from "@/components/import/BlockPreviewList";
 import { BlockIntelligencePreview } from "@/components/BlockIntelligencePreview";
 import { ContentDropZone, FilePreviewBadge } from "@/components/import/ContentDropZone";
@@ -182,17 +182,19 @@ export function ImportContentModal({
   const [parsingFile, setParsingFile] = useState(false);
   const [enableVisualBlocks, setEnableVisualBlocks] = useState(true);
   const [preserveWording, setPreserveWording] = useState(true);
+  const [decisionMode, setDecisionMode] = useState(false);
 
   // Build stable preview blocks when raw blocks change
   const buildPreviewBlocks = useCallback((blocks: AIBlock[]): Block[] => {
     return blocks.map((block, index) => {
       const isVisual = VISUAL_BLOCK_TYPES.includes(block.type as any);
+      const isDecision = DECISION_BLOCK_TYPES.includes(block.type as any);
       return {
         id: crypto.randomUUID(),
         type: block.type,
         content: block.content,
         order_index: index,
-        ...(isVisual && { block_meta: { schema_version: 1 } }),
+        ...((isVisual || isDecision) && { block_meta: { schema_version: 1 } }),
       } as Block;
     });
   }, []);
@@ -293,7 +295,8 @@ export function ImportContentModal({
       const blocks = await aiEngine.generateBlocksFromText(
         content.trim(), 
         enableVisualBlocks,
-        preserveWording
+        preserveWording,
+        decisionMode
       );
 
       if (blocks.length > 0) {
@@ -375,7 +378,8 @@ export function ImportContentModal({
         blocksToUse = await aiEngine.generateBlocksFromText(
           content.trim(),
           enableVisualBlocks,
-          preserveWording
+          preserveWording,
+          decisionMode
         );
       }
 
@@ -577,6 +581,24 @@ export function ImportContentModal({
               </div>
               <p className="text-xs text-muted-foreground -mt-1 ml-5">
                 Keep your text intact—no AI rewrites
+              </p>
+
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <div className="flex items-center gap-2">
+                  <Brain className="h-3.5 w-3.5 text-primary" />
+                  <Label htmlFor="decision-mode" className="text-sm font-medium cursor-pointer">
+                    Decision Mode
+                  </Label>
+                </div>
+                <Switch
+                  id="decision-mode"
+                  checked={decisionMode}
+                  onCheckedChange={setDecisionMode}
+                  disabled={isLoading}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground -mt-1 ml-5">
+                Generate decision deck with evidence, scenarios, and recommendations
               </p>
             </div>
 
