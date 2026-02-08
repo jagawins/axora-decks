@@ -153,16 +153,33 @@ function generateUUID(): string {
 // =============================================================================
 
 /**
+ * Safely parse a value that might be a JSON string or object
+ */
+function asObj(v: unknown): Record<string, unknown> {
+  if (!v) return {};
+  if (typeof v === 'object' && v !== null) return v as Record<string, unknown>;
+  if (typeof v === 'string') {
+    try { return JSON.parse(v); } catch { return {}; }
+  }
+  return {};
+}
+
+/**
  * Fetch all templates with preview blocks (first 3 blocks per template)
+ * Uses nested select to fetch template_blocks in a single query
  */
 export async function fetchTemplates(): Promise<Template[]> {
-  // Use type assertion since templates table was just updated
   const supabaseAny = supabase as any;
   
-  // Fetch templates with new fields
+  // Fetch templates with nested template_blocks in a single query
   const { data: templates, error: templatesError } = await supabaseAny
     .from('templates')
-    .select('id, slug, title, description, category, tags, thumbnail_url, is_featured, created_at, version, default_theme_id, updated_at')
+    .select(`
+      id, slug, title, description, category, tags, thumbnail_url, is_featured, created_at, version, default_theme_id, updated_at,
+      template_blocks (
+        id, template_id, type, content, block_payload, block_meta, order_index
+      )
+    `)
     .order('is_featured', { ascending: false })
     .order('title');
 
@@ -175,45 +192,42 @@ export async function fetchTemplates(): Promise<Template[]> {
     return [];
   }
 
-  // Fetch preview blocks for all templates (first 3 blocks each)
-  const templateIds = (templates as any[]).map((t: any) => t.id);
-  const { data: allBlocks, error: blocksError } = await supabaseAny
-    .from('template_blocks')
-    .select('id, template_id, type, order_index, block_payload, block_meta, content')
-    .in('template_id', templateIds)
-    .order('order_index');
+  // Transform templates with properly normalized preview blocks
+  return (templates as any[]).map((template: any) => {
+    // Sort and slice blocks, ensuring block_payload is used
+    const previewBlocks = (template.template_blocks ?? [])
+      .sort((a: any, b: any) => a.order_index - b.order_index)
+      .slice(0, 3)
+      .map((block: any) => {
+        const payload = asObj(block.block_payload) || asObj(block.content);
+        return {
+          id: block.id,
+          template_id: block.template_id,
+          type: block.type,
+          order_index: block.order_index,
+          // Ensure content is populated for renderers that use it
+          content: payload,
+          block_payload: payload,
+          block_meta: asObj(block.block_meta),
+        } as TemplateBlock;
+      });
 
-  if (blocksError) {
-    console.error('Error fetching preview blocks:', blocksError);
-    return templates.map((t: any) => ({
-      ...t,
-      version: t.version || 1,
-      default_theme_id: t.default_theme_id || 'classic',
-      updated_at: t.updated_at || t.created_at,
-      preview_blocks: [],
-    })) as Template[];
-  }
-
-  // Group blocks by template_id and take first 3
-  const blocksByTemplate: Record<string, TemplateBlock[]> = {};
-  ((allBlocks || []) as any[]).forEach((block: any) => {
-    const templateId = block.template_id;
-    if (!blocksByTemplate[templateId]) {
-      blocksByTemplate[templateId] = [];
-    }
-    if (blocksByTemplate[templateId].length < 3) {
-      blocksByTemplate[templateId].push(normalizeTemplateBlock(block));
-    }
+    return {
+      id: template.id,
+      slug: template.slug,
+      title: template.title,
+      description: template.description,
+      category: template.category,
+      tags: template.tags,
+      thumbnail_url: template.thumbnail_url,
+      is_featured: template.is_featured,
+      created_at: template.created_at,
+      version: template.version || 1,
+      default_theme_id: template.default_theme_id || 'classic',
+      updated_at: template.updated_at || template.created_at,
+      preview_blocks: previewBlocks,
+    } as Template;
   });
-
-  // Attach preview_blocks to each template
-  return (templates as any[]).map((template: any) => ({
-    ...template,
-    version: template.version || 1,
-    default_theme_id: template.default_theme_id || 'classic',
-    updated_at: template.updated_at || template.created_at,
-    preview_blocks: blocksByTemplate[template.id] || [],
-  })) as Template[];
 }
 
 /**
