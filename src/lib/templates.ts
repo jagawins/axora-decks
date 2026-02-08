@@ -154,14 +154,28 @@ function generateUUID(): string {
 
 /**
  * Safely parse a value that might be a JSON string or object
+ * Returns null for empty/null values to allow proper fallback chaining
  */
-function asObj(v: unknown): Record<string, unknown> {
-  if (!v) return {};
-  if (typeof v === 'object' && v !== null) return v as Record<string, unknown>;
-  if (typeof v === 'string') {
-    try { return JSON.parse(v); } catch { return {}; }
+function asObj(v: unknown): Record<string, unknown> | null {
+  if (!v) return null;
+  if (typeof v === 'object' && v !== null) {
+    const obj = v as Record<string, unknown>;
+    // Return null if object is empty
+    if (Object.keys(obj).length === 0) return null;
+    return obj;
   }
-  return {};
+  if (typeof v === 'string') {
+    try {
+      const parsed = JSON.parse(v);
+      if (typeof parsed === 'object' && parsed !== null && Object.keys(parsed).length > 0) {
+        return parsed;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
 }
 
 /**
@@ -199,7 +213,7 @@ export async function fetchTemplates(): Promise<Template[]> {
       .sort((a: any, b: any) => a.order_index - b.order_index)
       .slice(0, 3)
       .map((block: any) => {
-        const payload = asObj(block.block_payload) || asObj(block.content);
+        const payload = asObj(block.block_payload) ?? asObj(block.content) ?? {};
         return {
           id: block.id,
           template_id: block.template_id,
@@ -208,7 +222,7 @@ export async function fetchTemplates(): Promise<Template[]> {
           // Ensure content is populated for renderers that use it
           content: payload,
           block_payload: payload,
-          block_meta: asObj(block.block_meta),
+          block_meta: asObj(block.block_meta) ?? {},
         } as TemplateBlock;
       });
 
