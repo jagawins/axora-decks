@@ -35,6 +35,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import Demo from "./pages/Demo";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
             <SubscriptionProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/demo" element={<Demo />} />
                 <Route path="/create" element={<Create />} />
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/template/:slug" element={<TemplateDetail />} />
