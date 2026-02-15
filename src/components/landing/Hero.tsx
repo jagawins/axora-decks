@@ -58,10 +58,12 @@ const Hero = () => {
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Button variant="hero-outline" size="xl" className="group w-full sm:w-auto">
-              <Play className="h-5 w-5 mr-1" />
-              Watch Demo
-            </Button>
+            <Link to="/demo" className="w-full sm:w-auto">
+              <Button variant="hero-outline" size="xl" className="group w-full sm:w-auto">
+                <Play className="h-5 w-5 mr-1" />
+                Watch Demo
+              </Button>
+            </Link>
           </div>
 
           {/* Trust indicators */}
