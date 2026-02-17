@@ -26,5 +26,10 @@ export { EvidenceMap } from './EvidenceMap';
 export { ScenarioSet } from './ScenarioSet';
 export { RecommendationPanel } from './RecommendationPanel';
 
+// New Visual Block Components
+export { ThreePillars } from './ThreePillars';
+export { TwoByTwoMatrix } from './TwoByTwoMatrix';
+export { DecisionNextSteps } from './DecisionNextSteps';
+
 // Unified Renderer
 export { VisualBlockRenderer, getPayload } from './VisualBlockRenderer';

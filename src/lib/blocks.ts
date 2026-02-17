@@ -22,7 +22,10 @@ export type VisualBlockType =
   | "cta_section"
   | "section_divider" 
   | "icon_text_block" 
-  | "framed_insight";
+  | "framed_insight"
+  | "three_pillars"
+  | "two_by_two_matrix"
+  | "decision_next_steps";
 
 // Decision block types (Decision Layer)
 export type DecisionBlockType =
@@ -46,7 +49,10 @@ export const VISUAL_BLOCK_TYPES: VisualBlockType[] = [
   "cta_section",
   "section_divider", 
   "icon_text_block", 
-  "framed_insight"
+  "framed_insight",
+  "three_pillars",
+  "two_by_two_matrix",
+  "decision_next_steps",
 ];
 
 // Decision block type array for runtime checks
@@ -143,7 +149,8 @@ export function isVisualBlockType(type: BlockType): type is VisualBlockType {
   return [
     "stat_block", "quote_block", "timeline_block", "comparison_table",
     "card_grid", "hero_header", "exec_summary", "cta_section",
-    "section_divider", "icon_text_block", "framed_insight"
+    "section_divider", "icon_text_block", "framed_insight",
+    "three_pillars", "two_by_two_matrix", "decision_next_steps",
   ].includes(type);
 }
 
@@ -767,6 +774,17 @@ export function getDefaultContent(type: BlockType): Record<string, unknown> {
       return { items: [{ icon: "Star", title: "Feature", description: "" }] };
     case "framed_insight":
       return { insight: "Key insight here", type: "tip" };
+    case "three_pillars":
+      return { pillars: [{ title: "Pillar 1", icon: "Target" }, { title: "Pillar 2", icon: "Zap" }, { title: "Pillar 3", icon: "Shield" }] };
+    case "two_by_two_matrix":
+      return { quadrants: [
+        { label: "High Impact / Low Effort", items: ["Item 1"], position: "top-left" },
+        { label: "High Impact / High Effort", items: ["Item 1"], position: "top-right" },
+        { label: "Low Impact / Low Effort", items: ["Item 1"], position: "bottom-left" },
+        { label: "Low Impact / High Effort", items: ["Item 1"], position: "bottom-right" },
+      ], xAxis: "Effort", yAxis: "Impact" };
+    case "decision_next_steps":
+      return { decision: "Decision to make", next_steps: [{ action: "First step", priority: "high" }] };
     // Decision block defaults
     case "decision_summary":
       return { question: "What should we decide?", recommendation: "Not provided", confidence: "medium" };
@@ -879,6 +897,9 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   section_divider: "Divider",
   icon_text_block: "Icon Text",
   framed_insight: "Insight",
+  three_pillars: "Three Pillars",
+  two_by_two_matrix: "2×2 Matrix",
+  decision_next_steps: "Decision + Next Steps",
   // Decision blocks
   decision_summary: "Decision Summary",
   evidence_map: "Evidence Map",

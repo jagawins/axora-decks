@@ -181,6 +181,38 @@ export interface RecommendationPanelPayload extends BaseBlockPayload {
   next_steps: string[];
 }
 
+// Three Pillars Block
+export interface ThreePillarsPayload extends BaseBlockPayload {
+  pillars: Array<{
+    title: string;
+    description?: string;
+    icon?: string;
+  }>;
+}
+
+// 2×2 Matrix Block
+export interface TwoByTwoMatrixPayload extends BaseBlockPayload {
+  xAxis?: string;
+  yAxis?: string;
+  quadrants: Array<{
+    label: string;
+    items: string[];
+    position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  }>;
+}
+
+// Decision + Next Steps Block
+export interface DecisionNextStepsPayload extends BaseBlockPayload {
+  decision: string;
+  rationale?: string;
+  next_steps: Array<{
+    action: string;
+    owner?: string;
+    priority?: 'high' | 'medium' | 'low';
+  }>;
+  risks?: string[];
+}
+
 // Union type for all visual block payloads
 export type VisualBlockPayload =
   | StatBlockPayload
@@ -198,7 +230,10 @@ export type VisualBlockPayload =
   | DecisionSummaryPayload
   | EvidenceMapPayload
   | ScenarioSetPayload
-  | RecommendationPanelPayload;
+  | RecommendationPanelPayload
+  | ThreePillarsPayload
+  | TwoByTwoMatrixPayload
+  | DecisionNextStepsPayload;
 
 // Visual block type names
 export type VisualBlockType =
@@ -213,7 +248,10 @@ export type VisualBlockType =
   | 'section_divider'
   | 'icon_text_block'
   | 'framed_insight'
-  | 'two_col';
+  | 'two_col'
+  | 'three_pillars'
+  | 'two_by_two_matrix'
+  | 'decision_next_steps';
 
 // Decision block type names
 export type DecisionBlockType =

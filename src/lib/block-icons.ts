@@ -26,6 +26,9 @@ import {
   MapPin,
   Layers,
   CheckSquare,
+  Target,
+  Grid3X3,
+  ListChecks,
 } from "lucide-react";
 import { BlockType } from "./blocks";
 
@@ -53,6 +56,9 @@ export const BLOCK_ICONS: Record<BlockType, LucideIcon> = {
   section_divider: Minus,
   icon_text_block: icons.Star as LucideIcon,
   framed_insight: Lightbulb,
+  three_pillars: Target,
+  two_by_two_matrix: Grid3X3,
+  decision_next_steps: ListChecks,
   // Decision blocks
   decision_summary: HelpCircle,
   evidence_map: MapPin,
