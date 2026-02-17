@@ -1,57 +1,63 @@
 
-
-# Axora Activation and Engagement Improvements
+# Speed and Polish Optimization for Axora
 
 ## Overview
-Add seven targeted activation and retention features without redesigning the product. Each feature is a surgical addition to existing components.
+Four targeted improvements focused on speed, polish, and presentation quality. No new architecture, no analytics, no animations.
 
 ## Features
 
-### 1. Guided First Deck Flow
-Show a "First Deck" modal on Dashboard when the user has zero projects. Three use-case cards (Board Update, Investor Pitch, Strategic Initiative). Clicking one auto-creates a project and calls `aiEngine.generateFromPrompt` with a pre-filled topic, audience, and tone. The user lands in the Editor with a complete draft -- zero blank-canvas friction.
+### 1. Quick Polish Button
+A new "Quick Polish" button in the editor header that iterates through all blocks sequentially, applying executive refinement to each one. Uses the existing `aiEngine.refineBlock` infrastructure -- no new backend needed.
 
-- New file: `src/components/FirstDeckModal.tsx`
-- Modified: `src/pages/Dashboard.tsx` (show modal when `projects.length === 0 && !loading`)
-- Uses existing `CreateDeckModal` generation logic as reference, but bypasses the form
+**Behavior:**
+- Iterates blocks one by one (sequential, not parallel, to avoid UI freezing)
+- Sends each block through `aiEngine.refineBlock` with a single comprehensive instruction: tighten wording, strengthen headers, remove redundancy, apply executive tone
+- Detects generic heading text ("Overview", "Summary", "Plan", "Introduction", "Conclusion") and rewrites into outcome-driven headlines
+- Updates each block in place as it completes (user sees progressive improvement)
+- Shows progress indicator: "Polishing block 3 of 12..."
+- Shows badge on each block as it completes: "Polished"
+- Disables button while running; shows "Polishing..." state
 
-### 2. Before/After Demo Mode
-Add a toggle in the Editor header: "Before AI / After AI". When toggled to "Before", display the raw bullet equivalent of each block's content (plain text, no structure). When toggled to "After", show normal rendered blocks. This is purely a view-layer toggle -- no backend calls.
+**File changes:**
+- `src/pages/Editor.tsx` -- add `handleQuickPolish` async function, add button to header, add `polishing` + `polishProgress` state
 
-- Modified: `src/pages/Editor.tsx` (add toggle state, conditional rendering in canvas)
-- New utility function `extractRawText(block)` in `src/lib/blocks.ts` that flattens any block content into plain bullet lines
+### 2. Layout Preset Switching (CSS Only)
+A dropdown in the header that switches visual density/layout classes on the canvas. No content regeneration -- pure CSS class swapping.
 
-### 3. Inline Value Reinforcement Badges
-When a block is refined via AI (hover toolbar actions or Agent Edit), show a temporary badge on that block: "Executive tone applied", "Compressed to 3 bullets", "Argument strengthened". The badge appears for 4 seconds then fades.
+**Presets:**
+- **Minimal** -- generous whitespace, larger font, centered alignment
+- **Corporate** -- standard spacing, left-aligned, compact headers
+- **Bold** -- large headings, high contrast borders, accent backgrounds
+- **Data-Focused** -- tight spacing, smaller text, maximized content area
 
-- Modified: `src/pages/Editor.tsx` (add `recentBadges` state map: `Record<blockId, badgeText>`)
-- Modified: `src/components/editor/BlockHoverToolbar.tsx` (pass badge text based on action label)
-- Badge rendered as a small styled div overlay on the block, auto-clears via `setTimeout`
+**Implementation:**
+- `src/lib/themes.ts` -- add `LayoutPreset` type and `LAYOUT_PRESETS` config with Tailwind class overrides for each preset
+- `src/pages/Editor.tsx` -- add `layoutPreset` state, add dropdown in header, apply preset classes to canvas wrapper `<div>`
+- Classes affect only spacing, font sizes, and alignment on the canvas wrapper -- no content changes
 
-### 4. Soft Gating (3 Full Deck Generations)
-Track full deck generation count in `localStorage` (key: `axora_deck_gen_count`). After 3 full generations, show a modal prompting upgrade instead of generating. Block-level edits remain unlimited.
+### 3. Export Polish Overlay
+When user clicks PDF export, show a brief polished loading overlay before opening the print window. Pure UI feedback -- no backend changes.
 
-- New file: `src/components/UpgradeGateModal.tsx`
-- Modified: `src/pages/Editor.tsx` (`handleCreateDeck` checks count before proceeding)
-- Modified: `src/components/CreateDeckModal.tsx` (check count in standalone generation path)
-- Free tier only -- skip gate if `subscription.tier !== 'free'`
+**Sequence:**
+1. User clicks Export PDF
+2. Modal/overlay appears with staged progress messages:
+   - "Optimizing slide formatting..." (0-1s)
+   - "Aligning spacing..." (1-2s)  
+   - "Applying consistent typography..." (2-3s)
+3. After ~3 seconds, overlay closes and print window opens as before
 
-### 5. Save Progress Prompt
-Intercept browser `beforeunload` when `hasUnsavedChanges` is true. Also add an in-app confirmation dialog when clicking the back arrow to Dashboard with unsaved changes.
+**File changes:**
+- `src/pages/Editor.tsx` -- add `exportOverlayOpen` + `exportStage` state, update `exportPdf` to show overlay first, add overlay JSX
 
-- Modified: `src/pages/Editor.tsx`
-  - Add `useEffect` for `beforeunload` event tied to `hasUnsavedChanges`
-  - Wrap back-button click in a confirmation check (Dialog or `window.confirm`)
+### 4. Reduce AI Sidebar Prominence
+Make the AI Analysis sidebar less prominent while keeping it accessible. The Stress Test button, clarity score, and Before/After toggle are removed from the header to reduce clutter. Primary visible actions become: Quick Polish, Export, Save.
 
-### 6. Executive Stress Test Button + Clarity Score
-Add a "Stress Test" button in the Editor header that opens the AI Sidebar and auto-triggers `stress_test_narrative`. Also add a small "Clarity: --" indicator in the header bar that updates after any analysis completes, showing `overallScore` from the analysis response.
-
-- Modified: `src/pages/Editor.tsx` (add Stress Test button, clarity score state)
-- Modified: `src/components/editor/AISidebar.tsx` (emit score back to parent via callback prop `onScoreUpdate`)
-
-### 7. Social Proof Line
-Add a single line of subtle social proof below the Editor canvas: "Used by strategy leaders to prepare board-level narratives." Minimal, text-only, executive tone.
-
-- Modified: `src/pages/Editor.tsx` (add a `<p>` below the canvas area when blocks exist)
+**Changes:**
+- Remove the "Stress Test" button from the header (still accessible inside sidebar)
+- Remove "Before/After" toggle from header (niche feature, clutters primary actions)
+- Remove clarity score from header
+- Keep the sidebar toggle button but make it a subtle icon-only button
+- Reorder header: Generate Deck | Quick Polish | Layout | Export PDF | Share | Save
 
 ---
 
@@ -61,23 +67,70 @@ Add a single line of subtle social proof below the Editor canvas: "Used by strat
 
 | File | Change |
 |------|--------|
-| `src/components/FirstDeckModal.tsx` | New -- use-case selector + auto-generate |
-| `src/components/UpgradeGateModal.tsx` | New -- soft gate modal |
-| `src/lib/blocks.ts` | Add `extractRawText()` utility |
-| `src/pages/Dashboard.tsx` | Import/show FirstDeckModal |
-| `src/pages/Editor.tsx` | Before/After toggle, badges, soft gate check, save prompt, stress test button, clarity score, social proof |
-| `src/components/editor/BlockHoverToolbar.tsx` | Return badge text from actions |
-| `src/components/editor/AISidebar.tsx` | Add `onScoreUpdate` callback prop |
+| `src/pages/Editor.tsx` | Add Quick Polish handler, layout preset state, export overlay, reorder header, remove sidebar prominence |
+| `src/lib/themes.ts` | Add `LayoutPreset` type and `LAYOUT_PRESETS` with Tailwind class maps |
+
+### Quick Polish Instruction
+The single instruction sent to `aiEngine.refineBlock` for each block:
+```
+Tighten all wording — remove filler, redundancy, and passive voice. 
+If this is a heading and it uses a generic phrase like "Overview", "Summary", 
+"Plan", "Introduction", "Next Steps", or "Conclusion", rewrite it as an 
+outcome-driven headline that communicates specific value (e.g., "Revenue 
+Leakage Risk Identified in Q3 Operations"). Strengthen the executive tone. 
+Keep content factual and concise. Do not add new information.
+```
+
+### Layout Preset Classes
+Applied to the canvas wrapper div (`max-w-3xl mx-auto space-y-6`):
+
+```typescript
+export const LAYOUT_PRESETS = {
+  minimal: {
+    label: "Minimal",
+    canvas: "max-w-2xl mx-auto space-y-10 text-lg",
+    block: "p-8 text-center",
+  },
+  corporate: {
+    label: "Corporate",
+    canvas: "max-w-3xl mx-auto space-y-4",
+    block: "p-5 text-left",
+  },
+  bold: {
+    label: "Bold",
+    canvas: "max-w-3xl mx-auto space-y-6",
+    block: "p-6 border-2 border-accent/20 bg-accent/5",
+  },
+  data_focused: {
+    label: "Data-Focused",
+    canvas: "max-w-4xl mx-auto space-y-3 text-sm",
+    block: "p-3",
+  },
+};
+```
+
+### Export Overlay Implementation
+Simple Dialog with staged text updates via `setTimeout`:
+```typescript
+const exportPdf = () => {
+  setExportOverlayOpen(true);
+  setExportStage(0);
+  setTimeout(() => setExportStage(1), 1000);
+  setTimeout(() => setExportStage(2), 2000);
+  setTimeout(() => {
+    setExportOverlayOpen(false);
+    window.open(`/print/${projectId}`, "_blank", "noopener,noreferrer");
+  }, 3000);
+};
+```
 
 ### No Changes To
-- Export logic
+- Export logic / Print page
+- Backend edge functions
 - Routing
-- Design system / Tailwind config
-- Backend edge functions (analyze-document already supports all needed modes)
+- Design system / Tailwind config (only themes.ts additions)
 - Database schema
+- Block rendering components
 
 ### Dependencies
 - No new packages required
-- All features use existing UI components (Dialog, Button, Badge from shadcn/ui)
-- AI calls use existing `aiEngine` and `analyze-document` edge function
-
