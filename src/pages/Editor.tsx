@@ -14,7 +14,7 @@ import {
   extractRawText,
 } from "@/lib/blocks";
 import { sanitizeListItems } from "@/lib/sanitize";
-import { THEMES, DEFAULT_THEME, ThemeId } from "@/lib/themes";
+import { THEMES, DEFAULT_THEME, ThemeId, LAYOUT_PRESETS, DEFAULT_LAYOUT, LayoutPresetId } from "@/lib/themes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,8 +41,8 @@ import {
   Eye,
   Pencil,
   GripVertical,
-  Shield,
-  ToggleLeft,
+  PanelRight,
+  Zap,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
@@ -163,6 +163,17 @@ const Editor = () => {
   const [upgradeGateOpen, setUpgradeGateOpen] = useState(false);
   const [clarityScore, setClarityScore] = useState<number | null>(null);
   const [stressTestTrigger, setStressTestTrigger] = useState<string | null>(null);
+
+  // Quick Polish state
+  const [polishing, setPolishing] = useState(false);
+  const [polishProgress, setPolishProgress] = useState<{ current: number; total: number } | null>(null);
+
+  // Layout preset state
+  const [layoutPreset, setLayoutPreset] = useState<LayoutPresetId>(DEFAULT_LAYOUT);
+
+  // Export overlay state
+  const [exportOverlayOpen, setExportOverlayOpen] = useState(false);
+  const [exportStage, setExportStage] = useState(0);
 
   // Save progress prompt - beforeunload
   useEffect(() => {
@@ -725,7 +736,47 @@ const Editor = () => {
 
   const exportPdf = () => {
     if (!projectId) return;
-    window.open(`/print/${projectId}`, "_blank", "noopener,noreferrer");
+    setExportOverlayOpen(true);
+    setExportStage(0);
+    setTimeout(() => setExportStage(1), 1000);
+    setTimeout(() => setExportStage(2), 2000);
+    setTimeout(() => {
+      setExportOverlayOpen(false);
+      window.open(`/print/${projectId}`, "_blank", "noopener,noreferrer");
+    }, 3000);
+  };
+
+  // Quick Polish – iterate all blocks sequentially with executive refinement
+  const handleQuickPolish = async () => {
+    if (polishing || blocks.length === 0) return;
+    setPolishing(true);
+    const total = blocks.length;
+    const polishInstruction = `Tighten all wording — remove filler, redundancy, and passive voice. If this is a heading and it uses a generic phrase like "Overview", "Summary", "Plan", "Introduction", "Next Steps", or "Conclusion", rewrite it as an outcome-driven headline that communicates specific value (e.g., "Revenue Leakage Risk Identified in Q3 Operations"). Strengthen the executive tone. Keep content factual and concise. Do not add new information.`;
+
+    for (let i = 0; i < total; i++) {
+      setPolishProgress({ current: i + 1, total });
+      const block = blocks[i];
+      try {
+        const refined = await aiEngine.refineBlock({
+          block: { type: block.type, content: block.content, order_index: block.order_index },
+          instruction: polishInstruction,
+        });
+        let sanitized = sanitizeContent(refined.content);
+        sanitized = normalizeBlockContent(block.type, sanitized);
+        if (block.type === "list" && Array.isArray(sanitized.items)) {
+          sanitized.items = sanitizeListItems(sanitized.items);
+        }
+        updateBlock(block.id, sanitized);
+        showBadge(block.id, "Polished");
+      } catch (err) {
+        console.error(`Quick Polish failed on block ${i + 1}:`, err);
+      }
+    }
+
+    setPolishing(false);
+    setPolishProgress(null);
+    setHasUnsavedChanges(true);
+    toast({ title: "Quick Polish complete", description: `${total} blocks refined.` });
   };
 
   const selectedBlock = blocks.find((b) => b.id === selectedBlockId);
@@ -767,6 +818,11 @@ const Editor = () => {
           {/* Desktop header actions */}
           <div className="hidden md:flex items-center gap-2">
             {hasUnsavedChanges && <span className="text-xs text-muted-foreground">Unsaved changes</span>}
+            {polishProgress && (
+              <span className="text-xs text-muted-foreground">
+                Polishing block {polishProgress.current} of {polishProgress.total}…
+              </span>
+            )}
 
             <Button
               variant="outline"
@@ -777,6 +833,48 @@ const Editor = () => {
               <Sparkles className="h-4 w-4 mr-2" />
               Generate Deck
             </Button>
+
+            {/* Quick Polish */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleQuickPolish}
+              disabled={polishing || blocks.length === 0}
+            >
+              {polishing ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Polishing…
+                </>
+              ) : (
+                <>
+                  <Zap className="h-4 w-4 mr-2" />
+                  Quick Polish
+                </>
+              )}
+            </Button>
+
+            {/* Layout Preset */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <LayoutTemplate className="h-4 w-4 mr-2" />
+                  Layout
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {(Object.keys(LAYOUT_PRESETS) as LayoutPresetId[]).map((id) => (
+                  <DropdownMenuItem
+                    key={id}
+                    onClick={() => setLayoutPreset(id)}
+                    className={layoutPreset === id ? "bg-accent/20" : ""}
+                  >
+                    {LAYOUT_PRESETS[id].label}
+                    {layoutPreset === id && <Check className="h-4 w-4 ml-auto" />}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* View Mode Toggle */}
             <div className="flex items-center bg-muted rounded-lg p-0.5">
@@ -800,54 +898,17 @@ const Editor = () => {
               </Button>
             </div>
 
-            {/* Before/After Toggle */}
-            {blocks.length > 0 && (
-              <div className="flex items-center bg-muted rounded-lg p-0.5">
-                <Button
-                  variant={beforeAfterMode === "before" ? "secondary" : "ghost"}
-                  size="sm"
-                  className="h-7 px-2.5 text-xs"
-                  onClick={() => setBeforeAfterMode("before")}
-                >
-                  <ToggleLeft className="h-3 w-3 mr-1" />
-                  Before AI
-                </Button>
-                <Button
-                  variant={beforeAfterMode === "after" ? "secondary" : "ghost"}
-                  size="sm"
-                  className="h-7 px-2.5 text-xs"
-                  onClick={() => setBeforeAfterMode("after")}
-                >
-                  After AI
-                </Button>
-              </div>
-            )}
-
-            {/* Clarity Score */}
-            {clarityScore !== null && (
-              <span className={`text-xs font-medium px-2 py-1 rounded ${clarityScore >= 7 ? 'text-green-500' : clarityScore >= 4 ? 'text-amber-500' : 'text-destructive'}`}>
-                Clarity: {clarityScore}/10
-              </span>
-            )}
-
-            {/* Stress Test */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setAiSidebarOpen(true);
-                setStressTestTrigger("stress_test_narrative");
-              }}
-            >
-              <Shield className="h-4 w-4 mr-2" />
-              Stress Test
+            <Button variant="ghost" size="sm" onClick={exportPdf}>
+              <FileDown className="h-4 w-4 mr-2" />
+              PDF
             </Button>
 
-            <Button variant="ghost" size="sm" onClick={() => navigate(`/preview/${projectId}`)}>
-              <Play className="h-4 w-4 mr-2" />
-              Preview
+            <Button variant="ghost" size="sm" onClick={() => setShareDialogOpen(true)}>
+              <Share2 className="h-4 w-4 mr-2" />
+              Share
             </Button>
 
+            {/* Theme */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
@@ -869,16 +930,6 @@ const Editor = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" size="sm" onClick={exportPdf}>
-              <FileDown className="h-4 w-4 mr-2" />
-              PDF
-            </Button>
-
-            <Button variant="ghost" size="sm" onClick={() => setShareDialogOpen(true)}>
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
-            </Button>
-
             <Button variant="hero" size="sm" onClick={handleSave} disabled={saving || !hasUnsavedChanges}>
               {saving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -888,6 +939,11 @@ const Editor = () => {
                   Save
                 </>
               )}
+            </Button>
+
+            {/* AI Sidebar toggle - subtle icon */}
+            <Button variant="ghost" size="icon" onClick={() => setAiSidebarOpen(!aiSidebarOpen)} title="AI Analysis">
+              <PanelRight className="h-4 w-4" />
             </Button>
           </div>
 
@@ -906,6 +962,10 @@ const Editor = () => {
                 <DropdownMenuItem onClick={() => setCreateDeckOpen(true)}>
                   <Sparkles className="h-4 w-4 mr-2" />
                   Generate Deck
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleQuickPolish} disabled={polishing || blocks.length === 0}>
+                  <Zap className="h-4 w-4 mr-2" />
+                  {polishing ? "Polishing…" : "Quick Polish"}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate(`/preview/${projectId}`)}>
                   <Play className="h-4 w-4 mr-2" />
@@ -996,7 +1056,7 @@ const Editor = () => {
 
         {/* Center - Canvas */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="max-w-3xl mx-auto space-y-6">
+          <div className={LAYOUT_PRESETS[layoutPreset].canvas}>
             {blocks.length === 0 ? (
               <div className="text-center py-16">
                 <div className="glass-card p-8 max-w-lg mx-auto">
@@ -1084,6 +1144,7 @@ const Editor = () => {
                           setSelectedBlockId(block.id);
                           setRefineOpen(true);
                         }}
+                        layoutBlockClass={LAYOUT_PRESETS[layoutPreset].block}
                       />
                     </div>
                   ))}
@@ -1361,6 +1422,31 @@ const Editor = () => {
 
       {/* Upgrade Gate Modal */}
       <UpgradeGateModal open={upgradeGateOpen} onOpenChange={setUpgradeGateOpen} />
+
+      {/* Export Polish Overlay */}
+      <Dialog open={exportOverlayOpen} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-sm text-center" onPointerDownOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin text-accent" />
+              Preparing Export
+            </DialogTitle>
+            <DialogDescription>
+              {exportStage === 0 && "Optimizing slide formatting…"}
+              {exportStage === 1 && "Aligning spacing…"}
+              {exportStage === 2 && "Applying consistent typography…"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-accent rounded-full transition-all duration-700"
+                style={{ width: `${((exportStage + 1) / 3) * 100}%` }}
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -1424,6 +1510,7 @@ interface SortableBlockProps {
   onDelete: () => void;
   onGenerate: () => void;
   onRefine: () => void;
+  layoutBlockClass?: string;
 }
 
 const SortableBlock = ({
@@ -1435,6 +1522,7 @@ const SortableBlock = ({
   onDelete,
   onGenerate,
   onRefine,
+  layoutBlockClass,
 }: SortableBlockProps) => {
   const [hovered, setHovered] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.id });
@@ -1498,6 +1586,7 @@ const SortableBlock = ({
         isSelected={isSelected}
         onSelect={onSelect}
         onUpdate={onUpdate}
+        layoutBlockClass={layoutBlockClass}
       />
     </div>
   );
@@ -1590,9 +1679,10 @@ interface BlockRendererProps {
   isSelected: boolean;
   onSelect: () => void;
   onUpdate: (content: Record<string, unknown>) => void;
+  layoutBlockClass?: string;
 }
 
-const BlockRenderer = ({ block, isSelected, onSelect, onUpdate }: BlockRendererProps) => {
+const BlockRenderer = ({ block, isSelected, onSelect, onUpdate, layoutBlockClass }: BlockRendererProps) => {
   const content = block.content;
 
   const handleChange = (key: string, value: unknown) => {
@@ -1601,7 +1691,7 @@ const BlockRenderer = ({ block, isSelected, onSelect, onUpdate }: BlockRendererP
 
   return (
     <div
-      className={`rounded-lg border p-4 transition-all cursor-pointer ${
+      className={`rounded-lg border transition-all cursor-pointer ${layoutBlockClass || "p-4"} ${
         isSelected
           ? "border-accent bg-accent/5 shadow-lg shadow-accent/10"
           : "border-border hover:border-muted-foreground/30"
