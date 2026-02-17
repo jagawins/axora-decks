@@ -19,6 +19,7 @@ import { ImportContentModal } from '@/components/ImportContentModal';
 import { TemplatesGrid } from '@/components/templates/TemplatesGrid';
 import { SUBSCRIPTION_TIERS, getProjectLimit } from '@/lib/subscription';
 import { fetchTemplates, Template } from '@/lib/templates';
+import { FirstDeckModal } from '@/components/FirstDeckModal';
 
 interface Project {
   id: string;
@@ -63,6 +64,7 @@ const Dashboard = () => {
   const [renameModalOpen, setRenameModalOpen] = useState(false);
   const [renameProjectId, setRenameProjectId] = useState<string | null>(null);
   const [renameCurrentTitle, setRenameCurrentTitle] = useState('');
+  const [firstDeckOpen, setFirstDeckOpen] = useState(false);
 
   // Handle checkout success/canceled query params
   useEffect(() => {
@@ -131,7 +133,12 @@ const Dashboard = () => {
         .order('updated_at', { ascending: false });
       
       if (error) throw error;
-      setProjects((projectsData || []) as Project[]);
+      const projectsList = (projectsData || []) as Project[];
+      setProjects(projectsList);
+      // Show first deck modal if user has zero projects
+      if (projectsList.length === 0) {
+        setFirstDeckOpen(true);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -620,6 +627,11 @@ const Dashboard = () => {
         onOpenChange={setRenameModalOpen}
         currentTitle={renameCurrentTitle}
         onSubmit={handleRenameSubmit}
+      />
+
+      <FirstDeckModal
+        open={firstDeckOpen}
+        onOpenChange={setFirstDeckOpen}
       />
     </div>
   );

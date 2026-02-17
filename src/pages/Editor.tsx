@@ -11,6 +11,7 @@ import {
   normalizeBlockContent,
   getDefaultContent,
   BLOCK_LABELS,
+  extractRawText,
 } from "@/lib/blocks";
 import { sanitizeListItems } from "@/lib/sanitize";
 import { THEMES, DEFAULT_THEME, ThemeId } from "@/lib/themes";
@@ -40,6 +41,8 @@ import {
   Eye,
   Pencil,
   GripVertical,
+  Shield,
+  ToggleLeft,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
@@ -62,6 +65,9 @@ import { Label } from "@/components/ui/label";
 import { CreateDeckModal } from "@/components/CreateDeckModal";
 import { ImportContentModal } from "@/components/ImportContentModal";
 import { ApplyTemplateModal } from "@/components/ApplyTemplateModal";
+import { UpgradeGateModal, canGenerateDeck, incrementDeckGenCount } from "@/components/UpgradeGateModal";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { Badge } from "@/components/ui/badge";
 import { getTemplateById } from "@/lib/block-templates";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileEditorTabs, { MobileTab } from "@/components/editor/MobileEditorTabs";
@@ -97,6 +103,7 @@ interface Project {
 const Editor = () => {
   const { id: projectId } = useParams<{ id: string }>();
   const { user, loading: authLoading } = useAuth();
+  const { subscription } = useSubscription();
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -150,6 +157,34 @@ const Editor = () => {
   const [mobileBlocksOpen, setMobileBlocksOpen] = useState(false);
   const [mobileAIOpen, setMobileAIOpen] = useState(false);
 
+  // Activation & engagement features
+  const [beforeAfterMode, setBeforeAfterMode] = useState<"after" | "before">("after");
+  const [recentBadges, setRecentBadges] = useState<Record<string, string>>({});
+  const [upgradeGateOpen, setUpgradeGateOpen] = useState(false);
+  const [clarityScore, setClarityScore] = useState<number | null>(null);
+  const [stressTestTrigger, setStressTestTrigger] = useState<string | null>(null);
+
+  // Save progress prompt - beforeunload
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [hasUnsavedChanges]);
+
+  // Badge auto-clear helper
+  const showBadge = useCallback((blockId: string, text: string) => {
+    setRecentBadges((prev) => ({ ...prev, [blockId]: text }));
+    setTimeout(() => {
+      setRecentBadges((prev) => {
+        const next = { ...prev };
+        delete next[blockId];
+        return next;
+      });
+    }, 4000);
+  }, []);
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
@@ -284,7 +319,7 @@ const Editor = () => {
     setHasUnsavedChanges(true);
   }, []);
 
-  const handleQuickAIAction = useCallback(async (blockId: string, instruction: string) => {
+  const handleQuickAIAction = useCallback(async (blockId: string, instruction: string, badgeText?: string) => {
     const block = blocks.find((b) => b.id === blockId);
     if (!block) return;
 
@@ -302,6 +337,7 @@ const Editor = () => {
       }
 
       updateBlock(block.id, sanitized);
+      if (badgeText) showBadge(block.id, badgeText);
       toast({ title: "Block updated", description: "AI applied the edit." });
     } catch (error) {
       console.error("Quick AI action error:", error);
@@ -504,6 +540,12 @@ const Editor = () => {
   }) => {
     if (!projectId) return;
 
+    // Soft gate check
+    if (!canGenerateDeck(subscription.tier)) {
+      setUpgradeGateOpen(true);
+      return;
+    }
+
     try {
       let prompt = params.topic;
       if (params.audience) prompt += `\n\nTarget audience: ${params.audience}`;
@@ -522,6 +564,7 @@ const Editor = () => {
       setBlocks(newBlocks);
       setHasUnsavedChanges(true);
       setCreateDeckOpen(false);
+      incrementDeckGenCount();
 
       await saveBlocksAndNavigate(newBlocks);
     } catch (error) {
@@ -708,7 +751,10 @@ const Editor = () => {
       <header className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50 safe-area-top">
         <div className="flex h-14 items-center justify-between px-2 sm:px-4">
           <div className="flex items-center gap-2 sm:gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
+            <Button variant="ghost" size="icon" onClick={() => {
+              if (hasUnsavedChanges && !window.confirm("You have unsaved changes. Leave anyway?")) return;
+              navigate("/dashboard");
+            }}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="flex items-center gap-2 sm:gap-3">
@@ -753,6 +799,49 @@ const Editor = () => {
                 Present
               </Button>
             </div>
+
+            {/* Before/After Toggle */}
+            {blocks.length > 0 && (
+              <div className="flex items-center bg-muted rounded-lg p-0.5">
+                <Button
+                  variant={beforeAfterMode === "before" ? "secondary" : "ghost"}
+                  size="sm"
+                  className="h-7 px-2.5 text-xs"
+                  onClick={() => setBeforeAfterMode("before")}
+                >
+                  <ToggleLeft className="h-3 w-3 mr-1" />
+                  Before AI
+                </Button>
+                <Button
+                  variant={beforeAfterMode === "after" ? "secondary" : "ghost"}
+                  size="sm"
+                  className="h-7 px-2.5 text-xs"
+                  onClick={() => setBeforeAfterMode("after")}
+                >
+                  After AI
+                </Button>
+              </div>
+            )}
+
+            {/* Clarity Score */}
+            {clarityScore !== null && (
+              <span className={`text-xs font-medium px-2 py-1 rounded ${clarityScore >= 7 ? 'text-green-500' : clarityScore >= 4 ? 'text-amber-500' : 'text-destructive'}`}>
+                Clarity: {clarityScore}/10
+              </span>
+            )}
+
+            {/* Stress Test */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setAiSidebarOpen(true);
+                setStressTestTrigger("stress_test_narrative");
+              }}
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              Stress Test
+            </Button>
 
             <Button variant="ghost" size="sm" onClick={() => navigate(`/preview/${projectId}`)}>
               <Play className="h-4 w-4 mr-2" />
@@ -937,6 +1026,26 @@ const Editor = () => {
                   </div>
                 </div>
               </div>
+            ) : beforeAfterMode === "before" ? (
+              /* Before AI Mode - Raw bullet text */
+              <div className="space-y-4">
+                <div className="text-xs text-muted-foreground text-center mb-2 uppercase tracking-wide">
+                  Raw content — before AI structuring
+                </div>
+                {blocks.map((block) => {
+                  const lines = extractRawText(block);
+                  return (
+                    <div key={block.id} className="rounded-lg border border-dashed border-border p-4 bg-muted/20">
+                      {lines.map((line, i) => (
+                        <p key={i} className="text-sm text-muted-foreground leading-relaxed">• {line}</p>
+                      ))}
+                      {lines.length === 0 && (
+                        <p className="text-sm text-muted-foreground italic">Empty block</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             ) : viewMode === "presentation" ? (
               /* Presentation Mode - Read-only slide layout */
               <div className="space-y-8">
@@ -951,26 +1060,41 @@ const Editor = () => {
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
                   {blocks.map((block) => (
-                    <SortableBlock
-                      key={block.id}
-                      block={block}
-                      isSelected={selectedBlockId === block.id}
-                      onSelect={() => setSelectedBlockId(block.id)}
-                      onUpdate={(content) => updateBlock(block.id, content)}
-                      onQuickAIAction={(instruction) => handleQuickAIAction(block.id, instruction)}
-                      onDelete={() => deleteBlock(block.id)}
-                      onGenerate={() => {
-                        setSelectedBlockId(block.id);
-                        setGenerateOpen(true);
-                      }}
-                      onRefine={() => {
-                        setSelectedBlockId(block.id);
-                        setRefineOpen(true);
-                      }}
-                    />
+                    <div key={block.id} className="relative">
+                      {/* Value reinforcement badge */}
+                      {recentBadges[block.id] && (
+                        <div className="absolute -top-3 right-4 z-30">
+                          <Badge variant="secondary" className="text-xs bg-accent/10 text-accent border-accent/20">
+                            ✓ {recentBadges[block.id]}
+                          </Badge>
+                        </div>
+                      )}
+                      <SortableBlock
+                        block={block}
+                        isSelected={selectedBlockId === block.id}
+                        onSelect={() => setSelectedBlockId(block.id)}
+                        onUpdate={(content) => updateBlock(block.id, content)}
+                        onQuickAIAction={(instruction, badgeText) => handleQuickAIAction(block.id, instruction, badgeText)}
+                        onDelete={() => deleteBlock(block.id)}
+                        onGenerate={() => {
+                          setSelectedBlockId(block.id);
+                          setGenerateOpen(true);
+                        }}
+                        onRefine={() => {
+                          setSelectedBlockId(block.id);
+                          setRefineOpen(true);
+                        }}
+                      />
+                    </div>
                   ))}
                 </SortableContext>
               </DndContext>
+            )}
+            {/* Social proof line */}
+            {blocks.length > 0 && (
+              <p className="text-center text-xs text-muted-foreground/60 mt-8 mb-4">
+                Used by strategy leaders to prepare board-level narratives.
+              </p>
             )}
           </div>
         </main>
@@ -980,6 +1104,8 @@ const Editor = () => {
           open={aiSidebarOpen}
           onToggle={() => setAiSidebarOpen(!aiSidebarOpen)}
           blocks={blocks}
+          onScoreUpdate={(score) => setClarityScore(score)}
+          autoTriggerMode={stressTestTrigger}
         />
       </div>
 
@@ -1232,6 +1358,9 @@ const Editor = () => {
           onApply={handleApplyTemplate}
         />
       )}
+
+      {/* Upgrade Gate Modal */}
+      <UpgradeGateModal open={upgradeGateOpen} onOpenChange={setUpgradeGateOpen} />
     </div>
   );
 };
@@ -1291,7 +1420,7 @@ interface SortableBlockProps {
   isSelected: boolean;
   onSelect: () => void;
   onUpdate: (content: Record<string, unknown>) => void;
-  onQuickAIAction: (instruction: string) => Promise<void>;
+  onQuickAIAction: (instruction: string, badgeText: string) => Promise<void>;
   onDelete: () => void;
   onGenerate: () => void;
   onRefine: () => void;

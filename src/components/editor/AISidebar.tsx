@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   Brain, TrendingUp, AlertTriangle, BarChart3, Shield,
@@ -26,6 +26,8 @@ interface AISidebarProps {
   open: boolean;
   onToggle: () => void;
   blocks: Block[];
+  onScoreUpdate?: (score: number) => void;
+  autoTriggerMode?: string | null;
 }
 
 const analysisOptions = [
@@ -41,11 +43,20 @@ const severityColors: Record<string, string> = {
   low: "text-muted-foreground border-border bg-muted/50",
 };
 
-const AISidebar = ({ open, onToggle, blocks }: AISidebarProps) => {
+const AISidebar = ({ open, onToggle, blocks, onScoreUpdate, autoTriggerMode }: AISidebarProps) => {
   const { toast } = useToast();
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [activeMode, setActiveMode] = useState<string | null>(null);
+  const autoTriggeredRef = useRef<string | null>(null);
+
+  // Auto-trigger analysis when requested by parent (e.g., Stress Test button)
+  useEffect(() => {
+    if (autoTriggerMode && open && autoTriggerMode !== autoTriggeredRef.current) {
+      autoTriggeredRef.current = autoTriggerMode;
+      handleAnalyze(autoTriggerMode);
+    }
+  }, [autoTriggerMode, open]);
 
   const handleAnalyze = async (mode: string) => {
     if (blocks.length === 0) {
@@ -69,6 +80,9 @@ const AISidebar = ({ open, onToggle, blocks }: AISidebarProps) => {
       if (data?.error) throw new Error(data.error);
 
       setAnalysis(data.analysis);
+      if (data.analysis?.overallScore !== undefined && onScoreUpdate) {
+        onScoreUpdate(data.analysis.overallScore);
+      }
     } catch (err) {
       console.error("Analysis error:", err);
       toast({

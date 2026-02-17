@@ -4,14 +4,14 @@ import { Loader2, Scissors, Expand, Briefcase, Zap } from "lucide-react";
 
 interface BlockHoverToolbarProps {
   visible: boolean;
-  onQuickAction: (instruction: string) => Promise<void>;
+  onQuickAction: (instruction: string, badgeText: string) => Promise<void>;
 }
 
 const actions = [
-  { label: "Shorten", icon: Scissors, instruction: "Make it more concise and punchy. Remove filler words." },
-  { label: "Expand", icon: Expand, instruction: "Expand with more detail, examples, and supporting evidence." },
-  { label: "Executive", icon: Briefcase, instruction: "Rewrite in a confident, executive tone. Lead with impact." },
-  { label: "Persuasive", icon: Zap, instruction: "Make it more persuasive. Add urgency and compelling framing." },
+  { label: "Shorten", icon: Scissors, instruction: "Make it more concise and punchy. Remove filler words.", badge: "Compressed to key points" },
+  { label: "Expand", icon: Expand, instruction: "Expand with more detail, examples, and supporting evidence.", badge: "Detail expanded" },
+  { label: "Executive", icon: Briefcase, instruction: "Rewrite in a confident, executive tone. Lead with impact.", badge: "Executive tone applied" },
+  { label: "Persuasive", icon: Zap, instruction: "Make it more persuasive. Add urgency and compelling framing.", badge: "Argument strengthened" },
 ];
 
 const BlockHoverToolbar = ({ visible, onQuickAction }: BlockHoverToolbarProps) => {
@@ -19,10 +19,10 @@ const BlockHoverToolbar = ({ visible, onQuickAction }: BlockHoverToolbarProps) =
 
   if (!visible) return null;
 
-  const handleClick = async (instruction: string, label: string) => {
-    setLoading(label);
+  const handleClick = async (action: typeof actions[number]) => {
+    setLoading(action.label);
     try {
-      await onQuickAction(instruction);
+      await onQuickAction(action.instruction, action.badge);
     } finally {
       setLoading(null);
     }
@@ -30,24 +30,24 @@ const BlockHoverToolbar = ({ visible, onQuickAction }: BlockHoverToolbarProps) =
 
   return (
     <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-card border border-border rounded-lg shadow-lg px-1.5 py-1">
-      {actions.map(({ label, icon: Icon, instruction }) => (
+      {actions.map((action) => (
         <Button
-          key={label}
+          key={action.label}
           variant="ghost"
           size="sm"
           className="h-7 px-2 text-xs gap-1"
           disabled={!!loading}
           onClick={(e) => {
             e.stopPropagation();
-            handleClick(instruction, label);
+            handleClick(action);
           }}
         >
-          {loading === label ? (
+          {loading === action.label ? (
             <Loader2 className="h-3 w-3 animate-spin" />
           ) : (
-            <Icon className="h-3 w-3" />
+            <action.icon className="h-3 w-3" />
           )}
-          {label}
+          {action.label}
         </Button>
       ))}
     </div>

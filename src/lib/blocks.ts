@@ -785,6 +785,79 @@ export function getDefaultContent(type: BlockType): Record<string, unknown> {
 // BLOCK LABELS/ICONS (UI constants)
 // ============================================
 
+// ============================================
+// EXTRACT RAW TEXT (Before/After Demo Mode)
+// ============================================
+
+/**
+ * Flatten any block's content into plain bullet-point text.
+ * Used for the "Before AI" view to show raw unstructured content.
+ */
+export function extractRawText(block: Block | AIBlock): string[] {
+  const c = block.content;
+  const lines: string[] = [];
+
+  switch (block.type) {
+    case "heading":
+      lines.push(String(c.text || ""));
+      break;
+    case "text":
+      lines.push(String(c.text || ""));
+      break;
+    case "list":
+      if (Array.isArray(c.items)) {
+        (c.items as string[]).forEach((item) => lines.push(item));
+      }
+      break;
+    case "callout":
+      lines.push(String(c.text || ""));
+      break;
+    case "two_col":
+      lines.push(String(c.left || ""));
+      lines.push(String(c.right || ""));
+      break;
+    case "table":
+      if (Array.isArray(c.headers)) lines.push((c.headers as string[]).join(" | "));
+      if (Array.isArray(c.rows)) {
+        (c.rows as string[][]).forEach((row) => lines.push(row.join(" | ")));
+      }
+      break;
+    case "image":
+      if (c.alt) lines.push(String(c.alt));
+      if (c.caption) lines.push(String(c.caption));
+      break;
+    case "exec_summary":
+      if (c.summary) lines.push(String(c.summary));
+      if (Array.isArray(c.keyPoints)) (c.keyPoints as string[]).forEach((p) => lines.push(p));
+      break;
+    case "stat_block":
+      if (Array.isArray(c.stats)) {
+        (c.stats as { value: string; label: string }[]).forEach((s) => lines.push(`${s.label}: ${s.value}`));
+      }
+      break;
+    case "quote_block":
+      if (c.quote) lines.push(String(c.quote));
+      break;
+    case "hero_header":
+      if (c.heading) lines.push(String(c.heading));
+      if (c.subheading) lines.push(String(c.subheading));
+      break;
+    case "framed_insight":
+      if (c.insight) lines.push(String(c.insight));
+      break;
+    default:
+      // Generic: extract all string values
+      Object.values(c).forEach((v) => {
+        if (typeof v === "string" && v.trim()) lines.push(v);
+        if (Array.isArray(v)) v.forEach((item) => {
+          if (typeof item === "string") lines.push(item);
+        });
+      });
+  }
+
+  return lines.filter((l) => l.trim().length > 0);
+}
+
 export const BLOCK_LABELS: Record<BlockType, string> = {
   // Basic blocks
   text: "Text",
