@@ -5,6 +5,7 @@
 
 import { type BlockPayload, type TemplateBlock } from '@/lib/templates';
 import { Image as ImageIcon } from 'lucide-react';
+import { SmartContentRenderer } from './SmartContentRenderer';
 
 // Visual block components
 import {
@@ -186,9 +187,15 @@ function TextBlock({ payload, className }: { payload: BlockPayload; className?: 
   const text = payload.text || '';
   
   return (
-    <p className={`text-fluid-lg leading-relaxed line-clamp-3 text-[var(--deck-muted,hsl(var(--muted-foreground)))] ${className}`}>
-      {text}
-    </p>
+    <SmartContentRenderer
+      text={text}
+      className={className}
+      fallback={(decoded) => (
+        <p className={`text-fluid-lg leading-relaxed line-clamp-3 text-[var(--deck-muted,hsl(var(--muted-foreground)))]`}>
+          {decoded}
+        </p>
+      )}
+    />
   );
 }
 
@@ -196,22 +203,31 @@ function ListBlock({ payload, className }: { payload: BlockPayload; className?: 
   const items = payload.items || [];
   const ordered = payload.ordered || false;
   
+  // Check if list items together form numeric data or a diagram
+  const joined = items.join('\n');
+  
   return (
-    <ul className={`text-fluid-base space-y-space-2 ${className}`}>
-      {items.slice(0, 4).map((item, i) => (
-        <li key={i} className="flex items-start gap-space-3">
-          <span className="text-[var(--deck-accent,hsl(var(--accent)))] flex-shrink-0">
-            {ordered ? `${i + 1}.` : '•'}
-          </span>
-          <span className="truncate text-[var(--deck-fg,hsl(var(--foreground)))]">{item}</span>
-        </li>
-      ))}
-      {items.length > 4 && (
-        <li className="text-[var(--deck-muted,hsl(var(--muted-foreground)))]">
-          +{items.length - 4} more...
-        </li>
+    <SmartContentRenderer
+      text={joined}
+      className={className}
+      fallback={() => (
+        <ul className={`text-fluid-base space-y-space-2`}>
+          {items.slice(0, 4).map((item, i) => (
+            <li key={i} className="flex items-start gap-space-3">
+              <span className="text-[var(--deck-accent,hsl(var(--accent)))] flex-shrink-0">
+                {ordered ? `${i + 1}.` : '•'}
+              </span>
+              <span className="truncate text-[var(--deck-fg,hsl(var(--foreground)))]">{item}</span>
+            </li>
+          ))}
+          {items.length > 4 && (
+            <li className="text-[var(--deck-muted,hsl(var(--muted-foreground)))]">
+              +{items.length - 4} more...
+            </li>
+          )}
+        </ul>
       )}
-    </ul>
+    />
   );
 }
 
