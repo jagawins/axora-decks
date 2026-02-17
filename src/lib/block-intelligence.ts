@@ -60,6 +60,7 @@ const VISUAL_BLOCK_PURPOSE_MAP: Record<VisualBlockType, BlockPurpose> = {
   three_pillars: "insight",
   two_by_two_matrix: "decision",
   decision_next_steps: "action",
+  chart_block: "proof",
 };
 
 // Purpose detection patterns for basic blocks

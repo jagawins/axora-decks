@@ -32,6 +32,7 @@ import { RecommendationPanel } from './RecommendationPanel';
 import { ThreePillars } from './ThreePillars';
 import { TwoByTwoMatrix } from './TwoByTwoMatrix';
 import { DecisionNextSteps } from './DecisionNextSteps';
+import { ChartBlock } from './ChartBlock';
 
 import type {
   StatBlockPayload,
@@ -53,6 +54,7 @@ import type {
   ThreePillarsPayload,
   TwoByTwoMatrixPayload,
   DecisionNextStepsPayload,
+  ChartBlockPayload,
 } from '@/components/blocks/types';
 
 interface VisualBlockRendererProps {
@@ -132,6 +134,8 @@ export function VisualBlockRenderer({
       return <TwoByTwoMatrix payload={payload as unknown as TwoByTwoMatrixPayload} readOnly={readOnly} className={className} />;
     case 'decision_next_steps':
       return <DecisionNextSteps payload={payload as unknown as DecisionNextStepsPayload} readOnly={readOnly} className={className} />;
+    case 'chart_block':
+      return <ChartBlock payload={payload as unknown as ChartBlockPayload} readOnly={readOnly} className={className} />;
 
     // Legacy block types
     case 'heading':

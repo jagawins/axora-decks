@@ -449,6 +449,14 @@ export type Database = {
         | "section_divider"
         | "icon_text_block"
         | "framed_insight"
+        | "chart_block"
+        | "three_pillars"
+        | "two_by_two_matrix"
+        | "decision_next_steps"
+        | "decision_summary"
+        | "evidence_map"
+        | "scenario_set"
+        | "recommendation_panel"
       export_format: "pdf" | "slides" | "web"
       user_tier: "free" | "pro" | "executive"
     }
@@ -597,6 +605,14 @@ export const Constants = {
         "section_divider",
         "icon_text_block",
         "framed_insight",
+        "chart_block",
+        "three_pillars",
+        "two_by_two_matrix",
+        "decision_next_steps",
+        "decision_summary",
+        "evidence_map",
+        "scenario_set",
+        "recommendation_panel",
       ],
       export_format: ["pdf", "slides", "web"],
       user_tier: ["free", "pro", "executive"],

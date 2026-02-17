@@ -59,6 +59,7 @@ export const BLOCK_ICONS: Record<BlockType, LucideIcon> = {
   three_pillars: Target,
   two_by_two_matrix: Grid3X3,
   decision_next_steps: ListChecks,
+  chart_block: BarChart3,
   // Decision blocks
   decision_summary: HelpCircle,
   evidence_map: MapPin,
