@@ -441,18 +441,12 @@ export function ImportContentModal({
         // Apply decision ordering before saving (order is persisted, not just rendered)
         const orderedBlocks = sortDecisionBlocks(blocksToUse as AIBlock[]);
         const blocksToInsert = orderedBlocks.map((block, index) => {
-          const isVisual = VISUAL_BLOCK_TYPES.includes(block.type as any);
-          const isDecision = DECISION_BLOCK_TYPES.includes(block.type as any);
           const payload = (block as any).block_payload ?? block.content;
           return {
             project_id: newProject.id,
             type: block.type,
             content: payload as Record<string, unknown>,
             order_index: index,
-            ...((isVisual || isDecision) && { 
-              block_payload: payload,
-              block_meta: (block as any).block_meta ?? { schema_version: 1 } 
-            }),
           };
         });
         const { error: insertError } = await supabase.from("blocks").insert(blocksToInsert as any);
