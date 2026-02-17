@@ -37,6 +37,9 @@ import {
   LayoutTemplate,
   MoreVertical,
   AlertCircle,
+  Eye,
+  Pencil,
+  GripVertical,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
@@ -64,7 +67,26 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileEditorTabs, { MobileTab } from "@/components/editor/MobileEditorTabs";
 import MobileBlocksPanel from "@/components/editor/MobileBlocksPanel";
 import MobileAIPanel from "@/components/editor/MobileAIPanel";
+import BlockHoverToolbar from "@/components/editor/BlockHoverToolbar";
+import AISidebar from "@/components/editor/AISidebar";
 import { BLOCK_ICONS, getBlockIcon } from "@/lib/block-icons";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface Project {
   id: string;
@@ -85,6 +107,14 @@ const Editor = () => {
   const [saving, setSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"edit" | "presentation">("edit");
+  const [aiSidebarOpen, setAiSidebarOpen] = useState(false);
+
+  // Drag sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   // AI refine state
   const [refineOpen, setRefineOpen] = useState(false);
@@ -240,6 +270,48 @@ const Editor = () => {
     });
     setHasUnsavedChanges(true);
   }, []);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    setBlocks((prev) => {
+      const oldIndex = prev.findIndex((b) => b.id === active.id);
+      const newIndex = prev.findIndex((b) => b.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return prev;
+      return arrayMove(prev, oldIndex, newIndex).map((b, i) => ({ ...b, order_index: i }));
+    });
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const handleQuickAIAction = useCallback(async (blockId: string, instruction: string) => {
+    const block = blocks.find((b) => b.id === blockId);
+    if (!block) return;
+
+    try {
+      const refined = await aiEngine.refineBlock({
+        block: { type: block.type, content: block.content, order_index: block.order_index },
+        instruction,
+      });
+
+      let sanitized = sanitizeContent(refined.content);
+      sanitized = normalizeBlockContent(block.type, sanitized);
+
+      if (block.type === "list" && Array.isArray(sanitized.items)) {
+        sanitized.items = sanitizeListItems(sanitized.items);
+      }
+
+      updateBlock(block.id, sanitized);
+      toast({ title: "Block updated", description: "AI applied the edit." });
+    } catch (error) {
+      console.error("Quick AI action error:", error);
+      toast({
+        title: "AI edit failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [blocks, updateBlock, toast]);
 
   const deleteBlock = useCallback(
     (blockId: string) => {
@@ -660,6 +732,28 @@ const Editor = () => {
               Generate Deck
             </Button>
 
+            {/* View Mode Toggle */}
+            <div className="flex items-center bg-muted rounded-lg p-0.5">
+              <Button
+                variant={viewMode === "edit" ? "secondary" : "ghost"}
+                size="sm"
+                className="h-7 px-2.5 text-xs"
+                onClick={() => setViewMode("edit")}
+              >
+                <Pencil className="h-3 w-3 mr-1" />
+                Edit
+              </Button>
+              <Button
+                variant={viewMode === "presentation" ? "secondary" : "ghost"}
+                size="sm"
+                className="h-7 px-2.5 text-xs"
+                onClick={() => setViewMode("presentation")}
+              >
+                <Eye className="h-3 w-3 mr-1" />
+                Present
+              </Button>
+            </div>
+
             <Button variant="ghost" size="sm" onClick={() => navigate(`/preview/${projectId}`)}>
               <Play className="h-4 w-4 mr-2" />
               Preview
@@ -812,7 +906,7 @@ const Editor = () => {
         </aside>
 
         {/* Center - Canvas */}
-        <main className="flex-1 overflow-y-auto p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-3xl mx-auto space-y-6">
             {blocks.length === 0 ? (
               <div className="text-center py-16">
@@ -843,105 +937,50 @@ const Editor = () => {
                   </div>
                 </div>
               </div>
+            ) : viewMode === "presentation" ? (
+              /* Presentation Mode - Read-only slide layout */
+              <div className="space-y-8">
+                {blocks.map((block) => (
+                  <div key={block.id} className="bg-card rounded-xl border border-border p-8 shadow-sm">
+                    <PresentationBlock block={block} />
+                  </div>
+                ))}
+              </div>
             ) : (
-              blocks.map((block) => (
-                <BlockRenderer
-                  key={block.id}
-                  block={block}
-                  isSelected={selectedBlockId === block.id}
-                  onSelect={() => setSelectedBlockId(block.id)}
-                  onUpdate={(content) => updateBlock(block.id, content)}
-                />
-              ))
+              /* Edit Mode - Draggable blocks with hover toolbar */
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
+                  {blocks.map((block) => (
+                    <SortableBlock
+                      key={block.id}
+                      block={block}
+                      isSelected={selectedBlockId === block.id}
+                      onSelect={() => setSelectedBlockId(block.id)}
+                      onUpdate={(content) => updateBlock(block.id, content)}
+                      onQuickAIAction={(instruction) => handleQuickAIAction(block.id, instruction)}
+                      onDelete={() => deleteBlock(block.id)}
+                      onGenerate={() => {
+                        setSelectedBlockId(block.id);
+                        setGenerateOpen(true);
+                      }}
+                      onRefine={() => {
+                        setSelectedBlockId(block.id);
+                        setRefineOpen(true);
+                      }}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
             )}
           </div>
         </main>
 
-        {/* Right sidebar - AI Panel (Desktop only) */}
-        <aside className="hidden md:block w-72 border-l border-border bg-card/30 overflow-y-auto">
-          <div className="p-4">
-            <h3 className="font-semibold text-sm mb-4">AI Actions</h3>
-
-            {selectedBlock ? (
-              <div className="space-y-4">
-                <div className="p-3 rounded-lg bg-muted/50 border border-border">
-                  <p className="text-xs text-muted-foreground mb-1">Selected block</p>
-                  <p className="font-medium text-sm">{BLOCK_LABELS[selectedBlock.type]}</p>
-                </div>
-
-                <Button variant="hero" className="w-full justify-start" onClick={() => setGenerateOpen(true)}>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate with AI
-                </Button>
-
-                <Button variant="outline" className="w-full justify-start" onClick={() => setRefineOpen(true)}>
-                  <Wand2 className="h-4 w-4 mr-2" />
-                  Agent Edit
-                </Button>
-
-                <Button variant="outline" className="w-full justify-start" onClick={() => setApplyTemplateOpen(true)}>
-                  <LayoutTemplate className="h-4 w-4 mr-2" />
-                  Apply Template
-                </Button>
-                <p className="text-xs text-muted-foreground px-1">
-                  Transform block using a predefined format
-                </p>
-
-                <div className="pt-4 border-t border-border">
-                  <p className="text-xs text-muted-foreground mb-2">Quick edits (block only)</p>
-                  <div className="space-y-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-sm h-8"
-                      onClick={() => {
-                        setRefineInstruction("Make it more concise and punchy");
-                        setRefineOpen(true);
-                      }}
-                    >
-                      ✂️ Shorten
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-sm h-8"
-                      onClick={() => {
-                        setRefineInstruction("Expand with more detail and examples");
-                        setRefineOpen(true);
-                      }}
-                    >
-                      📝 Expand
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-sm h-8"
-                      onClick={() => {
-                        setRefineInstruction("Make the tone more professional and executive");
-                        setRefineOpen(true);
-                      }}
-                    >
-                      👔 Professional
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-sm h-8"
-                      onClick={() => {
-                        setRefineInstruction("Simplify the language for a general audience");
-                        setRefineOpen(true);
-                      }}
-                    >
-                      💡 Simplify
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">Select a block to use AI actions</p>
-            )}
-          </div>
-        </aside>
+        {/* Right sidebar - AI Analysis Panel */}
+        <AISidebar
+          open={aiSidebarOpen}
+          onToggle={() => setAiSidebarOpen(!aiSidebarOpen)}
+          blocks={blocks}
+        />
       </div>
 
       {/* Mobile Bottom Tabs */}
@@ -1244,7 +1283,179 @@ function getBlockPreview(block: Block): string {
   }
 }
 
-// Block Renderer Component
+// ============================================================
+// SortableBlock – wraps BlockRenderer with dnd-kit + hover toolbar
+// ============================================================
+interface SortableBlockProps {
+  block: Block;
+  isSelected: boolean;
+  onSelect: () => void;
+  onUpdate: (content: Record<string, unknown>) => void;
+  onQuickAIAction: (instruction: string) => Promise<void>;
+  onDelete: () => void;
+  onGenerate: () => void;
+  onRefine: () => void;
+}
+
+const SortableBlock = ({
+  block,
+  isSelected,
+  onSelect,
+  onUpdate,
+  onQuickAIAction,
+  onDelete,
+  onGenerate,
+  onRefine,
+}: SortableBlockProps) => {
+  const [hovered, setHovered] = useState(false);
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="relative group"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Hover toolbar with AI quick actions */}
+      <BlockHoverToolbar visible={hovered && !isDragging} onQuickAction={onQuickAIAction} />
+
+      {/* Drag handle + actions */}
+      <div className={`absolute -left-10 top-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${isDragging ? 'opacity-100' : ''}`}>
+        <button
+          {...attributes}
+          {...listeners}
+          className="p-1 hover:bg-muted rounded cursor-grab active:cursor-grabbing"
+          tabIndex={-1}
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </div>
+
+      {/* Delete / AI buttons on right side */}
+      <div className="absolute -right-10 top-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={(e) => { e.stopPropagation(); onGenerate(); }}
+          className="p-1 hover:bg-accent/20 rounded text-accent"
+          title="Generate with AI"
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); onRefine(); }}
+          className="p-1 hover:bg-accent/20 rounded text-accent"
+          title="Agent Edit"
+        >
+          <Wand2 className="h-3.5 w-3.5" />
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          className="p-1 hover:bg-destructive/20 rounded text-destructive"
+          title="Delete"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      <BlockRenderer
+        block={block}
+        isSelected={isSelected}
+        onSelect={onSelect}
+        onUpdate={onUpdate}
+      />
+    </div>
+  );
+};
+
+// ============================================================
+// PresentationBlock – Read-only slide rendering
+// ============================================================
+const PresentationBlock = ({ block }: { block: Block }) => {
+  const content = block.content;
+
+  switch (block.type) {
+    case "heading":
+      return (
+        <h2 className={`font-bold ${content.level === 1 ? "text-4xl" : content.level === 2 ? "text-3xl" : "text-2xl"}`}>
+          {String(content.text || "")}
+        </h2>
+      );
+    case "text":
+      return <p className="text-lg leading-relaxed text-muted-foreground">{String(content.text || "")}</p>;
+    case "list":
+      return (
+        <ul className="space-y-2 text-lg">
+          {((content.items as string[]) || []).map((item, i) => (
+            <li key={i} className="flex items-start gap-3">
+              <span className="text-accent flex-shrink-0">{content.ordered ? `${i + 1}.` : "•"}</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      );
+    case "callout":
+      return (
+        <div className="flex items-start gap-4 p-6 rounded-xl bg-accent/10 border border-accent/20">
+          <AlertCircle className="h-6 w-6 text-accent flex-shrink-0 mt-0.5" />
+          <p className="text-lg">{String(content.text || "")}</p>
+        </div>
+      );
+    case "two_col":
+      return (
+        <div className="grid grid-cols-2 gap-8">
+          <div className="text-muted-foreground">{String(content.left || "")}</div>
+          <div className="text-muted-foreground">{String(content.right || "")}</div>
+        </div>
+      );
+    case "table":
+      return (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr>
+                {((content.headers as string[]) || []).map((h, i) => (
+                  <th key={i} className="border border-border p-3 bg-muted/30 font-semibold text-left">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {((content.rows as string[][]) || []).map((row, ri) => (
+                <tr key={ri}>
+                  {row.map((cell, ci) => (
+                    <td key={ci} className="border border-border p-3">{cell}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    case "image":
+      return content.src ? (
+        <img src={String(content.src)} alt={String(content.alt || "")} className="max-w-full rounded-lg" />
+      ) : (
+        <div className="aspect-video bg-muted/20 rounded-lg flex items-center justify-center border-2 border-dashed border-border">
+          <p className="text-muted-foreground">Image placeholder</p>
+        </div>
+      );
+    default:
+      return (
+        <div className="p-4 rounded-lg bg-muted/20 border border-border">
+          <p className="text-sm text-muted-foreground">{BLOCK_LABELS[block.type]}</p>
+          <pre className="text-xs mt-2 overflow-hidden">{JSON.stringify(content, null, 2).slice(0, 200)}</pre>
+        </div>
+      );
+  }
+};
+
+// Block Renderer Component (Edit Mode)
 interface BlockRendererProps {
   block: Block;
   isSelected: boolean;
@@ -1415,6 +1626,22 @@ const BlockRenderer = ({ block, isSelected, onSelect, onUpdate }: BlockRendererP
             placeholder="Caption (optional)"
             className="bg-muted/30 text-sm"
           />
+        </div>
+      )}
+
+      {/* Visual/Decision block fallback display */}
+      {!["heading", "text", "list", "callout", "two_col", "table", "image"].includes(block.type) && (
+        <div className="p-3 rounded-lg bg-muted/20 border border-border">
+          <div className="flex items-center gap-2 mb-2">
+            {(() => {
+              const Icon = BLOCK_ICONS[block.type];
+              return <Icon className="h-4 w-4 text-accent" />;
+            })()}
+            <span className="text-sm font-medium">{BLOCK_LABELS[block.type]}</span>
+          </div>
+          <pre className="text-xs text-muted-foreground overflow-hidden whitespace-pre-wrap">
+            {JSON.stringify(content, null, 2).slice(0, 300)}
+          </pre>
         </div>
       )}
     </div>

@@ -30,5 +30,8 @@ verify_jwt = false
 [functions.resolve-images]
 verify_jwt = false
 
+[functions.analyze-document]
+verify_jwt = false
+
 [functions.parse-file]
 verify_jwt = false
