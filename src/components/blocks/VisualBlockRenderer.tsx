@@ -28,6 +28,11 @@ import { EvidenceMap } from './EvidenceMap';
 import { ScenarioSet } from './ScenarioSet';
 import { RecommendationPanel } from './RecommendationPanel';
 
+// New visual block components
+import { ThreePillars } from './ThreePillars';
+import { TwoByTwoMatrix } from './TwoByTwoMatrix';
+import { DecisionNextSteps } from './DecisionNextSteps';
+
 import type {
   StatBlockPayload,
   QuoteBlockPayload,
@@ -45,6 +50,9 @@ import type {
   EvidenceMapPayload,
   ScenarioSetPayload,
   RecommendationPanelPayload,
+  ThreePillarsPayload,
+  TwoByTwoMatrixPayload,
+  DecisionNextStepsPayload,
 } from '@/components/blocks/types';
 
 interface VisualBlockRendererProps {
@@ -117,6 +125,14 @@ export function VisualBlockRenderer({
     case 'recommendation_panel':
       return <RecommendationPanel payload={payload as unknown as RecommendationPanelPayload} readOnly={readOnly} className={className} />;
     
+    // New visual block types
+    case 'three_pillars':
+      return <ThreePillars payload={payload as unknown as ThreePillarsPayload} readOnly={readOnly} className={className} />;
+    case 'two_by_two_matrix':
+      return <TwoByTwoMatrix payload={payload as unknown as TwoByTwoMatrixPayload} readOnly={readOnly} className={className} />;
+    case 'decision_next_steps':
+      return <DecisionNextSteps payload={payload as unknown as DecisionNextStepsPayload} readOnly={readOnly} className={className} />;
+
     // Legacy block types
     case 'heading':
       return <HeadingBlock payload={payload} className={className} />;

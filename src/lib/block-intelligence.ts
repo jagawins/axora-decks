@@ -57,6 +57,9 @@ const VISUAL_BLOCK_PURPOSE_MAP: Record<VisualBlockType, BlockPurpose> = {
   section_divider: "transition",
   icon_text_block: "insight",
   framed_insight: "insight",
+  three_pillars: "insight",
+  two_by_two_matrix: "decision",
+  decision_next_steps: "action",
 };
 
 // Purpose detection patterns for basic blocks

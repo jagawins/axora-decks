@@ -15,7 +15,10 @@ export type VisualBlockType =
   | "cta_section"
   | "section_divider" 
   | "icon_text_block" 
-  | "framed_insight";
+  | "framed_insight"
+  | "three_pillars"
+  | "two_by_two_matrix"
+  | "decision_next_steps";
 
 // Decision block types (Decision Layer)
 export type DecisionBlockType =

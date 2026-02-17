@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { aiEngine } from "@/lib/ai-engine";
+import { runVisualLayoutPass } from "@/lib/visual-layout-pass";
 import {
   Block,
   BlockType,
@@ -43,6 +44,7 @@ import {
   GripVertical,
   PanelRight,
   Zap,
+  Layers,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
@@ -570,7 +572,9 @@ const Editor = () => {
       });
 
       // Use shared pipeline for normalization
-      const newBlocks = toEditorBlocks(result.blocks);
+      let newBlocks = toEditorBlocks(result.blocks);
+      // Run visual layout pass to enforce variety
+      newBlocks = runVisualLayoutPass(newBlocks);
 
       setBlocks(newBlocks);
       setHasUnsavedChanges(true);
@@ -779,6 +783,15 @@ const Editor = () => {
     toast({ title: "Quick Polish complete", description: `${total} blocks refined.` });
   };
 
+  // Make it Visual – run layout pass to transform verbose blocks
+  const handleMakeItVisual = useCallback(() => {
+    if (blocks.length === 0) return;
+    const transformed = runVisualLayoutPass(blocks);
+    setBlocks(transformed);
+    setHasUnsavedChanges(true);
+    toast({ title: "Layout upgraded", description: "Verbose blocks converted to visual layouts." });
+  }, [blocks, toast]);
+
   const selectedBlock = blocks.find((b) => b.id === selectedBlockId);
 
   if (authLoading || loading) {
@@ -854,7 +867,16 @@ const Editor = () => {
               )}
             </Button>
 
-            {/* Layout Preset */}
+            {/* Make it Visual */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleMakeItVisual}
+              disabled={blocks.length === 0}
+            >
+              <Layers className="h-4 w-4 mr-2" />
+              Make it Visual
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
@@ -966,6 +988,10 @@ const Editor = () => {
                 <DropdownMenuItem onClick={handleQuickPolish} disabled={polishing || blocks.length === 0}>
                   <Zap className="h-4 w-4 mr-2" />
                   {polishing ? "Polishing…" : "Quick Polish"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleMakeItVisual} disabled={blocks.length === 0}>
+                  <Layers className="h-4 w-4 mr-2" />
+                  Make it Visual
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate(`/preview/${projectId}`)}>
                   <Play className="h-4 w-4 mr-2" />
