@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { aiEngine } from "@/lib/ai-engine";
-import { runVisualLayoutPass } from "@/lib/visual-layout-pass";
+import { runVisualLayoutPass, enrichHeroImage } from "@/lib/visual-layout-pass";
 import {
   Block,
   BlockType,
@@ -582,6 +582,14 @@ const Editor = () => {
       incrementDeckGenCount();
 
       await saveBlocksAndNavigate(newBlocks);
+
+      // Async hero image enrichment (non-blocking)
+      enrichHeroImage(newBlocks).then((enriched) => {
+        if (enriched !== newBlocks) {
+          setBlocks(enriched);
+          setHasUnsavedChanges(true);
+        }
+      });
     } catch (error) {
       console.error("Create deck error:", error);
       toast({

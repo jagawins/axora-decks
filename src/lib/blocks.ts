@@ -25,7 +25,8 @@ export type VisualBlockType =
   | "framed_insight"
   | "three_pillars"
   | "two_by_two_matrix"
-  | "decision_next_steps";
+  | "decision_next_steps"
+  | "chart_block";
 
 // Decision block types (Decision Layer)
 export type DecisionBlockType =
@@ -53,6 +54,7 @@ export const VISUAL_BLOCK_TYPES: VisualBlockType[] = [
   "three_pillars",
   "two_by_two_matrix",
   "decision_next_steps",
+  "chart_block",
 ];
 
 // Decision block type array for runtime checks
@@ -151,6 +153,7 @@ export function isVisualBlockType(type: BlockType): type is VisualBlockType {
     "card_grid", "hero_header", "exec_summary", "cta_section",
     "section_divider", "icon_text_block", "framed_insight",
     "three_pillars", "two_by_two_matrix", "decision_next_steps",
+    "chart_block",
   ].includes(type);
 }
 
@@ -410,6 +413,17 @@ function validateVisualBlock(type: VisualBlockType, content: Record<string, unkn
       const insight = content.insight;
       if (typeof insight !== "string" || insight.trim().length < 5) {
         errors.push("insight must be at least 5 characters");
+      }
+      break;
+    }
+    case "chart_block": {
+      const data = content.data;
+      const chartType = content.chartType;
+      if (!["bar", "line"].includes(String(chartType))) {
+        errors.push("chartType must be bar or line");
+      }
+      if (!Array.isArray(data) || data.length < 2) {
+        errors.push("data must have at least 2 items");
       }
       break;
     }
@@ -785,6 +799,8 @@ export function getDefaultContent(type: BlockType): Record<string, unknown> {
       ], xAxis: "Effort", yAxis: "Impact" };
     case "decision_next_steps":
       return { decision: "Decision to make", next_steps: [{ action: "First step", priority: "high" }] };
+    case "chart_block":
+      return { chartType: "bar", data: [{ label: "A", value: 10 }, { label: "B", value: 20 }] };
     // Decision block defaults
     case "decision_summary":
       return { question: "What should we decide?", recommendation: "Not provided", confidence: "medium" };
@@ -900,6 +916,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   three_pillars: "Three Pillars",
   two_by_two_matrix: "2×2 Matrix",
   decision_next_steps: "Decision + Next Steps",
+  chart_block: "Chart",
   // Decision blocks
   decision_summary: "Decision Summary",
   evidence_map: "Evidence Map",

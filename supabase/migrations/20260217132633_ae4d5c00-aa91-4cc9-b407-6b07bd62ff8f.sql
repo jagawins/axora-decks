@@ -1,0 +1,9 @@
+-- Add new block types to the block_type enum
+ALTER TYPE public.block_type ADD VALUE IF NOT EXISTS 'chart_block';
+ALTER TYPE public.block_type ADD VALUE IF NOT EXISTS 'three_pillars';
+ALTER TYPE public.block_type ADD VALUE IF NOT EXISTS 'two_by_two_matrix';
+ALTER TYPE public.block_type ADD VALUE IF NOT EXISTS 'decision_next_steps';
+ALTER TYPE public.block_type ADD VALUE IF NOT EXISTS 'decision_summary';
+ALTER TYPE public.block_type ADD VALUE IF NOT EXISTS 'evidence_map';
+ALTER TYPE public.block_type ADD VALUE IF NOT EXISTS 'scenario_set';
+ALTER TYPE public.block_type ADD VALUE IF NOT EXISTS 'recommendation_panel';

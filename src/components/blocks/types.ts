@@ -213,6 +213,14 @@ export interface DecisionNextStepsPayload extends BaseBlockPayload {
   risks?: string[];
 }
 
+// Chart Block
+export interface ChartBlockPayload extends BaseBlockPayload {
+  chartType: 'bar' | 'line';
+  data: Array<{ label: string; value: number; series?: string }>;
+  xLabel?: string;
+  yLabel?: string;
+}
+
 // Union type for all visual block payloads
 export type VisualBlockPayload =
   | StatBlockPayload
@@ -233,7 +241,8 @@ export type VisualBlockPayload =
   | RecommendationPanelPayload
   | ThreePillarsPayload
   | TwoByTwoMatrixPayload
-  | DecisionNextStepsPayload;
+  | DecisionNextStepsPayload
+  | ChartBlockPayload;
 
 // Visual block type names
 export type VisualBlockType =
@@ -251,7 +260,8 @@ export type VisualBlockType =
   | 'two_col'
   | 'three_pillars'
   | 'two_by_two_matrix'
-  | 'decision_next_steps';
+  | 'decision_next_steps'
+  | 'chart_block';
 
 // Decision block type names
 export type DecisionBlockType =

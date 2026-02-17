@@ -18,7 +18,8 @@ export type VisualBlockType =
   | "framed_insight"
   | "three_pillars"
   | "two_by_two_matrix"
-  | "decision_next_steps";
+  | "decision_next_steps"
+  | "chart_block";
 
 // Decision block types (Decision Layer)
 export type DecisionBlockType =

@@ -57,7 +57,7 @@ const BASIC_BLOCK_TYPES = ["heading", "text", "list", "callout", "two_col", "tab
 const VISUAL_BLOCK_TYPES = [
   "stat_block", "quote_block", "timeline_block", "comparison_table",
   "card_grid", "hero_header", "exec_summary", "cta_section",
-  "section_divider", "icon_text_block", "framed_insight"
+  "section_divider", "icon_text_block", "framed_insight", "chart_block"
 ];
 const DECISION_BLOCK_TYPES = [
   "decision_summary", "evidence_map", "scenario_set", "recommendation_panel"
@@ -492,6 +492,23 @@ function validateBlockContent(type: string, sanitizedContent: BlockContent): { v
       }
       break;
     }
+    case "chart_block": {
+      const data = sanitizedContent.data;
+      const chartType = sanitizedContent.chartType;
+      if (!["bar", "line"].includes(String(chartType))) {
+        missingKeys.push("chartType (enum: bar|line)");
+      }
+      if (!Array.isArray(data) || data.length < 2) {
+        missingKeys.push("data (minItems: 2)");
+      } else {
+        for (let i = 0; i < data.length; i++) {
+          const dp = data[i] as { label?: unknown; value?: unknown };
+          if (typeof dp?.label !== "string") missingKeys.push(`data[${i}].label required`);
+          if (typeof dp?.value !== "number") missingKeys.push(`data[${i}].value must be number`);
+        }
+      }
+      break;
+    }
     // Decision block validations (Contract v2)
     case "decision_summary": {
       const summary = sanitizedContent.summary;
@@ -777,6 +794,12 @@ VISUAL BLOCK FORMATS:
 - section_divider: {"style": "gradient", "label": "Next Section"}
 - icon_text_block: {"items": [{"icon": "Star", "title": "Feature", "description": "Details"}]}
 - framed_insight: {"insight": "Key insight here", "type": "tip", "source": "Research"}
+- chart_block: {"chartType": "bar", "data": [{"label": "Category A", "value": 100}, {"label": "Category B", "value": 200}], "title": "Chart Title"}
+
+12. NUMERIC DATA WITH 3+ POINTS → chart_block
+    - When content has time-series data (Q1, Q2, 2024, Jan, etc.) use chartType "line"
+    - When content has categorical comparisons use chartType "bar"
+    - Data values must be numbers, labels must be strings
 ` : '';
 
   let prompt = decisionMode 

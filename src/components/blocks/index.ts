@@ -30,6 +30,7 @@ export { RecommendationPanel } from './RecommendationPanel';
 export { ThreePillars } from './ThreePillars';
 export { TwoByTwoMatrix } from './TwoByTwoMatrix';
 export { DecisionNextSteps } from './DecisionNextSteps';
+export { ChartBlock } from './ChartBlock';
 
 // Unified Renderer
 export { VisualBlockRenderer, getPayload } from './VisualBlockRenderer';
