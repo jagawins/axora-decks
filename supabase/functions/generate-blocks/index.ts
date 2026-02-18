@@ -27,6 +27,7 @@ type BlockType =
   | "stat_block" | "quote_block" | "timeline_block" | "comparison_table"
   | "card_grid" | "hero_header" | "exec_summary" | "cta_section"
   | "section_divider" | "icon_text_block" | "framed_insight"
+  | "chart_block" | "three_pillars" | "two_by_two_matrix" | "decision_next_steps"
   | "decision_summary" | "evidence_map" | "scenario_set" | "recommendation_panel";
 
 interface Block {
@@ -44,6 +45,7 @@ interface ValidationResult {
   density?: string;
   enableVisualBlocks?: boolean;
   decisionMode?: boolean;
+  targetSlideCount?: number;
 }
 
 interface BlockValidationResult {
@@ -57,7 +59,8 @@ const BASIC_BLOCK_TYPES = ["heading", "text", "list", "callout", "two_col", "tab
 const VISUAL_BLOCK_TYPES = [
   "stat_block", "quote_block", "timeline_block", "comparison_table",
   "card_grid", "hero_header", "exec_summary", "cta_section",
-  "section_divider", "icon_text_block", "framed_insight", "chart_block"
+  "section_divider", "icon_text_block", "framed_insight",
+  "chart_block", "three_pillars", "two_by_two_matrix", "decision_next_steps"
 ];
 const DECISION_BLOCK_TYPES = [
   "decision_summary", "evidence_map", "scenario_set", "recommendation_panel"
@@ -99,16 +102,17 @@ function validateRequest(body: unknown): ValidationResult & { preserveWording?: 
     return { valid: false, error: "Request body must be a JSON object" };
   }
 
-  const { outline, density, enableVisualBlocks, preserveWording, decision_mode } = body as { 
+  const { outline, density, enableVisualBlocks, preserveWording, decision_mode, targetSlideCount } = body as { 
     outline?: unknown; 
     density?: string;
     enableVisualBlocks?: boolean;
     preserveWording?: boolean;
     decision_mode?: boolean;
+    targetSlideCount?: number;
   };
 
   // Log decision_mode flag
-  console.log(`[validateRequest] decision_mode: ${decision_mode === true}`);
+  console.log(`[validateRequest] decision_mode: ${decision_mode === true}, targetSlideCount: ${targetSlideCount}`);
 
   if (!outline || typeof outline !== "object") {
     return { valid: false, error: "outline is required and must be an object" };
@@ -137,6 +141,10 @@ function validateRequest(body: unknown): ValidationResult & { preserveWording?: 
   const validDensities = ["vibes", "minimal", "context", "plenty"];
   const sanitizedDensity = typeof density === "string" && validDensities.includes(density) ? density : undefined;
 
+  const sanitizedSlideCount = typeof targetSlideCount === "number" && targetSlideCount >= 3 && targetSlideCount <= 20 
+    ? targetSlideCount 
+    : undefined;
+
   return {
     valid: true,
     outline: {
@@ -149,6 +157,7 @@ function validateRequest(body: unknown): ValidationResult & { preserveWording?: 
     enableVisualBlocks: enableVisualBlocks !== false, // Default to true
     preserveWording: preserveWording !== false, // Default to true
     decisionMode: decision_mode === true, // Default to false - read from decision_mode
+    targetSlideCount: sanitizedSlideCount,
   };
 }
 
@@ -271,6 +280,10 @@ function normalizeBlockContent(type: string, content: BlockContent): BlockConten
     case "section_divider":
     case "icon_text_block":
     case "framed_insight":
+    case "chart_block":
+    case "three_pillars":
+    case "two_by_two_matrix":
+    case "decision_next_steps":
       // Pass through - these have strict schemas
       break;
   }
@@ -506,6 +519,59 @@ function validateBlockContent(type: string, sanitizedContent: BlockContent): { v
           if (typeof dp?.label !== "string") missingKeys.push(`data[${i}].label required`);
           if (typeof dp?.value !== "number") missingKeys.push(`data[${i}].value must be number`);
         }
+      }
+      break;
+    }
+    case "three_pillars": {
+      const pillars = sanitizedContent.pillars;
+      if (!Array.isArray(pillars) || pillars.length !== 3) {
+        missingKeys.push("pillars (exactly 3 items required)");
+      } else {
+        for (let i = 0; i < pillars.length; i++) {
+          const p = pillars[i] as { title?: unknown };
+          if (typeof p?.title !== "string" || (p.title as string).trim().length < 1) {
+            missingKeys.push(`pillars[${i}].title required`);
+            break;
+          }
+        }
+      }
+      break;
+    }
+    case "two_by_two_matrix": {
+      const xAxisLabel = sanitizedContent.xAxisLabel;
+      const yAxisLabel = sanitizedContent.yAxisLabel;
+      const quadrants = sanitizedContent.quadrants;
+      if (typeof xAxisLabel !== "string" || (xAxisLabel as string).trim().length < 1) {
+        missingKeys.push("xAxisLabel required");
+      }
+      if (typeof yAxisLabel !== "string" || (yAxisLabel as string).trim().length < 1) {
+        missingKeys.push("yAxisLabel required");
+      }
+      if (!Array.isArray(quadrants) || quadrants.length !== 4) {
+        missingKeys.push("quadrants (exactly 4 items required)");
+      } else {
+        for (let i = 0; i < quadrants.length; i++) {
+          const q = quadrants[i] as { title?: unknown };
+          if (typeof q?.title !== "string" || (q.title as string).trim().length < 1) {
+            missingKeys.push(`quadrants[${i}].title required`);
+            break;
+          }
+        }
+      }
+      break;
+    }
+    case "decision_next_steps": {
+      const recommendation = sanitizedContent.recommendation;
+      const rationale = sanitizedContent.rationale;
+      const nextSteps = sanitizedContent.nextSteps;
+      if (typeof recommendation !== "string" || (recommendation as string).trim().length < 5) {
+        missingKeys.push("recommendation (minLength: 5)");
+      }
+      if (!Array.isArray(rationale) || rationale.length < 1) {
+        missingKeys.push("rationale (minItems: 1)");
+      }
+      if (!Array.isArray(nextSteps) || nextSteps.length < 1) {
+        missingKeys.push("nextSteps (minItems: 1)");
       }
       break;
     }
@@ -795,11 +861,34 @@ VISUAL BLOCK FORMATS:
 - icon_text_block: {"items": [{"icon": "Star", "title": "Feature", "description": "Details"}]}
 - framed_insight: {"insight": "Key insight here", "type": "tip", "source": "Research"}
 - chart_block: {"chartType": "bar", "data": [{"label": "Category A", "value": 100}, {"label": "Category B", "value": 200}], "title": "Chart Title"}
+- three_pillars: {"title": "Our Strategy", "pillars": [{"title": "Pillar 1", "description": "Details", "icon": "Target"}, {"title": "Pillar 2", "description": "Details", "icon": "Zap"}, {"title": "Pillar 3", "description": "Details", "icon": "Star"}]}
+- two_by_two_matrix: {"title": "Priority Matrix", "xAxisLabel": "Effort", "yAxisLabel": "Impact", "quadrants": [{"title": "Quick Wins", "description": "Low effort, high impact"}, {"title": "Major Projects", "description": "High effort, high impact"}, {"title": "Fill-ins", "description": "Low effort, low impact"}, {"title": "Hard Slogs", "description": "High effort, low impact"}]}
+- decision_next_steps: {"title": "Next Steps", "recommendation": "Proceed with Option A", "rationale": ["Reason 1", "Reason 2"], "nextSteps": [{"action": "Define scope", "owner": "PM", "due": "Q1"}], "risks": ["Risk 1"]}
 
 12. NUMERIC DATA WITH 3+ POINTS → chart_block
     - When content has time-series data (Q1, Q2, 2024, Jan, etc.) use chartType "line"
     - When content has categorical comparisons use chartType "bar"
     - Data values must be numbers, labels must be strings
+
+13. EXACTLY 3 STRATEGIC THEMES/PILLARS → three_pillars
+    - When content describes exactly 3 key principles, pillars, or strategic focus areas
+    - Example: "three core values", "three strategic priorities", "three pillars of success"
+
+14. STRATEGIC POSITIONING/QUADRANT → two_by_two_matrix
+    - When content maps options across two dimensions (risk/reward, effort/impact, etc.)
+    - Provide exactly 4 quadrant objects
+
+15. RECOMMENDATION WITH NEXT STEPS → decision_next_steps
+    - When content has a clear recommendation plus actionable next steps
+    - Must have: recommendation, rationale array, nextSteps array
+
+MANDATORY VISUAL REQUIREMENTS (HARD RULES - NON-NEGOTIABLE):
+- At least 40% of all blocks MUST be visual types (not text, list, heading, or callout)
+- If content contains 3+ numeric data points → MUST use chart_block (never use list for numeric data)
+- If content describes exactly 3 key themes/pillars → MUST use three_pillars (never use list)
+- If content has a recommendation with next steps → MUST use decision_next_steps
+- If content maps options on two axes → MUST use two_by_two_matrix
+- Generating an all-text deck is a FAILURE. Always mix in visual blocks.
 ` : '';
 
   let prompt = decisionMode 
@@ -1327,12 +1416,136 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
     }
   };
 
+  // NEW: chart_block schema
+  const chartBlockSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "chart_block" },
+      content: {
+        type: "object",
+        required: ["chartType", "data"],
+        properties: {
+          chartType: { type: "string", enum: ["bar", "line"] },
+          title: { type: "string" },
+          data: {
+            type: "array",
+            minItems: 2,
+            items: {
+              type: "object",
+              required: ["label", "value"],
+              properties: {
+                label: { type: "string" },
+                value: { type: "number" }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // NEW: three_pillars schema
+  const threePillarsSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "three_pillars" },
+      content: {
+        type: "object",
+        required: ["pillars"],
+        properties: {
+          title: { type: "string" },
+          pillars: {
+            type: "array",
+            minItems: 3,
+            maxItems: 3,
+            items: {
+              type: "object",
+              required: ["title"],
+              properties: {
+                title: { type: "string" },
+                description: { type: "string" },
+                icon: { type: "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // NEW: two_by_two_matrix schema
+  const twoByTwoMatrixSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "two_by_two_matrix" },
+      content: {
+        type: "object",
+        required: ["xAxisLabel", "yAxisLabel", "quadrants"],
+        properties: {
+          title: { type: "string" },
+          xAxisLabel: { type: "string" },
+          yAxisLabel: { type: "string" },
+          quadrants: {
+            type: "array",
+            minItems: 4,
+            maxItems: 4,
+            items: {
+              type: "object",
+              required: ["title"],
+              properties: {
+                title: { type: "string" },
+                description: { type: "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // NEW: decision_next_steps schema
+  const decisionNextStepsSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "decision_next_steps" },
+      content: {
+        type: "object",
+        required: ["recommendation", "rationale", "nextSteps"],
+        properties: {
+          title: { type: "string" },
+          recommendation: { type: "string", minLength: 5 },
+          rationale: { type: "array", minItems: 1, maxItems: 4, items: { type: "string" } },
+          nextSteps: {
+            type: "array",
+            minItems: 1,
+            maxItems: 6,
+            items: {
+              type: "object",
+              required: ["action"],
+              properties: {
+                action: { type: "string" },
+                owner: { type: "string" },
+                due: { type: "string" }
+              }
+            }
+          },
+          risks: { type: "array", maxItems: 4, items: { type: "string" } }
+        }
+      }
+    }
+  };
+
   // Build oneOf array based on enableVisualBlocks and decisionMode flags
   const basicBlockSchemas = [headingSchema, textSchema, listSchema, calloutSchema, twoColSchema, tableSchema, imageSchema];
   const visualBlockSchemas = [
     statBlockSchema, quoteBlockSchema, timelineBlockSchema, comparisonTableSchema, 
     cardGridSchema, heroHeaderSchema, execSummarySchema, ctaSectionSchema, 
-    sectionDividerSchema, iconTextBlockSchema, framedInsightSchema
+    sectionDividerSchema, iconTextBlockSchema, framedInsightSchema,
+    chartBlockSchema, threePillarsSchema, twoByTwoMatrixSchema, decisionNextStepsSchema
   ];
   const decisionBlockSchemas = [
     decisionSummarySchema, evidenceMapSchema, scenarioSetSchema, recommendationPanelSchema
@@ -1445,6 +1658,7 @@ serve(async (req) => {
     const enableVisualBlocks = validation.enableVisualBlocks ?? true;
     const preserveWording = validation.preserveWording ?? true;
     const decisionMode = validation.decisionMode ?? false;
+    const targetSlideCount = validation.targetSlideCount;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -1481,7 +1695,7 @@ ${outline.sections.map((s, i) => `${i + 1}. ${s.heading}\n${s.points.map(p => ` 
 Key Takeaways:
 ${outline.bullets.map(b => `- ${b}`).join("\n")}
 
-IMPORTANT: Analyze each section and choose the most appropriate visual block type based on the content rules.`;
+IMPORTANT: Analyze each section and choose the most appropriate visual block type based on the content rules.${targetSlideCount ? `\n\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideCount} slides/blocks (excluding section_dividers and heading blocks from the count). No more, no fewer.` : ''}`;
 
     // First attempt
     const systemPrompt1 = buildSystemPrompt(false, undefined, density, enableVisualBlocks, preserveWording, decisionMode);
