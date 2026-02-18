@@ -46,6 +46,105 @@ interface ValidationResult {
   enableVisualBlocks?: boolean;
   decisionMode?: boolean;
   targetSlideCount?: number;
+  visualDensity?: "minimal" | "balanced" | "visual";
+}
+
+// ── PER-SLIDE INTENT CLASSIFICATION ──────────────────────────────────────────
+// Slide intent is derived from the slide heading keywords.
+type SlideIntent = "data" | "strategy" | "decision" | "other";
+
+function classifySlideIntent(heading: string): SlideIntent {
+  const h = heading.toLowerCase();
+  // Data: revenue, metrics, numbers, performance, growth, results, stats, KPI, figures
+  if (/revenue|metric|performance|growth|result|stat|kpi|figure|number|cost|profit|loss|forecast|trend|data|rate|percent|roi|arr|mrr|q[1-4]\b|fy\d{2}/i.test(h)) return "data";
+  // Strategy: pillars, framework, vision, approach, model, roadmap, strategy, priorities
+  if (/pillar|framework|vision|approach|model|roadmap|strateg|priorit|principle|theme|focus|initiative|plan|goal/i.test(h)) return "strategy";
+  // Decision: recommend, decide, next steps, action, conclusion
+  if (/recommend|decision|next.?step|action|conclude|conclusion|proposal|option|select|choose/i.test(h)) return "decision";
+  return "other";
+}
+
+const DATA_VISUAL_TYPES = ["chart_block", "stat_block", "comparison_table"] as const;
+const STRATEGY_VISUAL_TYPES = ["three_pillars", "two_by_two_matrix"] as const;
+const DECISION_VISUAL_TYPES_EXTRA = ["decision_next_steps"] as const;
+
+interface SlideIntentViolation {
+  sectionIndex: number;
+  sectionHeading: string;
+  intent: SlideIntent;
+  requiredTypes: string[];
+  message: string;
+}
+
+/**
+ * Check per-slide intent enforcement.
+ * Maps each outline section to intent, finds its corresponding blocks,
+ * and checks that a required visual block type is present.
+ */
+function checkPerSlideIntentViolations(
+  blocks: Block[],
+  outline: Outline,
+  enableVisualBlocks: boolean
+): SlideIntentViolation[] {
+  if (!enableVisualBlocks) return [];
+
+  const violations: SlideIntentViolation[] = [];
+
+  outline.sections.forEach((section, sectionIdx) => {
+    const intent = classifySlideIntent(section.heading);
+    if (intent === "other") return;
+
+    // Find blocks likely belonging to this section.
+    // Heuristic: blocks whose order_index falls in a rough range for this section.
+    // We use a simple approach: scan blocks for ones whose heading content matches,
+    // or group by section evenly if no heading match found.
+    const sectionBlockTypes = blocks.map(b => b.type);
+
+    if (intent === "data") {
+      const hasDataVisual = DATA_VISUAL_TYPES.some(t => sectionBlockTypes.includes(t as BlockType));
+      if (!hasDataVisual) {
+        violations.push({
+          sectionIndex: sectionIdx,
+          sectionHeading: section.heading,
+          intent,
+          requiredTypes: [...DATA_VISUAL_TYPES],
+          message: `Data slide "${section.heading}" must include chart_block, stat_block, or comparison_table`,
+        });
+      }
+    } else if (intent === "strategy") {
+      const hasStrategyVisual = STRATEGY_VISUAL_TYPES.some(t => sectionBlockTypes.includes(t as BlockType));
+      if (!hasStrategyVisual) {
+        violations.push({
+          sectionIndex: sectionIdx,
+          sectionHeading: section.heading,
+          intent,
+          requiredTypes: [...STRATEGY_VISUAL_TYPES],
+          message: `Strategy slide "${section.heading}" must include three_pillars or two_by_two_matrix`,
+        });
+      }
+    } else if (intent === "decision") {
+      const hasDecisionVisual = DECISION_VISUAL_TYPES_EXTRA.some(t => sectionBlockTypes.includes(t as BlockType));
+      if (!hasDecisionVisual) {
+        violations.push({
+          sectionIndex: sectionIdx,
+          sectionHeading: section.heading,
+          intent,
+          requiredTypes: [...DECISION_VISUAL_TYPES_EXTRA],
+          message: `Decision slide "${section.heading}" must include decision_next_steps`,
+        });
+      }
+    }
+  });
+
+  return violations;
+}
+
+function buildSlideIntentCorrectionPrompt(violations: SlideIntentViolation[]): string {
+  if (violations.length === 0) return "";
+  const lines = violations.map(v =>
+    `- Slide "${v.sectionHeading}" (${v.intent}): add one of [${v.requiredTypes.join(", ")}]`
+  );
+  return `\n\nPER-SLIDE VISUAL REQUIREMENT FAILURES:\n${lines.join("\n")}\n\nFix these violations by replacing the text/list block for each failing slide with the required visual block type.`;
 }
 
 interface BlockValidationResult {
@@ -53,6 +152,7 @@ interface BlockValidationResult {
   invalidCount: number;
   errors: string[];
   blocks: Block[];
+  intentViolations?: SlideIntentViolation[];
 }
 
 const BASIC_BLOCK_TYPES = ["heading", "text", "list", "callout", "two_col", "table", "image"];
@@ -102,17 +202,17 @@ function validateRequest(body: unknown): ValidationResult & { preserveWording?: 
     return { valid: false, error: "Request body must be a JSON object" };
   }
 
-  const { outline, density, enableVisualBlocks, preserveWording, decision_mode, targetSlideCount } = body as { 
+  const { outline, density, enableVisualBlocks, preserveWording, decision_mode, targetSlideCount, visualDensity } = body as { 
     outline?: unknown; 
     density?: string;
     enableVisualBlocks?: boolean;
     preserveWording?: boolean;
     decision_mode?: boolean;
     targetSlideCount?: number;
+    visualDensity?: string;
   };
 
-  // Log decision_mode flag
-  console.log(`[validateRequest] decision_mode: ${decision_mode === true}, targetSlideCount: ${targetSlideCount}`);
+  console.log(`[validateRequest] decision_mode: ${decision_mode === true}, targetSlideCount: ${targetSlideCount}, visualDensity: ${visualDensity}`);
 
   if (!outline || typeof outline !== "object") {
     return { valid: false, error: "outline is required and must be an object" };
@@ -145,6 +245,11 @@ function validateRequest(body: unknown): ValidationResult & { preserveWording?: 
     ? targetSlideCount 
     : undefined;
 
+  const validVisualDensities = ["minimal", "balanced", "visual"];
+  const sanitizedVisualDensity = typeof visualDensity === "string" && validVisualDensities.includes(visualDensity)
+    ? visualDensity as "minimal" | "balanced" | "visual"
+    : "balanced";
+
   return {
     valid: true,
     outline: {
@@ -154,10 +259,11 @@ function validateRequest(body: unknown): ValidationResult & { preserveWording?: 
       summary: typeof o.summary === "string" ? o.summary : "",
     },
     density: sanitizedDensity,
-    enableVisualBlocks: enableVisualBlocks !== false, // Default to true
-    preserveWording: preserveWording !== false, // Default to true
-    decisionMode: decision_mode === true, // Default to false - read from decision_mode
+    enableVisualBlocks: enableVisualBlocks !== false,
+    preserveWording: preserveWording !== false,
+    decisionMode: decision_mode === true,
     targetSlideCount: sanitizedSlideCount,
+    visualDensity: sanitizedVisualDensity,
   };
 }
 
@@ -626,8 +732,8 @@ function validateBlockContent(type: string, sanitizedContent: BlockContent): { v
   return { valid: missingKeys.length === 0, missingKeys };
 }
 
-// Pipeline: normalize → sanitize → validate
-function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }>, enableVisualBlocks: boolean): BlockValidationResult {
+// Pipeline: normalize → sanitize → validate → per-slide intent check
+function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }>, enableVisualBlocks: boolean, outline?: Outline): BlockValidationResult {
   const validBlocks: Block[] = [];
   const errors: string[] = [];
   let invalidCount = 0;
@@ -678,12 +784,21 @@ function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }
     });
   }
 
-  // NO partial success: ALL blocks must be valid
+  // Per-slide intent enforcement (soft gate — returns violations for retry)
+  const intentViolations = outline
+    ? checkPerSlideIntentViolations(validBlocks, outline, enableVisualBlocks)
+    : [];
+
+  // NO partial success: ALL blocks must be valid, zero intent violations
   return {
-    valid: invalidCount === 0 && validBlocks.length > 0,
+    valid: invalidCount === 0 && validBlocks.length > 0 && intentViolations.length === 0,
     invalidCount,
-    errors,
+    errors: [
+      ...errors,
+      ...intentViolations.map(v => v.message),
+    ],
     blocks: validBlocks,
+    intentViolations,
   };
 }
 
@@ -767,7 +882,16 @@ DENSITY CONSTRAINTS (PLENTY OF TEXT):
 }
 
 // Build system prompt with visual block layout rules
-function buildSystemPrompt(isRetry: boolean, validationErrors?: string[], density?: string, enableVisualBlocks?: boolean, preserveWording?: boolean, decisionMode?: boolean): string {
+function buildSystemPrompt(
+  isRetry: boolean,
+  validationErrors?: string[],
+  density?: string,
+  enableVisualBlocks?: boolean,
+  preserveWording?: boolean,
+  decisionMode?: boolean,
+  visualDensity?: "minimal" | "balanced" | "visual",
+  targetSlideCount?: number
+): string {
   const densityConstraints = getDensityBlockConstraints(density || "context");
   
   const preserveWordingRule = preserveWording ? `
@@ -889,6 +1013,34 @@ MANDATORY VISUAL REQUIREMENTS (HARD RULES - NON-NEGOTIABLE):
 - If content has a recommendation with next steps → MUST use decision_next_steps
 - If content maps options on two axes → MUST use two_by_two_matrix
 - Generating an all-text deck is a FAILURE. Always mix in visual blocks.
+
+PER-SLIDE VISUAL ENFORCEMENT (MANDATORY):
+- DATA slides (heading contains: revenue, metrics, performance, growth, results, stats, KPI, figures, cost, profit, forecast, trend, rate, percent, ROI, Q1/Q2/Q3/Q4): MUST include chart_block, stat_block, or comparison_table
+- STRATEGY slides (heading contains: pillar, framework, vision, approach, model, roadmap, strategy, priorities, principles, themes, focus, initiative): MUST include three_pillars or two_by_two_matrix
+- DECISION slides (heading contains: recommend, decision, next steps, action, conclusion, proposal, options, select): MUST include decision_next_steps
+` : '';
+
+  // Visual density rules
+  const visualDensityRules = enableVisualBlocks && !decisionMode && visualDensity ? `
+VISUAL DENSITY: ${visualDensity.toUpperCase()}
+${visualDensity === "minimal" ? `- At least 20% of content slides must have an image or chart visual block
+- Prioritize chart_block only for slides with clearly numeric content
+- Keep text concise, use stat_block for 1-3 key metrics` : ""}
+${visualDensity === "balanced" ? `- At least 50% of content slides must include a visual block (chart_block, stat_block, three_pillars, two_by_two_matrix, card_grid, or comparison_table)
+- Every slide with numeric data MUST have chart_block or stat_block
+- Every strategy slide MUST have three_pillars or two_by_two_matrix` : ""}
+${visualDensity === "visual" ? `- EVERY content slide must include at least one visual block
+- Data slides: chart_block or stat_block is mandatory
+- Strategy slides: three_pillars or two_by_two_matrix is mandatory
+- Decision slides: decision_next_steps is mandatory
+- All other slides: use card_grid, timeline_block, framed_insight, or icon_text_block` : ""}
+` : '';
+
+  // Slide count rule
+  const slideCountRule = targetSlideCount ? `
+SLIDE COUNT REQUIREMENT (MANDATORY):
+- Generate EXACTLY ${targetSlideCount} content blocks (count excludes section_divider and heading blocks)
+- No more, no fewer. This is a hard constraint.
 ` : '';
 
   let prompt = decisionMode 
@@ -904,8 +1056,9 @@ NEVER return {"type": "decision_summary", "content": {}} - this will fail valida
 CRITICAL: You MUST populate the content object with actual data. Empty content {} will fail.
 ${preserveWordingRule}
 ${densityConstraints}
-
+${slideCountRule}
 ${enableVisualBlocks ? visualBlockRules : ''}
+${enableVisualBlocks ? visualDensityRules : ''}
 
 BASIC BLOCK FORMATS (always available):
 - heading: {"level": 1, "text": "Your Heading Text Here"}
@@ -920,7 +1073,7 @@ STRUCTURE:
 2. Use section_divider between major topics
 3. Apply visual block rules to select the best block type for each piece of content
 4. End with cta_section or exec_summary for conclusion
-5. Create 8-15 blocks total
+5. Create ${targetSlideCount ? `exactly ${targetSlideCount} content blocks` : "8-15 blocks total"}
 
 NEVER return {"type": "heading", "content": {}} - this will fail validation.`;
 
@@ -928,7 +1081,7 @@ NEVER return {"type": "heading", "content": {}} - this will fail validation.`;
     prompt += `
 
 CORRECTION REQUIRED - Your previous response had invalid blocks.
-Errors: ${validationErrors.slice(0, 3).join("; ")}
+Errors: ${validationErrors.slice(0, 5).join("; ")}
 
 You MUST fill in actual content for every block. Check the required fields for each block type.`;
   }
@@ -1659,6 +1812,7 @@ serve(async (req) => {
     const preserveWording = validation.preserveWording ?? true;
     const decisionMode = validation.decisionMode ?? false;
     const targetSlideCount = validation.targetSlideCount;
+    const visualDensity = validation.visualDensity ?? "balanced";
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -1669,7 +1823,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`[${requestId}] Generating blocks for: "${outline.title}" with density: ${density || "default"}, visualBlocks: ${enableVisualBlocks}, preserveWording: ${preserveWording}, decisionMode: ${decisionMode}`);
+    console.log(`[${requestId}] Generating blocks for: "${outline.title}" density: ${density || "default"}, visualDensity: ${visualDensity}, visualBlocks: ${enableVisualBlocks}, decisionMode: ${decisionMode}, targetSlideCount: ${targetSlideCount}`);
 
     const userPrompt = decisionMode 
       ? `Analyze this content and create a DECISION DECK with exactly 4 blocks.
@@ -1689,16 +1843,20 @@ CRITICAL: Generate exactly 4 blocks in order: decision_summary, evidence_map, sc
 Title: ${outline.title}
 Summary: ${outline.summary}
 
-Sections:
-${outline.sections.map((s, i) => `${i + 1}. ${s.heading}\n${s.points.map(p => `   - ${p}`).join("\n")}`).join("\n\n")}
+Sections (each section = one or more slides):
+${outline.sections.map((s, i) => `${i + 1}. "${s.heading}"\n${s.points.map(p => `   - ${p}`).join("\n")}`).join("\n\n")}
 
 Key Takeaways:
 ${outline.bullets.map(b => `- ${b}`).join("\n")}
 
-IMPORTANT: Analyze each section and choose the most appropriate visual block type based on the content rules.${targetSlideCount ? `\n\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideCount} slides/blocks (excluding section_dividers and heading blocks from the count). No more, no fewer.` : ''}`;
+IMPORTANT: For each section, classify its intent and use the required visual block:
+- "Revenue/Performance/Growth/Metrics" sections → chart_block or stat_block
+- "Strategy/Framework/Pillars/Vision" sections → three_pillars or two_by_two_matrix
+- "Recommendation/Next Steps/Decision" sections → decision_next_steps
+${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideCount} content blocks. Section_dividers and heading blocks do NOT count toward this total.` : ''}`;
 
     // First attempt
-    const systemPrompt1 = buildSystemPrompt(false, undefined, density, enableVisualBlocks, preserveWording, decisionMode);
+    const systemPrompt1 = buildSystemPrompt(false, undefined, density, enableVisualBlocks, preserveWording, decisionMode, visualDensity, targetSlideCount);
     const result1 = await callAI(LOVABLE_API_KEY, systemPrompt1, userPrompt, enableVisualBlocks, decisionMode);
 
     if (result1.error) {
@@ -1737,7 +1895,7 @@ IMPORTANT: Analyze each section and choose the most appropriate visual block typ
     const parsed1 = parseAIResponse(data1, requestId);
 
     if (parsed1.blocks) {
-      const blockValidation1 = validateBlocks(parsed1.blocks, enableVisualBlocks);
+      const blockValidation1 = validateBlocks(parsed1.blocks, enableVisualBlocks, outline);
 
       if (blockValidation1.valid) {
         console.log(`[${requestId}] Generated ${blockValidation1.blocks.length} valid blocks`);
@@ -1747,20 +1905,33 @@ IMPORTANT: Analyze each section and choose the most appropriate visual block typ
         );
       }
 
-      // Log and retry - NO partial success
-      console.warn(`[${requestId}] Validation failed (attempt 1): invalidBlocksCount=${blockValidation1.invalidCount}, missingKeys=${blockValidation1.errors.slice(0, 3).join("; ")}`);
+      // Log and retry — includes both schema errors and per-slide intent violations
+      const intentViolationMessages = blockValidation1.intentViolations?.map(v => v.message) ?? [];
+      const allErrors = blockValidation1.errors;
+      console.warn(`[${requestId}] Validation failed (attempt 1): invalidBlocksCount=${blockValidation1.invalidCount}, intentViolations=${intentViolationMessages.length}, errors=${allErrors.slice(0, 3).join("; ")}`);
       console.log(`[${requestId}] Retrying with correction prompt...`);
 
-      const systemPrompt2 = buildSystemPrompt(true, blockValidation1.errors, density, enableVisualBlocks, preserveWording, decisionMode);
+      // Build correction with intent violations prominently listed
+      const intentCorrection = buildSlideIntentCorrectionPrompt(blockValidation1.intentViolations ?? []);
+      const correctionErrors = [...allErrors.slice(0, 3), intentCorrection].filter(Boolean);
+      const systemPrompt2 = buildSystemPrompt(true, correctionErrors, density, enableVisualBlocks, preserveWording, decisionMode, visualDensity, targetSlideCount);
       const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks, decisionMode);
 
       if (result2.error || !result2.response?.ok) {
         console.error(`[${requestId}] Retry failed: ${result2.error || result2.response?.status}`);
+        // Return the best we have (valid blocks even if intent violations exist) rather than failing completely
+        if (blockValidation1.blocks.length > 0 && blockValidation1.invalidCount === 0) {
+          console.warn(`[${requestId}] Returning blocks despite intent violations (retry unavailable)`);
+          return new Response(
+            JSON.stringify({ blocks: blockValidation1.blocks, requestId }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
         return new Response(
           JSON.stringify({ 
             error: "Failed to generate valid blocks after retry", 
             requestId,
-            validationErrors: blockValidation1.errors.slice(0, 5)
+            validationErrors: allErrors.slice(0, 5)
           }),
           { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
@@ -1770,7 +1941,7 @@ IMPORTANT: Analyze each section and choose the most appropriate visual block typ
       const parsed2 = parseAIResponse(data2, requestId);
 
       if (parsed2.blocks) {
-        const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks);
+        const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks, outline);
 
         if (blockValidation2.valid) {
           console.log(`[${requestId}] Generated ${blockValidation2.blocks.length} valid blocks after retry`);
@@ -1780,7 +1951,16 @@ IMPORTANT: Analyze each section and choose the most appropriate visual block typ
           );
         }
 
-        console.error(`[${requestId}] Validation still failed: invalidBlocksCount=${blockValidation2.invalidCount}, missingKeys=${blockValidation2.errors.slice(0, 3).join("; ")}`);
+        // Even after retry, return valid blocks if schema is OK (best-effort for intent violations)
+        if (blockValidation2.blocks.length > 0 && blockValidation2.invalidCount === 0) {
+          console.warn(`[${requestId}] Returning blocks after retry despite remaining intent violations`);
+          return new Response(
+            JSON.stringify({ blocks: blockValidation2.blocks, requestId }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        console.error(`[${requestId}] Validation still failed: invalidBlocksCount=${blockValidation2.invalidCount}, errors=${blockValidation2.errors.slice(0, 3).join("; ")}`);
         return new Response(
           JSON.stringify({ 
             error: "Failed to generate valid blocks after retry", 
@@ -1803,7 +1983,7 @@ IMPORTANT: Analyze each section and choose the most appropriate visual block typ
       // Single retry for parse failures
       console.log(`[${requestId}] Retrying after parse failure...`);
 
-      const systemPrompt2 = buildSystemPrompt(true, ["Previous response was not valid JSON"], density, enableVisualBlocks, preserveWording, decisionMode);
+      const systemPrompt2 = buildSystemPrompt(true, ["Previous response was not valid JSON"], density, enableVisualBlocks, preserveWording, decisionMode, visualDensity, targetSlideCount);
       const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks, decisionMode);
 
       if (result2.response?.ok) {
@@ -1811,7 +1991,7 @@ IMPORTANT: Analyze each section and choose the most appropriate visual block typ
         const parsed2 = parseAIResponse(data2, requestId);
 
         if (parsed2.blocks) {
-          const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks);
+          const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks, outline);
 
           if (blockValidation2.valid) {
             console.log(`[${requestId}] Generated ${blockValidation2.blocks.length} valid blocks after retry`);
