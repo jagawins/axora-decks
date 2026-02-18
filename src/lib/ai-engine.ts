@@ -55,6 +55,7 @@ export interface GenerateOutlineParams {
   tone?: "professional" | "crisp" | "analytical" | "persuasive" | "executive" | "casual";
   enableVisualBlocks?: boolean;
   decisionMode?: boolean;
+  slideCount?: number;
 }
 
 export interface RefineBlockParams {
@@ -83,6 +84,7 @@ export const aiEngine = {
         topic: params.topic,
         prompt: params.prompt || "",
         tone: params.tone || "professional",
+        cardsCount: params.slideCount,
       }
     );
 
@@ -96,10 +98,10 @@ export const aiEngine = {
   /**
    * Generate blocks from an outline
    */
-  async generateBlocks(outline: Outline, enableVisualBlocks = true, decisionMode = false): Promise<Block[]> {
+  async generateBlocks(outline: Outline, enableVisualBlocks = true, decisionMode = false, slideCount?: number): Promise<Block[]> {
     const response = await invokeFunction<{ blocks: Block[]; requestId?: string }>(
       "generate-blocks",
-      { outline, enableVisualBlocks, decision_mode: decisionMode }
+      { outline, enableVisualBlocks, decision_mode: decisionMode, targetSlideCount: slideCount }
     );
 
     if (response.error || !response.data?.blocks) {
@@ -193,12 +195,12 @@ export const aiEngine = {
     outline: Outline;
     blocks: Block[];
   }> {
-    // Step 1: Generate outline
+    // Step 1: Generate outline (pass slideCount as cardsCount)
     const outline = await this.generateOutline(params);
 
     // Step 2: Generate blocks from outline with visual blocks enabled
     const enableVisual = params.enableVisualBlocks !== false;
-    const blocks = await this.generateBlocks(outline, enableVisual, params.decisionMode ?? false);
+    const blocks = await this.generateBlocks(outline, enableVisual, params.decisionMode ?? false, params.slideCount);
 
     return { outline, blocks };
   },

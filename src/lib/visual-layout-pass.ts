@@ -76,23 +76,21 @@ function extractNumericData(block: Block): DataPoint[] {
   const points: DataPoint[] = [];
 
   for (const line of lines) {
-    // Match patterns like "Q1 2024: $1.2M" or "Revenue: 45%" or "Sales 500k"
-    const numMatch = line.match(/(\$?[\d,]+\.?\d*)\s*([%kmbKMB]?)/);
-    if (numMatch) {
-      let value = parseFloat(numMatch[1].replace(/,/g, ''));
-      const suffix = numMatch[2].toLowerCase();
+    // Fixed regex: properly captures label separately from value
+    // Matches: "Label: $12M" | "Label 12%" | "Label = 45k" | "Label 500"
+    const match = line.match(/^(.+?)[\s:=]+(\$?[\d,]+\.?\d*)\s*([%kmbKMB]?)$/i);
+    if (match) {
+      const rawLabel = match[1].replace(/^[-•*\s]+/, '').trim();
+      if (!rawLabel || rawLabel.length < 2) continue;
+
+      let value = parseFloat(match[2].replace(/,/g, ''));
+      const suffix = (match[3] || '').toLowerCase();
       if (suffix === 'k') value *= 1000;
       else if (suffix === 'm') value *= 1000000;
       else if (suffix === 'b') value *= 1000000000;
 
-      const label = line
-        .replace(numMatch[0], '')
-        .replace(/^[-:•*,\s]+/, '')
-        .replace(/[-:•*,\s]+$/, '')
-        .trim() || `Point ${points.length + 1}`;
-
-      if (label.length > 0 && points.length < 8) {
-        points.push({ label: label.slice(0, 30), value });
+      if (!isNaN(value) && points.length < 8) {
+        points.push({ label: rawLabel.slice(0, 30), value });
       }
     }
   }
