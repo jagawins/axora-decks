@@ -56,6 +56,7 @@ export interface GenerateOutlineParams {
   enableVisualBlocks?: boolean;
   decisionMode?: boolean;
   slideCount?: number;
+  visualDensity?: "minimal" | "balanced" | "visual";
 }
 
 export interface RefineBlockParams {
@@ -98,10 +99,10 @@ export const aiEngine = {
   /**
    * Generate blocks from an outline
    */
-  async generateBlocks(outline: Outline, enableVisualBlocks = true, decisionMode = false, slideCount?: number): Promise<Block[]> {
+  async generateBlocks(outline: Outline, enableVisualBlocks = true, decisionMode = false, slideCount?: number, visualDensity?: "minimal" | "balanced" | "visual"): Promise<Block[]> {
     const response = await invokeFunction<{ blocks: Block[]; requestId?: string }>(
       "generate-blocks",
-      { outline, enableVisualBlocks, decision_mode: decisionMode, targetSlideCount: slideCount }
+      { outline, enableVisualBlocks, decision_mode: decisionMode, targetSlideCount: slideCount, visualDensity }
     );
 
     if (response.error || !response.data?.blocks) {
@@ -200,7 +201,7 @@ export const aiEngine = {
 
     // Step 2: Generate blocks from outline with visual blocks enabled
     const enableVisual = params.enableVisualBlocks !== false;
-    const blocks = await this.generateBlocks(outline, enableVisual, params.decisionMode ?? false, params.slideCount);
+    const blocks = await this.generateBlocks(outline, enableVisual, params.decisionMode ?? false, params.slideCount, params.visualDensity);
 
     return { outline, blocks };
   },
