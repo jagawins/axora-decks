@@ -262,7 +262,8 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
         outline,
         true,
         decisionMode,
-        effectiveSlideCount
+        effectiveSlideCount,
+        density
       );
 
       if (blocks.length > 0) {

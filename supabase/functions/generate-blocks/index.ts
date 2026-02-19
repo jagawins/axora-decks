@@ -89,19 +89,26 @@ function checkPerSlideIntentViolations(
   if (!enableVisualBlocks) return [];
 
   const violations: SlideIntentViolation[] = [];
+  const sections = outline.sections || [];
 
-  outline.sections.forEach((section, sectionIdx) => {
+  // Group blocks by sectionIndex
+  const blocksBySection = new Map<number, Block[]>();
+  for (const block of blocks) {
+    const idx = (block.content as Record<string, unknown>).sectionIndex as number | undefined;
+    if (typeof idx !== "number") continue;
+    if (!blocksBySection.has(idx)) blocksBySection.set(idx, []);
+    blocksBySection.get(idx)!.push(block);
+  }
+
+  sections.forEach((section, sectionIdx) => {
     const intent = classifySlideIntent(section.heading);
     if (intent === "other") return;
 
-    // Find blocks likely belonging to this section.
-    // Heuristic: blocks whose order_index falls in a rough range for this section.
-    // We use a simple approach: scan blocks for ones whose heading content matches,
-    // or group by section evenly if no heading match found.
-    const sectionBlockTypes = blocks.map(b => b.type);
+    const sectionBlocks = blocksBySection.get(sectionIdx) || [];
+    const sectionTypes = sectionBlocks.map(b => b.type);
 
     if (intent === "data") {
-      const hasDataVisual = DATA_VISUAL_TYPES.some(t => sectionBlockTypes.includes(t as BlockType));
+      const hasDataVisual = DATA_VISUAL_TYPES.some(t => sectionTypes.includes(t as BlockType));
       if (!hasDataVisual) {
         violations.push({
           sectionIndex: sectionIdx,
@@ -112,7 +119,7 @@ function checkPerSlideIntentViolations(
         });
       }
     } else if (intent === "strategy") {
-      const hasStrategyVisual = STRATEGY_VISUAL_TYPES.some(t => sectionBlockTypes.includes(t as BlockType));
+      const hasStrategyVisual = STRATEGY_VISUAL_TYPES.some(t => sectionTypes.includes(t as BlockType));
       if (!hasStrategyVisual) {
         violations.push({
           sectionIndex: sectionIdx,
@@ -123,7 +130,7 @@ function checkPerSlideIntentViolations(
         });
       }
     } else if (intent === "decision") {
-      const hasDecisionVisual = DECISION_VISUAL_TYPES_EXTRA.some(t => sectionBlockTypes.includes(t as BlockType));
+      const hasDecisionVisual = DECISION_VISUAL_TYPES_EXTRA.some(t => sectionTypes.includes(t as BlockType));
       if (!hasDecisionVisual) {
         violations.push({
           sectionIndex: sectionIdx,
@@ -142,9 +149,47 @@ function checkPerSlideIntentViolations(
 function buildSlideIntentCorrectionPrompt(violations: SlideIntentViolation[]): string {
   if (violations.length === 0) return "";
   const lines = violations.map(v =>
-    `- Slide "${v.sectionHeading}" (${v.intent}): add one of [${v.requiredTypes.join(", ")}]`
+    `- Slide "${v.sectionHeading}" (${v.intent}): add one of [${v.requiredTypes.join(", ")}] and set sectionIndex=${v.sectionIndex} for that block.`
   );
-  return `\n\nPER-SLIDE VISUAL REQUIREMENT FAILURES:\n${lines.join("\n")}\n\nFix these violations by replacing the text/list block for each failing slide with the required visual block type.`;
+  return `\n\nPER-SLIDE VISUAL REQUIREMENT FAILURES:\n${lines.join("\n")}\n\nFix these by replacing the text/list block for each failing slide with the required visual block type. Set sectionIndex correctly.`;
+}
+
+// Enforce exact slide count
+function enforceSlideCount(
+  blocks: Block[],
+  targetSlideCount?: number
+): { ok: boolean; error?: string } {
+  if (!targetSlideCount) return { ok: true };
+  const contentBlocks = blocks.filter(
+    b => b.type !== "heading" && b.type !== "section_divider"
+  );
+  if (contentBlocks.length !== targetSlideCount) {
+    return {
+      ok: false,
+      error: `Expected exactly ${targetSlideCount} content blocks, got ${contentBlocks.length}. Return exactly ${targetSlideCount} content blocks (excluding heading and section_divider).`,
+    };
+  }
+  return { ok: true };
+}
+
+// Enforce decision mode block order
+function enforceDecisionMode(blocks: Block[]): { ok: boolean; error?: string } {
+  const types = blocks.map(b => b.type);
+  const expected = ["decision_summary", "evidence_map", "scenario_set", "recommendation_panel"];
+  // Allow 3 blocks (without scenario_set) or 4
+  if (types.length < 3 || types.length > 4) {
+    return { ok: false, error: `Decision mode requires 3-4 blocks, got ${types.length}` };
+  }
+  if (types[0] !== "decision_summary") {
+    return { ok: false, error: `Decision mode: first block must be decision_summary, got ${types[0]}` };
+  }
+  if (types[1] !== "evidence_map") {
+    return { ok: false, error: `Decision mode: second block must be evidence_map, got ${types[1]}` };
+  }
+  if (types[types.length - 1] !== "recommendation_panel") {
+    return { ok: false, error: `Decision mode: last block must be recommendation_panel, got ${types[types.length - 1]}` };
+  }
+  return { ok: true };
 }
 
 interface BlockValidationResult {
@@ -732,8 +777,14 @@ function validateBlockContent(type: string, sanitizedContent: BlockContent): { v
   return { valid: missingKeys.length === 0, missingKeys };
 }
 
-// Pipeline: normalize → sanitize → validate → per-slide intent check
-function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }>, enableVisualBlocks: boolean, outline?: Outline): BlockValidationResult {
+// Pipeline: normalize → sanitize → validate → per-slide intent check → slide count check
+function validateBlocks(
+  rawBlocks: Array<{ type: string; content: BlockContent }>,
+  enableVisualBlocks: boolean,
+  outline?: Outline,
+  targetSlideCount?: number,
+  decisionMode?: boolean
+): BlockValidationResult {
   const validBlocks: Block[] = [];
   const errors: string[] = [];
   let invalidCount = 0;
@@ -763,6 +814,17 @@ function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }
     // Step 2: Sanitize (strip markdown)
     const sanitizedContent = sanitizeContent(normalizedContent);
 
+    // Validate sectionIndex if present (pass through, don't strip)
+    const sectionIndex = (block.content as Record<string, unknown>).sectionIndex;
+    if (typeof sectionIndex === "number" && outline) {
+      if (sectionIndex < 0 || sectionIndex >= outline.sections.length) {
+        // Clamp to valid range instead of rejecting
+        sanitizedContent.sectionIndex = Math.max(0, Math.min(outline.sections.length - 1, sectionIndex));
+      } else {
+        sanitizedContent.sectionIndex = sectionIndex;
+      }
+    }
+
     // Step 3: Validate on sanitized content
     const contentValidation = validateBlockContent(block.type, sanitizedContent);
     if (!contentValidation.valid) {
@@ -784,14 +846,33 @@ function validateBlocks(rawBlocks: Array<{ type: string; content: BlockContent }
     });
   }
 
+  // Decision mode: enforce block order
+  if (decisionMode) {
+    const decisionResult = enforceDecisionMode(validBlocks);
+    if (!decisionResult.ok) {
+      errors.push(decisionResult.error!);
+    }
+    return {
+      valid: invalidCount === 0 && validBlocks.length > 0 && decisionResult.ok,
+      invalidCount,
+      errors,
+      blocks: validBlocks,
+    };
+  }
+
   // Per-slide intent enforcement (soft gate — returns violations for retry)
   const intentViolations = outline
     ? checkPerSlideIntentViolations(validBlocks, outline, enableVisualBlocks)
     : [];
 
-  // NO partial success: ALL blocks must be valid, zero intent violations
+  // Slide count enforcement
+  const slideCountResult = enforceSlideCount(validBlocks, targetSlideCount);
+  if (!slideCountResult.ok) {
+    errors.push(slideCountResult.error!);
+  }
+
   return {
-    valid: invalidCount === 0 && validBlocks.length > 0 && intentViolations.length === 0,
+    valid: invalidCount === 0 && validBlocks.length > 0 && intentViolations.length === 0 && slideCountResult.ok,
     invalidCount,
     errors: [
       ...errors,
@@ -1018,6 +1099,11 @@ PER-SLIDE VISUAL ENFORCEMENT (MANDATORY):
 - DATA slides (heading contains: revenue, metrics, performance, growth, results, stats, KPI, figures, cost, profit, forecast, trend, rate, percent, ROI, Q1/Q2/Q3/Q4): MUST include chart_block, stat_block, or comparison_table
 - STRATEGY slides (heading contains: pillar, framework, vision, approach, model, roadmap, strategy, priorities, principles, themes, focus, initiative): MUST include three_pillars or two_by_two_matrix
 - DECISION slides (heading contains: recommend, decision, next steps, action, conclusion, proposal, options, select): MUST include decision_next_steps
+
+SECTION INDEX (CRITICAL):
+- Every block MUST include a "sectionIndex" integer in its content object.
+- sectionIndex maps to the outline section (0-indexed) this block belongs to.
+- This is required for per-slide visual enforcement. Blocks without sectionIndex will not count toward slide intent validation.
 ` : '';
 
   // Visual density rules
@@ -1692,14 +1778,34 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
     }
   };
 
+  // Inject sectionIndex into every schema's content properties
+  function addSectionIndex(schema: Record<string, unknown>): Record<string, unknown> {
+    const props = schema.properties as Record<string, unknown>;
+    const contentSchema = props.content as Record<string, unknown>;
+    const contentProps = contentSchema.properties as Record<string, unknown>;
+    return {
+      ...schema,
+      properties: {
+        ...props,
+        content: {
+          ...contentSchema,
+          properties: {
+            ...contentProps,
+            sectionIndex: { type: "integer", minimum: 0, description: "Index of the outline section (0-based) this block belongs to" },
+          },
+        },
+      },
+    };
+  }
+
   // Build oneOf array based on enableVisualBlocks and decisionMode flags
-  const basicBlockSchemas = [headingSchema, textSchema, listSchema, calloutSchema, twoColSchema, tableSchema, imageSchema];
+  const basicBlockSchemas = [headingSchema, textSchema, listSchema, calloutSchema, twoColSchema, tableSchema, imageSchema].map(addSectionIndex);
   const visualBlockSchemas = [
     statBlockSchema, quoteBlockSchema, timelineBlockSchema, comparisonTableSchema, 
     cardGridSchema, heroHeaderSchema, execSummarySchema, ctaSectionSchema, 
     sectionDividerSchema, iconTextBlockSchema, framedInsightSchema,
     chartBlockSchema, threePillarsSchema, twoByTwoMatrixSchema, decisionNextStepsSchema
-  ];
+  ].map(addSectionIndex);
   const decisionBlockSchemas = [
     decisionSummarySchema, evidenceMapSchema, scenarioSetSchema, recommendationPanelSchema
   ];
@@ -1737,7 +1843,7 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
     type: "function",
     function: {
       name: "create_blocks",
-      description: "Create presentation blocks. Each block type has specific required fields. Use visual block types for richer presentations.",
+      description: "Create presentation blocks. Each block MUST include sectionIndex (0-based integer) mapping to the outline section it belongs to. Use visual block types for richer presentations.",
       parameters: {
         type: "object",
         required: ["blocks"],
@@ -1843,16 +1949,17 @@ CRITICAL: Generate exactly 4 blocks in order: decision_summary, evidence_map, sc
 Title: ${outline.title}
 Summary: ${outline.summary}
 
-Sections (each section = one or more slides):
-${outline.sections.map((s, i) => `${i + 1}. "${s.heading}"\n${s.points.map(p => `   - ${p}`).join("\n")}`).join("\n\n")}
+Sections (each section = one or more slides, sectionIndex is 0-based):
+${outline.sections.map((s, i) => `Section ${i} (sectionIndex=${i}). "${s.heading}"\n${s.points.map(p => `   - ${p}`).join("\n")}`).join("\n\n")}
 
 Key Takeaways:
 ${outline.bullets.map(b => `- ${b}`).join("\n")}
 
-IMPORTANT: For each section, classify its intent and use the required visual block:
-- "Revenue/Performance/Growth/Metrics" sections → chart_block or stat_block
-- "Strategy/Framework/Pillars/Vision" sections → three_pillars or two_by_two_matrix
-- "Recommendation/Next Steps/Decision" sections → decision_next_steps
+IMPORTANT: Every block's content MUST include "sectionIndex" (integer, 0-based) indicating which outline section it belongs to.
+For each section, classify its intent and use the required visual block:
+- "Revenue/Performance/Growth/Metrics" sections → chart_block or stat_block (with correct sectionIndex)
+- "Strategy/Framework/Pillars/Vision" sections → three_pillars or two_by_two_matrix (with correct sectionIndex)
+- "Recommendation/Next Steps/Decision" sections → decision_next_steps (with correct sectionIndex)
 ${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideCount} content blocks. Section_dividers and heading blocks do NOT count toward this total.` : ''}`;
 
     // First attempt
@@ -1895,7 +2002,7 @@ ${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideC
     const parsed1 = parseAIResponse(data1, requestId);
 
     if (parsed1.blocks) {
-      const blockValidation1 = validateBlocks(parsed1.blocks, enableVisualBlocks, outline);
+      const blockValidation1 = validateBlocks(parsed1.blocks, enableVisualBlocks, outline, targetSlideCount, decisionMode);
 
       if (blockValidation1.valid) {
         console.log(`[${requestId}] Generated ${blockValidation1.blocks.length} valid blocks`);
@@ -1941,7 +2048,7 @@ ${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideC
       const parsed2 = parseAIResponse(data2, requestId);
 
       if (parsed2.blocks) {
-        const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks, outline);
+        const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks, outline, targetSlideCount, decisionMode);
 
         if (blockValidation2.valid) {
           console.log(`[${requestId}] Generated ${blockValidation2.blocks.length} valid blocks after retry`);
@@ -1991,7 +2098,7 @@ ${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideC
         const parsed2 = parseAIResponse(data2, requestId);
 
         if (parsed2.blocks) {
-          const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks, outline);
+          const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks, outline, targetSlideCount, decisionMode);
 
           if (blockValidation2.valid) {
             console.log(`[${requestId}] Generated ${blockValidation2.blocks.length} valid blocks after retry`);
