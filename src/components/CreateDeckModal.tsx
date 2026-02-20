@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Sparkles, ArrowRight, ArrowLeft, Image, LayoutGrid } from "lucide-react";
+import { Loader2, Sparkles, ArrowRight, ArrowLeft, Image, LayoutGrid, FileText, Pencil, BarChart3, Target, Lightbulb } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -62,6 +62,22 @@ const DENSITY_OPTIONS: { value: VisualDensity; label: string; description: strin
 const DECISION_BLOCK_TYPES = ["decision_summary", "evidence_map", "scenario_set", "recommendation_panel"] as const;
 const DECISION_BLOCK_ORDER = ["decision_summary", "evidence_map", "scenario_set", "recommendation_panel"];
 
+// Classify slide intent for visual hints
+function classifySlideIntent(heading: string): "data" | "strategy" | "decision" | "other" {
+  const h = heading.toLowerCase();
+  if (/pillar|framework|vision|approach|model|roadmap|strateg|priorit|principle|theme|focus|initiative|goal/i.test(h)) return "strategy";
+  if (/recommend|decision|next.?step|action|conclude|conclusion|proposal|option|select|choose/i.test(h)) return "decision";
+  if (/revenue|metric|performance|growth|result|stat|kpi|figure|number|cost|profit|loss|forecast|trend|data|rate|percent|roi/i.test(h)) return "data";
+  return "other";
+}
+
+const INTENT_BADGES: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
+  data: { label: "Data", icon: <BarChart3 className="w-3 h-3" />, color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
+  strategy: { label: "Strategy", icon: <Target className="w-3 h-3" />, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
+  decision: { label: "Decision", icon: <Lightbulb className="w-3 h-3" />, color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" },
+  other: { label: "Content", icon: <FileText className="w-3 h-3" />, color: "bg-muted text-muted-foreground" },
+};
+
 // Derive image slots from an outline's sections
 function deriveImageSlots(
   sections: Array<{ heading: string; points: string[] }>,
@@ -69,7 +85,6 @@ function deriveImageSlots(
 ): ImageSlot[] {
   const slots: ImageSlot[] = [];
 
-  // Determine which sections get image slots based on density
   let imageRatio = 0.5;
   if (density === "minimal") imageRatio = 0.2;
   if (density === "visual") imageRatio = 1.0;
@@ -117,15 +132,10 @@ function sortDecisionBlocks(blocks: Block[]): Block[] {
 
 // Inject selected images into blocks that support them
 function injectImagesIntoBlocks(blocks: Block[], slots: ImageSlot[]): Block[] {
-  const lockedSlots = slots.filter((s) => s.imageAsset?.locked);
-  const unlockedSlots = slots.filter((s) => s.imageAsset && !s.imageAsset.locked);
-
-  // Try to inject hero images into hero_header or first exec_summary blocks
   let heroInjected = false;
   const heroSlot = slots.find((s) => s.placement === "hero" && s.imageAsset);
 
-  return blocks.map((block, idx) => {
-    // Inject hero image into the first hero_header block
+  return blocks.map((block) => {
     if (!heroInjected && heroSlot?.imageAsset && block.type === "hero_header") {
       heroInjected = true;
       const content = { ...(block.content as Record<string, unknown>) };
@@ -163,6 +173,8 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
   const [outline, setOutline] = useState<{ title: string; sections: Array<{ heading: string; points: string[] }>; bullets: string[]; summary: string } | null>(null);
   const [imageSlots, setImageSlots] = useState<ImageSlot[]>([]);
   const [outlineLoading, setOutlineLoading] = useState(false);
+  const [editingSectionIdx, setEditingSectionIdx] = useState<number | null>(null);
+  const [editingHeading, setEditingHeading] = useState("");
 
   // Final generation
   const [generating, setGenerating] = useState(false);
@@ -181,6 +193,7 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
     setDensity("balanced");
     setOutline(null);
     setImageSlots([]);
+    setEditingSectionIdx(null);
   };
 
   const handleOpenChange = (val: boolean) => {
@@ -219,9 +232,7 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
         slideCount: effectiveSlideCount,
       });
       setOutline(generatedOutline);
-      // Derive image slots from the outline sections
-      setImageSlots(deriveImageSlots(generatedOutline.sections, density));
-      setStep("visual");
+      setStep("outline");
     } catch (e) {
       console.error("Outline generation failed:", e);
       toast({ title: "Error", description: "Failed to generate outline. Please try again.", variant: "destructive" });
@@ -230,13 +241,39 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
     }
   };
 
+  // Outline → Visual Builder
+  const handleProceedToVisual = () => {
+    if (!outline) return;
+    setImageSlots(deriveImageSlots(outline.sections, density));
+    setStep("visual");
+  };
+
+  // Inline editing for outline section headings
+  const handleStartEditHeading = (idx: number) => {
+    if (!outline) return;
+    setEditingSectionIdx(idx);
+    setEditingHeading(outline.sections[idx].heading);
+  };
+
+  const handleSaveHeading = () => {
+    if (!outline || editingSectionIdx === null) return;
+    const updated = { ...outline };
+    updated.sections = [...updated.sections];
+    updated.sections[editingSectionIdx] = {
+      ...updated.sections[editingSectionIdx],
+      heading: editingHeading.trim() || updated.sections[editingSectionIdx].heading,
+    };
+    setOutline(updated);
+    setEditingSectionIdx(null);
+  };
+
   const handleUpdateSlot = useCallback((slotId: string, asset: ImageAsset | undefined) => {
     setImageSlots((prev) =>
       prev.map((s) => (s.id === slotId ? { ...s, imageAsset: asset } : s))
     );
   }, []);
 
-  // Step 2 → Final: Generate blocks and save
+  // Visual → Final: Generate blocks and save
   const handleGenerateDeck = async () => {
     if (!user) {
       toast({ title: "Error", description: "You must be logged in.", variant: "destructive" });
@@ -248,7 +285,6 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
     setGenerating(true);
 
     try {
-      // Create project
       const { data: newProject, error: projectError } = await supabase
         .from("projects")
         .insert({ title: topic.trim().substring(0, 100), user_id: user.id })
@@ -257,7 +293,6 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
 
       if (projectError || !newProject) throw new Error("Failed to create project");
 
-      // Generate blocks from the already-generated outline
       const blocks = await aiEngine.generateBlocks(
         outline,
         true,
@@ -267,7 +302,6 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
       );
 
       if (blocks.length > 0) {
-        // Inject locked/selected images into blocks
         const withImages = injectImagesIntoBlocks(blocks, imageSlots);
         const orderedBlocks = sortDecisionBlocks(withImages);
 
@@ -301,11 +335,12 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
     generating: "Building Your Deck",
   };
 
-  const stepNumbers: Record<WizardStep, number> = {
+  const stepLabels = ["Setup", "Outline", "Images", "Generate"];
+  const stepNumberMap: Record<WizardStep, number> = {
     setup: 1,
     outline: 2,
-    visual: 2,
-    generating: 3,
+    visual: 3,
+    generating: 4,
   };
 
   return (
@@ -319,17 +354,17 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
           </div>
           {/* Step indicator */}
           {!onGenerate && (
-            <div className="flex items-center gap-1.5 mt-3">
-              {["Setup", "Visual Builder", "Generate"].map((label, i) => {
+            <div className="flex items-center gap-1 mt-3">
+              {stepLabels.map((label, i) => {
                 const num = i + 1;
-                const current = stepNumbers[step];
+                const current = stepNumberMap[step];
                 const active = current === num;
                 const done = current > num;
                 return (
-                  <div key={label} className="flex items-center gap-1.5">
+                  <div key={label} className="flex items-center gap-1">
                     <div
                       className={cn(
-                        "w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-colors",
+                        "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-medium transition-colors",
                         done && "bg-primary text-primary-foreground",
                         active && "bg-accent text-accent-foreground",
                         !done && !active && "bg-muted text-muted-foreground"
@@ -339,13 +374,13 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
                     </div>
                     <span
                       className={cn(
-                        "text-xs",
+                        "text-[11px]",
                         active ? "text-foreground font-medium" : "text-muted-foreground"
                       )}
                     >
                       {label}
                     </span>
-                    {i < 2 && <div className="w-8 h-px bg-border/60 mx-1" />}
+                    {i < stepLabels.length - 1 && <div className="w-4 h-px bg-border/60 mx-0.5" />}
                   </div>
                 );
               })}
@@ -511,14 +546,110 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
             </div>
           )}
 
-          {/* ── STEP 2: VISUAL BUILDER ── */}
+          {/* ── STEP 2: OUTLINE REVIEW ── */}
+          {step === "outline" && outline && (
+            <div className="space-y-4">
+              {/* Title + summary */}
+              <div className="rounded-lg border border-border/40 bg-muted/20 p-4">
+                <p className="text-base font-semibold">{outline.title}</p>
+                <p className="text-sm text-muted-foreground mt-1">{outline.summary}</p>
+              </div>
+
+              {/* Sections with intent badges */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium">Sections ({outline.sections.length} slides)</p>
+                  <p className="text-xs text-muted-foreground">Click heading to edit</p>
+                </div>
+                <div className="space-y-2">
+                  {outline.sections.map((section, idx) => {
+                    const intent = classifySlideIntent(section.heading);
+                    const badge = INTENT_BADGES[intent];
+                    const isEditing = editingSectionIdx === idx;
+
+                    return (
+                      <div key={idx} className="rounded-lg border border-border/40 bg-background p-3">
+                        <div className="flex items-start gap-2">
+                          <span className="text-xs text-muted-foreground font-mono mt-0.5 w-5 flex-shrink-0">{idx + 1}</span>
+                          <div className="flex-1 min-w-0">
+                            {isEditing ? (
+                              <div className="flex gap-1.5">
+                                <Input
+                                  value={editingHeading}
+                                  onChange={(e) => setEditingHeading(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") handleSaveHeading();
+                                    if (e.key === "Escape") setEditingSectionIdx(null);
+                                  }}
+                                  className="h-7 text-sm"
+                                  autoFocus
+                                />
+                                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={handleSaveHeading}>
+                                  Save
+                                </Button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleStartEditHeading(idx)}
+                                className="text-sm font-medium text-left hover:text-accent transition-colors flex items-center gap-1.5 group"
+                              >
+                                {section.heading}
+                                <Pencil className="w-3 h-3 opacity-0 group-hover:opacity-60 transition-opacity" />
+                              </button>
+                            )}
+                            <ul className="mt-1.5 space-y-0.5">
+                              {section.points.slice(0, 3).map((pt, pi) => (
+                                <li key={pi} className="text-xs text-muted-foreground pl-2 border-l border-border/40">
+                                  {pt.length > 80 ? pt.slice(0, 77) + "…" : pt}
+                                </li>
+                              ))}
+                              {section.points.length > 3 && (
+                                <li className="text-xs text-muted-foreground/60 pl-2">
+                                  +{section.points.length - 3} more
+                                </li>
+                              )}
+                            </ul>
+                          </div>
+                          <span className={cn("flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full flex-shrink-0", badge.color)}>
+                            {badge.icon}
+                            {badge.label}
+                          </span>
+                        </div>
+                        {/* Visual hint */}
+                        {intent !== "other" && (
+                          <p className="text-[10px] text-muted-foreground/70 mt-1.5 ml-7 italic">
+                            {intent === "data" && "→ Will generate chart_block or stat_block"}
+                            {intent === "strategy" && "→ Will generate three_pillars or two_by_two_matrix"}
+                            {intent === "decision" && "→ Will generate decision_next_steps"}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Key takeaways */}
+              {outline.bullets.length > 0 && (
+                <div className="rounded-lg border border-border/40 bg-muted/10 p-3">
+                  <p className="text-xs font-medium text-muted-foreground mb-1.5">Key Takeaways</p>
+                  <ul className="space-y-0.5">
+                    {outline.bullets.map((b, i) => (
+                      <li key={i} className="text-xs text-muted-foreground">• {b}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── STEP 3: VISUAL BUILDER ── */}
           {step === "visual" && outline && (
             <div className="space-y-4">
-              {/* Outline summary */}
-              <div className="rounded-lg border border-border/40 bg-muted/20 p-4">
-                <p className="text-sm font-semibold mb-1">{outline.title}</p>
-                <p className="text-xs text-muted-foreground">{outline.summary}</p>
-                <div className="flex flex-wrap gap-1.5 mt-2">
+              <div className="rounded-lg border border-border/40 bg-muted/20 p-3">
+                <p className="text-sm font-semibold">{outline.title}</p>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
                   {outline.sections.map((s, i) => (
                     <span key={i} className="text-xs bg-muted rounded px-2 py-0.5">
                       {s.heading}
@@ -535,15 +666,14 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
                 </p>
               </div>
               <p className="text-xs text-muted-foreground -mt-2">
-                Lock 🔒 any image to preserve it across regenerations. Images will be embedded
-                into the relevant slide.
+                Lock 🔒 any image to preserve it across regenerations.
               </p>
 
               <VisualBuilder slots={imageSlots} onUpdateSlot={handleUpdateSlot} />
             </div>
           )}
 
-          {/* ── STEP 3: GENERATING ── */}
+          {/* ── STEP 4: GENERATING ── */}
           {step === "generating" && (
             <div className="flex flex-col items-center justify-center py-12 gap-4">
               <Loader2 className="w-10 h-10 animate-spin text-accent" />
@@ -560,26 +690,7 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
         {/* Footer */}
         {step !== "generating" && (
           <div className="px-6 py-4 border-t border-border/40 flex justify-between gap-3 flex-shrink-0">
-            {step === "visual" ? (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => setStep("setup")}
-                  className="gap-1.5"
-                >
-                  <ArrowLeft className="w-4 h-4" /> Back
-                </Button>
-                <Button
-                  variant="hero"
-                  onClick={handleGenerateDeck}
-                  disabled={generating}
-                  className="gap-1.5"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Generate Deck
-                </Button>
-              </>
-            ) : (
+            {step === "setup" && (
               <>
                 <Button variant="outline" onClick={() => handleOpenChange(false)}>
                   Cancel
@@ -600,9 +711,49 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
                     </>
                   ) : (
                     <>
-                      Next: Choose Images <ArrowRight className="w-4 h-4" />
+                      Next: Review Outline <ArrowRight className="w-4 h-4" />
                     </>
                   )}
+                </Button>
+              </>
+            )}
+
+            {step === "outline" && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setStep("setup")}
+                  className="gap-1.5"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Back
+                </Button>
+                <Button
+                  variant="hero"
+                  onClick={handleProceedToVisual}
+                  className="gap-1.5"
+                >
+                  Next: Choose Images <ArrowRight className="w-4 h-4" />
+                </Button>
+              </>
+            )}
+
+            {step === "visual" && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setStep("outline")}
+                  className="gap-1.5"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Back
+                </Button>
+                <Button
+                  variant="hero"
+                  onClick={handleGenerateDeck}
+                  disabled={generating}
+                  className="gap-1.5"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Generate Deck
                 </Button>
               </>
             )}
