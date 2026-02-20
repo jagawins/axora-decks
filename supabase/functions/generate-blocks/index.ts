@@ -55,12 +55,12 @@ type SlideIntent = "data" | "strategy" | "decision" | "other";
 
 function classifySlideIntent(heading: string): SlideIntent {
   const h = heading.toLowerCase();
+  // Check strategy BEFORE data to avoid "stat" in "strategic" matching data
+  if (/pillar|framework|vision|approach|model|roadmap|strateg|priorit|principle|theme|focus|initiative|goal/i.test(h)) return "strategy";
+  // Check decision before data
+  if (/recommend|decision|next.?step|action|conclude|conclusion|proposal|option|select|choose/i.test(h)) return "decision";
   // Data: revenue, metrics, numbers, performance, growth, results, stats, KPI, figures
   if (/revenue|metric|performance|growth|result|stat|kpi|figure|number|cost|profit|loss|forecast|trend|data|rate|percent|roi|arr|mrr|q[1-4]\b|fy\d{2}/i.test(h)) return "data";
-  // Strategy: pillars, framework, vision, approach, model, roadmap, strategy, priorities
-  if (/pillar|framework|vision|approach|model|roadmap|strateg|priorit|principle|theme|focus|initiative|plan|goal/i.test(h)) return "strategy";
-  // Decision: recommend, decide, next steps, action, conclusion
-  if (/recommend|decision|next.?step|action|conclude|conclusion|proposal|option|select|choose/i.test(h)) return "decision";
   return "other";
 }
 
@@ -777,13 +777,49 @@ function validateBlockContent(type: string, sanitizedContent: BlockContent): { v
   return { valid: missingKeys.length === 0, missingKeys };
 }
 
-// Pipeline: normalize → sanitize → validate → per-slide intent check → slide count check
+// Check visual density ratio compliance
+function enforceVisualDensity(
+  blocks: Block[],
+  visualDensity?: "minimal" | "balanced" | "visual"
+): { ok: boolean; error?: string } {
+  if (!visualDensity) return { ok: true };
+
+  const contentBlocks = blocks.filter(
+    b => b.type !== "heading" && b.type !== "section_divider"
+  );
+  if (contentBlocks.length === 0) return { ok: true };
+
+  const VISUAL_TYPES = new Set([
+    "stat_block", "quote_block", "timeline_block", "comparison_table",
+    "card_grid", "hero_header", "exec_summary", "cta_section",
+    "icon_text_block", "framed_insight", "chart_block", "three_pillars",
+    "two_by_two_matrix", "decision_next_steps",
+  ]);
+
+  const visualCount = contentBlocks.filter(b => VISUAL_TYPES.has(b.type)).length;
+  const ratio = visualCount / contentBlocks.length;
+
+  if (visualDensity === "minimal" && ratio < 0.15) {
+    return { ok: false, error: `Visual density "minimal" requires ≥20% visual blocks, got ${Math.round(ratio * 100)}%. Add more visual blocks (chart_block, stat_block, card_grid, etc.)` };
+  }
+  if (visualDensity === "balanced" && ratio < 0.35) {
+    return { ok: false, error: `Visual density "balanced" requires ≥40% visual blocks, got ${Math.round(ratio * 100)}%. Replace text/list blocks with visual block types.` };
+  }
+  if (visualDensity === "visual" && ratio < 0.6) {
+    return { ok: false, error: `Visual density "visual" requires ≥60% visual blocks, got ${Math.round(ratio * 100)}%. Every slide should have a visual block.` };
+  }
+
+  return { ok: true };
+}
+
+// Pipeline: normalize → sanitize → validate → per-slide intent check → slide count check → density check
 function validateBlocks(
   rawBlocks: Array<{ type: string; content: BlockContent }>,
   enableVisualBlocks: boolean,
   outline?: Outline,
   targetSlideCount?: number,
-  decisionMode?: boolean
+  decisionMode?: boolean,
+  visualDensity?: "minimal" | "balanced" | "visual"
 ): BlockValidationResult {
   const validBlocks: Block[] = [];
   const errors: string[] = [];
@@ -871,8 +907,14 @@ function validateBlocks(
     errors.push(slideCountResult.error!);
   }
 
+  // Visual density enforcement
+  const densityResult = enforceVisualDensity(validBlocks, visualDensity);
+  if (!densityResult.ok) {
+    errors.push(densityResult.error!);
+  }
+
   return {
-    valid: invalidCount === 0 && validBlocks.length > 0 && intentViolations.length === 0 && slideCountResult.ok,
+    valid: invalidCount === 0 && validBlocks.length > 0 && intentViolations.length === 0 && slideCountResult.ok && densityResult.ok,
     invalidCount,
     errors: [
       ...errors,
@@ -2002,7 +2044,7 @@ ${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideC
     const parsed1 = parseAIResponse(data1, requestId);
 
     if (parsed1.blocks) {
-      const blockValidation1 = validateBlocks(parsed1.blocks, enableVisualBlocks, outline, targetSlideCount, decisionMode);
+      const blockValidation1 = validateBlocks(parsed1.blocks, enableVisualBlocks, outline, targetSlideCount, decisionMode, visualDensity);
 
       if (blockValidation1.valid) {
         console.log(`[${requestId}] Generated ${blockValidation1.blocks.length} valid blocks`);
@@ -2048,7 +2090,7 @@ ${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideC
       const parsed2 = parseAIResponse(data2, requestId);
 
       if (parsed2.blocks) {
-        const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks, outline, targetSlideCount, decisionMode);
+        const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks, outline, targetSlideCount, decisionMode, visualDensity);
 
         if (blockValidation2.valid) {
           console.log(`[${requestId}] Generated ${blockValidation2.blocks.length} valid blocks after retry`);
@@ -2098,7 +2140,7 @@ ${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideC
         const parsed2 = parseAIResponse(data2, requestId);
 
         if (parsed2.blocks) {
-          const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks, outline, targetSlideCount, decisionMode);
+          const blockValidation2 = validateBlocks(parsed2.blocks, enableVisualBlocks, outline, targetSlideCount, decisionMode, visualDensity);
 
           if (blockValidation2.valid) {
             console.log(`[${requestId}] Generated ${blockValidation2.blocks.length} valid blocks after retry`);
