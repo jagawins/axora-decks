@@ -109,11 +109,9 @@ function deriveImageSlots(
   return slots;
 }
 
-function sortDecisionBlocks(blocks: Block[]): Block[] {
-  const hasDecision = blocks.some((b) =>
-    DECISION_BLOCK_TYPES.includes(b.type as (typeof DECISION_BLOCK_TYPES)[number])
-  );
-  if (!hasDecision) return blocks;
+function sortDecisionBlocks(blocks: Block[], isDecisionMode: boolean): Block[] {
+  // Only reorder blocks when in explicit decision mode
+  if (!isDecisionMode) return blocks;
 
   const decisionBlocks: Block[] = [];
   const otherBlocks: Block[] = [];
@@ -124,6 +122,7 @@ function sortDecisionBlocks(blocks: Block[]): Block[] {
       otherBlocks.push(block);
     }
   }
+  if (decisionBlocks.length === 0) return blocks;
   decisionBlocks.sort(
     (a, b) => DECISION_BLOCK_ORDER.indexOf(a.type) - DECISION_BLOCK_ORDER.indexOf(b.type)
   );
@@ -132,21 +131,46 @@ function sortDecisionBlocks(blocks: Block[]): Block[] {
 
 // Inject selected images into blocks that support them
 function injectImagesIntoBlocks(blocks: Block[], slots: ImageSlot[]): Block[] {
-  let heroInjected = false;
-  const heroSlot = slots.find((s) => s.placement === "hero" && s.imageAsset);
+  // Build a lookup: slideIndex → ImageSlot (only slots with an imageAsset)
+  const slotBySlide = new Map<number, ImageSlot>();
+  for (const slot of slots) {
+    if (slot.imageAsset) {
+      slotBySlide.set(slot.slideIndex, slot);
+    }
+  }
 
   return blocks.map((block) => {
-    if (!heroInjected && heroSlot?.imageAsset && block.type === "hero_header") {
-      heroInjected = true;
-      const content = { ...(block.content as Record<string, unknown>) };
-      content.image = {
-        src: heroSlot.imageAsset.url,
-        alt: heroSlot.slideTitle,
-        credit: heroSlot.imageAsset.credit,
+    const content = block.content as Record<string, unknown>;
+    const sectionIndex = content.sectionIndex as number | undefined;
+
+    // Find the matching slot for this block's section
+    const slot = typeof sectionIndex === "number" ? slotBySlide.get(sectionIndex) : undefined;
+    if (!slot?.imageAsset) return block;
+
+    const asset = slot.imageAsset;
+    const imagePayload = {
+      src: asset.url,
+      alt: slot.slideTitle,
+      credit: asset.credit,
+    };
+
+    // Hero header: inject as background image
+    if (block.type === "hero_header") {
+      return {
+        ...block,
+        content: { ...content, image: imagePayload, backgroundStyle: "image" },
       };
-      content.backgroundStyle = "image";
-      return { ...block, content };
     }
+
+    // Card grid, icon_text_block, exec_summary, framed_insight, cta_section:
+    // attach image metadata for renderers that support it
+    if (["card_grid", "icon_text_block", "exec_summary", "framed_insight", "cta_section", "stat_block"].includes(block.type)) {
+      return {
+        ...block,
+        content: { ...content, image: imagePayload },
+      };
+    }
+
     return block;
   });
 }
@@ -303,7 +327,7 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
 
       if (blocks.length > 0) {
         const withImages = injectImagesIntoBlocks(blocks, imageSlots);
-        const orderedBlocks = sortDecisionBlocks(withImages);
+        const orderedBlocks = sortDecisionBlocks(withImages, decisionMode);
 
         const blocksToInsert = orderedBlocks.map((block, index) => ({
           project_id: newProject.id,
