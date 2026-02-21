@@ -231,3 +231,48 @@ describe("enforceDecisionMode", () => {
     expect(enforceDecisionMode(blocks).ok).toBe(false);
   });
 });
+
+// ─── sortDecisionBlocks (behavioral guard) ───
+
+describe("sortDecisionBlocks behavior", () => {
+  // Import the same logic used in CreateDeckModal
+  function sortDecisionBlocks(blocks: Array<{ type: string }>, isDecisionMode: boolean) {
+    if (!isDecisionMode) return blocks;
+    const DECISION_TYPES = ["decision_summary", "evidence_map", "scenario_set", "recommendation_panel"];
+    const ORDER = ["decision_summary", "evidence_map", "scenario_set", "recommendation_panel"];
+    const decisionBlocks: typeof blocks = [];
+    const otherBlocks: typeof blocks = [];
+    for (const b of blocks) {
+      if (DECISION_TYPES.includes(b.type)) decisionBlocks.push(b);
+      else otherBlocks.push(b);
+    }
+    if (decisionBlocks.length === 0) return blocks;
+    decisionBlocks.sort((a, b) => ORDER.indexOf(a.type) - ORDER.indexOf(b.type));
+    return [...decisionBlocks, ...otherBlocks];
+  }
+
+  it("preserves order in non-decision mode even with decision block types", () => {
+    const blocks = [
+      { type: "hero_header" },
+      { type: "recommendation_panel" },
+      { type: "text" },
+      { type: "decision_summary" },
+    ];
+    const result = sortDecisionBlocks(blocks, false);
+    expect(result).toEqual(blocks); // unchanged
+  });
+
+  it("reorders decision blocks in decision mode", () => {
+    const blocks = [
+      { type: "recommendation_panel" },
+      { type: "text" },
+      { type: "decision_summary" },
+      { type: "evidence_map" },
+    ];
+    const result = sortDecisionBlocks(blocks, true);
+    expect(result[0].type).toBe("decision_summary");
+    expect(result[1].type).toBe("evidence_map");
+    expect(result[2].type).toBe("recommendation_panel");
+    expect(result[3].type).toBe("text"); // non-decision appended
+  });
+});

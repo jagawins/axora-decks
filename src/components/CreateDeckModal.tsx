@@ -78,12 +78,23 @@ const INTENT_BADGES: Record<string, { label: string; icon: React.ReactNode; colo
   other: { label: "Content", icon: <FileText className="w-3 h-3" />, color: "bg-muted text-muted-foreground" },
 };
 
-// Derive image slots from an outline's sections
+// Derive image slots from an outline's sections, preserving locked images from previous slots
 function deriveImageSlots(
   sections: Array<{ heading: string; points: string[] }>,
-  density: VisualDensity
+  density: VisualDensity,
+  existingSlots?: ImageSlot[]
 ): ImageSlot[] {
   const slots: ImageSlot[] = [];
+
+  // Build lookup of locked assets from existing slots
+  const lockedBySlide = new Map<number, ImageAsset>();
+  if (existingSlots) {
+    for (const slot of existingSlots) {
+      if (slot.imageAsset?.locked) {
+        lockedBySlide.set(slot.slideIndex, slot.imageAsset);
+      }
+    }
+  }
 
   let imageRatio = 0.5;
   if (density === "minimal") imageRatio = 0.2;
@@ -95,13 +106,17 @@ function deriveImageSlots(
       (density === "balanced" && idx % 2 === 0) ||
       (density === "minimal" && idx === 0);
 
-    if (shouldHaveImage && slots.length < Math.ceil(sections.length * imageRatio)) {
+    // Always include slots that have locked images, even if density says no
+    const hasLockedImage = lockedBySlide.has(idx);
+
+    if ((shouldHaveImage && slots.length < Math.ceil(sections.length * imageRatio)) || hasLockedImage) {
       slots.push({
         id: `slot-${idx}`,
         slideIndex: idx,
         slideTitle: section.heading,
         placement: idx === 0 ? "hero" : "inline",
         suggestedQuery: section.heading,
+        imageAsset: lockedBySlide.get(idx), // Carry forward locked images
       });
     }
   });
@@ -132,9 +147,12 @@ function sortDecisionBlocks(blocks: Block[], isDecisionMode: boolean): Block[] {
 // Inject selected images into blocks that support them
 function injectImagesIntoBlocks(blocks: Block[], slots: ImageSlot[]): Block[] {
   // Build a lookup: slideIndex → ImageSlot (only slots with an imageAsset)
+  // Prefer locked assets over unlocked when multiple slots share a slideIndex
   const slotBySlide = new Map<number, ImageSlot>();
   for (const slot of slots) {
-    if (slot.imageAsset) {
+    if (!slot.imageAsset) continue;
+    const existing = slotBySlide.get(slot.slideIndex);
+    if (!existing || (slot.imageAsset.locked && !existing.imageAsset?.locked)) {
       slotBySlide.set(slot.slideIndex, slot);
     }
   }
@@ -265,10 +283,10 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
     }
   };
 
-  // Outline → Visual Builder
+  // Outline → Visual Builder (preserve locked images from previous derivation)
   const handleProceedToVisual = () => {
     if (!outline) return;
-    setImageSlots(deriveImageSlots(outline.sections, density));
+    setImageSlots(prev => deriveImageSlots(outline.sections, density, prev));
     setStep("visual");
   };
 
