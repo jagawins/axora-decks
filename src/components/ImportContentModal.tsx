@@ -187,8 +187,9 @@ export function ImportContentModal({
   // Fixed decision block order
   const DECISION_BLOCK_ORDER = ['decision_summary', 'evidence_map', 'scenario_set', 'recommendation_panel'];
 
-  // Sort blocks with decision blocks in fixed order (for saving, not just rendering)
+  // Sort blocks with decision blocks in fixed order (only in decision mode)
   const sortDecisionBlocks = useCallback((blocks: AIBlock[]): AIBlock[] => {
+    if (!decisionMode) return blocks;
     const hasDecisionBlocks = blocks.some(b => DECISION_BLOCK_TYPES.includes(b.type as any));
     if (!hasDecisionBlocks) return blocks;
 
@@ -211,7 +212,7 @@ export function ImportContentModal({
     });
 
     return [...decisionBlocks, ...otherBlocks];
-  }, []);
+  }, [decisionMode]);
 
   // Build stable preview blocks when raw blocks change
   const buildPreviewBlocks = useCallback((blocks: AIBlock[]): Block[] => {
