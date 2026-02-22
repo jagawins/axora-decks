@@ -56,20 +56,62 @@ serve(async (req) => {
 
     console.log(`Seeding ${seedData.templates.length} templates and ${seedData.template_blocks.length} blocks`);
 
+    // Check for force flag in request body
+    const body = await req.clone().json().catch(() => ({}));
+    const force = body.force === true;
+
     // Check if templates already exist
     const { count } = await supabase
       .from("templates")
       .select("*", { count: "exact", head: true });
 
-    if (count && count > 0) {
+    if (count && count > 0 && !force) {
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: "Templates already seeded",
+          message: "Templates already seeded. Pass { force: true } to re-seed.",
           templatesCount: count 
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // If force mode, delete existing data first
+    if (force && count && count > 0) {
+      console.log("Force mode: deleting existing template data...");
+      
+      // Delete template_blocks first (FK dependency)
+      const { error: deleteBlocksError } = await supabase
+        .from("template_blocks")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+      
+      if (deleteBlocksError) {
+        console.error("Error deleting template blocks:", deleteBlocksError);
+      }
+
+      // Delete template_previews
+      const { error: deletePreviewsError } = await supabase
+        .from("template_previews")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+      
+      if (deletePreviewsError) {
+        console.error("Error deleting template previews:", deletePreviewsError);
+      }
+
+      // Delete templates
+      const { error: deleteTemplatesError } = await supabase
+        .from("templates")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+      
+      if (deleteTemplatesError) {
+        console.error("Error deleting templates:", deleteTemplatesError);
+        throw new Error(`Failed to delete existing templates: ${deleteTemplatesError.message}`);
+      }
+
+      console.log("Existing template data cleared");
     }
 
     // Insert templates
