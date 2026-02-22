@@ -8,7 +8,7 @@ export const SUBSCRIPTION_TIERS = {
     yearlyPriceId: null,
     productId: null,
     limits: {
-      projects: 3,
+      projects: 10,
       aiGenerationsPerMonth: 10,
       exportFormats: ["png"],
       customThemes: false,

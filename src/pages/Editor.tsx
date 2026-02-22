@@ -78,6 +78,7 @@ import MobileAIPanel from "@/components/editor/MobileAIPanel";
 import BlockHoverToolbar from "@/components/editor/BlockHoverToolbar";
 import AISidebar from "@/components/editor/AISidebar";
 import { BLOCK_ICONS, getBlockIcon } from "@/lib/block-icons";
+import { VisualBlockRenderer } from "@/components/blocks/VisualBlockRenderer";
 import {
   DndContext,
   closestCenter,
@@ -1699,10 +1700,17 @@ const PresentationBlock = ({ block }: { block: Block }) => {
       );
     default:
       return (
-        <div className="p-4 rounded-lg bg-muted/20 border border-border">
-          <p className="text-sm text-muted-foreground">{BLOCK_LABELS[block.type]}</p>
-          <pre className="text-xs mt-2 overflow-hidden">{JSON.stringify(content, null, 2).slice(0, 200)}</pre>
-        </div>
+        <VisualBlockRenderer
+          block={{
+            id: block.id,
+            type: block.type,
+            content: block.content,
+            order_index: block.order_index,
+            block_payload: block.content,
+            block_meta: { schema_version: 1 },
+          } as any}
+          readOnly
+        />
       );
   }
 };
@@ -1884,18 +1892,17 @@ const BlockRenderer = ({ block, isSelected, onSelect, onUpdate, layoutBlockClass
 
       {/* Visual/Decision block fallback display */}
       {!["heading", "text", "list", "callout", "two_col", "table", "image"].includes(block.type) && (
-        <div className="p-3 rounded-lg bg-muted/20 border border-border">
-          <div className="flex items-center gap-2 mb-2">
-            {(() => {
-              const Icon = BLOCK_ICONS[block.type];
-              return <Icon className="h-4 w-4 text-accent" />;
-            })()}
-            <span className="text-sm font-medium">{BLOCK_LABELS[block.type]}</span>
-          </div>
-          <pre className="text-xs text-muted-foreground overflow-hidden whitespace-pre-wrap">
-            {JSON.stringify(content, null, 2).slice(0, 300)}
-          </pre>
-        </div>
+        <VisualBlockRenderer
+          block={{
+            id: block.id,
+            type: block.type,
+            content: block.content,
+            order_index: block.order_index,
+            block_payload: block.content,
+            block_meta: { schema_version: 1 },
+          } as any}
+          readOnly
+        />
       )}
     </div>
   );
