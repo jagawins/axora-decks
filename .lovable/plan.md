@@ -1,285 +1,67 @@
-## AXORA Fix Pack: Visual Blocks, Image Picker, Slide Count Control
 
-### Goal
 
-Decks must render like Gamma style slides, not text documents.
+## Fix: Blocks Rendering as Raw JSON and Import Errors
 
-Non negotiables:
+### Problem Analysis
 
-1. Deck generation must output visual blocks, not only text.
-2. User must be able to select images during deck creation with source options.
-3. User must be able to choose slide count 5, 10, 12, or custom.
+There are three issues visible in the screenshots:
 
----
+**Issue 1 (Critical): Blocks display raw JSON instead of visual rendering**
 
-# A. Fix Visual Block Generation
+The Editor page has two rendering paths -- `PresentationBlock` (read-only preview mode) and `BlockRenderer` (edit mode). Both only handle 7 basic block types: heading, text, list, callout, two_col, table, image. All visual/decision block types (hero_header, cta_section, framed_insight, card_grid, section_divider, stat_block, chart_block, etc.) fall through to a `default` case that renders `JSON.stringify(content)`.
 
-## A1. Add missing visual block types to the tool schema
+Meanwhile, a fully working `VisualBlockRenderer` component exists and is already used in `PreviewDeck.tsx`. The Editor simply never calls it.
 
-File: `supabase/functions/generate-blocks/index.ts`
+**Issue 2: "Failed to import content" error**
 
-Problem: The model uses constrained tool calling. If a block type is not in the JSON schema `oneOf`, it cannot be generated. Prompts do not matter.
+The import modal's `handleSubmit` creates a new project and inserts blocks. The `sortDecisionBlocks` call on line 442 of ImportContentModal.tsx always reorders decision blocks even in non-decision imports (same bug that was fixed in CreateDeckModal but not here). Additionally, the import flow may fail if the block insertion hits type mismatches or the edge function returns unexpected formats.
 
-Action:
+**Issue 3: "Project limit reached" toast**
 
-1. Create and add these schemas into `visualBlockSchemas`:
-
-- `chart_block`
-- `three_pillars`
-- `two_by_two_matrix`
-- `decision_next_steps`
-
-Required schemas.
-
-### chart_block schema
-
-- `type: "chart_block"`
-- `content.chartType`: enum `["bar","line"]`
-- `content.title`: string optional
-- `content.data`: array of objects `{ label: string, value: number }` min 2 items
-
-### three_pillars schema
-
-- `type: "three_pillars"`
-- `content.title`: string optional
-- `content.pillars`: exactly 3 items
-- each pillar: `{ title: string, description?: string, icon?: string }`
-
-### two_by_two_matrix schema
-
-- `type: "two_by_two_matrix"`
-- `content.title`: optional
-- `content.xAxisLabel`: string
-- `content.yAxisLabel`: string
-- `content.quadrants`: 4 items with `{ title: string, description?: string }`
-
-### decision_next_steps schema
-
-- `type: "decision_next_steps"`
-- `content.title`: optional
-- `content.recommendation`: string
-- `content.rationale`: array of strings (1 to 4)
-- `content.nextSteps`: array of `{ owner?: string, action: string, due?: string }` (1 to 6)
-- `content.risks`: optional array of strings (0 to 4)
-
-Then:
-
-- Add these 4 schemas into `visualBlockSchemas` array.
-- Add these 4 types into `VISUAL_BLOCK_TYPES` and `ALL_BLOCK_TYPES`.
-
-## A2. Add validation and normalization support
-
-File: `supabase/functions/generate-blocks/index.ts`
-
-Add new cases in:
-
-- `validateBlockContent(type, content)` switch
-- `normalizeBlockContent(type, content)` switch
-
-Validate required fields exist exactly as defined above.
-
-## A3. Enforce visual blocks by slide intent, not only deck ratio
-
-File: `supabase/functions/generate-blocks/index.ts`
-
-After `validateBlocks` passes, run per slide enforcement.
-
-Define slide intent categories using layout or metadata (if you do not have intent yet, derive from slide title keywords).
-
-Rules:
-
-- Data slide must include at least one of: `chart_block` OR `stat_block` OR `comparison_table`
-- Strategy slide must include at least one of: `three_pillars` OR `two_by_two_matrix`
-- Decision slide must include: `decision_next_steps`
-- Section divider can remain text plus image
-
-If a slide violates this, treat as soft validation failure and retry generation with a correction prompt that explicitly lists the missing block type required for that slide.
-
-Do not allow an all text deck to pass.
-
-## A4. Strengthen system prompt with hard rules
-
-File: `supabase/functions/generate-blocks/index.ts` in `buildSystemPrompt`
-
-Add mandatory section:
-
-VISUAL REQUIREMENTS:
-
-- Every deck must include visuals.
-- Any slide with 3 plus numeric points must use `chart_block` (not list).
-- Any slide describing 3 themes must use `three_pillars` (not list).
-- Any recommendation slide must use `decision_next_steps`.
-- If output contains only text or list blocks on a slide that should be visual, regenerate.
+Free tier allows only 3 projects. This is working as designed, but the user sees it as an error. The limit of 3 is hardcoded in `src/lib/subscription.ts`.
 
 ---
 
-# B. Fix Visual Layout Pass Numeric Extraction
+### Plan
 
-## B1. Fix label value parsing so chart conversion works
+#### 1. Wire VisualBlockRenderer into Editor.tsx PresentationBlock
 
-File: `src/lib/visual-layout-pass.ts`
+In the `PresentationBlock` component (around line 1632), replace the `default` case with a call to `VisualBlockRenderer` for any non-basic block type:
 
-Replace the current numeric extraction regex with:
+- Import `VisualBlockRenderer` at the top of Editor.tsx
+- In the `switch` statement, before the `default` case, add handling for visual/decision block types by delegating to `VisualBlockRenderer`
+- The `default` case becomes a true fallback for genuinely unknown types
 
-Match:  
-`Label: $12M`  
-`Label 12%`  
-`Label = 45k`
+#### 2. Wire VisualBlockRenderer into Editor.tsx BlockRenderer
 
-Use:  
-`/^(.+?)[\s:=]+(\$?[\d,]+\.?\d*)\s*([%kmbKMB]?)$/i`
+In the `BlockRenderer` component (around line 1885), the visual/decision block fallback currently shows raw JSON. Replace with:
 
-Logic:
+- Use `VisualBlockRenderer` for read-only display of the block content
+- Keep the edit controls (the block hover toolbar) around it
+- This gives users a visual preview of the block even in edit mode
 
-- label = group 1 trimmed, strip bullet prefixes
-- value = parseFloat(group 2)
-- suffix multipliers: k 1,000; m 1,000,000; b 1,000,000,000
-- cap points at 8
+#### 3. Fix sortDecisionBlocks in ImportContentModal
 
-Apply the same fix in `convertToStats` if it does label parsing.
+On line 442 of ImportContentModal.tsx, `sortDecisionBlocks` is called without a `decisionMode` guard. Add the same guard used in CreateDeckModal -- only sort when `decisionMode` is true.
 
----
+#### 4. Increase free tier project limit
 
-# C. Add Slide Count Control 5, 10, 12, Custom
-
-## C1. UI control in deck creation flow
-
-File: wherever the deck creation form lives (DeckCreate or Wizard step)
-
-Add:
-
-- Slide count segmented control: 5, 10, 12
-- Custom numeric input with bounds 3 to 20
-
-Store as `targetSlideCount`.
-
-## C2. Pass slide count through the entire pipeline
-
-Ensure `targetSlideCount` is passed to:
-
-- outline generation
-- block generation
-- final render
-
-Remove any hardcoded default of 12 in:
-
-- frontend initial state
-- edge functions
-- server defaults
-
-## C3. Validate slide count on backend
-
-After generation:
-
-- If generated slide count != targetSlideCount, auto retry with instruction:  
-“Return exactly N slides. No more, no fewer.”
+Change the free tier project limit from 3 to a more reasonable number (e.g., 5 or 10) in `src/lib/subscription.ts`, or skip the limit check when importing content (since the user just wants to see their content, not create unlimited decks).
 
 ---
 
-# D. Add Gamma Style Image Selection During Deck Creation
+### Technical Details
 
-## D1. Add “Visual Builder” step between outline and final render
+**Files to modify:**
 
-Flow must become:
+1. **src/pages/Editor.tsx**
+   - Add `import { VisualBlockRenderer } from "@/components/blocks/VisualBlockRenderer"` 
+   - In `PresentationBlock` (line ~1700): replace the `default` case to check if the block type is visual/decision and render via `VisualBlockRenderer` by constructing a compatible `TemplateBlock` object
+   - In `BlockRenderer` (line ~1886): replace the JSON.stringify fallback with `VisualBlockRenderer` rendering
 
-1. Deck Setup: topic, audience, tone, slide count, visual density
-2. Outline generation: produce slide list with intents and image slots
-3. Visual Builder: user selects images per slide
-4. Final generation: blocks plus locked images applied
+2. **src/components/ImportContentModal.tsx**
+   - Line 442: gate `sortDecisionBlocks` on `decisionMode` flag
 
-This is required. Do not skip.
+3. **src/lib/subscription.ts** (optional)
+   - Increase free tier `projects` from 3 to a higher number if desired
 
-## D2. Add image slots to slide model
-
-Extend slide schema to support:
-
-`imageSlots: [{ id, placement, imageAsset? }]`
-
-and
-
-`imageAsset: { source: "stock" | "web" | "ai" | "illustration" | "gif" | "upload", query?: string, url: string, thumbUrl?: string, credit?: string, license?: string, locked: boolean }`
-
-Locking is critical. Locked images must never change on regenerate.
-
-## D3. Build the Image Source dropdown UI exactly like Gamma
-
-In the Visual Builder, each slide image slot must show:
-
-- Image Source dropdown with options:
-  - Stock photos
-  - Web images
-  - AI images
-  - Illustrations
-  - Animated GIFs
-- Search box
-- Results grid thumbnails
-- Select to apply to slot
-- Toggle lock
-
-## D4. Add backend endpoints for image search and AI generation
-
-Create Edge Functions:
-
-1. `supabase/functions/image-search/index.ts`  
-Inputs:
-
-- `q`
-- `source` in: web stock illustration gif  
-Return:
-- list of `{ thumbUrl, url, credit, license }`
-
-2. `supabase/functions/image-generate/index.ts`  
-Inputs:
-
-- `prompt`
-- optional style flags  
-Return:
-- `{ url, thumbUrl }`
-
-Store selected images in deck state.
-
-Important: Do not put API keys in the browser. All calls server side.
-
-## D5. Renderer must respect selected images
-
-Wherever slide rendering occurs:
-
-- If a slide has `imageAsset.url`, render it in the layout.
-- If locked, regeneration cannot overwrite.
-
-## D6. Add “Visual density” control
-
-Deck Setup must include:
-
-- Minimal
-- Balanced
-- Visual
-
-Map to:
-
-- Minimal: 20 percent slides with images, fewer charts
-- Balanced: 50 percent slides with images, charts on data slides
-- Visual: image on every slide where appropriate plus charts and diagrams
-
-This is used as a hard constraint in generation.
-
----
-
-# E. Final Quality Gates
-
-Must pass before shipping:
-
-1. Selecting 5 slides produces exactly 5 slides.
-2. At least one chart renders in any deck with numeric data.
-3. Strategy slides generate three pillars or a matrix without manual edits.
-4. Image picker works during creation and selected images render in the deck.
-5. Locked images persist across regenerate.
-
----
-
-If you want to know which files to edit beyond the two you named,  search for:
-
-- the deck creation wizard component
-- the slide model types
-- the slide renderer switch or block renderer map
-- any constant defaulting slide count to 12
