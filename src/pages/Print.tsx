@@ -5,108 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Loader2, Printer, X } from "lucide-react";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
+import { resolveBrandStyles, type BrandKit } from "@/lib/brand";
+import { VisualBlockRenderer } from "@/components/blocks/VisualBlockRenderer";
+import type { BlockType } from "@/lib/blocks";
 
-type BlockType = "text" | "heading" | "image" | "two_col" | "table" | "list" | "callout";
 type Block = { id: string; type: BlockType; content: Record<string, unknown>; order_index: number };
-
-function Slide({ block }: { block: Block }) {
-  const c = block.content || {};
-  
-  switch (block.type) {
-    case "heading": {
-      const level = Number(c.level || 2);
-      const Tag = (`h${Math.min(3, Math.max(1, level))}`) as keyof JSX.IntrinsicElements;
-      const sizeClass = level === 1 
-        ? "text-5xl md:text-6xl" 
-        : level === 2 
-        ? "text-4xl md:text-5xl" 
-        : "text-3xl md:text-4xl";
-      return <Tag className={`font-bold text-center ${sizeClass}`}>{String(c.text || "")}</Tag>;
-    }
-    case "text":
-      return <p className="text-xl md:text-2xl text-center leading-relaxed">{String(c.text || "")}</p>;
-    case "list": {
-      const items = Array.isArray(c.items) ? c.items : [];
-      const ordered = !!c.ordered;
-      const ListTag = ordered ? "ol" : "ul";
-      return (
-        <ListTag className={`text-xl space-y-3 ${ordered ? "list-decimal" : "list-disc"} list-inside`}>
-          {items.map((it: string, i: number) => (
-            <li key={i}>{it}</li>
-          ))}
-        </ListTag>
-      );
-    }
-    case "callout": {
-      const icon = String(c.icon || "info");
-      return (
-        <div className={`p-8 rounded-xl border-2 text-center ${
-          icon === "warning"
-            ? "border-yellow-500/50 bg-yellow-500/10"
-            : icon === "success"
-            ? "border-green-500/50 bg-green-500/10"
-            : "border-[var(--deck-accent)]/50 bg-[var(--deck-accent)]/10"
-        }`}>
-          <p className="text-xl md:text-2xl">{String(c.text || "")}</p>
-        </div>
-      );
-    }
-    case "two_col":
-      return (
-        <div className="grid grid-cols-2 gap-12 w-full">
-          <div className="text-lg">{String(c.left || "")}</div>
-          <div className="text-lg">{String(c.right || "")}</div>
-        </div>
-      );
-    case "table": {
-      const headers = Array.isArray(c.headers) ? c.headers : [];
-      const rows = Array.isArray(c.rows) ? c.rows : [];
-      return (
-        <div className="w-full overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                {headers.map((h: string, i: number) => (
-                  <th key={i} className="border border-[var(--deck-border)] p-3 bg-[var(--deck-muted)]/20 text-left font-semibold">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row: string[], ri: number) => (
-                <tr key={ri}>
-                  {(Array.isArray(row) ? row : []).map((cell: string, ci: number) => (
-                    <td key={ci} className="border border-[var(--deck-border)] p-3">{cell}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    }
-    case "image": {
-      const src = String(c.src || "");
-      const alt = String(c.alt || "");
-      const caption = String(c.caption || "");
-      return (
-        <div className="text-center">
-          {src ? (
-            <img src={src} alt={alt} className="max-h-[50vh] mx-auto rounded-lg" />
-          ) : (
-            <div className="w-full h-48 bg-[var(--deck-muted)]/20 rounded-lg flex items-center justify-center text-[var(--deck-muted)]">
-              No image
-            </div>
-          )}
-          {caption && <p className="mt-4 text-[var(--deck-muted)]">{caption}</p>}
-        </div>
-      );
-    }
-    default:
-      return <p className="text-[var(--deck-muted)]">Unknown block</p>;
-  }
-}
 
 export default function Print() {
   const { id: projectId } = useParams<{ id: string }>();
@@ -117,6 +20,7 @@ export default function Print() {
   const [title, setTitle] = useState("Untitled");
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME);
+  const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -129,7 +33,7 @@ export default function Print() {
       setLoading(true);
       const { data: projectData, error: pe } = await supabase
         .from("projects")
-        .select("id, title, theme")
+        .select("id, title, theme, brand_kit")
         .eq("id", projectId)
         .maybeSingle();
 
@@ -151,6 +55,7 @@ export default function Print() {
 
       setTitle(projectData.title || "Untitled");
       setTheme((projectData.theme as ThemeId) || DEFAULT_THEME);
+      setBrandKit((projectData.brand_kit as BrandKit) || null);
       setBlocks(
         (blocksData || []).map((b) => ({
           id: b.id,
@@ -161,7 +66,6 @@ export default function Print() {
       );
 
       setLoading(false);
-      // Auto open print dialog after content loads
       setTimeout(() => window.print(), 300);
     };
 
@@ -177,8 +81,10 @@ export default function Print() {
     );
   }
 
+  const brandStyles = resolveBrandStyles(brandKit);
+
   return (
-    <div className={`min-h-screen theme-${theme}`}>
+    <div className={`min-h-screen theme-${theme}`} style={brandStyles}>
       {/* Screen-only header */}
       <header className="screen-only fixed top-0 left-0 right-0 z-50 border-b border-border bg-card/90 backdrop-blur-xl">
         <div className="flex h-14 items-center justify-between px-4">
@@ -200,13 +106,16 @@ export default function Print() {
       <div className="pt-20 screen-only"></div>
       <div className="print-slides space-y-8 p-8">
         {blocks.map((b, i) => (
-          <div 
-            key={b.id} 
+          <div
+            key={b.id}
             className="slide-page bg-[var(--deck-bg)] text-[var(--deck-fg)] rounded-xl border border-[var(--deck-border)] shadow-xl p-12 flex flex-col items-center justify-center"
           >
             <p className="screen-only text-sm text-[var(--deck-muted)] mb-4">Slide {i + 1}</p>
             <div className="flex-1 flex items-center justify-center w-full">
-              <Slide block={b} />
+              <VisualBlockRenderer
+                block={{ type: b.type as any, content: b.content as any } as any}
+                readOnly
+              />
             </div>
           </div>
         ))}

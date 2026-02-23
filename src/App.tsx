@@ -13,6 +13,7 @@ import Editor from "./pages/Editor";
 import Preview from "./pages/Preview";
 import PublicPreview from "./pages/PublicPreview";
 import Print from "./pages/Print";
+import Present from "./pages/Present";
 import Create from "./pages/Create";
 import Templates from "./pages/Templates";
 import TemplateDetail from "./pages/TemplateDetail";
@@ -66,6 +67,7 @@ const App = () => (
                 <Route path="/preview/:id" element={<Preview />} />
                 <Route path="/print/:id" element={<Print />} />
                 <Route path="/p/:token" element={<PublicPreview />} />
+                <Route path="/present/:id" element={<Present />} />
                 <Route path="/gamma-alternative" element={<GammaAlternative />} />
                 <Route path="/powerpoint-ai" element={<PowerPointAI />} />
                 <Route path="/ppt-generator" element={<PPTGenerator />} />
