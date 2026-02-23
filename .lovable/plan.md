@@ -1,187 +1,216 @@
-## Upgrade All Templates to Modern Visual Layouts
 
-### The Problem
 
-Every template in the database (60+) uses the exact same 11-block formula of basic text blocks:
+## Brand-at-Project, Presentation Player, and Export Upgrade
+
+This plan addresses the three strategic pillars you outlined: moving brand identity from export-time to project-level, building a real presentation player, and adding structured export (including Google Slides path).
+
+---
+
+### Part 1: Brand Kit at the Project Level
+
+**Current state**: The `profiles` table has a `brand_kit` JSONB column (unused). Projects have a `theme` field that maps to 4 hardcoded CSS theme classes (classic, midnight, sand, graphite). No logo, custom color, or typography settings exist per project.
+
+**What changes**:
+
+#### 1A. Database: Add brand columns to projects table
+
+Add a `brand_kit` JSONB column to the `projects` table. This stores per-project brand overrides:
 
 ```text
-heading -> text -> heading -> two_col -> heading -> list -> heading -> table -> callout -> heading -> list
+brand_kit: {
+  colors: {
+    primary: "#1E3A5F",
+    accent: "#FF6B35",
+    background: "#FFFFFF",
+    foreground: "#1A1A2E",
+    muted: "#6B7280"
+  },
+  typography: {
+    headingFont: "Inter" | "Playfair Display" | "Space Grotesk" | "DM Sans",
+    bodyFont: "Inter" | "Source Sans Pro" | "IBM Plex Sans",
+    scale: "compact" | "default" | "spacious"
+  },
+  logo: {
+    url: string | null,
+    placement: "top-left" | "top-right" | "none"
+  }
+}
 ```
 
-Only the "Visual Blocks Showcase" demo template uses modern visual blocks. This makes every template look like a plain text document instead of a visual deck.
+This sits alongside the existing `theme` field. The theme provides the base palette; `brand_kit` overrides specific tokens.
 
-### Approach
+#### 1B. Brand Kit Settings Panel in Editor
 
-Rather than hand-writing 660+ blocks in a massive JSON file, the approach is:
+A new "Brand" section in the Editor toolbar (next to Theme and Layout):
+- Color pickers for primary, accent, background, foreground, muted (5 tokens)
+- Typography dropdown: choose from 4 curated heading font families and 3 body font families
+- Typography scale toggle: compact / default / spacious
+- Logo URL input with placement selector (top-left, top-right, none)
+- "Save as default" button that copies the brand kit to the user's profile for reuse
 
-1. **Define 6 category-specific visual block patterns** -- one per template category, each using the right mix of visual blocks for that category's purpose
-2. **Create a template upgrade edge function** that regenerates all template blocks using visual block types with content tailored to each template's slug, title, and tags
-3. **Update the seed function** to support re-seeding (delete existing blocks, insert new ones)
+#### 1C. Brand Token Application
 
-### Category Block Patterns
+A new utility function `resolveBrandTokens(theme, brandKit)` that:
+- Starts with the theme's CSS variables (deck-bg, deck-fg, etc.)
+- Overlays any brand_kit color overrides as inline CSS custom properties
+- Returns a style object to apply on the deck container
 
-Each category gets a distinct visual layout optimized for its intent:
+This is used in:
+- Editor presentation mode
+- PreviewDeck
+- PublicPreview
+- Print page
 
-**Strategy and Leadership** (10 templates)
+#### 1D. Brand Guardrails
 
-- hero_header (title + subtitle)
-- exec_summary (purpose + key points)
-- three_pillars (strategic themes)
-- stat_block (KPIs)
-- comparison_table (options analysis)
-- decision_next_steps (actions + owners)
-- cta_section (call to action)
+- Only the 5 defined color tokens can be customized (no arbitrary per-block colors)
+- Font choices are limited to curated pairs (4 heading + 3 body options)
+- Layout families stay as the existing 4 presets (minimal, corporate, bold, data_focused)
 
-**Projects and Operations** (10 templates)
+---
 
-- hero_header
-- exec_summary (project overview)
-- timeline_block (milestones)
-- stat_block (progress metrics)
-- card_grid (workstreams or risks)
-- comparison_table (status matrix)
-- decision_next_steps
+### Part 2: Real Presentation Player
 
-**Product and Technology** (10 templates)
+**Current state**: `PreviewDeck` renders one block per "slide" with basic prev/next navigation. No outline, no document mode, no animations, no presenter tooling.
 
-- hero_header
-- exec_summary
-- timeline_block (roadmap)
-- chart_block (velocity/metrics)
-- card_grid (features or components)
-- two_by_two_matrix (prioritization)
-- cta_section
+**What changes**:
 
-**Sales and Marketing** (10 templates)
+#### 2A. Slide Computation Layer
 
-- hero_header
-- stat_block (revenue/pipeline metrics)
-- chart_block (trends)
-- card_grid (segments or campaigns)
-- comparison_table (competitive)
-- quote_block (customer voice)
-- cta_section
+Create `src/lib/slide-engine.ts`:
+- Groups blocks by `sectionIndex` (from content) into logical slides
+- Each slide gets: title (from heading block or section title), block array, index, notes
+- Falls back to one-block-per-slide when sectionIndex is absent
+- Exports `computeSlides(blocks): ComputedSlide[]`
 
-**Startup and Fundraising** (10 templates)
+#### 2B. Redesigned Player Component
 
-- hero_header
-- exec_summary (thesis)
-- stat_block (traction metrics)
-- chart_block (growth)
-- three_pillars (moat/advantage)
-- card_grid (team or milestones)
-- cta_section
+Replace `PreviewDeck` with a new `DeckPlayer` component that supports two view modes:
 
-**AI and Data** (10 templates)
+**Deck Mode** (presenting):
+- Full 16:9 slide canvas scaled to viewport (using the 1920x1080 scaling pattern)
+- Left sidebar: collapsible slide outline showing section titles and slide numbers
+- Bottom progress bar showing current position
+- Keyboard navigation (arrow keys, space, escape for fullscreen exit)
+- Deep linking via query params: `?slide=3`
+- Fade-in transition on slide change (CSS transition, no heavy library)
 
-- hero_header
-- exec_summary
-- three_pillars (AI pillars)
-- chart_block (model/data metrics)
-- two_by_two_matrix (maturity or evaluation)
-- card_grid (use cases)
-- decision_next_steps
+**Document Mode** (reading):
+- Vertical scroll layout, all slides stacked
+- Section headings become sticky anchors
+- Mobile-optimized with full-width blocks
+- Toggle between modes via a button in the player header
 
-### Implementation Steps
+#### 2C. Slide Transitions
 
-#### 1. Create upgrade-templates edge function
+Simple CSS-based transitions (no framer-motion dependency):
+- Fade + slight translateY on slide entry
+- Staggered entrance for list items and card grids (CSS animation-delay)
+- Respect a deck-level setting: `animations: "off" | "subtle" | "full"` (stored in project JSONB or passed as prop)
 
-A new edge function that:
+#### 2D. Presenter View
 
-- Reads all templates from the database
-- For each template, generates 7-9 visual blocks based on category + slug
-- Content is tailored per template (e.g., "Product Roadmap" gets roadmap-specific timeline labels, "Pipeline Review" gets sales-specific stat labels)
-- Deletes existing template_blocks for each template
-- Inserts new visual blocks
-- Preserves the "Visual Blocks Showcase" demo template as-is
+A new route `/present/:id` that opens a two-pane layout:
+- Left pane: current slide (large)
+- Right pane: next slide preview (small) + speaker notes + elapsed timer
+- Notes come from an optional `notes` field on each section in the outline
+- Communication between presenter and audience views via BroadcastChannel API (same-browser only, no server needed)
 
-#### 2. Update seed-templates to support re-seeding
+#### 2E. Logo in Player
 
-Modify the existing seed function to accept a `force` flag that deletes existing templates and blocks before inserting, so templates can be refreshed.
+If the project has a `brand_kit.logo.url`, render it in the slide corner based on `placement`. This appears in both deck and document modes, and carries through to export.
 
-#### 3. Update the seed JSON file
+---
 
-Replace the 8000+ line seed JSON with a compact version where each template's blocks use visual types with meaningful placeholder content. Each template gets unique content derived from its title, description, and tags -- not the same generic "Point 1: state the insight" copy-paste.
+### Part 3: Export Upgrades
 
-#### 4. Template content tailoring
+**Current state**: Only export is "Print to PDF" which opens a new tab with basic block rendering (only 7 basic types, no visual blocks).
 
-Each template gets content that matches its purpose:
+**What changes**:
 
-- **Executive Summary**: exec_summary with "Business context and strategic position", stat_block with "Revenue Growth", "Market Share", "Customer NPS"
-- **Product Roadmap**: timeline_block with "Discovery", "Build", "Beta", "Launch" phases, chart_block with sprint velocity data
-- **Startup Pitch**: stat_block with "MRR", "Growth Rate", "CAC", "LTV", chart_block with hockey-stick growth curve
-- **Pipeline Review**: stat_block with "Pipeline Value", "Win Rate", "Avg Deal Size", chart_block with pipeline by stage
+#### 3A. Fix Print Page
+
+The `Print.tsx` page currently only renders 7 basic block types. It needs the same `VisualBlockRenderer` integration as the Editor. This is the same pattern already applied to Editor.tsx.
+
+#### 3B. PowerPoint Export (PPTX)
+
+Create an edge function `generate-pptx` that:
+- Receives blocks, theme, brand_kit as input
+- Uses the `pptxgenjs` library (runs in Deno) to build a .pptx file
+- Maps each visual block type to a PowerPoint slide layout:
+  - `hero_header` -> Title slide with background
+  - `stat_block` -> Stats in large text boxes
+  - `chart_block` -> Native PowerPoint chart (bar/line/pie)
+  - `card_grid` -> Grid of content boxes
+  - `comparison_table` -> PowerPoint table
+  - `timeline_block` -> SmartArt-style timeline
+  - Other blocks -> Text box with formatted content
+- Applies brand_kit colors and fonts to the slide master
+- Returns the .pptx file as a downloadable blob
+- Logo is placed on every slide per brand_kit.logo.placement
+
+#### 3C. Google Slides Path
+
+Short-term approach (no OAuth needed):
+- "Send to Google Slides" button in the export menu
+- Generates a .pptx file (using 3B above)
+- Opens Google Slides import URL with instructions: "Upload this file to Google Drive, then open with Google Slides"
+- Downloads the .pptx and opens `https://docs.google.com/presentation/u/0/` in a new tab
+
+Future approach (requires Google Drive connector):
+- Use the Google Drive API via a connector to upload the .pptx directly to a chosen folder
+- Auto-convert to Google Slides format on upload
+
+#### 3D. Export Menu Redesign
+
+Replace the single "Export PDF" button in the Editor with a proper export dropdown:
+- Export as PDF (existing, fixed to render visual blocks)
+- Export as PowerPoint (.pptx)
+- Send to Google Slides
+- Copy share link (existing)
+
+#### 3E. Slide Recipes (Power User Mode)
+
+Add a "Slide Recipe" input in the Generate Deck modal:
+- Text field where users can specify block sequences: "3 stat blocks, then a two_by_two, then decision slide"
+- Parse this into a structured recipe that maps to block types
+- Pass the recipe to the generate-blocks system prompt as a hard constraint
+- This replaces the need for "code execution" -- users describe the structure, Axora enforces it
+
+---
 
 ### Technical Details
 
-**Files to create:**
+**Database migration:**
+- Add `brand_kit JSONB DEFAULT '{}'` to `projects` table
+- Add `notes TEXT DEFAULT NULL` to `projects` table (for presenter notes, stored as JSON string of section-keyed notes)
 
-- `supabase/functions/upgrade-templates/index.ts` -- one-time migration function that regenerates all template blocks with visual types
+**New files to create:**
+- `src/lib/slide-engine.ts` -- slide computation from blocks
+- `src/lib/brand.ts` -- brand token resolution utility
+- `src/components/DeckPlayer.tsx` -- new presentation player
+- `src/components/DeckPlayerOutline.tsx` -- slide outline sidebar
+- `src/components/BrandKitPanel.tsx` -- brand settings UI in editor
+- `src/components/ExportMenu.tsx` -- unified export dropdown
+- `src/pages/Present.tsx` -- presenter view route
+- `supabase/functions/generate-pptx/index.ts` -- PowerPoint generation
 
 **Files to modify:**
+- `src/pages/Editor.tsx` -- add brand kit panel, replace export button with ExportMenu, add presenter view button
+- `src/pages/Preview.tsx` -- replace PreviewDeck with DeckPlayer
+- `src/pages/PublicPreview.tsx` -- replace PreviewDeck with DeckPlayer
+- `src/pages/Print.tsx` -- integrate VisualBlockRenderer for all block types
+- `src/lib/themes.ts` -- extend ThemeConfig to include brand override support
+- `src/index.css` -- add slide transition animations, font imports for brand typography options
+- `src/App.tsx` -- add `/present/:id` route
 
-- `src/data/axora-templates.seed.json` -- complete rewrite of template_blocks section with visual block types and tailored content per template
-- `supabase/functions/seed-templates/index.ts` -- add `force` mode to delete and re-insert
-
-**Database changes:**
-
-- Delete all existing rows from `template_blocks` table
-- Insert new visual blocks
-- No schema changes needed (block_payload JSONB already supports all visual types)
-
-**Risk mitigation:**
-
-- The "Visual Blocks Showcase" demo template is preserved unchanged
-- All block payloads conform to the existing TypeScript interfaces (StatBlockPayload, ChartBlockPayload, etc.)
-- Template previews cache will auto-invalidate since blocks change
-- The `createDeckFromTemplate` function already handles visual block types correctly
-
-### Scale
-
-- 60 templates x ~8 blocks each = ~480 new visual blocks
-- The seed JSON will be rewritten from scratch with tailored content
-- This is a large file change (~4000-5000 lines of JSON) but each block is deterministic, not AI-generated
-
-&nbsp;
-
-### A real presentation player, not just a preview page
-
-Today you already have `/preview/:id` rendering blocks. To feel like Gamma, the *frame* around those blocks must become a first class player.
-
-**Missing player capabilities**
-
-1. **Slide level navigation and outline**
-  - Left or bottom rail showing sections and slides
-  - Progress indicator and keyboard shortcuts (← / →, space, esc)
-  - Deep links such as `/preview/:id?s=2&slide=5`  
-  **How to wire it**
-  - Treat each block or group of blocks with the same `sectionIndex` as one slide.
-  - Build a `computedSlides[]` structure on the frontend.
-  - Add a small “outline” component fed by `outline.sections` and `sectionIndex`.
-2. **Responsive layouts and mobile reading mode**
-  - Gamma is comfortable both as a deck and as a web page.
-  - You want:
-    - Full screen “slide” mode for presenting
-    - Vertical “document” mode for reading on mobile  
-    **How to wire it**
-  - Provide a toggle `View as: Deck | Document`.
-  - Deck mode uses your current slide layout.
-  - Document mode stacks blocks vertically and uses section headings as anchors.
-3. **Per slide animations and transitions**
-  - Simple but consistent transitions:
-    - Fade in on slide change
-    - Staggered entrance of bullet items or cards  
-    **How to wire it**
-  - A small transition wrapper component around each slide (`framer motion` or CSS transitions).
-  - Respect a deck level setting: `animations: off | subtle | full`.
-4. **Presenter tooling**
-  - Speaker notes per section
-  - “Presenter view” with current slide, next slide, and notes  
-  **How to wire it**
-  - Data model: optional `notes` field on outline sections.
-  - UI: `/present/:id` route showing two panes and timer.
-
-This turns Axora from “nice generator feeding PowerPoint” into “web native deck”.
-
----
+**Implementation order (recommended):**
+1. Database migration (brand_kit column)
+2. Brand token resolution + BrandKitPanel
+3. Print.tsx fix (visual blocks in export)
+4. Slide engine + DeckPlayer (deck + document modes)
+5. Presenter view
+6. PPTX export edge function
+7. Google Slides path
+8. Slide recipes in generate modal
 
