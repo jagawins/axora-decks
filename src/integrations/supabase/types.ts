@@ -217,6 +217,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          brand_kit: Json | null
           cover_image_url: string | null
           created_at: string
           description: string | null
@@ -224,6 +225,7 @@ export type Database = {
           id: string
           is_favorite: boolean | null
           last_viewed_at: string | null
+          notes: Json | null
           share_enabled: boolean
           share_token: string
           theme: string
@@ -232,6 +234,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          brand_kit?: Json | null
           cover_image_url?: string | null
           created_at?: string
           description?: string | null
@@ -239,6 +242,7 @@ export type Database = {
           id?: string
           is_favorite?: boolean | null
           last_viewed_at?: string | null
+          notes?: Json | null
           share_enabled?: boolean
           share_token?: string
           theme?: string
@@ -247,6 +251,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          brand_kit?: Json | null
           cover_image_url?: string | null
           created_at?: string
           description?: string | null
@@ -254,6 +259,7 @@ export type Database = {
           id?: string
           is_favorite?: boolean | null
           last_viewed_at?: string | null
+          notes?: Json | null
           share_enabled?: boolean
           share_token?: string
           theme?: string

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -349,4 +349,37 @@
   --deck-muted: hsl(215.4 16.3% 46.9%);
   --deck-border: hsl(0 0% 85%);
   --deck-accent: hsl(222.2 47.4% 11.2%);
+}
+
+/* Slide transitions */
+@keyframes deck-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes deck-slide-in-full {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.deck-slide-enter {
+  animation: deck-slide-in 0.3s ease-out both;
+}
+
+.deck-slide-enter-full {
+  animation: deck-slide-in-full 0.4s ease-out both;
+}
+
+/* Brand typography variables */
+.brand-typography {
+  font-family: var(--brand-body-font, 'Inter', sans-serif);
+}
+
+.brand-typography h1,
+.brand-typography h2,
+.brand-typography h3,
+.brand-typography h4,
+.brand-typography h5,
+.brand-typography h6 {
+  font-family: var(--brand-heading-font, 'Inter', sans-serif);
 }

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { invokeFunction } from "@/lib/supabase-function-client";
-import PreviewDeck from "@/components/PreviewDeck";
+import DeckPlayer from "@/components/DeckPlayer";
 import { Loader2, AlertCircle } from "lucide-react";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
+import { BrandKit } from "@/lib/brand";
 import type { BlockType } from "@/lib/blocks";
 
 interface Block {
@@ -19,6 +20,7 @@ interface Project {
   title: string;
   description: string | null;
   theme: ThemeId;
+  brand_kit?: BrandKit | null;
 }
 
 export default function PublicPreview() {
@@ -46,13 +48,8 @@ export default function PublicPreview() {
           error?: string;
         }>("get-shared-project", { token });
 
-        if (response.error) {
-          throw new Error(response.error);
-        }
-
-        if (!response.data?.project) {
-          throw new Error("Shared project not found");
-        }
+        if (response.error) throw new Error(response.error);
+        if (!response.data?.project) throw new Error("Shared project not found");
 
         const data = response.data;
         setProject({
@@ -86,16 +83,13 @@ export default function PublicPreview() {
         <AlertCircle className="h-12 w-12 text-destructive" />
         <h1 className="text-xl font-semibold">Unable to load presentation</h1>
         <p className="text-muted-foreground">{error}</p>
-        <a href="/" className="text-accent hover:underline mt-4">
-          Go to homepage
-        </a>
+        <a href="/" className="text-accent hover:underline mt-4">Go to homepage</a>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-4">
@@ -110,9 +104,13 @@ export default function PublicPreview() {
         </div>
       </header>
 
-      {/* Preview Content */}
       <main className="flex-1">
-        <PreviewDeck blocks={blocks} title={project?.title} theme={project?.theme} />
+        <DeckPlayer
+          blocks={blocks}
+          title={project?.title}
+          theme={project?.theme}
+          brandKit={project?.brand_kit}
+        />
       </main>
     </div>
   );
