@@ -35,6 +35,10 @@ import { TwoByTwoMatrix } from './TwoByTwoMatrix';
 import { DecisionNextSteps } from './DecisionNextSteps';
 import { ChartBlock } from './ChartBlock';
 
+// Interactive block components
+import { TabsBlock } from './TabsBlock';
+import { ToggleBlock } from './ToggleBlock';
+
 import type {
   StatBlockPayload,
   QuoteBlockPayload,
@@ -56,6 +60,8 @@ import type {
   TwoByTwoMatrixPayload,
   DecisionNextStepsPayload,
   ChartBlockPayload,
+  TabsBlockPayload,
+  ToggleBlockPayload,
 } from '@/components/blocks/types';
 
 interface VisualBlockRendererProps {
@@ -137,6 +143,12 @@ export function VisualBlockRenderer({
       return <DecisionNextSteps payload={payload as unknown as DecisionNextStepsPayload} readOnly={readOnly} className={className} />;
     case 'chart_block':
       return <ChartBlock payload={payload as unknown as ChartBlockPayload} readOnly={readOnly} className={className} />;
+    
+    // Interactive block types
+    case 'tabs_block':
+      return <TabsBlock payload={payload as unknown as TabsBlockPayload} readOnly={readOnly} className={className} />;
+    case 'toggle_block':
+      return <ToggleBlock payload={payload as unknown as ToggleBlockPayload} readOnly={readOnly} className={className} />;
 
     // Legacy block types
     case 'heading':

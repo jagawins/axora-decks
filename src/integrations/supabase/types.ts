@@ -96,6 +96,41 @@ export type Database = {
           },
         ]
       }
+      deck_views: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          project_id: string
+          slide_index: number | null
+          viewer_hash: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          project_id: string
+          slide_index?: number | null
+          viewer_hash?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          project_id?: string
+          slide_index?: number | null
+          viewer_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deck_views_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exports: {
         Row: {
           created_at: string
@@ -227,6 +262,7 @@ export type Database = {
           last_viewed_at: string | null
           notes: Json | null
           share_enabled: boolean
+          share_passcode: string | null
           share_token: string
           theme: string
           title: string
@@ -244,6 +280,7 @@ export type Database = {
           last_viewed_at?: string | null
           notes?: Json | null
           share_enabled?: boolean
+          share_passcode?: string | null
           share_token?: string
           theme?: string
           title: string
@@ -261,6 +298,7 @@ export type Database = {
           last_viewed_at?: string | null
           notes?: Json | null
           share_enabled?: boolean
+          share_passcode?: string | null
           share_token?: string
           theme?: string
           title?: string
@@ -463,6 +501,8 @@ export type Database = {
         | "evidence_map"
         | "scenario_set"
         | "recommendation_panel"
+        | "tabs_block"
+        | "toggle_block"
       export_format: "pdf" | "slides" | "web"
       user_tier: "free" | "pro" | "executive"
     }
@@ -619,6 +659,8 @@ export const Constants = {
         "evidence_map",
         "scenario_set",
         "recommendation_panel",
+        "tabs_block",
+        "toggle_block",
       ],
       export_format: ["pdf", "slides", "web"],
       user_tier: ["free", "pro", "executive"],
