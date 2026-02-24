@@ -17,6 +17,7 @@ export interface BaseBlockPayload {
   };
   icon?: string;
   themeColor?: 'accent' | 'success' | 'warning' | 'muted' | 'primary';
+  reveal?: boolean;
 }
 
 // Stat Block
@@ -221,6 +222,22 @@ export interface ChartBlockPayload extends BaseBlockPayload {
   yLabel?: string;
 }
 
+// Tabs Block
+export interface TabsBlockPayload extends BaseBlockPayload {
+  tabs: Array<{
+    label: string;
+    content: string;
+  }>;
+  defaultTab?: number;
+}
+
+// Toggle Block
+export interface ToggleBlockPayload extends BaseBlockPayload {
+  stateA: { label: string; content: string };
+  stateB: { label: string; content: string };
+  defaultState?: 'a' | 'b';
+}
+
 // Union type for all visual block payloads
 export type VisualBlockPayload =
   | StatBlockPayload
@@ -242,7 +259,9 @@ export type VisualBlockPayload =
   | ThreePillarsPayload
   | TwoByTwoMatrixPayload
   | DecisionNextStepsPayload
-  | ChartBlockPayload;
+  | ChartBlockPayload
+  | TabsBlockPayload
+  | ToggleBlockPayload;
 
 // Visual block type names
 export type VisualBlockType =
@@ -261,7 +280,9 @@ export type VisualBlockType =
   | 'three_pillars'
   | 'two_by_two_matrix'
   | 'decision_next_steps'
-  | 'chart_block';
+  | 'chart_block'
+  | 'tabs_block'
+  | 'toggle_block';
 
 // Decision block type names
 export type DecisionBlockType =

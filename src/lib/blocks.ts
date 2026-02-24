@@ -26,7 +26,9 @@ export type VisualBlockType =
   | "three_pillars"
   | "two_by_two_matrix"
   | "decision_next_steps"
-  | "chart_block";
+  | "chart_block"
+  | "tabs_block"
+  | "toggle_block";
 
 // Decision block types (Decision Layer)
 export type DecisionBlockType =
@@ -55,6 +57,8 @@ export const VISUAL_BLOCK_TYPES: VisualBlockType[] = [
   "two_by_two_matrix",
   "decision_next_steps",
   "chart_block",
+  "tabs_block",
+  "toggle_block",
 ];
 
 // Decision block type array for runtime checks
@@ -153,7 +157,7 @@ export function isVisualBlockType(type: BlockType): type is VisualBlockType {
     "card_grid", "hero_header", "exec_summary", "cta_section",
     "section_divider", "icon_text_block", "framed_insight",
     "three_pillars", "two_by_two_matrix", "decision_next_steps",
-    "chart_block",
+    "chart_block", "tabs_block", "toggle_block",
   ].includes(type);
 }
 
@@ -917,6 +921,8 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   two_by_two_matrix: "2×2 Matrix",
   decision_next_steps: "Decision + Next Steps",
   chart_block: "Chart",
+  tabs_block: "Tabs",
+  toggle_block: "Toggle",
   // Decision blocks
   decision_summary: "Decision Summary",
   evidence_map: "Evidence Map",

@@ -19,7 +19,9 @@ export type VisualBlockType =
   | "three_pillars"
   | "two_by_two_matrix"
   | "decision_next_steps"
-  | "chart_block";
+  | "chart_block"
+  | "tabs_block"
+  | "toggle_block";
 
 // Decision block types (Decision Layer)
 export type DecisionBlockType =

@@ -29,6 +29,8 @@ import {
   Target,
   Grid3X3,
   ListChecks,
+  PanelTop,
+  ToggleLeft,
 } from "lucide-react";
 import { BlockType } from "./blocks";
 
@@ -60,6 +62,8 @@ export const BLOCK_ICONS: Record<BlockType, LucideIcon> = {
   two_by_two_matrix: Grid3X3,
   decision_next_steps: ListChecks,
   chart_block: BarChart3,
+  tabs_block: PanelTop,
+  toggle_block: ToggleLeft,
   // Decision blocks
   decision_summary: HelpCircle,
   evidence_map: MapPin,

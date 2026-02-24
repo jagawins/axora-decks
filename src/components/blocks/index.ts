@@ -32,5 +32,10 @@ export { TwoByTwoMatrix } from './TwoByTwoMatrix';
 export { DecisionNextSteps } from './DecisionNextSteps';
 export { ChartBlock } from './ChartBlock';
 
+// Interactive Block Components
+export { TabsBlock } from './TabsBlock';
+export { ToggleBlock } from './ToggleBlock';
+export { RevealWrapper } from './RevealWrapper';
+
 // Unified Renderer
 export { VisualBlockRenderer, getPayload } from './VisualBlockRenderer';

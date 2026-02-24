@@ -8,6 +8,7 @@ const corsHeaders = {
 
 interface ReqBody {
   token: string;
+  passcode?: string;
 }
 
 function json(status: number, body: Record<string, unknown>) {
@@ -55,7 +56,7 @@ serve(async (req) => {
 
     // Fetch project by token (share must be enabled)
     const projRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/projects?select=id,title,description,theme,share_enabled,share_token&share_token=eq.${token}&limit=1`,
+      `${SUPABASE_URL}/rest/v1/projects?select=id,title,description,theme,share_enabled,share_token,share_passcode&share_token=eq.${token}&limit=1`,
       {
         method: "GET",
         headers: {
@@ -78,6 +79,14 @@ serve(async (req) => {
       return json(404, { error: "Shared project not found", requestId });
     }
 
+    // Check passcode if project has one set
+    if (project.share_passcode && project.share_passcode.trim().length > 0) {
+      if (!body.passcode || body.passcode !== project.share_passcode) {
+        console.log(`[${requestId}] Passcode required or mismatch`);
+        return json(403, { requires_passcode: true, error: "Passcode required", requestId });
+      }
+    }
+
     // Fetch blocks for that project
     const blocksRes = await fetch(
       `${SUPABASE_URL}/rest/v1/blocks?select=id,type,content,order_index&project_id=eq.${project.id}&order=order_index.asc`,
@@ -96,6 +105,23 @@ serve(async (req) => {
     }
 
     const blocks = await blocksRes.json();
+
+    // Log a view asynchronously (fire and forget)
+    fetch(`${SUPABASE_URL}/rest/v1/deck_views`, {
+      method: "POST",
+      headers: {
+        apikey: SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({
+        project_id: project.id,
+        viewer_hash: null,
+        slide_index: 0,
+        duration_seconds: null,
+      }),
+    }).catch((err) => console.error(`[${requestId}] View logging failed:`, err));
 
     console.log(`[${requestId}] Successfully fetched shared project with ${blocks.length} blocks`);
 
