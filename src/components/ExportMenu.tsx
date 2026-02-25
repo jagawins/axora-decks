@@ -2,7 +2,7 @@
  * Unified Export Menu dropdown
  */
 
-import { FileDown, Printer, Share2, Presentation } from "lucide-react";
+import { FileDown, Printer, Share2, Presentation, FileSpreadsheet, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,9 +16,11 @@ interface ExportMenuProps {
   onPrintPDF: () => void;
   onShareLink: () => void;
   onPresenterView?: () => void;
+  onExportPPTX?: () => void;
+  pptxLoading?: boolean;
 }
 
-export function ExportMenu({ onPrintPDF, onShareLink, onPresenterView }: ExportMenuProps) {
+export function ExportMenu({ onPrintPDF, onShareLink, onPresenterView, onExportPPTX, pptxLoading }: ExportMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -32,6 +34,19 @@ export function ExportMenu({ onPrintPDF, onShareLink, onPresenterView }: ExportM
           <Printer className="h-4 w-4 mr-2" />
           Export as PDF
         </DropdownMenuItem>
+        {onExportPPTX && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onExportPPTX} disabled={pptxLoading}>
+              {pptxLoading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+              )}
+              Export as PowerPoint
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={onShareLink}>
           <Share2 className="h-4 w-4 mr-2" />

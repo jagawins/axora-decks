@@ -178,6 +178,7 @@ const Editor = () => {
   const [upgradeGateOpen, setUpgradeGateOpen] = useState(false);
   const [clarityScore, setClarityScore] = useState<number | null>(null);
   const [stressTestTrigger, setStressTestTrigger] = useState<string | null>(null);
+  const [pptxLoading, setPptxLoading] = useState(false);
 
   // Quick Polish state
   const [polishing, setPolishing] = useState(false);
@@ -781,6 +782,39 @@ const Editor = () => {
     }, 3000);
   };
 
+  const exportPptx = async () => {
+    if (!projectId) return;
+    setPptxLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-pptx", {
+        body: { project_id: projectId },
+      });
+
+      if (error) throw error;
+
+      // data comes back as a Blob when Content-Type is not application/json
+      const blob = data instanceof Blob ? data : new Blob([data], {
+        type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${project?.title || "deck"}.pptx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      toast({ title: "PowerPoint exported", description: "Your .pptx file is downloading." });
+    } catch (e) {
+      console.error("PPTX export error:", e);
+      toast({ title: "Export failed", description: "Could not generate PowerPoint file. Please try again.", variant: "destructive" });
+    } finally {
+      setPptxLoading(false);
+    }
+  };
+
   // Brand kit save handler
   const handleBrandKitChange = async (kit: BrandKit) => {
     setBrandKit(kit);
@@ -1030,6 +1064,8 @@ const Editor = () => {
               onPrintPDF={exportPdf}
               onShareLink={() => setShareDialogOpen(true)}
               onPresenterView={() => navigate(`/present/${projectId}`)}
+              onExportPPTX={exportPptx}
+              pptxLoading={pptxLoading}
             />
 
             <Button variant="ghost" size="sm" onClick={() => setShareDialogOpen(true)}>

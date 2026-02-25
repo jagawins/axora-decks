@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.upgrade-templates]
 verify_jwt = false
+
+[functions.generate-pptx]
+verify_jwt = false
