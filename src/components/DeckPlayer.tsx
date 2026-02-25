@@ -1,8 +1,9 @@
 /**
  * DeckPlayer – Full presentation player with deck/document modes
+ * Supports slide-to-slide links, inline editing, and quick AI actions
  */
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,6 +12,7 @@ import {
   List,
   Monitor,
   FileText,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
@@ -18,6 +20,7 @@ import { computeSlides, type SlideBlock, type ComputedSlide } from "@/lib/slide-
 import { resolveBrandStyles, type BrandKit } from "@/lib/brand";
 import { VisualBlockRenderer } from "@/components/blocks/VisualBlockRenderer";
 import { DeckPlayerOutline } from "@/components/DeckPlayerOutline";
+import { SlideQuickActions } from "@/components/SlideQuickActions";
 
 interface DeckPlayerProps {
   blocks: SlideBlock[];
@@ -26,6 +29,14 @@ interface DeckPlayerProps {
   brandKit?: BrandKit | null;
   animations?: "off" | "subtle" | "full";
   initialSlide?: number;
+  /** Called when user clicks "Edit this slide" – receives block IDs for focused editing */
+  onEditSlide?: (blockIds: string[]) => void;
+  /** Called when a quick AI action fires – receives blockId + instruction */
+  onQuickAction?: (blockId: string, instruction: string) => Promise<void>;
+  /** Enable view-tracking beacons (for public preview) */
+  trackViews?: boolean;
+  /** Project ID for view tracking */
+  projectId?: string;
 }
 
 type ViewMode = "deck" | "document";
@@ -37,6 +48,10 @@ export default function DeckPlayer({
   brandKit,
   animations = "subtle",
   initialSlide = 0,
+  onEditSlide,
+  onQuickAction,
+  trackViews,
+  projectId,
 }: DeckPlayerProps) {
   const slides = useMemo(() => computeSlides(blocks), [blocks]);
   const [currentSlide, setCurrentSlide] = useState(
@@ -45,23 +60,75 @@ export default function DeckPlayer({
   const [viewMode, setViewMode] = useState<ViewMode>("deck");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [outlineOpen, setOutlineOpen] = useState(false);
-  const [slideKey, setSlideKey] = useState(0); // for re-triggering animation
+  const [slideKey, setSlideKey] = useState(0);
 
   const totalSlides = slides.length;
   const brandStyles = useMemo(() => resolveBrandStyles(brandKit), [brandKit]);
+
+  // View tracking: record time spent per slide
+  const slideEnteredAt = useRef(Date.now());
+  const viewerHash = useRef<string>("");
+
+  useEffect(() => {
+    // Generate a simple viewer hash from random ID stored in sessionStorage
+    let hash = sessionStorage.getItem("axora_vh");
+    if (!hash) {
+      hash = crypto.randomUUID().slice(0, 8);
+      sessionStorage.setItem("axora_vh", hash);
+    }
+    viewerHash.current = hash;
+  }, []);
+
+  const sendViewBeacon = useCallback(
+    (slideIndex: number, durationMs: number) => {
+      if (!trackViews || !projectId) return;
+      const durationSeconds = Math.round(durationMs / 1000);
+      if (durationSeconds < 1) return;
+
+      // Fire and forget via edge function
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/record-view`;
+      const body = JSON.stringify({
+        project_id: projectId,
+        slide_index: slideIndex,
+        duration_seconds: durationSeconds,
+        viewer_hash: viewerHash.current,
+      });
+      navigator.sendBeacon?.(url, body) ||
+        fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
+          body,
+          keepalive: true,
+        }).catch(() => {});
+    },
+    [trackViews, projectId]
+  );
 
   // Navigation
   const goTo = useCallback(
     (idx: number) => {
       const clamped = Math.max(0, Math.min(idx, totalSlides - 1));
+      // Send beacon for the slide being left
+      const elapsed = Date.now() - slideEnteredAt.current;
+      sendViewBeacon(currentSlide, elapsed);
+      slideEnteredAt.current = Date.now();
+
       setCurrentSlide(clamped);
       setSlideKey((k) => k + 1);
     },
-    [totalSlides]
+    [totalSlides, currentSlide, sendViewBeacon]
   );
 
   const next = useCallback(() => goTo(currentSlide + 1), [currentSlide, goTo]);
   const prev = useCallback(() => goTo(currentSlide - 1), [currentSlide, goTo]);
+
+  // Send final beacon on unmount
+  useEffect(() => {
+    return () => {
+      const elapsed = Date.now() - slideEnteredAt.current;
+      sendViewBeacon(currentSlide, elapsed);
+    };
+  }, []);
 
   // Fullscreen
   const toggleFullscreen = useCallback(() => {
@@ -106,6 +173,14 @@ export default function DeckPlayer({
     }
   }, [goTo]);
 
+  // Slide link handler – intercepts #slide-N links
+  const handleSlideLink = useCallback(
+    (targetIndex: number) => {
+      goTo(targetIndex);
+    },
+    [goTo]
+  );
+
   if (!slides.length) {
     return (
       <div className="flex items-center justify-center h-full text-[var(--deck-muted)]">
@@ -146,7 +221,6 @@ export default function DeckPlayer({
         </div>
 
         <div className="flex items-center gap-1">
-          {/* View mode toggle */}
           <Button
             variant={viewMode === "deck" ? "secondary" : "ghost"}
             size="sm"
@@ -187,7 +261,6 @@ export default function DeckPlayer({
 
       {/* Main area */}
       <div className="flex-1 flex overflow-hidden bg-[var(--deck-bg)]">
-        {/* Outline sidebar */}
         <DeckPlayerOutline
           slides={slides}
           currentSlide={currentSlide}
@@ -196,18 +269,21 @@ export default function DeckPlayer({
           onToggle={() => setOutlineOpen(false)}
         />
 
-        {/* Content */}
         {viewMode === "deck" ? (
           <DeckView
             slide={slides[currentSlide]}
             slideKey={slideKey}
             animClass={animClass}
             brandKit={brandKit}
+            onNavigateSlide={handleSlideLink}
+            onEditSlide={onEditSlide}
+            onQuickAction={onQuickAction}
           />
         ) : (
           <DocumentView
             slides={slides}
             brandKit={brandKit}
+            onNavigateSlide={handleSlideLink}
           />
         )}
       </div>
@@ -234,24 +310,59 @@ function DeckView({
   slideKey,
   animClass,
   brandKit,
+  onNavigateSlide,
+  onEditSlide,
+  onQuickAction,
 }: {
   slide: ComputedSlide;
   slideKey: number;
   animClass: string;
   brandKit?: BrandKit | null;
+  onNavigateSlide?: (index: number) => void;
+  onEditSlide?: (blockIds: string[]) => void;
+  onQuickAction?: (blockId: string, instruction: string) => Promise<void>;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
-    <div className="flex-1 flex items-center justify-center p-6 overflow-hidden">
+    <div className="flex-1 flex items-center justify-center p-6 overflow-hidden relative">
       <div
         key={slideKey}
         className={`w-full max-w-5xl aspect-[16/9] bg-[var(--deck-bg)] text-[var(--deck-fg)] border border-[var(--deck-border)] rounded-xl shadow-2xl p-10 flex items-center justify-center overflow-auto ${animClass}`}
         style={brandKit?.typography?.bodyFont ? { fontFamily: `'${brandKit.typography.bodyFont}', sans-serif` } : undefined}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
         <div className="w-full">
           {slide.blocks.map((block) => (
-            <SlideBlockRenderer key={block.id} block={block} />
+            <SlideBlockRenderer
+              key={block.id}
+              block={block}
+              onNavigateSlide={onNavigateSlide}
+            />
           ))}
         </div>
+
+        {/* Edit button */}
+        {onEditSlide && hovered && (
+          <button
+            className="absolute top-4 right-4 p-2 rounded-lg bg-[var(--deck-bg)]/80 border border-[var(--deck-border)] backdrop-blur-sm opacity-70 hover:opacity-100 transition-opacity"
+            onClick={() => onEditSlide(slide.blocks.map((b) => b.id))}
+            title="Edit this slide"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        )}
+
+        {/* Quick AI actions */}
+        {onQuickAction && hovered && slide.blocks.length > 0 && (
+          <div className="absolute bottom-4 right-4">
+            <SlideQuickActions
+              blockId={slide.blocks[0].id}
+              onAction={onQuickAction}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -264,9 +375,11 @@ function DeckView({
 function DocumentView({
   slides,
   brandKit,
+  onNavigateSlide,
 }: {
   slides: ComputedSlide[];
   brandKit?: BrandKit | null;
+  onNavigateSlide?: (index: number) => void;
 }) {
   return (
     <div
@@ -278,7 +391,11 @@ function DocumentView({
           <section key={i} id={`slide-${i + 1}`}>
             <div className="bg-[var(--deck-bg)] text-[var(--deck-fg)] border border-[var(--deck-border)] rounded-xl p-8 shadow-lg">
               {slide.blocks.map((block) => (
-                <SlideBlockRenderer key={block.id} block={block} />
+                <SlideBlockRenderer
+                  key={block.id}
+                  block={block}
+                  onNavigateSlide={onNavigateSlide}
+                />
               ))}
             </div>
           </section>
@@ -289,25 +406,60 @@ function DocumentView({
 }
 
 /* ============================================================
-   Shared block renderer
+   Shared block renderer with slide link interception
    ============================================================ */
 
-function SlideBlockRenderer({ block }: { block: SlideBlock }) {
+function SlideBlockRenderer({
+  block,
+  onNavigateSlide,
+}: {
+  block: SlideBlock;
+  onNavigateSlide?: (index: number) => void;
+}) {
   const isBasic = ["heading", "text", "list", "callout", "two_col", "table", "image"].includes(block.type);
+
+  // Intercept clicks on slide links (#slide-N)
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest("a[href]") as HTMLAnchorElement | null;
+      if (!anchor) return;
+
+      const href = anchor.getAttribute("href") || "";
+      const match = href.match(/^#slide-(\d+)$/);
+      if (match && onNavigateSlide) {
+        e.preventDefault();
+        onNavigateSlide(parseInt(match[1], 10) - 1);
+      }
+    },
+    [onNavigateSlide]
+  );
+
+  // Check for slideLink in CTA/hero content and render inline link
+  const content = block.content || {};
+  const slideLink = content.slideLink as number | undefined;
 
   if (!isBasic) {
     return (
-      <div className="w-full">
+      <div className="w-full" onClick={handleClick}>
         <VisualBlockRenderer
           block={{ type: block.type as any, content: block.content as any } as any}
           readOnly
         />
+        {slideLink != null && onNavigateSlide && (
+          <button
+            className="mt-2 text-sm text-[var(--deck-accent)] hover:underline"
+            onClick={() => onNavigateSlide(slideLink - 1)}
+          >
+            → Go to slide {slideLink}
+          </button>
+        )}
       </div>
     );
   }
 
   // Legacy basic blocks
-  const c = block.content || {};
+  const c = content;
 
   switch (block.type) {
     case "heading": {
