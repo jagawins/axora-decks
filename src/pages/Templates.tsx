@@ -44,13 +44,13 @@ export default function Templates() {
 
       <main className="min-h-screen pt-24 pb-16">
         <div className="container-wide">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground mb-4">
-              Template Gallery
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Start with a professionally designed template. Customize with AI or edit manually.
+          <div className="mb-10">
+            <p className="text-muted-foreground text-sm mb-2">
+              Start with a professionally designed template, or create your own
             </p>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+              Templates
+            </h1>
           </div>
 
           <TemplatesGrid
