@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { invokeFunction } from "@/lib/supabase-function-client";
 import DeckPlayer from "@/components/DeckPlayer";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Lock } from "lucide-react";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
 import { BrandKit } from "@/lib/brand";
 import type { BlockType } from "@/lib/blocks";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface Block {
   id: string;
@@ -29,50 +31,113 @@ export default function PublicPreview() {
   const [error, setError] = useState<string | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [blocks, setBlocks] = useState<Block[]>([]);
+  const [needsPasscode, setNeedsPasscode] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [passcodeError, setPasscodeError] = useState(false);
 
-  useEffect(() => {
-    const fetchSharedProject = async () => {
-      if (!token) {
-        setError("No share token provided");
+  const fetchSharedProject = async (passcodeValue?: string) => {
+    if (!token) {
+      setError("No share token provided");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setPasscodeError(false);
+
+    try {
+      const body: Record<string, unknown> = { token };
+      if (passcodeValue) body.passcode = passcodeValue;
+
+      const response = await invokeFunction<{
+        project?: Project;
+        blocks?: Block[];
+        error?: string;
+        requires_passcode?: boolean;
+      }>("get-shared-project", body);
+
+      // Handle passcode required
+      if (response.status === 403 || response.data?.requires_passcode) {
+        setNeedsPasscode(true);
+        if (passcodeValue) setPasscodeError(true);
         setLoading(false);
         return;
       }
 
-      setLoading(true);
-      setError(null);
+      if (response.error) throw new Error(response.error);
+      if (!response.data?.project) throw new Error("Shared project not found");
 
-      try {
-        const response = await invokeFunction<{
-          project?: Project;
-          blocks?: Block[];
-          error?: string;
-        }>("get-shared-project", { token });
+      const data = response.data;
+      setProject({
+        ...data.project!,
+        theme: (data.project!.theme as ThemeId) || DEFAULT_THEME,
+      });
+      setBlocks(data.blocks || []);
+      setNeedsPasscode(false);
+    } catch (e) {
+      console.error("Error loading shared project:", e);
+      setError(e instanceof Error ? e.message : "Failed to load presentation");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        if (response.error) throw new Error(response.error);
-        if (!response.data?.project) throw new Error("Shared project not found");
-
-        const data = response.data;
-        setProject({
-          ...data.project!,
-          theme: (data.project!.theme as ThemeId) || DEFAULT_THEME,
-        });
-        setBlocks(data.blocks || []);
-      } catch (e) {
-        console.error("Error loading shared project:", e);
-        setError(e instanceof Error ? e.message : "Failed to load presentation");
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     fetchSharedProject();
   }, [token]);
+
+  const handlePasscodeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passcode.trim()) {
+      fetchSharedProject(passcode.trim());
+    }
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-accent" />
         <p className="text-muted-foreground">Loading presentation...</p>
+      </div>
+    );
+  }
+
+  // Passcode gate
+  if (needsPasscode) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6">
+        <div className="flex flex-col items-center gap-4 max-w-sm w-full px-4">
+          <div className="p-4 rounded-full bg-muted">
+            <Lock className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h1 className="text-xl font-semibold">This presentation is protected</h1>
+          <p className="text-muted-foreground text-center text-sm">
+            Enter the passcode to view this presentation.
+          </p>
+          <form onSubmit={handlePasscodeSubmit} className="w-full space-y-3">
+            <Input
+              type="password"
+              placeholder="Enter passcode"
+              value={passcode}
+              onChange={(e) => {
+                setPasscode(e.target.value);
+                setPasscodeError(false);
+              }}
+              className={passcodeError ? "border-destructive" : ""}
+              autoFocus
+            />
+            {passcodeError && (
+              <p className="text-sm text-destructive">Incorrect passcode. Please try again.</p>
+            )}
+            <Button type="submit" className="w-full" disabled={!passcode.trim()}>
+              View Presentation
+            </Button>
+          </form>
+          <a href="/" className="text-sm text-muted-foreground hover:underline mt-2">
+            Go to homepage
+          </a>
+        </div>
       </div>
     );
   }
@@ -110,6 +175,8 @@ export default function PublicPreview() {
           title={project?.title}
           theme={project?.theme}
           brandKit={project?.brand_kit}
+          trackViews
+          projectId={project?.id}
         />
       </main>
     </div>

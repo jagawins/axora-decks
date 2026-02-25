@@ -78,6 +78,18 @@ import MobileAIPanel from "@/components/editor/MobileAIPanel";
 import BlockHoverToolbar from "@/components/editor/BlockHoverToolbar";
 import AISidebar from "@/components/editor/AISidebar";
 import { BLOCK_ICONS, getBlockIcon } from "@/lib/block-icons";
+import { BrandKitPanel } from "@/components/BrandKitPanel";
+import { ExportMenu } from "@/components/ExportMenu";
+import type { BrandKit } from "@/lib/brand";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { BarChart3, RefreshCw, Lock } from "lucide-react";
 import { VisualBlockRenderer } from "@/components/blocks/VisualBlockRenderer";
 import {
   DndContext,
@@ -174,6 +186,14 @@ const Editor = () => {
   // Layout preset state
   const [layoutPreset, setLayoutPreset] = useState<LayoutPresetId>(DEFAULT_LAYOUT);
 
+  // Brand kit state
+  const [brandKit, setBrandKit] = useState<BrandKit>({});
+  const [brandPanelOpen, setBrandPanelOpen] = useState(false);
+
+  // Share passcode state
+  const [sharePasscode, setSharePasscode] = useState("");
+  const [viewAnalytics, setViewAnalytics] = useState<{ total: number; unique: number; topSlides: { index: number; avgTime: number }[] } | null>(null);
+
   // Export overlay state
   const [exportOverlayOpen, setExportOverlayOpen] = useState(false);
   const [exportStage, setExportStage] = useState(0);
@@ -218,7 +238,7 @@ const Editor = () => {
     try {
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
-        .select("id, title, description, share_enabled, share_token, theme")
+        .select("id, title, description, share_enabled, share_token, theme, brand_kit, share_passcode")
         .eq("id", projectId)
         .maybeSingle();
 
@@ -232,6 +252,8 @@ const Editor = () => {
       setShareEnabled(!!projectData.share_enabled);
       setShareToken(projectData.share_token ? String(projectData.share_token) : null);
       setTheme((projectData.theme as ThemeId) || DEFAULT_THEME);
+      setBrandKit((projectData.brand_kit as BrandKit) || {});
+      setSharePasscode(projectData.share_passcode || "");
 
       const { data: blocksData, error: blocksError } = await supabase
         .from("blocks")
@@ -759,6 +781,81 @@ const Editor = () => {
     }, 3000);
   };
 
+  // Brand kit save handler
+  const handleBrandKitChange = async (kit: BrandKit) => {
+    setBrandKit(kit);
+    if (!projectId) return;
+    try {
+      await supabase.from("projects").update({ brand_kit: kit as any }).eq("id", projectId);
+    } catch (e) {
+      console.error("Brand kit save error:", e);
+    }
+  };
+
+  // Share passcode save handler
+  const handlePasscodeSave = async (value: string) => {
+    if (!projectId) return;
+    setSharePasscode(value);
+    try {
+      await supabase.from("projects").update({ share_passcode: value || null }).eq("id", projectId);
+      toast({ title: value ? "Passcode set" : "Passcode removed" });
+    } catch (e) {
+      console.error("Passcode save error:", e);
+      toast({ title: "Failed to update passcode", variant: "destructive" });
+    }
+  };
+
+  // Regenerate share link
+  const regenerateShareLink = async () => {
+    if (!projectId) return;
+    try {
+      const { data, error } = await supabase
+        .from("projects")
+        .update({ share_token: crypto.randomUUID() })
+        .eq("id", projectId)
+        .select("share_token")
+        .single();
+      if (error) throw error;
+      setShareToken(String(data.share_token));
+      toast({ title: "Link regenerated", description: "Old links will no longer work." });
+    } catch (e) {
+      console.error("Regenerate link error:", e);
+      toast({ title: "Failed to regenerate link", variant: "destructive" });
+    }
+  };
+
+  // Fetch view analytics
+  const fetchViewAnalytics = async () => {
+    if (!projectId) return;
+    try {
+      const { data, error } = await supabase
+        .from("deck_views")
+        .select("viewer_hash, slide_index, duration_seconds")
+        .eq("project_id", projectId);
+      if (error) throw error;
+      const views = data || [];
+      const uniqueViewers = new Set(views.map(v => v.viewer_hash).filter(Boolean));
+      
+      // Top slides by avg time
+      const slideMap: Record<number, { total: number; count: number }> = {};
+      for (const v of views) {
+        if (v.slide_index != null && v.duration_seconds != null) {
+          if (!slideMap[v.slide_index]) slideMap[v.slide_index] = { total: 0, count: 0 };
+          slideMap[v.slide_index].total += v.duration_seconds;
+          slideMap[v.slide_index].count += 1;
+        }
+      }
+      const topSlides = Object.entries(slideMap)
+        .map(([idx, { total, count }]) => ({ index: Number(idx), avgTime: Math.round(total / count) }))
+        .sort((a, b) => b.avgTime - a.avgTime)
+        .slice(0, 3);
+
+      setViewAnalytics({ total: views.length, unique: uniqueViewers.size, topSlides });
+    } catch (e) {
+      console.error("Analytics fetch error:", e);
+    }
+  };
+
   // Quick Polish – iterate all blocks sequentially with executive refinement
   const handleQuickPolish = async () => {
     if (polishing || blocks.length === 0) return;
@@ -929,14 +1026,21 @@ const Editor = () => {
               </Button>
             </div>
 
-            <Button variant="ghost" size="sm" onClick={exportPdf}>
-              <FileDown className="h-4 w-4 mr-2" />
-              PDF
-            </Button>
+            <ExportMenu
+              onPrintPDF={exportPdf}
+              onShareLink={() => setShareDialogOpen(true)}
+              onPresenterView={() => navigate(`/present/${projectId}`)}
+            />
 
             <Button variant="ghost" size="sm" onClick={() => setShareDialogOpen(true)}>
               <Share2 className="h-4 w-4 mr-2" />
               Share
+            </Button>
+
+            {/* Brand Kit */}
+            <Button variant="ghost" size="sm" onClick={() => setBrandPanelOpen(true)}>
+              <Palette className="h-4 w-4 mr-2" />
+              Brand
             </Button>
 
             {/* Theme */}
@@ -1389,8 +1493,11 @@ const Editor = () => {
       </Dialog>
 
       {/* Share Dialog */}
-      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={shareDialogOpen} onOpenChange={(open) => {
+        setShareDialogOpen(open);
+        if (open) fetchViewAnalytics();
+      }}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Share Presentation</DialogTitle>
             <DialogDescription>
@@ -1399,32 +1506,108 @@ const Editor = () => {
                 : "Enable link sharing to let anyone view this presentation."}
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4 space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
-              <div className="flex items-center gap-3">
-                <Share2 className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium text-sm">Public link sharing</p>
-                  <p className="text-xs text-muted-foreground">{shareEnabled ? "Enabled" : "Disabled"}</p>
+          <Tabs defaultValue="link" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="link">Link & Security</TabsTrigger>
+              <TabsTrigger value="analytics">Views</TabsTrigger>
+            </TabsList>
+            <TabsContent value="link" className="space-y-4 pt-4">
+              {/* Enable/Disable toggle */}
+              <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
+                <div className="flex items-center gap-3">
+                  <Share2 className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium text-sm">Public link sharing</p>
+                    <p className="text-xs text-muted-foreground">{shareEnabled ? "Enabled" : "Disabled"}</p>
+                  </div>
                 </div>
+                <Button variant={shareEnabled ? "outline" : "hero"} size="sm" onClick={toggleSharing}>
+                  {shareEnabled ? "Disable" : "Enable"}
+                </Button>
               </div>
-              <Button variant={shareEnabled ? "outline" : "hero"} size="sm" onClick={toggleSharing}>
-                {shareEnabled ? "Disable" : "Enable"}
-              </Button>
-            </div>
 
-            {shareEnabled && shareToken && (
-              <div className="space-y-2">
-                <Label>Share link</Label>
-                <div className="flex gap-2">
-                  <Input readOnly value={`${window.location.origin}/p/${shareToken}`} className="bg-muted/50 text-sm" />
-                  <Button variant="outline" size="icon" onClick={copyShareLink}>
-                    <Copy className="h-4 w-4" />
+              {shareEnabled && shareToken && (
+                <>
+                  {/* Share link with copy */}
+                  <div className="space-y-2">
+                    <Label>Share link</Label>
+                    <div className="flex gap-2">
+                      <Input readOnly value={`${window.location.origin}/p/${shareToken}`} className="bg-muted/50 text-sm" />
+                      <Button variant="outline" size="icon" onClick={copyShareLink}>
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Regenerate link */}
+                  <Button variant="ghost" size="sm" className="gap-2 text-xs" onClick={regenerateShareLink}>
+                    <RefreshCw className="h-3 w-3" />
+                    Regenerate link (old links stop working)
                   </Button>
+
+                  {/* Passcode */}
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Lock className="h-3.5 w-3.5" />
+                      Passcode protection
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="text"
+                        placeholder="Leave empty for no passcode"
+                        value={sharePasscode}
+                        onChange={(e) => setSharePasscode(e.target.value)}
+                        className="bg-muted/50 text-sm"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePasscodeSave(sharePasscode)}
+                      >
+                        Save
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {sharePasscode ? "Viewers must enter this passcode to view." : "No passcode set – anyone with the link can view."}
+                    </p>
+                  </div>
+                </>
+              )}
+            </TabsContent>
+            <TabsContent value="analytics" className="space-y-4 pt-4">
+              {viewAnalytics ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg bg-muted/50 border border-border text-center">
+                      <p className="text-2xl font-bold">{viewAnalytics.total}</p>
+                      <p className="text-xs text-muted-foreground">Total views</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-muted/50 border border-border text-center">
+                      <p className="text-2xl font-bold">{viewAnalytics.unique}</p>
+                      <p className="text-xs text-muted-foreground">Unique viewers</p>
+                    </div>
+                  </div>
+                  {viewAnalytics.topSlides.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Top slides by avg. time</p>
+                      {viewAnalytics.topSlides.map(({ index, avgTime }) => (
+                        <div key={index} className="flex items-center justify-between text-sm px-3 py-2 rounded bg-muted/30">
+                          <span>Slide {index + 1}</span>
+                          <span className="text-muted-foreground">{avgTime}s avg</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
-          </div>
+              ) : (
+                <div className="flex flex-col items-center py-8 text-muted-foreground gap-2">
+                  <BarChart3 className="h-8 w-8" />
+                  <p className="text-sm">No view data yet</p>
+                  <p className="text-xs">Share your presentation to start tracking views.</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShareDialogOpen(false)}>
               Done
@@ -1432,6 +1615,18 @@ const Editor = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Brand Kit Sheet */}
+      <Sheet open={brandPanelOpen} onOpenChange={setBrandPanelOpen}>
+        <SheetContent side="right" className="w-80">
+          <SheetHeader>
+            <SheetTitle>Brand Kit</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4">
+            <BrandKitPanel brandKit={brandKit} onChange={handleBrandKitChange} />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* AI Deck Generation Modal */}
       <CreateDeckModal open={createDeckOpen} onOpenChange={setCreateDeckOpen} onGenerate={handleCreateDeck} />
