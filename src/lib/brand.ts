@@ -22,22 +22,45 @@ export interface BrandKit {
   };
 }
 
-export type HeadingFont = "Inter" | "Playfair Display" | "Space Grotesk" | "DM Sans";
-export type BodyFont = "Inter" | "Source Sans Pro" | "IBM Plex Sans";
+export type HeadingFont =
+  | "Inter"
+  | "Playfair Display"
+  | "Space Grotesk"
+  | "DM Sans"
+  | "Outfit"
+  | "Sora"
+  | "Clash Display"
+  | "Cabinet Grotesk";
+
+export type BodyFont =
+  | "Inter"
+  | "Source Sans Pro"
+  | "IBM Plex Sans"
+  | "DM Sans"
+  | "Outfit"
+  | "Nunito Sans";
+
 export type TypographyScale = "compact" | "default" | "spacious";
 export type LogoPlacement = "top-left" | "top-right" | "none";
 
-export const HEADING_FONTS: { value: HeadingFont; label: string }[] = [
-  { value: "Inter", label: "Inter" },
-  { value: "Playfair Display", label: "Playfair Display" },
-  { value: "Space Grotesk", label: "Space Grotesk" },
-  { value: "DM Sans", label: "DM Sans" },
+export const HEADING_FONTS: { value: HeadingFont; label: string; style: string }[] = [
+  { value: "Inter", label: "Inter", style: "Modern & clean" },
+  { value: "Playfair Display", label: "Playfair Display", style: "Elegant serif" },
+  { value: "Space Grotesk", label: "Space Grotesk", style: "Technical" },
+  { value: "DM Sans", label: "DM Sans", style: "Geometric" },
+  { value: "Outfit", label: "Outfit", style: "Friendly" },
+  { value: "Sora", label: "Sora", style: "Futuristic" },
+  { value: "Clash Display", label: "Clash Display", style: "Bold statement" },
+  { value: "Cabinet Grotesk", label: "Cabinet Grotesk", style: "Contemporary" },
 ];
 
-export const BODY_FONTS: { value: BodyFont; label: string }[] = [
-  { value: "Inter", label: "Inter" },
-  { value: "Source Sans Pro", label: "Source Sans Pro" },
-  { value: "IBM Plex Sans", label: "IBM Plex Sans" },
+export const BODY_FONTS: { value: BodyFont; label: string; style: string }[] = [
+  { value: "Inter", label: "Inter", style: "Universal" },
+  { value: "Source Sans Pro", label: "Source Sans Pro", style: "Professional" },
+  { value: "IBM Plex Sans", label: "IBM Plex Sans", style: "Corporate" },
+  { value: "DM Sans", label: "DM Sans", style: "Geometric" },
+  { value: "Outfit", label: "Outfit", style: "Friendly" },
+  { value: "Nunito Sans", label: "Nunito Sans", style: "Rounded" },
 ];
 
 export const TYPOGRAPHY_SCALES: { value: TypographyScale; label: string }[] = [

@@ -1,10 +1,14 @@
-export type ThemeId = "classic" | "midnight" | "sand" | "graphite";
+export type ThemeId = "classic" | "midnight" | "sand" | "graphite" | "ocean" | "rose" | "forest" | "sunset";
 
-export const THEMES: Record<ThemeId, { label: string }> = {
-  classic: { label: "Classic" },
-  midnight: { label: "Midnight" },
-  sand: { label: "Sand" },
-  graphite: { label: "Graphite" },
+export const THEMES: Record<ThemeId, { label: string; preview: string }> = {
+  classic: { label: "Classic", preview: "from-slate-900 to-slate-800" },
+  midnight: { label: "Midnight", preview: "from-indigo-950 to-violet-950" },
+  sand: { label: "Sand", preview: "from-amber-50 to-orange-50" },
+  graphite: { label: "Graphite", preview: "from-neutral-800 to-zinc-900" },
+  ocean: { label: "Ocean", preview: "from-cyan-900 to-teal-900" },
+  rose: { label: "Rose", preview: "from-rose-50 to-pink-50" },
+  forest: { label: "Forest", preview: "from-emerald-950 to-green-950" },
+  sunset: { label: "Sunset", preview: "from-orange-500 to-purple-600" },
 };
 
 export const DEFAULT_THEME: ThemeId = "classic";
