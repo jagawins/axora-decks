@@ -1,9 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
-import { Loader2 } from 'lucide-react';
 import { type TemplateBlock } from '@/lib/templates';
-import { getCachedPreview, cachePreview } from '@/lib/template-preview-cache';
-import { TemplatePreviewRenderer } from './TemplatePreviewRenderer';
 import { cn } from '@/lib/utils';
+import {
+  BarChart3, Type, Image, Columns, Table, List, AlertCircle,
+  TrendingUp, Quote, Clock, GitCompare, LayoutGrid, Star,
+  FileText, MousePointerClick, Minus, Lightbulb, Layers,
+  Grid3X3, ArrowRightCircle, PieChart, PanelTop, ToggleLeft,
+  Scale, Map, Shuffle, CheckSquare
+} from 'lucide-react';
 
 interface TemplatePreviewImageProps {
   templateId: string;
@@ -14,133 +17,107 @@ interface TemplatePreviewImageProps {
   className?: string;
 }
 
+const BLOCK_ICON: Record<string, React.ElementType> = {
+  heading: Type,
+  text: FileText,
+  image: Image,
+  two_col: Columns,
+  table: Table,
+  list: List,
+  callout: AlertCircle,
+  stat_block: TrendingUp,
+  quote_block: Quote,
+  timeline_block: Clock,
+  comparison_table: GitCompare,
+  card_grid: LayoutGrid,
+  hero_header: Star,
+  exec_summary: FileText,
+  cta_section: MousePointerClick,
+  section_divider: Minus,
+  icon_text_block: Lightbulb,
+  framed_insight: Lightbulb,
+  three_pillars: Layers,
+  two_by_two_matrix: Grid3X3,
+  decision_next_steps: ArrowRightCircle,
+  chart_block: PieChart,
+  tabs_block: PanelTop,
+  toggle_block: ToggleLeft,
+  decision_summary: CheckSquare,
+  evidence_map: Map,
+  scenario_set: Shuffle,
+  recommendation_panel: Scale,
+};
+
+function getBlockLabel(type: string): string {
+  return type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
 /**
- * Displays a template preview image.
- * Priority: 1) previewUrl prop, 2) IndexedDB cache, 3) Generate on-demand
+ * Shows a stylized preview of template structure using block-type indicators.
+ * Reliable, fast, and no html-to-image dependency.
  */
 export function TemplatePreviewImage({
-  templateId,
-  templateVersion = 1,
-  themeId = 'classic',
   previewUrl,
   blocks,
   className = '',
 }: TemplatePreviewImageProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  const [shouldGenerate, setShouldGenerate] = useState(false);
-  const mountedRef = useRef(true);
-
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  // Check cache on mount
-  useEffect(() => {
-    let cancelled = false;
-
-    async function checkCache() {
-      setIsLoading(true);
-      setHasError(false);
-      
-      // Priority 1: Use provided previewUrl
-      if (previewUrl) {
-        setImageUrl(previewUrl);
-        setIsLoading(false);
-        return;
-      }
-
-      // Priority 2: Check IndexedDB cache
-      try {
-        const cached = await getCachedPreview(templateId, templateVersion, themeId);
-        if (cancelled) return;
-        
-        if (cached) {
-          setImageUrl(cached);
-          setIsLoading(false);
-          return;
-        }
-      } catch {
-        // Cache error, fall through to generation
-      }
-
-      // Priority 3: Need to generate
-      if (!cancelled) {
-        setShouldGenerate(true);
-        setIsLoading(false);
-      }
-    }
-
-    checkCache();
-    return () => {
-      cancelled = true;
-    };
-  }, [templateId, templateVersion, themeId, previewUrl]);
-
-  // Handle preview generation callback
-  const handlePreviewGenerated = async (dataUrl: string) => {
-    if (!mountedRef.current) return;
-    
-    setImageUrl(dataUrl);
-    setShouldGenerate(false);
-    
-    // Cache the generated preview
-    try {
-      await cachePreview(templateId, templateVersion, themeId, dataUrl);
-    } catch {
-      // Cache error, preview still works
-    }
-  };
-
-  // If we have an image URL, show it
-  if (imageUrl && !hasError) {
+  // If a real thumbnail exists, use it
+  if (previewUrl) {
     return (
       <div className={cn("relative aspect-video bg-muted rounded-xl overflow-hidden", className)}>
-        <img
-          src={imageUrl}
-          alt="Template preview"
-          className="w-full h-full object-cover"
-          onError={() => {
-            setHasError(true);
-            setImageUrl(null);
-            setShouldGenerate(true);
-          }}
-        />
+        <img src={previewUrl} alt="Template preview" className="w-full h-full object-cover" />
       </div>
     );
   }
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className={cn("relative aspect-video bg-muted rounded-xl overflow-hidden flex items-center justify-center", className)}>
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
+  const previewBlocks = blocks.slice(0, 5);
 
-  // Need to generate preview
-  if (shouldGenerate) {
-    return (
-      <TemplatePreviewRenderer
-        blocks={blocks}
-        themeId={themeId}
-        onPreviewGenerated={handlePreviewGenerated}
-        className={className}
-      />
-    );
-  }
-
-  // Fallback: render live preview without generation
   return (
-    <TemplatePreviewRenderer
-      blocks={blocks}
-      themeId={themeId}
-      className={className}
-    />
+    <div
+      className={cn(
+        "relative aspect-video w-full rounded-xl overflow-hidden bg-card border border-border",
+        className
+      )}
+    >
+      {/* Decorative slide lines */}
+      <div className="absolute inset-0 p-3 flex flex-col gap-1.5">
+        {previewBlocks.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">
+            Empty template
+          </div>
+        ) : (
+          previewBlocks.map((block, i) => {
+            const Icon = BLOCK_ICON[block.type] || FileText;
+            const payload = block.block_payload || {};
+            const title =
+              (payload as any).text?.slice(0, 40) ||
+              (payload as any).headline?.slice(0, 40) ||
+              (payload as any).title?.slice(0, 40) ||
+              getBlockLabel(block.type);
+
+            return (
+              <div
+                key={block.id || i}
+                className={cn(
+                  "flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-muted/50 text-muted-foreground",
+                  i === 0 && "bg-accent/15 text-accent"
+                )}
+              >
+                <Icon className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-[11px] leading-tight truncate font-medium">
+                  {title}
+                </span>
+              </div>
+            );
+          })
+        )}
+
+        {blocks.length > 5 && (
+          <div className="text-[10px] text-muted-foreground/60 text-center mt-auto">
+            +{blocks.length - 5} more slides
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
