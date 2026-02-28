@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Navbar = () => {
   const { user, loading } = useAuth();
@@ -33,6 +34,7 @@ const Navbar = () => {
 
           {/* CTA Buttons - Desktop */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             {loading ? null : user ? (
               <Link to="/dashboard">
                 <Button variant="hero" size="sm">
@@ -115,6 +117,7 @@ const Navbar = () => {
                 Sign in
               </Link>
             )}
+            <ThemeToggle showLabel />
           </div>
         </div>
       )}
