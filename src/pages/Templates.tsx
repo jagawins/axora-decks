@@ -34,7 +34,7 @@ export default function Templates() {
   return (
     <>
       <SeoHead
-        title="Presentation Templates | AXORA - AI Deck Generator"
+        title="Presentation Templates | Axora — AI Deck Generator"
         description="60+ professional presentation templates for board decks, executive summaries, product roadmaps, and sales playbooks. Start with a template and customize with AI."
         canonicalPath="/templates"
         keywords="presentation templates, executive deck templates, board deck template, pitch deck template, AI presentation templates"
@@ -44,13 +44,13 @@ export default function Templates() {
 
       <main className="min-h-screen pt-24 pb-16">
         <div className="container-wide">
-          <div className="mb-10">
-            <p className="text-muted-foreground text-sm mb-2">
-              Start with a professionally designed template, or create your own
-            </p>
+          <div className="mb-8">
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
               Templates
             </h1>
+            <p className="text-muted-foreground mt-1">
+              Start with a professionally designed template, or create your own
+            </p>
           </div>
 
           <TemplatesGrid

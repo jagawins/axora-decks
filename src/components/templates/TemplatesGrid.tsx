@@ -1,12 +1,13 @@
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, LayoutTemplate, Star, ChevronLeft, ChevronRight, Flame } from 'lucide-react';
+import { Loader2, LayoutTemplate, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { Template, createDeckFromTemplate, TEMPLATE_CATEGORIES } from '@/lib/templates';
+import { Template, createDeckFromTemplate } from '@/lib/templates';
 import { TemplateCard } from './TemplateCard';
 import { SeedTemplatesButton } from './SeedTemplatesButton';
 import { cn } from '@/lib/utils';
+import { inferVisualCategory, type TemplateVisualCategory } from './TemplateThumbnail';
 
 interface TemplatesGridProps {
   templates: Template[];
@@ -14,162 +15,80 @@ interface TemplatesGridProps {
   onRefresh?: () => void;
 }
 
-// Category display metadata
-const CATEGORY_META: Record<string, { emoji: string; subtitle: string }> = {
-  'Strategy and Leadership': { emoji: '🎯', subtitle: 'High-level decks for leadership and board presentations' },
-  'Projects and Operations': { emoji: '⚡', subtitle: 'Templates to help you run your business' },
-  'Product and Technology': { emoji: '🚀', subtitle: 'Ship better products with clear communication' },
-  'Sales and Marketing': { emoji: '📈', subtitle: 'Win deals and drive growth' },
-  'Startup and Fundraising': { emoji: '💰', subtitle: 'Pitch decks and investor materials' },
-  'AI and Data': { emoji: '🤖', subtitle: 'Data-driven stories and AI project decks' },
-};
-
-function HorizontalRow({ title, subtitle, emoji, templates, onSelect, creatingId }: {
-  title: string;
-  subtitle: string;
-  emoji: string;
-  templates: Template[];
-  onSelect: (id: string) => void;
-  creatingId: string | null;
-}) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  const updateScrollState = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 4);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
-  };
-
-  const scroll = (dir: 'left' | 'right') => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const amount = el.clientWidth * 0.75;
-    el.scrollBy({ left: dir === 'left' ? -amount : amount, behavior: 'smooth' });
-  };
-
-  if (templates.length === 0) return null;
-
-  return (
-    <section className="space-y-3">
-      <div className="flex items-end justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-            {title}
-            <span className="text-base">{emoji}</span>
-          </h2>
-          <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
-        </div>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => scroll('left')}
-            disabled={!canScrollLeft}
-            className={cn(
-              "p-1.5 rounded-lg border border-border transition-colors",
-              canScrollLeft ? "hover:bg-muted text-foreground" : "text-muted-foreground/30 cursor-default"
-            )}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => scroll('right')}
-            disabled={!canScrollRight}
-            className={cn(
-              "p-1.5 rounded-lg border border-border transition-colors",
-              canScrollRight ? "hover:bg-muted text-foreground" : "text-muted-foreground/30 cursor-default"
-            )}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      <div
-        ref={scrollRef}
-        onScroll={updateScrollState}
-        className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {templates.map((template) => (
-          <div
-            key={template.id}
-            className="flex-shrink-0 w-[280px] sm:w-[300px] lg:w-[320px] snap-start relative"
-          >
-            {creatingId === template.id && (
-              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
-                <Loader2 className="h-6 w-6 animate-spin text-accent" />
-              </div>
-            )}
-            <TemplateCard
-              id={template.id}
-              title={template.title}
-              description={template.description}
-              category={template.category}
-              tags={template.tags}
-              isFeatured={template.is_featured}
-              version={template.version}
-              defaultThemeId={template.default_theme_id}
-              previewBlocks={template.preview_blocks || []}
-              previewUrl={template.thumbnail_url || template.preview_url}
-              onSelect={onSelect}
-            />
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
+const FILTER_CATEGORIES: { id: string; label: string; match: TemplateVisualCategory[] }[] = [
+  { id: 'all', label: 'All', match: [] },
+  { id: 'strategy', label: 'Strategy', match: ['strategy'] },
+  { id: 'financial', label: 'Financial', match: ['financial'] },
+  { id: 'board', label: 'Board', match: ['board'] },
+  { id: 'sales', label: 'Sales & Pitch', match: ['sales'] },
+  { id: 'marketing', label: 'Marketing', match: ['marketing'] },
+  { id: 'operations', label: 'Operations', match: ['operations'] },
+  { id: 'comparison', label: 'Comparison', match: ['comparison'] },
+];
 
 export function TemplatesGrid({ templates, loading, onRefresh }: TemplatesGridProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
   const [creatingFromTemplate, setCreatingFromTemplate] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Group templates by category
-  const grouped = useMemo(() => {
-    const map: Record<string, Template[]> = {};
-    templates.forEach((t) => {
-      if (!map[t.category]) map[t.category] = [];
-      map[t.category].push(t);
-    });
-    return map;
-  }, [templates]);
+  // Assign visual category to every template
+  const templatesWithCat = useMemo(() =>
+    templates.map((t) => ({
+      ...t,
+      visualCategory: inferVisualCategory(t.category, t.tags),
+    })),
+    [templates]
+  );
 
-  // Featured (popular) templates
-  const featured = useMemo(() => templates.filter((t) => t.is_featured), [templates]);
+  // Count per category
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: templates.length };
+    for (const t of templatesWithCat) {
+      counts[t.visualCategory] = (counts[t.visualCategory] || 0) + 1;
+    }
+    return counts;
+  }, [templatesWithCat, templates.length]);
 
-  // Ordered categories from the constant (skip 'all')
-  const orderedCategories = useMemo(() => {
-    return TEMPLATE_CATEGORIES
-      .filter((c) => c.id !== 'all')
-      .map((c) => c.id)
-      .filter((id) => (grouped[id]?.length || 0) > 0);
-  }, [grouped]);
+  // Filter + search
+  const filtered = useMemo(() => {
+    let list = templatesWithCat;
+
+    if (activeFilter !== 'all') {
+      const filterDef = FILTER_CATEGORIES.find((f) => f.id === activeFilter);
+      if (filterDef) {
+        list = list.filter((t) => filterDef.match.includes(t.visualCategory));
+      }
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
+        (t) =>
+          t.title.toLowerCase().includes(q) ||
+          (t.description || '').toLowerCase().includes(q) ||
+          t.tags.some((tag) => tag.toLowerCase().includes(q))
+      );
+    }
+
+    return list;
+  }, [templatesWithCat, activeFilter, searchQuery]);
 
   const handleSelectTemplate = async (templateId: string) => {
     if (!user) {
       navigate('/auth');
       return;
     }
-
     setCreatingFromTemplate(templateId);
     try {
       const { projectId } = await createDeckFromTemplate(templateId, user.id);
-      toast({
-        title: 'Deck created!',
-        description: 'A copy of the template is ready for editing.',
-      });
+      toast({ title: 'Deck created!', description: 'A copy of the template is ready for editing.' });
       navigate(`/editor/${projectId}`);
     } catch (error) {
       console.error('Error creating deck from template:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to create deck from template. Please try again.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Failed to create deck from template.', variant: 'destructive' });
     } finally {
       setCreatingFromTemplate(null);
     }
@@ -188,44 +107,86 @@ export function TemplatesGrid({ templates, loading, onRefresh }: TemplatesGridPr
       <div className="text-center py-16 glass-card">
         <LayoutTemplate className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h3 className="text-xl font-semibold mb-2">No templates available</h3>
-        <p className="text-muted-foreground mb-6">
-          Templates need to be seeded into the database.
-        </p>
+        <p className="text-muted-foreground mb-6">Templates need to be seeded into the database.</p>
         {onRefresh && <SeedTemplatesButton onSeeded={onRefresh} />}
       </div>
     );
   }
 
   return (
-    <div className="space-y-10">
-      {/* Popular / Featured */}
-      {featured.length > 0 && (
-        <HorizontalRow
-          title="Popular"
-          subtitle="What's hot at Axora right now"
-          emoji="🔥"
-          templates={featured}
-          onSelect={handleSelectTemplate}
-          creatingId={creatingFromTemplate}
-        />
-      )}
+    <div className="space-y-6">
+      {/* Count */}
+      <p className="text-muted-foreground text-sm">
+        <span className="text-foreground font-semibold">{templates.length} templates</span> — pick one and start building
+      </p>
 
-      {/* Category rows */}
-      {orderedCategories.map((catId) => {
-        const meta = CATEGORY_META[catId] || { emoji: '📋', subtitle: '' };
-        const label = TEMPLATE_CATEGORIES.find((c) => c.id === catId)?.label || catId;
-        return (
-          <HorizontalRow
-            key={catId}
-            title={label}
-            subtitle={meta.subtitle}
-            emoji={meta.emoji}
-            templates={grouped[catId] || []}
-            onSelect={handleSelectTemplate}
-            creatingId={creatingFromTemplate}
-          />
-        );
-      })}
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input
+          type="text"
+          placeholder={`Search ${templates.length} templates...`}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40"
+        />
+      </div>
+
+      {/* Category filters */}
+      <div className="flex flex-wrap gap-2">
+        {FILTER_CATEGORIES.map((cat) => {
+          const count = cat.id === 'all'
+            ? categoryCounts.all || 0
+            : cat.match.reduce((sum, m) => sum + (categoryCounts[m] || 0), 0);
+
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setActiveFilter(cat.id)}
+              className={cn(
+                'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors',
+                activeFilter === cat.id
+                  ? 'text-white'
+                  : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
+              )}
+              style={activeFilter === cat.id ? { backgroundColor: '#7C3AED' } : undefined}
+            >
+              {cat.label}
+              <span className={cn('ml-1.5 text-xs', activeFilter === cat.id ? 'text-white/70' : 'text-muted-foreground')}>
+                ({count})
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Grid */}
+      {filtered.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No templates match your search.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
+          {filtered.map((template) => (
+            <div key={template.id} className="relative">
+              {creatingFromTemplate === template.id && (
+                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                  <Loader2 className="h-6 w-6 animate-spin text-accent" />
+                </div>
+              )}
+              <TemplateCard
+                id={template.id}
+                title={template.title}
+                description={template.description}
+                category={template.category}
+                tags={template.tags}
+                isFeatured={template.is_featured}
+                onSelect={handleSelectTemplate}
+              />
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Loading overlay */}
       {creatingFromTemplate && (
