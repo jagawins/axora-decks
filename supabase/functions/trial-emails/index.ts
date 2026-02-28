@@ -154,7 +154,7 @@ serve(async (req) => {
             Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
           },
           body: JSON.stringify({
-            from: "Axora <jag@axora.ai>",
+            from: "Axora <jag@axor.verityaxis.com>",
             to: [user.email],
             subject: drip.subject,
             html: htmlEmail,
