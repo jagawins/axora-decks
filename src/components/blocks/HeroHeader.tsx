@@ -64,17 +64,34 @@ export function HeroHeader({
         )}
         {cta && (
           <div className="mt-space-8">
-            <button
-              className={cn(
-                'inline-flex items-center gap-2 px-space-8 py-space-4 rounded-radius-lg',
-                'bg-[var(--deck-accent,hsl(var(--accent)))] text-white',
-                'font-semibold text-fluid-base',
-                'transition-all duration-300 hover:shadow-glow hover:-translate-y-0.5'
-              )}
-            >
-              {cta.text}
-              <ArrowRight className="w-5 h-5" />
-            </button>
+            {cta.href ? (
+              <a
+                href={cta.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  'inline-flex items-center gap-2 px-space-8 py-space-4 rounded-radius-lg',
+                  'bg-[var(--deck-accent,hsl(var(--accent)))] text-white',
+                  'font-semibold text-fluid-base',
+                  'transition-all duration-300 hover:shadow-glow hover:-translate-y-0.5'
+                )}
+              >
+                {cta.text}
+                <ArrowRight className="w-5 h-5" />
+              </a>
+            ) : (
+              <button
+                className={cn(
+                  'inline-flex items-center gap-2 px-space-8 py-space-4 rounded-radius-lg',
+                  'bg-[var(--deck-accent,hsl(var(--accent)))] text-white',
+                  'font-semibold text-fluid-base',
+                  'transition-all duration-300 hover:shadow-glow hover:-translate-y-0.5'
+                )}
+              >
+                {cta.text}
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            )}
           </div>
         )}
       </div>
