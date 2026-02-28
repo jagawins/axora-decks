@@ -33,13 +33,15 @@ const CATEGORY_STYLES: Record<TemplateVisualCategory, CategoryStyle> = {
 // Tag-based classification
 const TAG_MAP: Record<string, TemplateVisualCategory> = {
   strategy: 'strategy', roadmap: 'strategy', planning: 'strategy', okr: 'strategy',
-  transformation: 'strategy', narrative: 'strategy',
+  transformation: 'strategy', narrative: 'strategy', aop: 'strategy',
   financial: 'financial', revenue: 'financial', metrics: 'financial', budget: 'financial',
   forecast: 'financial', economics: 'financial', pricing: 'financial',
+  tam: 'financial', sam: 'financial', som: 'financial', traction: 'financial',
   board: 'board', executive: 'board', governance: 'board', leadership: 'board',
   steering: 'board', summary: 'board',
   sales: 'sales', pitch: 'sales', investor: 'sales', fundraising: 'sales',
   startup: 'sales', pipeline: 'sales', playbook: 'sales', renewal: 'sales',
+  raise: 'sales', memo: 'sales',
   marketing: 'marketing', brand: 'marketing', campaign: 'marketing', launch: 'marketing',
   gtm: 'marketing', persona: 'marketing',
   operations: 'operations', hr: 'operations', hiring: 'operations', process: 'operations',
@@ -48,16 +50,29 @@ const TAG_MAP: Record<string, TemplateVisualCategory> = {
   postmortem: 'operations', status: 'operations', charter: 'operations',
   comparison: 'comparison', alternative: 'comparison', vs: 'comparison', competitive: 'comparison',
   battlecard: 'comparison', gamma: 'comparison',
+  // Product & Tech keywords
+  architecture: 'board', engineering: 'operations', qbr: 'financial',
+  prioritization: 'strategy', backlog: 'strategy', integration: 'operations',
+  mvp: 'strategy', scope: 'strategy', requirements: 'strategy',
+  platform: 'board', api: 'board', design: 'board', technical: 'board',
+  security: 'operations', release: 'marketing',
+  // AI & Data keywords
+  ai: 'board', genai: 'board', rag: 'board', model: 'financial',
+  evaluation: 'financial', benchmarks: 'financial', maturity: 'strategy',
+  assessment: 'strategy', powerpoint: 'board', ppt: 'board',
+  slides: 'board', workflow: 'operations', capability: 'strategy',
+  // Demo
+  demo: 'general', showcase: 'general',
 };
 
-// Category string → visual category
+// Category string → visual category (fallback if no tags match)
 const CATEGORY_STRING_MAP: Record<string, TemplateVisualCategory> = {
   'Strategy and Leadership': 'strategy',
   'Projects and Operations': 'operations',
-  'Product and Technology': 'general',
+  'Product and Technology': 'board',
   'Sales and Marketing': 'marketing',
   'Startup and Fundraising': 'sales',
-  'AI and Data': 'general',
+  'AI and Data': 'board',
   'Demo': 'general',
 };
 
