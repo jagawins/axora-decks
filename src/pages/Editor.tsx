@@ -176,6 +176,7 @@ const Editor = () => {
   const [beforeAfterMode, setBeforeAfterMode] = useState<"after" | "before">("after");
   const [recentBadges, setRecentBadges] = useState<Record<string, string>>({});
   const [upgradeGateOpen, setUpgradeGateOpen] = useState(false);
+  const [upgradeGateFeature, setUpgradeGateFeature] = useState<string | undefined>();
   const [clarityScore, setClarityScore] = useState<number | null>(null);
   const [stressTestTrigger, setStressTestTrigger] = useState<string | null>(null);
   const [pptxLoading, setPptxLoading] = useState(false);
@@ -579,6 +580,7 @@ const Editor = () => {
 
     // Soft gate check
     if (!canGenerateDeck(subscription.tier)) {
+      setUpgradeGateFeature(undefined);
       setUpgradeGateOpen(true);
       return;
     }
@@ -784,10 +786,18 @@ const Editor = () => {
 
   const exportPptx = async () => {
     if (!projectId) return;
+
+    // Show upgrade prompt for free users (but still allow export with watermark)
+    const isPaid = subscription.subscribed && subscription.tier !== 'free';
+    if (!isPaid) {
+      setUpgradeGateFeature("PowerPoint Export");
+      setUpgradeGateOpen(true);
+    }
+
     setPptxLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-pptx", {
-        body: { project_id: projectId },
+        body: { project_id: projectId, is_paid: isPaid },
       });
 
       if (error) throw error;
@@ -812,7 +822,7 @@ const Editor = () => {
       a.remove();
       URL.revokeObjectURL(url);
 
-      toast({ title: "PowerPoint exported", description: "Your .pptx file is downloading." });
+      toast({ title: "PowerPoint exported", description: isPaid ? "Your .pptx file is downloading." : "Your .pptx file is downloading (with Axora watermark)." });
     } catch (e) {
       console.error("PPTX export error:", e);
       toast({ title: "Export failed", description: "Could not generate PowerPoint file. Please try again.", variant: "destructive" });
@@ -1708,7 +1718,7 @@ const Editor = () => {
       )}
 
       {/* Upgrade Gate Modal */}
-      <UpgradeGateModal open={upgradeGateOpen} onOpenChange={setUpgradeGateOpen} />
+      <UpgradeGateModal open={upgradeGateOpen} onOpenChange={setUpgradeGateOpen} feature={upgradeGateFeature} />
 
       {/* Export Polish Overlay */}
       <Dialog open={exportOverlayOpen} onOpenChange={() => {}}>
