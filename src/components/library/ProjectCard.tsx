@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MoreHorizontal, Pencil, Copy, FolderInput, Star, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { MiniSlidePreview } from "@/components/MiniSlidePreview";
 
 interface ProjectCardProps {
   id: string;
@@ -58,6 +60,13 @@ const getPlaceholderGradient = (title: string) => {
   return gradients[hash % gradients.length];
 };
 
+interface MiniBlock {
+  id: string;
+  type: string;
+  content: Record<string, unknown>;
+  order_index: number;
+}
+
 export const ProjectCard = ({
   id,
   title,
@@ -74,6 +83,67 @@ export const ProjectCard = ({
   onDelete,
 }: ProjectCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [blocks, setBlocks] = useState<MiniBlock[]>([]);
+  const [blocksLoaded, setBlocksLoaded] = useState(false);
+
+  // Lazy-load blocks for preview when card mounts
+  useEffect(() => {
+    let cancelled = false;
+    const loadBlocks = async () => {
+      const { data } = await supabase
+        .from('blocks')
+        .select('id, type, content, order_index')
+        .eq('project_id', id)
+        .order('order_index')
+        .limit(5);
+      if (!cancelled && data) {
+        setBlocks(data.map(b => ({
+          id: b.id,
+          type: b.type,
+          content: (b.content || {}) as Record<string, unknown>,
+          order_index: b.order_index,
+        })));
+        setBlocksLoaded(true);
+      }
+    };
+    loadBlocks();
+    return () => { cancelled = true; };
+  }, [id]);
+
+  const hasRealPreview = blocksLoaded && blocks.length > 0;
+
+  const renderThumbnail = (aspectClass: string) => {
+    if (coverImageUrl) {
+      return (
+        <div className={cn(aspectClass, "w-full overflow-hidden")}>
+          <img src={coverImageUrl} alt="" className="w-full h-full object-cover" />
+        </div>
+      );
+    }
+    if (hasRealPreview) {
+      return (
+        <MiniSlidePreview
+          blocks={blocks}
+          className={cn(aspectClass, "border-0 rounded-none")}
+          scale={viewMode === "list" ? 0.067 : 0.25}
+        />
+      );
+    }
+    return (
+      <div className={cn(
+        aspectClass,
+        "w-full bg-gradient-to-br flex items-center justify-center",
+        getPlaceholderGradient(title)
+      )}>
+        <span className={cn(
+          "font-bold text-foreground/20",
+          viewMode === "list" ? "text-lg" : "text-4xl"
+        )}>
+          {title.charAt(0).toUpperCase()}
+        </span>
+      </div>
+    );
+  };
 
   if (viewMode === "list") {
     return (
@@ -84,17 +154,8 @@ export const ProjectCard = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Thumbnail */}
-        <div className={cn(
-          "w-16 h-12 rounded-md overflow-hidden flex-shrink-0 bg-gradient-to-br",
-          !coverImageUrl && getPlaceholderGradient(title)
-        )}>
-          {coverImageUrl ? (
-            <img src={coverImageUrl} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-lg font-bold text-foreground/30">
-              {title.charAt(0).toUpperCase()}
-            </div>
-          )}
+        <div className="w-16 h-12 rounded-md overflow-hidden flex-shrink-0">
+          {renderThumbnail("w-16 h-12")}
         </div>
 
         {/* Title */}
@@ -105,49 +166,31 @@ export const ProjectCard = ({
           </p>
         </div>
 
-        {/* Favorite indicator */}
         {isFavorite && (
           <Star className="h-4 w-4 text-accent fill-accent flex-shrink-0" />
         )}
 
-        {/* Actions */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button
               variant="ghost"
               size="icon"
-              className={cn(
-                "flex-shrink-0 transition-opacity",
-                isHovered ? "opacity-100" : "opacity-0"
-              )}
+              className={cn("flex-shrink-0 transition-opacity", isHovered ? "opacity-100" : "opacity-0")}
             >
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-            <DropdownMenuItem onClick={() => onRename(id)}>
-              <Pencil className="h-4 w-4 mr-2" />
-              Rename
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDuplicate(id)}>
-              <Copy className="h-4 w-4 mr-2" />
-              Duplicate
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onMoveToFolder(id)}>
-              <FolderInput className="h-4 w-4 mr-2" />
-              Move to folder
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onRename(id)}><Pencil className="h-4 w-4 mr-2" />Rename</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onDuplicate(id)}><Copy className="h-4 w-4 mr-2" />Duplicate</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onMoveToFolder(id)}><FolderInput className="h-4 w-4 mr-2" />Move to folder</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onToggleFavorite(id, !isFavorite)}>
               <Star className={cn("h-4 w-4 mr-2", isFavorite && "fill-current")} />
               {isFavorite ? "Remove from favorites" : "Add to favorites"}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              className="text-destructive"
-              onClick={() => onDelete(id, title)}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
+            <DropdownMenuItem className="text-destructive" onClick={() => onDelete(id, title)}>
+              <Trash2 className="h-4 w-4 mr-2" />Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -163,19 +206,8 @@ export const ProjectCard = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Cover image */}
-      <div className={cn(
-        "aspect-[16/10] w-full bg-gradient-to-br",
-        !coverImageUrl && getPlaceholderGradient(title)
-      )}>
-        {coverImageUrl ? (
-          <img src={coverImageUrl} alt="" className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-foreground/20">
-            {title.charAt(0).toUpperCase()}
-          </div>
-        )}
-      </div>
+      {/* Cover / Preview */}
+      {renderThumbnail("aspect-[16/10]")}
 
       {/* Favorite badge */}
       {isFavorite && (
@@ -193,10 +225,7 @@ export const ProjectCard = ({
       </div>
 
       {/* Hover actions */}
-      <div className={cn(
-        "absolute top-3 left-3 transition-opacity",
-        isHovered ? "opacity-100" : "opacity-0"
-      )}>
+      <div className={cn("absolute top-3 left-3 transition-opacity", isHovered ? "opacity-100" : "opacity-0")}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button variant="secondary" size="icon" className="h-8 w-8">
@@ -204,29 +233,16 @@ export const ProjectCard = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
-            <DropdownMenuItem onClick={() => onRename(id)}>
-              <Pencil className="h-4 w-4 mr-2" />
-              Rename
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDuplicate(id)}>
-              <Copy className="h-4 w-4 mr-2" />
-              Duplicate
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onMoveToFolder(id)}>
-              <FolderInput className="h-4 w-4 mr-2" />
-              Move to folder
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onRename(id)}><Pencil className="h-4 w-4 mr-2" />Rename</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onDuplicate(id)}><Copy className="h-4 w-4 mr-2" />Duplicate</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onMoveToFolder(id)}><FolderInput className="h-4 w-4 mr-2" />Move to folder</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onToggleFavorite(id, !isFavorite)}>
               <Star className={cn("h-4 w-4 mr-2", isFavorite && "fill-current")} />
               {isFavorite ? "Remove from favorites" : "Add to favorites"}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              className="text-destructive"
-              onClick={() => onDelete(id, title)}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
+            <DropdownMenuItem className="text-destructive" onClick={() => onDelete(id, title)}>
+              <Trash2 className="h-4 w-4 mr-2" />Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
