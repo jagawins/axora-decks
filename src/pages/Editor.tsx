@@ -970,7 +970,22 @@ const Editor = () => {
             <div className="flex items-center gap-2 sm:gap-3">
               <img src={axoraWordmark} alt="AXORA" className="h-4 w-auto hidden sm:block" />
               <span className="text-muted-foreground hidden sm:inline">|</span>
-              <span className="font-semibold truncate max-w-[120px] sm:max-w-[200px] text-sm sm:text-base">{project?.title || "Untitled"}</span>
+              <input
+                className="font-semibold truncate max-w-[120px] sm:max-w-[200px] text-sm sm:text-base bg-transparent border-none outline-none focus:ring-1 focus:ring-primary/50 rounded px-1 -mx-1 cursor-text"
+                value={project?.title || ""}
+                placeholder="Untitled"
+                onChange={(e) => {
+                  if (project) setProject({ ...project, title: e.target.value });
+                }}
+                onBlur={async (e) => {
+                  const newTitle = e.target.value.trim();
+                  if (!newTitle || !projectId || newTitle === project?.title) return;
+                  await supabase.from("projects").update({ title: newTitle }).eq("id", projectId);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                }}
+              />
             </div>
           </div>
 
