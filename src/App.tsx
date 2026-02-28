@@ -39,6 +39,9 @@ import NotFound from "./pages/NotFound";
 import Demo from "./pages/Demo";
 import SettingsPage from "./pages/Settings";
 import Onboarding from "./pages/Onboarding";
+import FAQ from "./pages/FAQ";
+import InvestorPitchDeck from "./pages/InvestorPitchDeck";
+import BeautifulAiAlternative from "./pages/BeautifulAiAlternative";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +87,9 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/investor-pitch-deck" element={<InvestorPitchDeck />} />
+                <Route path="/beautiful-ai-alternative" element={<BeautifulAiAlternative />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
