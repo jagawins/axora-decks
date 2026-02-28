@@ -3,12 +3,16 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
+import axoraWordmarkDark from "@/assets/axora-wordmark-dark.svg";
+import axoraWordmarkLight from "@/assets/axora-wordmark.svg";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const MarketingHeader = () => {
+  const { theme } = useTheme();
   const { user, loading } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const axoraWordmark = theme === 'light' ? axoraWordmarkLight : axoraWordmarkDark;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
