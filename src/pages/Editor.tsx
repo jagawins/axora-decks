@@ -792,8 +792,14 @@ const Editor = () => {
 
       if (error) throw error;
 
-      // data comes back as a Blob when Content-Type is not application/json
-      const blob = data instanceof Blob ? data : new Blob([data], {
+      // Decode base64 response to binary blob
+      const { base64, fileName } = data as { base64: string; fileName: string };
+      const byteString = atob(base64);
+      const bytes = new Uint8Array(byteString.length);
+      for (let i = 0; i < byteString.length; i++) {
+        bytes[i] = byteString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], {
         type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
       });
 
