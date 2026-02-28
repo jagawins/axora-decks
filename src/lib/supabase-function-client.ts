@@ -37,12 +37,22 @@ export async function invokeFunction<T>(
     }
 
     // Some functions return { error: "...", requestId?: "..." } as 200
+    // But preserve requires_passcode responses so PublicPreview can handle them
     if (data && typeof data === "object" && "error" in data && data.error) {
+      const dataObj = data as Record<string, unknown>;
+      if (dataObj.requires_passcode) {
+        return {
+          data: data as T,
+          error: null,
+          status: 403,
+          requestId: dataObj.requestId as string | undefined,
+        };
+      }
       return {
         data: null,
-        error: String(data.error),
+        error: String(dataObj.error),
         status: 400,
-        requestId: (data as Record<string, unknown>).requestId as string | undefined,
+        requestId: dataObj.requestId as string | undefined,
       };
     }
 

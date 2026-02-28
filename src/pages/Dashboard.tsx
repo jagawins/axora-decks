@@ -628,13 +628,6 @@ const Dashboard = () => {
         onSubmit={handleRenameSubmit}
       />
 
-      <RenameModal
-        open={renameModalOpen}
-        onOpenChange={setRenameModalOpen}
-        currentTitle={renameCurrentTitle}
-        onSubmit={handleRenameSubmit}
-      />
-
       <FirstDeckModal
         open={firstDeckOpen}
         onOpenChange={setFirstDeckOpen}
