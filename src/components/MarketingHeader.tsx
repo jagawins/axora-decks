@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const MarketingHeader = () => {
   const { user, loading } = useAuth();
@@ -42,6 +43,7 @@ const MarketingHeader = () => {
 
           {/* Right: CTA Buttons */}
           <div className="flex items-center justify-end gap-3">
+            <ThemeToggle />
             {loading ? null : user ? (
               <Link to="/dashboard">
                 <Button variant="hero" size="sm">
@@ -100,6 +102,7 @@ const MarketingHeader = () => {
               Gamma Alternative
             </Link>
             <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
+              <ThemeToggle showLabel />
               {loading ? null : user ? (
                 <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="hero" size="sm" className="w-full">
