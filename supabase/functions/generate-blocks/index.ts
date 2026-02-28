@@ -1904,67 +1904,34 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
   };
 }
 
-// Call Claude API
+// Call Lovable AI gateway
 async function callAI(
-  _apiKey: string,
+  apiKey: string,
   systemPrompt: string,
   userPrompt: string,
   enableVisualBlocks: boolean,
   decisionMode: boolean = false
 ): Promise<{ response?: Response; error?: string }> {
-  const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-  if (!ANTHROPIC_API_KEY) {
-    return { error: "ANTHROPIC_API_KEY not configured" };
-  }
-
   try {
     const toolSchema = getToolSchema(enableVisualBlocks, decisionMode);
-    const anthropicTool = {
-      name: toolSchema.function.name,
-      description: toolSchema.function.description,
-      input_schema: toolSchema.function.parameters,
-    };
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "google/gemini-2.5-flash",
         max_tokens: 8192,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
-        tools: [anthropicTool],
-        tool_choice: { type: "tool", name: "create_blocks" },
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        tools: [toolSchema],
+        tool_choice: { type: "function", function: { name: "create_blocks" } },
       }),
     });
-
-    if (response.ok) {
-      const data = await response.json();
-      const toolUse = data.content?.find((c: { type: string }) => c.type === "tool_use");
-      const fakeOpenAI = {
-        choices: [{
-          message: {
-            tool_calls: toolUse ? [{
-              function: {
-                name: toolUse.name,
-                arguments: JSON.stringify(toolUse.input),
-              }
-            }] : undefined,
-            content: !toolUse ? data.content?.find((c: { type: string }) => c.type === "text")?.text : undefined,
-          }
-        }]
-      };
-      return {
-        response: new Response(JSON.stringify(fakeOpenAI), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }),
-      };
-    }
 
     return { response };
   } catch (e) {

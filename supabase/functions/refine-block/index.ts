@@ -393,45 +393,39 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
       }
     };
 
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: "ANTHROPIC_API_KEY not configured", requestId }),
-        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const anthropicTool = {
-      name: "update_block",
-      description: `Update the ${block!.type} block content. Must include all required fields for this block type. All strings must be plain text without Markdown.`,
-      input_schema: {
-        type: "object",
-        properties: {
-          type: { 
-            type: "string", 
-            enum: [block!.type],
-            description: "Block type - must be " + block!.type
-          },
-          content: contentSchemas[block!.type] || { type: "object" }
-        },
-        required: ["type", "content"]
-      }
-    };
-
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "google/gemini-2.5-flash",
         max_tokens: 4096,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
-        tools: [anthropicTool],
-        tool_choice: { type: "tool", name: "update_block" },
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        tools: [{
+          type: "function",
+          function: {
+            name: "update_block",
+            description: `Update the ${block!.type} block content. Must include all required fields for this block type. All strings must be plain text without Markdown.`,
+            parameters: {
+              type: "object",
+              properties: {
+                type: { 
+                  type: "string", 
+                  enum: [block!.type],
+                  description: "Block type - must be " + block!.type
+                },
+                content: contentSchemas[block!.type] || { type: "object" }
+              },
+              required: ["type", "content"]
+            },
+          },
+        }],
+        tool_choice: { type: "function", function: { name: "update_block" } },
       }),
     });
 
@@ -459,38 +453,42 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
     }
 
     const data = await response.json();
-    console.log(`[${requestId}] Claude response received`);
+    console.log(`[${requestId}] AI response received`);
 
-    // Parse Anthropic tool_use response
-    const toolUse = data.content?.find((c: { type: string }) => c.type === "tool_use");
-    if (toolUse?.input) {
-      const updatedBlock = toolUse.input;
-      console.log(`[${requestId}] Parsed tool call:`, JSON.stringify(updatedBlock, null, 2));
-      
-      if (!updatedBlock.content || Object.keys(updatedBlock.content).length === 0) {
-        console.error(`[${requestId}] Empty content received`);
-      } else {
-        const cleanedContent = sanitizeContent(updatedBlock.content);
+    // Parse OpenAI-compatible tool call response
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (toolCall?.function?.arguments) {
+      try {
+        const updatedBlock = JSON.parse(toolCall.function.arguments);
+        console.log(`[${requestId}] Parsed tool call:`, JSON.stringify(updatedBlock, null, 2));
         
-        const result: Block = {
-          type: updatedBlock.type as Block["type"],
-          content: cleanedContent,
-          order_index: block!.order_index || 0,
-        };
+        if (!updatedBlock.content || Object.keys(updatedBlock.content).length === 0) {
+          console.error(`[${requestId}] Empty content received`);
+        } else {
+          const cleanedContent = sanitizeContent(updatedBlock.content);
+          
+          const result: Block = {
+            type: updatedBlock.type as Block["type"],
+            content: cleanedContent,
+            order_index: block!.order_index || 0,
+          };
 
-        console.log(`[${requestId}] Block refined successfully`);
-        return new Response(
-          JSON.stringify({ block: result, requestId }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+          console.log(`[${requestId}] Block refined successfully`);
+          return new Response(
+            JSON.stringify({ block: result, requestId }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      } catch (parseError) {
+        console.error(`[${requestId}] Failed to parse tool call:`, parseError);
       }
     }
 
-    // Fallback: try text content
-    const textBlock = data.content?.find((c: { type: string }) => c.type === "text");
-    if (textBlock?.text) {
+    // Fallback: try message content
+    const messageContent = data.choices?.[0]?.message?.content;
+    if (messageContent) {
       try {
-        const cleanContent = textBlock.text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        const cleanContent = messageContent.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
         const updatedBlock = JSON.parse(cleanContent);
         
         if (updatedBlock.content && Object.keys(updatedBlock.content).length > 0) {
