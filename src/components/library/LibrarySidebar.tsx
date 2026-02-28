@@ -1,4 +1,4 @@
-import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown } from "lucide-react";
+import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
@@ -41,6 +41,7 @@ const navItems = [
   { id: "home", label: "Home", icon: Home },
   { id: "library", label: "Library", icon: Library },
   { id: "templates", label: "Templates", icon: LayoutTemplate },
+  { id: "brand-kit", label: "Brand Kit", icon: Palette, href: "/brand-kit" },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
@@ -87,21 +88,30 @@ export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }:
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onTabChange(item.id)}
-            className={cn(
-              "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-              activeTab === item.id
-                ? "bg-accent/10 text-accent"
-                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-            )}
-          >
-            <item.icon className="h-4 w-4" />
-            {item.label}
-          </button>
-        ))}
+        {navItems.map((item) => {
+          const navItem = item as typeof item & { href?: string };
+          return (
+            <button
+              key={item.id}
+              onClick={() => {
+                if (navItem.href) {
+                  window.location.href = navItem.href;
+                } else {
+                  onTabChange(item.id);
+                }
+              }}
+              className={cn(
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                activeTab === item.id
+                  ? "bg-accent/10 text-accent"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.label}
+            </button>
+          );
+        })}
       </nav>
 
       {/* Subscription status */}

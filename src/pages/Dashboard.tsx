@@ -20,6 +20,7 @@ import { TemplatesGrid } from '@/components/templates/TemplatesGrid';
 import { SUBSCRIPTION_TIERS, getProjectLimit } from '@/lib/subscription';
 import { fetchTemplates, Template } from '@/lib/templates';
 import { FirstDeckModal } from '@/components/FirstDeckModal';
+import { BrandKitCard } from '@/components/dashboard/BrandKitCard';
 
 interface Project {
   id: string;
@@ -431,6 +432,11 @@ const Dashboard = () => {
         <main className="flex-1 overflow-auto p-6">
           {sidebarTab === 'library' && (
             <>
+              {/* Brand Kit Card - top of library */}
+              <div className="mb-6">
+                <BrandKitCard />
+              </div>
+
               {/* Action bar */}
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold">Library</h1>

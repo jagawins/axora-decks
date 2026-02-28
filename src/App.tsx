@@ -43,6 +43,7 @@ import Onboarding from "./pages/Onboarding";
 import FAQ from "./pages/FAQ";
 import InvestorPitchDeck from "./pages/InvestorPitchDeck";
 import BeautifulAiAlternative from "./pages/BeautifulAiAlternative";
+import BrandKitPage from "./pages/BrandKit";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,7 @@ const App = () => (
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/investor-pitch-deck" element={<InvestorPitchDeck />} />
                 <Route path="/beautiful-ai-alternative" element={<BeautifulAiAlternative />} />
+                <Route path="/brand-kit" element={<BrandKitPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
