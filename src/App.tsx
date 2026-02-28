@@ -44,6 +44,9 @@ import FAQ from "./pages/FAQ";
 import InvestorPitchDeck from "./pages/InvestorPitchDeck";
 import BeautifulAiAlternative from "./pages/BeautifulAiAlternative";
 import BrandKitPage from "./pages/BrandKit";
+import HealthcareAIPresentations from "./pages/HealthcareAIPresentations";
+import NHSBoardPresentationGenerator from "./pages/NHSBoardPresentationGenerator";
+import APACEnterprisePresentations from "./pages/APACEnterprisePresentations";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +97,9 @@ const App = () => (
                 <Route path="/investor-pitch-deck" element={<InvestorPitchDeck />} />
                 <Route path="/beautiful-ai-alternative" element={<BeautifulAiAlternative />} />
                 <Route path="/brand-kit" element={<BrandKitPage />} />
+                <Route path="/healthcare-ai-presentations" element={<HealthcareAIPresentations />} />
+                <Route path="/nhs-board-presentation-generator" element={<NHSBoardPresentationGenerator />} />
+                <Route path="/asia-pacific-enterprise-presentations" element={<APACEnterprisePresentations />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

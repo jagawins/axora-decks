@@ -6,7 +6,7 @@ const MarketingFooter = () => {
     <footer className="border-t border-border py-12 md:py-16 pb-safe">
       <div className="container-wide">
         {/* 5-Column Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-8 mb-12">
           {/* Column 1: Product */}
           <div>
             <h4 className="text-sm font-semibold mb-4">Product</h4>
@@ -61,6 +61,38 @@ const MarketingFooter = () => {
               <li>
                 <Link to="/executive-deck-generator" className="text-sm text-muted-foreground hover:text-accent transition-colors">
                   Executive Decks
+                </Link>
+              </li>
+              <li>
+                <Link to="/beautiful-ai-alternative" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  AXORA vs Beautiful.ai
+                </Link>
+              </li>
+              <li>
+                <Link to="/investor-pitch-deck" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  Investor Pitch Deck
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Industries */}
+          <div className="md:col-span-1">
+            <h4 className="text-sm font-semibold mb-4">Industries</h4>
+            <ul className="space-y-3">
+              <li>
+                <Link to="/healthcare-ai-presentations" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  Healthcare
+                </Link>
+              </li>
+              <li>
+                <Link to="/nhs-board-presentation-generator" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  NHS / UK Health
+                </Link>
+              </li>
+              <li>
+                <Link to="/asia-pacific-enterprise-presentations" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  Asia-Pacific
                 </Link>
               </li>
             </ul>
