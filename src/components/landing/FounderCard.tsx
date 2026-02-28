@@ -82,10 +82,12 @@ const FounderCard = ({ variant = "default", className = "" }: FounderCardProps) 
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="group">
-                <Play className="h-4 w-4 mr-2" />
-                Watch demo
-              </Button>
+              <Link to="/demo">
+                <Button variant="outline" size="lg" className="group">
+                  <Play className="h-4 w-4 mr-2" />
+                  Watch demo
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

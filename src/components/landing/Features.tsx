@@ -12,29 +12,29 @@ import {
 } from "lucide-react";
 
 const blockTypes = [
-  { icon: FileText, name: "Rich Text", description: "Beautiful typography with smart formatting" },
-  { icon: Heading, name: "Headings", description: "H1, H2, H3 with auto-spacing" },
-  { icon: Image, name: "Images", description: "Upload or AI-generate visuals" },
+  { icon: FileText, name: "Exec Summary", description: "AI-structured executive briefs" },
   { icon: Columns, name: "Two Column", description: "Side-by-side layouts" },
-  { icon: AlertCircle, name: "Callouts", description: "Highlight key insights" },
-  { icon: List, name: "Lists", description: "Bullets and numbered items" },
+  { icon: AlertCircle, name: "Decision Panel", description: "Recommendations & next steps" },
+  { icon: Image, name: "AI Images", description: "Generate or search visuals" },
+  { icon: List, name: "Interactive Tabs", description: "Tabbed & toggle content" },
+  { icon: Heading, name: "Charts & Matrices", description: "2×2, timelines, evidence maps" },
 ];
 
 const features = [
   {
     icon: Wand2,
     title: "AI-Powered Generation",
-    description: "From a single prompt, generate complete outlines, slides, and narratives tailored to your audience."
+    description: "Generate outlines, slides, and narratives from a single prompt. Refine any block with contextual AI actions."
   },
   {
     icon: Download,
     title: "Multi-Format Export",
-    description: "Export as PDF, PowerPoint slides, or shareable web links. Your content, any format."
+    description: "Export as PDF, PowerPoint, or shareable web links. Present live with our built-in deck player."
   },
   {
     icon: Palette,
-    title: "Brand Kit Integration",
-    description: "Upload your colors, fonts, and logo once. Every export reflects your brand identity."
+    title: "Brand Kit & Themes",
+    description: "Apply your brand colors, fonts, and logo. Choose from 8+ themes including Ocean, Rose, Forest, and Sunset."
   }
 ];
 

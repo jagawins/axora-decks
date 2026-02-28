@@ -18,6 +18,7 @@ const plans = [
       "3 projects",
       "Basic AI generation",
       "Standard block types",
+      "Web sharing links",
       "Community support"
     ],
     cta: "Get Started",
@@ -34,8 +35,10 @@ const plans = [
     description: "For professionals and small teams",
     features: [
       "Unlimited projects",
-      "PDF & Slide export",
-      "Brand kit integration",
+      "PDF & PowerPoint export",
+      "Brand kit & custom themes",
+      "Interactive blocks (tabs, toggles)",
+      "AI image generation",
       "Advanced AI actions",
       "Priority support"
     ],
@@ -57,7 +60,8 @@ const plans = [
       "Shared workspaces",
       "Governance controls",
       "Centralized billing",
-      "Admin dashboard"
+      "Admin dashboard",
+      "Workspace settings & defaults"
     ],
     cta: "Start 14-Day Free Trial",
     variant: "outline" as const,
