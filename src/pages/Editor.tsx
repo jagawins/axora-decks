@@ -113,6 +113,7 @@ interface Project {
   id: string;
   title: string;
   description: string | null;
+  brand_kit?: unknown;
 }
 
 const Editor = () => {
@@ -796,21 +797,17 @@ const Editor = () => {
 
     setPptxLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-pptx", {
-        body: { project_id: projectId, is_paid: isPaid },
-      });
-
-      if (error) throw error;
-
-      // Decode base64 response to binary blob
-      const { base64, fileName } = data as { base64: string; fileName: string };
-      const byteString = atob(base64);
-      const bytes = new Uint8Array(byteString.length);
-      for (let i = 0; i < byteString.length; i++) {
-        bytes[i] = byteString.charCodeAt(i);
-      }
-      const blob = new Blob([bytes], {
-        type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      const { generatePptxBlob } = await import("@/lib/pptx-export");
+      const blob = await generatePptxBlob({
+        title: project?.title || "Untitled Deck",
+        blocks: blocks.map((b) => ({
+          id: b.id,
+          type: b.type,
+          content: b.content as Record<string, unknown>,
+          order_index: b.order_index,
+        })),
+        brandKit: project?.brand_kit as Record<string, unknown> | undefined,
+        showWatermark: !isPaid,
       });
 
       const url = URL.createObjectURL(blob);
