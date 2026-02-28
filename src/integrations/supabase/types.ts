@@ -466,6 +466,27 @@ export type Database = {
         }
         Relationships: []
       }
+      trial_emails: {
+        Row: {
+          email_key: string
+          id: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          email_key: string
+          id?: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          email_key?: string
+          id?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

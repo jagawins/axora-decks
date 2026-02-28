@@ -263,6 +263,20 @@ const Pricing = () => {
           </div>
         </section>
 
+        {/* ═══ Social Proof Stats Bar ═══ */}
+        <section className="pb-12">
+          <div className="container-narrow">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 rounded-2xl border border-border/50 bg-card/50 p-6 lg:p-8">
+              {SOCIAL_PROOF.map((item) => (
+                <div key={item.label} className="text-center">
+                  <p className="text-3xl lg:text-4xl font-bold text-accent mb-1">{item.metric}</p>
+                  <p className="text-sm text-muted-foreground">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ═══ Pricing Cards ═══ */}
         <section className="py-16">
           <div className="container-narrow">
@@ -353,19 +367,7 @@ const Pricing = () => {
           </div>
         </section>
 
-        {/* ═══ Social proof ═══ */}
-        <section className="py-12 border-t border-border/30">
-          <div className="container-narrow">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {SOCIAL_PROOF.map((item) => (
-                <div key={item.label} className="text-center">
-                  <p className="text-3xl font-bold text-accent mb-1">{item.metric}</p>
-                  <p className="text-sm text-muted-foreground">{item.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+
 
         {/* ═══ Feature Comparison Table ═══ */}
         <section className="py-20 border-t border-border/30">

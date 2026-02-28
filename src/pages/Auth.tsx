@@ -86,7 +86,7 @@ const Auth = () => {
             title: 'Welcome to AXORA!',
             description: 'Your account has been created successfully.',
           });
-          navigate('/dashboard');
+          navigate('/onboarding');
         }
       } else {
         const { error } = await signIn(email, password);
