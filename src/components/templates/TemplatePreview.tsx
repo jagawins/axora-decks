@@ -98,7 +98,7 @@ export function TemplatePreview({
           transform: `scale(${scale})`,
         }}
       >
-        <div className="w-full h-full p-16 flex flex-col justify-center gap-8">
+        <div className="w-full h-full p-16 flex flex-col justify-center gap-8" style={{ pointerEvents: 'auto' }}>
           {previewBlocks.length === 0 ? (
             <div className="flex items-center justify-center h-full text-[var(--deck-muted,hsl(var(--muted-foreground)))] text-4xl">
               Empty template

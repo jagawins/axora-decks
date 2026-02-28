@@ -47,15 +47,20 @@ export function CardGrid({
         {cards.map((card, index) => {
           const Icon = getIcon(card.icon);
           
+          const Wrapper = card.link ? 'a' : 'div';
+          const wrapperProps = card.link ? { href: card.link, target: '_blank' as const, rel: 'noopener noreferrer' } : {};
+          
           return (
-            <div
+            <Wrapper
               key={index}
+              {...wrapperProps}
               className={cn(
-                'group relative overflow-hidden rounded-radius-xl p-space-6',
+                'group relative overflow-hidden rounded-radius-xl p-space-6 block',
                 'bg-[var(--deck-bg,hsl(var(--card)))]/50',
                 'border border-[var(--deck-border,hsl(var(--border)))]',
                 'transition-all duration-300 hover:border-[var(--deck-accent,hsl(var(--accent)))]/50',
-                'hover:shadow-glow-subtle hover:-translate-y-1'
+                'hover:shadow-glow-subtle hover:-translate-y-1',
+                card.link && 'cursor-pointer no-underline'
               )}
             >
               {/* Image or Icon */}
@@ -94,7 +99,7 @@ export function CardGrid({
 
               {/* Decorative hover effect */}
               <div className="absolute inset-0 bg-gradient-to-t from-[var(--deck-accent,hsl(var(--accent)))]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-            </div>
+            </Wrapper>
           );
         })}
       </div>

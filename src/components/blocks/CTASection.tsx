@@ -38,30 +38,64 @@ export function CTASection({
         {(primaryCta || secondaryCta) && (
           <div className="flex flex-col sm:flex-row gap-space-4 justify-center mt-space-8">
             {primaryCta && (
-              <button
-                className={cn(
-                  'inline-flex items-center justify-center gap-2 px-space-8 py-space-4 rounded-radius-lg',
-                  'bg-[var(--deck-accent,hsl(var(--accent)))] text-white',
-                  'font-semibold text-fluid-base',
-                  'transition-all duration-300 hover:shadow-glow hover:-translate-y-0.5'
-                )}
-              >
-                {primaryCta.text}
-                <ArrowRight className="w-5 h-5" />
-              </button>
+              primaryCta.href ? (
+                <a
+                  href={primaryCta.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    'inline-flex items-center justify-center gap-2 px-space-8 py-space-4 rounded-radius-lg',
+                    'bg-[var(--deck-accent,hsl(var(--accent)))] text-white',
+                    'font-semibold text-fluid-base',
+                    'transition-all duration-300 hover:shadow-glow hover:-translate-y-0.5'
+                  )}
+                >
+                  {primaryCta.text}
+                  <ArrowRight className="w-5 h-5" />
+                </a>
+              ) : (
+                <button
+                  className={cn(
+                    'inline-flex items-center justify-center gap-2 px-space-8 py-space-4 rounded-radius-lg',
+                    'bg-[var(--deck-accent,hsl(var(--accent)))] text-white',
+                    'font-semibold text-fluid-base',
+                    'transition-all duration-300 hover:shadow-glow hover:-translate-y-0.5'
+                  )}
+                >
+                  {primaryCta.text}
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              )
             )}
             {secondaryCta && (
-              <button
-                className={cn(
-                  'inline-flex items-center justify-center gap-2 px-space-8 py-space-4 rounded-radius-lg',
-                  'bg-transparent border border-[var(--deck-border,hsl(var(--border)))]',
-                  'text-[var(--deck-fg,hsl(var(--foreground)))]',
-                  'font-semibold text-fluid-base',
-                  'transition-all duration-300 hover:bg-[var(--deck-muted,hsl(var(--muted)))]/20'
-                )}
-              >
-                {secondaryCta.text}
-              </button>
+              secondaryCta.href ? (
+                <a
+                  href={secondaryCta.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    'inline-flex items-center justify-center gap-2 px-space-8 py-space-4 rounded-radius-lg',
+                    'bg-transparent border border-[var(--deck-border,hsl(var(--border)))]',
+                    'text-[var(--deck-fg,hsl(var(--foreground)))]',
+                    'font-semibold text-fluid-base',
+                    'transition-all duration-300 hover:bg-[var(--deck-muted,hsl(var(--muted)))]/20'
+                  )}
+                >
+                  {secondaryCta.text}
+                </a>
+              ) : (
+                <button
+                  className={cn(
+                    'inline-flex items-center justify-center gap-2 px-space-8 py-space-4 rounded-radius-lg',
+                    'bg-transparent border border-[var(--deck-border,hsl(var(--border)))]',
+                    'text-[var(--deck-fg,hsl(var(--foreground)))]',
+                    'font-semibold text-fluid-base',
+                    'transition-all duration-300 hover:bg-[var(--deck-muted,hsl(var(--muted)))]/20'
+                  )}
+                >
+                  {secondaryCta.text}
+                </button>
+              )
             )}
           </div>
         )}
