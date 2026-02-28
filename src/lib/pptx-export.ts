@@ -33,6 +33,11 @@ function fontName(font: string | undefined, fallback: string): string {
   return font || fallback;
 }
 
+// Scale factor: content was authored for 10" width, slide is 13.33"
+const SX = 13.33 / 10;
+
+function sx(v: number) { return v * SX; }
+
 function addBlockToSlide(
   pres: pptxgen,
   block: SlideBlock,
@@ -50,7 +55,7 @@ function addBlockToSlide(
 
   if (showWatermark) {
     slide.addText("Made with AXORA", {
-      x: 8.5, y: 6.8, w: 3.5, h: 0.5,
+      x: sx(8.5), y: 6.8, w: sx(3.5), h: 0.5,
       fontSize: 12, fontFace: "Calibri", color: "AAAAAA",
       align: "right", italic: true, transparency: 30,
     });
@@ -61,26 +66,26 @@ function addBlockToSlide(
   switch (block.type) {
     case "heading":
       slide.addText(String(c.text || ""), {
-        x: 0.8, y: 1.5, w: 8.4, h: 1.5,
+        x: sx(0.8), y: 1.5, w: sx(8.4), h: 1.5,
         fontSize: 36, fontFace: headFont, color: fg, bold: true, valign: "middle",
       });
       break;
 
     case "text":
       slide.addText(String(c.text || ""), {
-        x: 0.8, y: 0.8, w: 8.4, h: 4,
+        x: sx(0.8), y: 0.8, w: sx(8.4), h: 4,
         fontSize: 16, fontFace: bodyFont, color: fg, valign: "top", wrap: true,
       });
       break;
 
     case "hero_header":
       slide.addText(String(c.heading || c.title || ""), {
-        x: 0.8, y: 1.2, w: 8.4, h: 1.5,
+        x: sx(0.8), y: 1.2, w: sx(8.4), h: 1.5,
         fontSize: 40, fontFace: headFont, color: fg, bold: true, align: "center", valign: "middle",
       });
       if (c.subheading) {
         slide.addText(String(c.subheading), {
-          x: 1.5, y: 3, w: 7, h: 1,
+          x: sx(1.5), y: 3, w: sx(7), h: 1,
           fontSize: 18, fontFace: bodyFont, color: fg, align: "center",
         });
       }
@@ -92,7 +97,7 @@ function addBlockToSlide(
       let yPos = 0.6;
       if (title) {
         slide.addText(title, {
-          x: 0.8, y: yPos, w: 8.4, h: 0.8,
+          x: sx(0.8), y: yPos, w: sx(8.4), h: 0.8,
           fontSize: 24, fontFace: headFont, color: fg, bold: true,
         });
         yPos += 1;
@@ -102,31 +107,31 @@ function addBlockToSlide(
         options: { bullet: true, fontSize: 16, fontFace: bodyFont, color: fg },
       }));
       if (bullets.length) {
-        slide.addText(bullets, { x: 0.8, y: yPos, w: 8.4, h: 4 - (yPos - 0.6), valign: "top" });
+        slide.addText(bullets, { x: sx(0.8), y: yPos, w: sx(8.4), h: 4 - (yPos - 0.6), valign: "top" });
       }
       break;
     }
 
     case "callout":
       slide.addShape(pres.ShapeType.roundRect, {
-        x: 1, y: 1.5, w: 8, h: 2.5,
+        x: sx(1), y: 1.5, w: sx(8), h: 2.5,
         fill: { color: accent, transparency: 90 },
         line: { color: accent, width: 2 },
         rectRadius: 0.2,
       });
       slide.addText(String(c.text || ""), {
-        x: 1.2, y: 1.7, w: 7.6, h: 2.1,
+        x: sx(1.2), y: 1.7, w: sx(7.6), h: 2.1,
         fontSize: 18, fontFace: bodyFont, color: fg, valign: "middle", wrap: true,
       });
       break;
 
     case "two_col":
       slide.addText(String(c.left || ""), {
-        x: 0.5, y: 0.8, w: 4.2, h: 4,
+        x: sx(0.5), y: 0.8, w: sx(4.2), h: 4,
         fontSize: 14, fontFace: bodyFont, color: fg, valign: "top", wrap: true,
       });
       slide.addText(String(c.right || ""), {
-        x: 5.3, y: 0.8, w: 4.2, h: 4,
+        x: sx(5.3), y: 0.8, w: sx(4.2), h: 4,
         fontSize: 14, fontFace: bodyFont, color: fg, valign: "top", wrap: true,
       });
       break;
@@ -155,7 +160,7 @@ function addBlockToSlide(
       }
       if (tableRows.length) {
         slide.addTable(tableRows, {
-          x: 0.5, y: 0.8, w: 9,
+          x: sx(0.5), y: 0.8, w: sx(9),
           border: { type: "solid", pt: 0.5, color: "CCCCCC" },
         });
       }
@@ -167,14 +172,14 @@ function addBlockToSlide(
       const title = String(c.title || "");
       if (title) {
         slide.addText(title, {
-          x: 0.8, y: 0.4, w: 8.4, h: 0.8,
+          x: sx(0.8), y: 0.4, w: sx(8.4), h: 0.8,
           fontSize: 24, fontFace: headFont, color: fg, bold: true, align: "center",
         });
       }
       const count = Math.min(stats.length, 4);
-      const colW = 8.4 / Math.max(count, 1);
+      const colW = sx(8.4) / Math.max(count, 1);
       stats.slice(0, 4).forEach((stat: { value?: string; label?: string }, i: number) => {
-        const x = 0.8 + i * colW;
+        const x = sx(0.8) + i * colW;
         slide.addText(String(stat.value || ""), {
           x, y: 1.8, w: colW, h: 1.2,
           fontSize: 36, fontFace: headFont, color: accent, bold: true, align: "center", valign: "bottom",
@@ -189,12 +194,12 @@ function addBlockToSlide(
 
     case "quote_block":
       slide.addText(`"${String(c.quote || "")}"`, {
-        x: 1.5, y: 1.5, w: 7, h: 2,
+        x: sx(1.5), y: 1.5, w: sx(7), h: 2,
         fontSize: 22, fontFace: headFont, color: fg, italic: true, align: "center", valign: "middle",
       });
       if (c.attribution) {
         slide.addText(`— ${String(c.attribution)}`, {
-          x: 1.5, y: 3.8, w: 7, h: 0.6,
+          x: sx(1.5), y: 3.8, w: sx(7), h: 0.6,
           fontSize: 14, fontFace: bodyFont, color: fg, align: "center",
         });
       }
@@ -202,11 +207,11 @@ function addBlockToSlide(
 
     case "exec_summary": {
       slide.addText(String(c.title || "Executive Summary"), {
-        x: 0.8, y: 0.4, w: 8.4, h: 0.8,
+        x: sx(0.8), y: 0.4, w: sx(8.4), h: 0.8,
         fontSize: 28, fontFace: headFont, color: fg, bold: true,
       });
       slide.addText(String(c.summary || ""), {
-        x: 0.8, y: 1.4, w: 8.4, h: 1.5,
+        x: sx(0.8), y: 1.4, w: sx(8.4), h: 1.5,
         fontSize: 14, fontFace: bodyFont, color: fg, valign: "top", wrap: true,
       });
       const kps = Array.isArray(c.keyPoints) ? c.keyPoints : [];
@@ -215,7 +220,7 @@ function addBlockToSlide(
           text: String(kp),
           options: { bullet: true, fontSize: 13, fontFace: bodyFont, color: fg },
         }));
-        slide.addText(bullets, { x: 0.8, y: 3.1, w: 8.4, h: 2 });
+        slide.addText(bullets, { x: sx(0.8), y: 3.1, w: sx(8.4), h: 2 });
       }
       break;
     }
@@ -223,7 +228,7 @@ function addBlockToSlide(
     case "section_divider":
       slide.background = { color: accent };
       slide.addText(String(c.title || c.label || ""), {
-        x: 1, y: 2, w: 8, h: 1.5,
+        x: sx(1), y: 2, w: sx(8), h: 1.5,
         fontSize: 36, fontFace: headFont, color: "FFFFFF", bold: true, align: "center", valign: "middle",
       });
       break;
@@ -233,16 +238,16 @@ function addBlockToSlide(
       const title = String(c.title || "");
       if (title) {
         slide.addText(title, {
-          x: 0.8, y: 0.3, w: 8.4, h: 0.7,
+          x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.7,
           fontSize: 24, fontFace: headFont, color: fg, bold: true,
         });
       }
       const cols = Math.min(cards.length, 3);
-      const cardW = 8.4 / cols - 0.2;
+      const cardW = sx(8.4) / cols - 0.2;
       cards.slice(0, 6).forEach((card: { title?: string; body?: string }, i: number) => {
         const col = i % cols;
         const row = Math.floor(i / cols);
-        const x = 0.8 + col * (cardW + 0.2);
+        const x = sx(0.8) + col * (cardW + 0.2);
         const y = 1.2 + row * 2;
         slide.addShape(pres.ShapeType.roundRect, {
           x, y, w: cardW, h: 1.8,
@@ -267,14 +272,14 @@ function addBlockToSlide(
       const title = String(c.title || "");
       if (title) {
         slide.addText(title, {
-          x: 0.8, y: 0.3, w: 8.4, h: 0.7,
+          x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.7,
           fontSize: 24, fontFace: headFont, color: fg, bold: true, align: "center",
         });
       }
       const pCount = Math.min(pillars.length, 3);
-      const pw = 8.4 / pCount - 0.3;
+      const pw = sx(8.4) / pCount - 0.3;
       pillars.slice(0, 3).forEach((p: { title?: string; body?: string }, i: number) => {
-        const x = 0.8 + i * (pw + 0.3);
+        const x = sx(0.8) + i * (pw + 0.3);
         slide.addText(String(p.title || ""), {
           x, y: 1.3, w: pw, h: 0.6,
           fontSize: 16, fontFace: headFont, color: accent, bold: true, align: "center",
@@ -289,12 +294,12 @@ function addBlockToSlide(
 
     case "cta_section":
       slide.addText(String(c.heading || ""), {
-        x: 1, y: 1.5, w: 8, h: 1.5,
+        x: sx(1), y: 1.5, w: sx(8), h: 1.5,
         fontSize: 32, fontFace: headFont, color: fg, bold: true, align: "center", valign: "middle",
       });
       if (c.body) {
         slide.addText(String(c.body), {
-          x: 1.5, y: 3.2, w: 7, h: 1,
+          x: sx(1.5), y: 3.2, w: sx(7), h: 1,
           fontSize: 16, fontFace: bodyFont, color: fg, align: "center",
         });
       }
@@ -305,23 +310,23 @@ function addBlockToSlide(
       const title = String(c.title || "");
       if (title) {
         slide.addText(title, {
-          x: 0.8, y: 0.3, w: 8.4, h: 0.7,
+          x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.7,
           fontSize: 24, fontFace: headFont, color: fg, bold: true,
         });
       }
       events.slice(0, 5).forEach((ev: { date?: string; title?: string; description?: string }, i: number) => {
         const y = 1.2 + i * 0.9;
         slide.addText(String(ev.date || ""), {
-          x: 0.8, y, w: 2, h: 0.7,
+          x: sx(0.8), y, w: sx(2), h: 0.7,
           fontSize: 12, fontFace: headFont, color: accent, bold: true, valign: "top",
         });
         slide.addText(String(ev.title || ""), {
-          x: 3, y, w: 6.2, h: 0.35,
+          x: sx(3), y, w: sx(6.2), h: 0.35,
           fontSize: 13, fontFace: headFont, color: fg, bold: true, valign: "top",
         });
         if (ev.description) {
           slide.addText(String(ev.description), {
-            x: 3, y: y + 0.35, w: 6.2, h: 0.35,
+            x: sx(3), y: y + 0.35, w: sx(6.2), h: 0.35,
             fontSize: 11, fontFace: bodyFont, color: fg, valign: "top",
           });
         }
@@ -353,7 +358,7 @@ function addBlockToSlide(
       }
       if (tableRows.length) {
         slide.addTable(tableRows, {
-          x: 0.5, y: 0.8, w: 9,
+          x: sx(0.5), y: 0.8, w: sx(9),
           border: { type: "solid", pt: 0.5, color: "CCCCCC" },
         });
       }
@@ -365,18 +370,18 @@ function addBlockToSlide(
       const title = String(c.title || "");
       if (title) {
         slide.addText(title, {
-          x: 0.8, y: 0.3, w: 8.4, h: 0.7,
+          x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.7,
           fontSize: 24, fontFace: headFont, color: fg, bold: true,
         });
       }
       tabs.slice(0, 4).forEach((tab: { label?: string; content?: string }, i: number) => {
         const y = 1.2 + i * 1.1;
         slide.addText(String(tab.label || `Tab ${i + 1}`), {
-          x: 0.8, y, w: 2.5, h: 0.5,
+          x: sx(0.8), y, w: sx(2.5), h: 0.5,
           fontSize: 14, fontFace: headFont, color: accent, bold: true,
         });
         slide.addText(String(tab.content || ""), {
-          x: 3.5, y, w: 5.7, h: 0.9,
+          x: sx(3.5), y, w: sx(5.7), h: 0.9,
           fontSize: 12, fontFace: bodyFont, color: fg, valign: "top", wrap: true,
         });
       });
@@ -389,24 +394,24 @@ function addBlockToSlide(
       const title = String(c.title || "");
       if (title) {
         slide.addText(title, {
-          x: 0.8, y: 0.3, w: 8.4, h: 0.7,
+          x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.7,
           fontSize: 24, fontFace: headFont, color: fg, bold: true, align: "center",
         });
       }
       slide.addText(String(stateA.label || "State A"), {
-        x: 0.5, y: 1.3, w: 4.2, h: 0.6,
+        x: sx(0.5), y: 1.3, w: sx(4.2), h: 0.6,
         fontSize: 16, fontFace: headFont, color: accent, bold: true, align: "center",
       });
       slide.addText(String(stateA.content || ""), {
-        x: 0.5, y: 2, w: 4.2, h: 2.5,
+        x: sx(0.5), y: 2, w: sx(4.2), h: 2.5,
         fontSize: 13, fontFace: bodyFont, color: fg, valign: "top", wrap: true,
       });
       slide.addText(String(stateB.label || "State B"), {
-        x: 5.3, y: 1.3, w: 4.2, h: 0.6,
+        x: sx(5.3), y: 1.3, w: sx(4.2), h: 0.6,
         fontSize: 16, fontFace: headFont, color: accent, bold: true, align: "center",
       });
       slide.addText(String(stateB.content || ""), {
-        x: 5.3, y: 2, w: 4.2, h: 2.5,
+        x: sx(5.3), y: 2, w: sx(4.2), h: 2.5,
         fontSize: 13, fontFace: bodyFont, color: fg, valign: "top", wrap: true,
       });
       break;
@@ -414,11 +419,11 @@ function addBlockToSlide(
 
     case "decision_summary": {
       slide.addText(String(c.title || "Decision Summary"), {
-        x: 0.8, y: 0.3, w: 8.4, h: 0.7,
+        x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.7,
         fontSize: 24, fontFace: headFont, color: fg, bold: true,
       });
       slide.addText(String(c.summary || ""), {
-        x: 0.8, y: 1.2, w: 8.4, h: 1.5,
+        x: sx(0.8), y: 1.2, w: sx(8.4), h: 1.5,
         fontSize: 14, fontFace: bodyFont, color: fg, valign: "top", wrap: true,
       });
       const kps = Array.isArray(c.key_points) ? c.key_points : [];
@@ -427,18 +432,18 @@ function addBlockToSlide(
           text: String(kp),
           options: { bullet: true, fontSize: 13, fontFace: bodyFont, color: fg },
         }));
-        slide.addText(bullets, { x: 0.8, y: 2.9, w: 8.4, h: 2 });
+        slide.addText(bullets, { x: sx(0.8), y: 2.9, w: sx(8.4), h: 2 });
       }
       break;
     }
 
     case "recommendation_panel":
       slide.addText(String(c.title || "Recommendation"), {
-        x: 0.8, y: 0.3, w: 8.4, h: 0.7,
+        x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.7,
         fontSize: 24, fontFace: headFont, color: fg, bold: true,
       });
       slide.addText(String(c.recommendation || ""), {
-        x: 0.8, y: 1.2, w: 8.4, h: 2,
+        x: sx(0.8), y: 1.2, w: sx(8.4), h: 2,
         fontSize: 16, fontFace: bodyFont, color: fg, valign: "top", wrap: true,
       });
       break;
@@ -447,7 +452,7 @@ function addBlockToSlide(
       const title =
         String(c.title || c.heading || c.headline || c.text || block.type.replace(/_/g, " "));
       slide.addText(title, {
-        x: 0.8, y: 1.5, w: 8.4, h: 2,
+        x: sx(0.8), y: 1.5, w: sx(8.4), h: 2,
         fontSize: 24, fontFace: headFont, color: fg, bold: true, align: "center", valign: "middle",
       });
       break;
@@ -464,7 +469,9 @@ export interface ExportPptxOptions {
 
 export async function generatePptxBlob(opts: ExportPptxOptions): Promise<Blob> {
   const pres = new pptxgen();
-  pres.layout = "LAYOUT_WIDE";
+  // Use 16x9 layout (10" x 5.625") matching our content positioning
+  pres.defineLayout({ name: "AXORA_16x9", width: 13.33, height: 7.5 });
+  pres.layout = "AXORA_16x9";
   pres.author = "Axora";
   pres.title = opts.title;
 
