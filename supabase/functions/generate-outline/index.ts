@@ -123,52 +123,42 @@ function validateOutline(outline: unknown): OutlineValidation {
 
 function getToolSchema() {
   return {
-    type: "function",
-    function: {
-      name: "create_outline",
-      description: "Create a structured outline for a presentation. You MUST provide at least 3 sections with 2+ points each, and 3+ key takeaways.",
-      parameters: {
-        type: "object",
-        properties: {
-          title: { 
-            type: "string", 
-            description: "The title of the presentation",
-            minLength: 5
-          },
-          sections: {
-            type: "array",
-            minItems: 3,
-            maxItems: 6,
-            items: {
-              type: "object",
-              properties: {
-                heading: { type: "string", minLength: 3 },
-                points: { 
-                  type: "array", 
-                  items: { type: "string", minLength: 10 },
-                  minItems: 2,
-                  maxItems: 5
-                }
-              },
-              required: ["heading", "points"],
-              additionalProperties: false
-            }
-          },
-          bullets: { 
-            type: "array", 
-            items: { type: "string", minLength: 10 }, 
-            description: "Key takeaways - exactly 3 to 5 bullet points",
-            minItems: 3,
-            maxItems: 5
-          },
-          summary: { 
-            type: "string", 
-            description: "2-3 sentence executive summary",
-            minLength: 50
+    name: "create_outline",
+    description: "Create a structured outline for a presentation. You MUST provide at least 3 sections with 2+ points each, and 3+ key takeaways.",
+    input_schema: {
+      type: "object",
+      properties: {
+        title: { 
+          type: "string", 
+          description: "The title of the presentation (at least 5 characters)"
+        },
+        sections: {
+          type: "array",
+          description: "3-6 sections, each with a heading and 2-5 talking points",
+          items: {
+            type: "object",
+            properties: {
+              heading: { type: "string", description: "Section heading (at least 3 characters)" },
+              points: { 
+                type: "array", 
+                description: "2-5 talking points per section",
+                items: { type: "string" }
+              }
+            },
+            required: ["heading", "points"]
           }
         },
-        required: ["title", "sections", "bullets", "summary"]
-      }
+        bullets: { 
+          type: "array", 
+          items: { type: "string" }, 
+          description: "3-5 key takeaway bullet points"
+        },
+        summary: { 
+          type: "string", 
+          description: "2-3 sentence executive summary (at least 50 characters)"
+        }
+      },
+      required: ["title", "sections", "bullets", "summary"]
     }
   };
 }
@@ -257,12 +247,7 @@ async function callAI(
   }
 
   try {
-    const toolSchema = getToolSchema();
-    const anthropicTool = {
-      name: toolSchema.function.name,
-      description: toolSchema.function.description,
-      input_schema: toolSchema.function.parameters,
-    };
+    const anthropicTool = getToolSchema();
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -306,8 +291,10 @@ async function callAI(
       };
     }
 
-    // Pass through error responses
-    return { response };
+    // Log and pass through error responses
+    const errorBody = await response.text();
+    console.error(`Anthropic API error ${response.status}: ${errorBody}`);
+    return { response: new Response(errorBody, { status: response.status, headers: { "Content-Type": "application/json" } }) };
   } catch (e) {
     return { error: `fetch error: ${e}` };
   }
