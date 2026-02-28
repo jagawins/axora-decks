@@ -86,9 +86,9 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      console.error(`[${requestId}] LOVABLE_API_KEY not configured`);
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) {
+      console.error(`[${requestId}] ANTHROPIC_API_KEY not configured`);
       return new Response(
         JSON.stringify({ error: "AI service not configured", requestId }),
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -192,34 +192,32 @@ Formatting requirements for ${type} block:
 
 Generate content that would fit well in a business presentation.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 4096,
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
         tools: [{
-          type: "function",
-          function: {
-            name: "create_block_content",
-            description: `Generate ${type} block content for an executive presentation. All strings must be plain text without Markdown formatting.`,
-            parameters: {
-              type: "object",
-              properties: {
-                content: contentSchemas[type]
-              },
-              required: ["content"]
+          name: "create_block_content",
+          description: `Generate ${type} block content for an executive presentation. All strings must be plain text without Markdown formatting.`,
+          input_schema: {
+            type: "object",
+            properties: {
+              content: contentSchemas[type]
             },
+            required: ["content"]
           },
         }],
-        tool_choice: { type: "function", function: { name: "create_block_content" } },
+        tool_choice: { type: "tool", name: "create_block_content" },
       }),
     });
 
@@ -243,11 +241,13 @@ Generate content that would fit well in a business presentation.`;
     const data = await response.json();
     console.log(`[${requestId}] AI response received`);
 
-    // Parse OpenAI-compatible tool call response
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (toolCall?.function?.arguments) {
-      try {
-        const result = JSON.parse(toolCall.function.arguments);
+    // Parse Anthropic response
+    const contentBlocks = data.content as Array<{ type: string; name?: string; input?: unknown; text?: string }> | undefined;
+    
+    if (Array.isArray(contentBlocks)) {
+      const toolUse = contentBlocks.find((b: { type: string; name?: string }) => b.type === "tool_use" && b.name === "create_block_content");
+      if (toolUse?.input) {
+        const result = toolUse.input as { content?: Record<string, unknown> };
         if (result.content && Object.keys(result.content).length > 0) {
           const cleaned = sanitizeContent(result.content);
           console.log(`[${requestId}] Block content generated successfully`);
@@ -256,27 +256,25 @@ Generate content that would fit well in a business presentation.`;
             { headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-      } catch (parseError) {
-        console.error(`[${requestId}] Failed to parse tool call:`, parseError);
       }
-    }
 
-    // Fallback: try message content
-    const content = data.choices?.[0]?.message?.content;
-    if (content) {
-      try {
-        const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-        const result = JSON.parse(cleanContent);
-        if (result.content) {
-          const cleaned = sanitizeContent(result.content);
-          console.log(`[${requestId}] Block content generated (fallback)`);
-          return new Response(
-            JSON.stringify({ content: cleaned, requestId }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+      // Fallback: try text block
+      const textBlock = contentBlocks.find((b: { type: string; text?: string }) => b.type === "text" && b.text);
+      if (textBlock?.text) {
+        try {
+          const cleanContent = textBlock.text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+          const result = JSON.parse(cleanContent);
+          if (result.content) {
+            const cleaned = sanitizeContent(result.content);
+            console.log(`[${requestId}] Block content generated (fallback)`);
+            return new Response(
+              JSON.stringify({ content: cleaned, requestId }),
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        } catch (parseError) {
+          console.error(`[${requestId}] Failed to parse fallback:`, parseError);
         }
-      } catch (parseError) {
-        console.error(`[${requestId}] Failed to parse fallback:`, parseError);
       }
     }
 

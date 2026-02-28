@@ -277,10 +277,10 @@ serve(async (req) => {
     }
 
     const { block, instruction } = validation;
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
-    if (!LOVABLE_API_KEY) {
-      console.error(`[${requestId}] LOVABLE_API_KEY not configured`);
+    if (!ANTHROPIC_API_KEY) {
+      console.error(`[${requestId}] ANTHROPIC_API_KEY not configured`);
       return new Response(
         JSON.stringify({ error: "AI service not configured", requestId }),
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -393,39 +393,37 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
       }
     };
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 4096,
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
         tools: [{
-          type: "function",
-          function: {
-            name: "update_block",
-            description: `Update the ${block!.type} block content. Must include all required fields for this block type. All strings must be plain text without Markdown.`,
-            parameters: {
-              type: "object",
-              properties: {
-                type: { 
-                  type: "string", 
-                  enum: [block!.type],
-                  description: "Block type - must be " + block!.type
-                },
-                content: contentSchemas[block!.type] || { type: "object" }
+          name: "update_block",
+          description: `Update the ${block!.type} block content. Must include all required fields for this block type. All strings must be plain text without Markdown.`,
+          input_schema: {
+            type: "object",
+            properties: {
+              type: { 
+                type: "string", 
+                enum: [block!.type],
+                description: "Block type - must be " + block!.type
               },
-              required: ["type", "content"]
+              content: contentSchemas[block!.type] || { type: "object" }
             },
+            required: ["type", "content"]
           },
         }],
-        tool_choice: { type: "function", function: { name: "update_block" } },
+        tool_choice: { type: "tool", name: "update_block" },
       }),
     });
 
@@ -455,12 +453,14 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
     const data = await response.json();
     console.log(`[${requestId}] AI response received`);
 
-    // Parse OpenAI-compatible tool call response
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (toolCall?.function?.arguments) {
-      try {
-        const updatedBlock = JSON.parse(toolCall.function.arguments);
-        console.log(`[${requestId}] Parsed tool call:`, JSON.stringify(updatedBlock, null, 2));
+    // Parse Anthropic response
+    const contentBlocks = data.content as Array<{ type: string; name?: string; input?: unknown; text?: string }> | undefined;
+    
+    if (Array.isArray(contentBlocks)) {
+      const toolUse = contentBlocks.find((b: { type: string; name?: string }) => b.type === "tool_use" && b.name === "update_block");
+      if (toolUse?.input) {
+        const updatedBlock = toolUse.input as { type?: string; content?: BlockContent };
+        console.log(`[${requestId}] Parsed tool_use:`, JSON.stringify(updatedBlock).slice(0, 300));
         
         if (!updatedBlock.content || Object.keys(updatedBlock.content).length === 0) {
           console.error(`[${requestId}] Empty content received`);
@@ -468,7 +468,7 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
           const cleanedContent = sanitizeContent(updatedBlock.content);
           
           const result: Block = {
-            type: updatedBlock.type as Block["type"],
+            type: (updatedBlock.type || block!.type) as Block["type"],
             content: cleanedContent,
             order_index: block!.order_index || 0,
           };
@@ -479,35 +479,33 @@ ${block!.type === "image" ? '{ "src": "url", "alt": "description", "caption": "c
             { headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-      } catch (parseError) {
-        console.error(`[${requestId}] Failed to parse tool call:`, parseError);
       }
-    }
 
-    // Fallback: try message content
-    const messageContent = data.choices?.[0]?.message?.content;
-    if (messageContent) {
-      try {
-        const cleanContent = messageContent.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-        const updatedBlock = JSON.parse(cleanContent);
-        
-        if (updatedBlock.content && Object.keys(updatedBlock.content).length > 0) {
-          const cleanedContent = sanitizeContent(updatedBlock.content);
+      // Fallback: try text block
+      const textBlock = contentBlocks.find((b: { type: string; text?: string }) => b.type === "text" && b.text);
+      if (textBlock?.text) {
+        try {
+          const cleanContent = textBlock.text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+          const updatedBlock = JSON.parse(cleanContent);
           
-          const result: Block = {
-            type: updatedBlock.type as Block["type"],
-            content: cleanedContent,
-            order_index: block!.order_index || 0,
-          };
+          if (updatedBlock.content && Object.keys(updatedBlock.content).length > 0) {
+            const cleanedContent = sanitizeContent(updatedBlock.content);
+            
+            const result: Block = {
+              type: (updatedBlock.type || block!.type) as Block["type"],
+              content: cleanedContent,
+              order_index: block!.order_index || 0,
+            };
 
-          console.log(`[${requestId}] Block refined (fallback)`);
-          return new Response(
-            JSON.stringify({ block: result, requestId }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+            console.log(`[${requestId}] Block refined (fallback)`);
+            return new Response(
+              JSON.stringify({ block: result, requestId }),
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        } catch (parseError) {
+          console.error(`[${requestId}] Failed to parse content fallback:`, parseError);
         }
-      } catch (parseError) {
-        console.error(`[${requestId}] Failed to parse content fallback:`, parseError);
       }
     }
 
