@@ -4,12 +4,14 @@
  */
 
 export interface BrandKit {
+  brandName?: string;
   colors?: {
     primary?: string;
     accent?: string;
     background?: string;
     foreground?: string;
     muted?: string;
+    secondary?: string;
   };
   typography?: {
     headingFont?: HeadingFont;
@@ -89,6 +91,7 @@ export function resolveBrandStyles(brandKit?: BrandKit | null): React.CSSPropert
   if (brandKit.colors?.accent) style["--deck-accent"] = brandKit.colors.accent;
   if (brandKit.colors?.muted) style["--deck-muted"] = brandKit.colors.muted;
   if (brandKit.colors?.primary) style["--deck-primary"] = brandKit.colors.primary;
+  if (brandKit.colors?.secondary) style["--deck-secondary"] = brandKit.colors.secondary;
 
   // Typography
   if (brandKit.typography?.headingFont) {
@@ -120,6 +123,20 @@ export function getBrandFontImports(brandKit?: BrandKit | null): string[] {
     fonts.push(bodyFont.replace(/ /g, "+"));
   }
   return fonts;
+}
+
+/**
+ * Check if a brand kit has meaningful content configured
+ */
+export function isBrandKitConfigured(brandKit?: BrandKit | null): boolean {
+  if (!brandKit) return false;
+  return !!(
+    brandKit.brandName ||
+    brandKit.logo?.url ||
+    brandKit.colors?.primary ||
+    brandKit.colors?.accent ||
+    brandKit.typography?.headingFont
+  );
 }
 
 export const EMPTY_BRAND_KIT: BrandKit = {};

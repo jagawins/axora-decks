@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool } from "lucide-react";
+import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +22,8 @@ import { useToast } from "@/hooks/use-toast";
 import { aiEngine } from "@/lib/ai-engine";
 import { sanitizeContent, sanitizeListItems } from "@/lib/sanitize";
 import { THEMES, DEFAULT_THEME, type ThemeId } from "@/lib/themes";
+import { Switch } from "@/components/ui/switch";
+import { type BrandKit, isBrandKitConfigured } from "@/lib/brand";
 
 // Types
 type OutputType = "presentation" | "social";
@@ -161,6 +163,24 @@ export default function Create() {
   const [visualsMode, setVisualsMode] = useState<VisualsMode>("stock");
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [useBrandKit, setUseBrandKit] = useState(false);
+  const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
+
+  // Load brand kit
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("brand_kit")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.brand_kit && isBrandKitConfigured(data.brand_kit as BrandKit)) {
+          setBrandKit(data.brand_kit as BrandKit);
+          setUseBrandKit(true); // default on if configured
+        }
+      });
+  }, [user]);
 
   const selectedDensity = DENSITY_OPTIONS.find(d => d.value === density);
   const selectedVisuals = VISUALS_OPTIONS.find(v => v.value === visualsMode);
@@ -254,14 +274,19 @@ export default function Create() {
         prompt: prompt.trim(),
       };
 
-      // Create project first
+      // Create project first, applying brand kit if enabled
+      const projectInsert: any = {
+        title: prompt.trim().substring(0, 100),
+        user_id: user.id,
+        theme,
+      };
+      if (useBrandKit && brandKit) {
+        projectInsert.brand_kit = brandKit;
+      }
+
       const { data: newProject, error: projectError } = await supabase
         .from("projects")
-        .insert({
-          title: prompt.trim().substring(0, 100),
-          user_id: user.id,
-          theme,
-        })
+        .insert(projectInsert)
         .select()
         .single();
 
@@ -277,6 +302,9 @@ export default function Create() {
       const languageInstruction = language !== "en-US" 
         ? `\n\nLanguage: Generate all content in ${LANGUAGES.find(l => l.value === language)?.label || language}.` 
         : "";
+      const brandInstruction = useBrandKit && brandKit?.brandName
+        ? `\n\nBrand name: "${brandKit.brandName}". Use this name in the title slide and headers where appropriate.`
+        : "";
       
       const enhancedPrompt = `${spec.prompt}
 
@@ -284,6 +312,7 @@ Content Style: ${selectedDensity?.label} - ${selectedDensity?.description}
 ${densityInstructions}
 ${visualsInstruction}
 ${languageInstruction}
+${brandInstruction}
 
 Create exactly ${cardsCount} slides/cards.`;
 
@@ -538,7 +567,22 @@ Create exactly ${cardsCount} slides/cards.`;
                 </Badge>
               </div>
 
-              {/* Prompt Textarea */}
+              {/* Brand Kit Toggle */}
+              {brandKit && isBrandKitConfigured(brandKit) && (
+                <div className="flex items-center justify-between p-4 rounded-xl border border-border/50 bg-muted/20">
+                  <div className="flex items-center gap-3">
+                    <Palette className="h-5 w-5 text-accent" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Use My Brand Kit</p>
+                      <p className="text-xs text-muted-foreground">
+                        Apply {brandKit.brandName ? `"${brandKit.brandName}"` : "your"} brand colors, fonts & logo
+                      </p>
+                    </div>
+                  </div>
+                  <Switch checked={useBrandKit} onCheckedChange={setUseBrandKit} />
+                </div>
+              )}
+
               <div className="space-y-3">
                 <Label htmlFor="prompt" className="text-sm font-medium">
                   What would you like to create?
