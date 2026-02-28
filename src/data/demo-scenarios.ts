@@ -1,6 +1,6 @@
 /**
- * Executive Demo Scenarios — updated to showcase all AXORA features:
- * templates, themes, brand kit, interactive blocks, AI images, export.
+ * Executive Demo Scenarios — aligned with the Example Decks showcase
+ * to create a consistent narrative across landing page and demo.
  */
 
 export interface DemoScenario {
@@ -47,44 +47,44 @@ export interface DemoInteractiveBlock {
 
 export const DEMO_SCENARIOS: DemoScenario[] = [
   {
-    id: "revenue-cycle",
-    title: "Revenue Cycle Optimization",
-    subtitle: "Healthcare operations",
-    icon: "💰",
-    templateName: "Executive Board Deck",
+    id: "investor-pitch",
+    title: "Series A Investor Pitch",
+    subtitle: "Healthcare SaaS · Startup & Fundraising",
+    icon: "🚀",
+    templateName: "Investor Pitch Deck",
     themeName: "Ocean",
     themeColors: { bg: "#0B1628", accent: "#38BDF8", fg: "#E2E8F0" },
-    brandKit: { headingFont: "Space Grotesk", bodyFont: "DM Sans", logoText: "MedCorp" },
-    rawNotes: `Denials increasing 18% YoY.
-Too many disconnected systems.
-Leadership wants measurable AI ROI.
-Burnout in revenue cycle team.
-Compliance risk rising.
-Budget pressure from CFO.
-Manual coding errors costing $2.3M annually.
-Staff turnover at 34%.
-Payer mix shifting to government.
-Need board presentation by Friday.`,
-    themes: ["Financial Impact", "Operational Risk", "Workforce", "Compliance"],
+    brandKit: { headingFont: "Space Grotesk", bodyFont: "DM Sans", logoText: "MediFlow AI" },
+    rawNotes: `Clinicians spend 49% of time on documentation.
+EHR systems create $150B in administrative waste.
+78% of physicians report burnout from paperwork.
+Current solutions automate forms — not clinical reasoning.
+Our AI scribe achieves 98.7% accuracy in real-time.
+Automated prior auth cuts approval from 14 days to 2 hours.
+127 active clinics, $2.4M ARR, 340% YoY growth.
+94% net retention rate.
+Raising $15M Series A.
+Need board-ready deck by Friday.`,
+    themes: ["Problem", "Solution", "Traction", "The Ask"],
     structuredSections: [
       {
-        heading: "Financial Impact",
-        points: ["Denials increasing 18% YoY", "Manual coding errors costing $2.3M annually", "Budget pressure from CFO"],
+        heading: "The Problem",
+        points: ["Clinicians spend 49% of time on documentation", "EHR systems create $150B in annual administrative waste", "78% of physicians report burnout from paperwork"],
         tag: "risk",
       },
       {
-        heading: "Operational Challenges",
-        points: ["Too many disconnected systems", "Payer mix shifting to government", "Leadership wants measurable AI ROI"],
+        heading: "Our Solution",
+        points: ["AI scribe with 98.7% accuracy in real-time", "Prior auth cut from 14 days to 2 hours", "Population health analytics surfacing care gaps"],
         tag: "context",
       },
       {
-        heading: "Workforce Pressure",
-        points: ["Burnout in revenue cycle team", "Staff turnover at 34%"],
+        heading: "Traction & Metrics",
+        points: ["127 active clinics, $2.4M ARR", "340% YoY growth", "94% net retention rate"],
         tag: "insight",
       },
       {
-        heading: "Compliance & Governance",
-        points: ["Compliance risk rising", "Need board presentation by Friday"],
+        heading: "The Ask",
+        points: ["Raising $15M Series A", "Accelerate enterprise sales and expand engineering"],
         tag: "action",
       },
     ],
@@ -93,90 +93,90 @@ Need board presentation by Friday.`,
         title: "Executive Summary",
         type: "executive_summary",
         blockType: "exec_summary",
-        aiImageQuery: "healthcare revenue analytics dashboard",
+        aiImageQuery: "healthcare AI clinical workflow automation",
         bullets: [
-          "Revenue cycle losses exceed $2.3M from coding errors alone",
-          "18% YoY denial increase signals systemic process failure",
-          "AI-driven automation can recover 60-70% within 12 months",
+          "Healthcare admin waste exceeds $150B — clinicians lose half their day to paperwork",
+          "MediFlow AI automates clinical reasoning, not just forms",
+          "98.7% accuracy, 127 clinics live, $2.4M ARR growing 340% YoY",
         ],
       },
       {
-        title: "Current State Analysis",
+        title: "Market & Traction",
         type: "current_state",
-        blockType: "chart_block",
-        aiImageQuery: "data visualization charts financial metrics",
+        blockType: "stat_block",
+        aiImageQuery: "healthcare technology market growth chart",
         bullets: [
-          "34% staff turnover creating knowledge gaps",
-          "Disconnected systems preventing real-time visibility",
-          "Payer mix shift increasing complexity",
+          "$340B Healthcare IT market growing at 23% CAGR",
+          "6,000+ US health systems in addressable market",
+          "94% net retention proves product-market fit",
         ],
       },
       {
-        title: "Strategic Options",
+        title: "Competitive Positioning",
         type: "strategic_options",
         blockType: "comparison_table",
         bullets: [
-          "Option A: Full platform replacement ($4.2M, 18 months)",
-          "Option B: AI overlay on existing systems ($1.8M, 6 months)",
-          "Option C: Phased hybrid approach ($2.5M, 12 months)",
+          "MediFlow: Real-time AI note generation vs template-based legacy",
+          "Prior auth: 2hr automated vs 14+ days manual",
+          "Predictive analytics vs retrospective reporting",
         ],
       },
       {
-        title: "Recommended Path",
+        title: "The Ask — $15M Series A",
         type: "recommended_path",
         blockType: "decision_summary",
         bullets: [
-          "Phased hybrid approach maximizes ROI while managing risk",
-          "Quick wins in denial management within 90 days",
-          "Full automation achievable by Q4 with 3.2x ROI",
+          "Enterprise sales expansion — 5 health system partnerships in Q1",
+          "Epic and Cerner marketplace integration in Q2",
+          "Specialty modules (cardiology, oncology) by Q3",
         ],
       },
     ],
     interactiveBlocks: [
-      { type: "tabs", label: "ROI by Quarter", preview: ["Q1: $800K", "Q2: $1.4M", "Q3: $2.1M", "Q4: $3.2M"] },
-      { type: "toggle", label: "Before / After Automation", preview: ["Before: 34% error rate", "After: 4% error rate"] },
-      { type: "reveal", label: "Implementation Timeline", preview: ["Phase 1: Assess (30 days)", "Phase 2: Deploy (60 days)", "Phase 3: Scale (90 days)"] },
+      { type: "tabs", label: "ARR Projections", preview: ["2024: $2.4M", "2025: $8.2M", "2026: $22M", "2027: $48M"] },
+      { type: "toggle", label: "Before / After MediFlow", preview: ["Before: 49% time on docs", "After: 12% time on docs"] },
+      { type: "reveal", label: "Go-to-Market Phases", preview: ["Phase 1: Enterprise pilots", "Phase 2: Channel partnerships", "Phase 3: Specialty expansion"] },
     ],
   },
   {
-    id: "ai-transformation",
-    title: "AI Transformation Strategy",
-    subtitle: "Enterprise technology",
-    icon: "🧠",
-    templateName: "Strategy Playbook",
-    themeName: "Sunset",
-    themeColors: { bg: "#1A0F0A", accent: "#F97316", fg: "#FFF7ED" },
-    brandKit: { headingFont: "Clash Display", bodyFont: "Inter", logoText: "TechForge" },
-    rawNotes: `CEO wants AI strategy yesterday.
-No clear use cases prioritized.
-Data quality is a mess.
-Engineering team skeptical.
-Competitors already shipping AI features.
-Board asking about GenAI investment.
-Privacy concerns from legal.
-Talent gap in ML engineering.
-Cloud costs already over budget.
-Need to show quick wins.`,
-    themes: ["Strategy", "Technical Debt", "Talent", "Governance"],
+    id: "board-update",
+    title: "Q4 Board Update",
+    subtitle: "Financial Services · Strategy & Leadership",
+    icon: "📊",
+    templateName: "Board Update Deck",
+    themeName: "Executive",
+    themeColors: { bg: "#1A1A2E", accent: "#A78BFA", fg: "#E5E7EB" },
+    brandKit: { headingFont: "Clash Display", bodyFont: "Inter", logoText: "FinTech Capital" },
+    rawNotes: `Revenue grew 18% QoQ to $34.2M, exceeding target by 7%.
+Three portfolio companies achieved profitability.
+Risk exposure reduced by 22% through hedging refinement.
+Board approval sought for Series C co-investment.
+Fund II MOIC at 2.3x.
+12 active portfolio companies.
+Interest rate volatility — Fed signaling 2 rate cuts.
+Talent retention at 92%.
+Fund III final close at $250M in January.
+Annual LP meeting in March.`,
+    themes: ["Performance", "Portfolio", "Risk", "Roadmap"],
     structuredSections: [
       {
-        heading: "Strategic Urgency",
-        points: ["CEO wants AI strategy yesterday", "Competitors already shipping AI features", "Board asking about GenAI investment"],
-        tag: "risk",
-      },
-      {
-        heading: "Technical Readiness",
-        points: ["Data quality is a mess", "Cloud costs already over budget", "No clear use cases prioritized"],
-        tag: "context",
-      },
-      {
-        heading: "Talent & Culture",
-        points: ["Engineering team skeptical", "Talent gap in ML engineering"],
+        heading: "Q4 Performance",
+        points: ["Revenue grew 18% QoQ to $34.2M", "EBITDA up 24% to $8.1M", "Fund II MOIC at 2.3x"],
         tag: "insight",
       },
       {
-        heading: "Governance & Risk",
-        points: ["Privacy concerns from legal", "Need to show quick wins"],
+        heading: "Portfolio Health",
+        points: ["Three portfolio companies achieved profitability", "12 active portfolio companies", "Risk exposure reduced 22%"],
+        tag: "context",
+      },
+      {
+        heading: "Risk Assessment",
+        points: ["Interest rate volatility — Fed signaling rate cuts", "Talent retention holding at 92%"],
+        tag: "risk",
+      },
+      {
+        heading: "Q1 2025 Roadmap",
+        points: ["Fund III final close at $250M", "NeoBank co-investment due diligence", "Annual LP meeting in March"],
         tag: "action",
       },
     ],
@@ -185,141 +185,141 @@ Need to show quick wins.`,
         title: "Executive Summary",
         type: "executive_summary",
         blockType: "exec_summary",
-        aiImageQuery: "artificial intelligence neural network technology",
+        aiImageQuery: "financial services executive boardroom",
         bullets: [
-          "Competitive window for AI advantage is 12-18 months",
-          "Data foundation must precede model deployment",
-          "Three high-impact use cases identified for immediate action",
+          "Revenue beat target by 7% — $34.2M with 18% QoQ growth",
+          "Three portfolio companies reached profitability milestone",
+          "Board approval sought for $45M Q1 investment pipeline",
         ],
       },
       {
-        title: "Current State Analysis",
+        title: "Financial Performance",
         type: "current_state",
-        blockType: "two_by_two_matrix",
-        aiImageQuery: "enterprise technology infrastructure abstract",
+        blockType: "chart_block",
+        aiImageQuery: "financial performance revenue trend chart",
         bullets: [
-          "Data quality insufficient for production ML workloads",
-          "Engineering capacity constrained by existing commitments",
-          "Legal framework for AI governance not yet established",
+          "Consistent revenue acceleration from $18.5M to $34.2M over 8 quarters",
+          "EBITDA margin expanded to 23.7%",
+          "Fund II delivering 2.3x MOIC",
         ],
       },
       {
-        title: "Strategic Options",
+        title: "Strategic Initiatives",
         type: "strategic_options",
-        blockType: "scenario_set",
+        blockType: "decision_summary",
         bullets: [
-          "Option A: Build internal AI lab ($8M, 24 months)",
-          "Option B: Partner with AI platform vendor ($3M, 9 months)",
-          "Option C: Targeted pilots with measurable KPIs ($1.5M, 6 months)",
+          "Phase 2 digital lending expansion — Phase 1 delivered 3.2x ROI",
+          "Regulatory uncertainty in EU as manageable risk",
+          "85% confidence in proceeding recommendation",
         ],
       },
       {
-        title: "Recommended Path",
-        type: "recommended_path",
-        blockType: "recommendation_panel",
-        bullets: [
-          "Start with 3 targeted pilots to build confidence and data",
-          "Establish AI governance framework in parallel",
-          "Scale successful pilots to enterprise-wide deployment by Q3",
-        ],
-      },
-    ],
-    interactiveBlocks: [
-      { type: "tabs", label: "Use Case Scorecard", preview: ["Customer Support: 9.2", "Fraud Detection: 8.7", "Forecasting: 7.4"] },
-      { type: "toggle", label: "Build vs Buy", preview: ["Build: Full control, 24mo", "Buy: Fast start, 9mo"] },
-      { type: "reveal", label: "Risk Mitigation Steps", preview: ["Governance framework", "Data privacy audit", "Vendor due diligence"] },
-    ],
-  },
-  {
-    id: "cost-reduction",
-    title: "Cost Reduction Program",
-    subtitle: "Financial operations",
-    icon: "📉",
-    templateName: "Financial Review",
-    themeName: "Forest",
-    themeColors: { bg: "#0A1A0F", accent: "#22C55E", fg: "#ECFDF5" },
-    brandKit: { headingFont: "Cabinet Grotesk", bodyFont: "IBM Plex Sans", logoText: "FinOps Co" },
-    rawNotes: `EBITDA margins declining.
-SaaS sprawl out of control.
-Headcount grew 40% but revenue only 15%.
-Procurement has no visibility.
-Travel expenses doubled post-COVID.
-Real estate costs for half-empty offices.
-Three overlapping CRM systems.
-Vendor contracts auto-renewing unreviewed.
-Board wants 15% cost reduction.
-Need plan in 2 weeks.`,
-    themes: ["Cost Drivers", "Efficiency", "Quick Wins", "Governance"],
-    structuredSections: [
-      {
-        heading: "Cost Drivers",
-        points: ["Headcount grew 40% but revenue only 15%", "EBITDA margins declining", "Travel expenses doubled post-COVID"],
-        tag: "risk",
-      },
-      {
-        heading: "Operational Inefficiency",
-        points: ["SaaS sprawl out of control", "Three overlapping CRM systems", "Real estate costs for half-empty offices"],
-        tag: "context",
-      },
-      {
-        heading: "Governance Gaps",
-        points: ["Procurement has no visibility", "Vendor contracts auto-renewing unreviewed"],
-        tag: "insight",
-      },
-      {
-        heading: "Board Mandate",
-        points: ["Board wants 15% cost reduction", "Need plan in 2 weeks"],
-        tag: "action",
-      },
-    ],
-    slides: [
-      {
-        title: "Executive Summary",
-        type: "executive_summary",
-        blockType: "exec_summary",
-        aiImageQuery: "financial cost optimization graph",
-        bullets: [
-          "$12M in addressable savings identified across 4 categories",
-          "SaaS rationalization alone can yield $3.2M in 90 days",
-          "15% target achievable without workforce reduction",
-        ],
-      },
-      {
-        title: "Current State Analysis",
-        type: "current_state",
-        blockType: "stat_block",
-        aiImageQuery: "office building modern workplace",
-        bullets: [
-          "Revenue-to-headcount ratio deteriorated from 3.1x to 2.4x",
-          "142 active SaaS subscriptions, 38% with <10% utilization",
-          "Office utilization averaging 43% across 6 locations",
-        ],
-      },
-      {
-        title: "Strategic Options",
-        type: "strategic_options",
-        blockType: "three_pillars",
-        bullets: [
-          "Option A: Across-the-board 15% budget cuts",
-          "Option B: Strategic rationalization by category",
-          "Option C: Zero-based budgeting reset",
-        ],
-      },
-      {
-        title: "Recommended Path",
+        title: "Board Resolutions",
         type: "recommended_path",
         blockType: "decision_next_steps",
         bullets: [
-          "Category-based rationalization preserves growth investments",
-          "Quick wins: SaaS audit, travel policy, vendor renegotiation",
-          "Structural changes: office consolidation, org design review",
+          "Approve Q1 investment pipeline ($45M allocation)",
+          "Adopt updated risk framework for 2025",
+          "Confirm Fund III close timeline and LP communications",
         ],
       },
     ],
     interactiveBlocks: [
-      { type: "tabs", label: "Savings by Category", preview: ["SaaS: $3.2M", "Real Estate: $4.1M", "Travel: $2.8M", "Vendors: $1.9M"] },
-      { type: "toggle", label: "Current vs Target", preview: ["Current: $82M OpEx", "Target: $69.7M OpEx"] },
-      { type: "reveal", label: "90-Day Quick Wins", preview: ["SaaS audit & consolidation", "Travel policy reset", "Vendor renegotiation blitz"] },
+      { type: "tabs", label: "Revenue by Quarter", preview: ["Q1-24: $26.2M", "Q2-24: $28.9M", "Q3-24: $29.0M", "Q4-24: $34.2M"] },
+      { type: "toggle", label: "Risk Before / After Hedging", preview: ["Before: High exposure", "After: 22% reduction"] },
+      { type: "reveal", label: "Q1 2025 Milestones", preview: ["Fund III close ($250M)", "NeoBank due diligence", "Annual LP meeting"] },
+    ],
+  },
+  {
+    id: "gtm-strategy",
+    title: "GTM Strategy Launch",
+    subtitle: "B2B SaaS · Sales & Marketing",
+    icon: "🎯",
+    templateName: "GTM Playbook",
+    themeName: "Midnight",
+    themeColors: { bg: "#0F172A", accent: "#6366F1", fg: "#E2E8F0" },
+    brandKit: { headingFont: "Cabinet Grotesk", bodyFont: "IBM Plex Sans", logoText: "CloudSync" },
+    rawNotes: `$12.4B data integration market growing 19% annually.
+Target: 200-2,000 employee companies in healthcare, fintech, e-commerce.
+200+ pre-built connectors, 2-week setup vs 3-month competitor average.
+Zero-code pipeline builder for business analysts.
+SOC 2 Type II and HIPAA compliant.
+Competitive pricing at $2K/mo vs $4K-$15K for alternatives.
+Direct sales team of 8 AEs targeting $500K+ ACV.
+Partner channel with Accenture and Deloitte.
+Product-led growth: free tier driving 30% pipeline by Q3.
+$5.7M budget across sales, marketing, partners, and PLG.`,
+    themes: ["Market", "Positioning", "Channels", "Budget"],
+    structuredSections: [
+      {
+        heading: "Market Opportunity",
+        points: ["$12.4B data integration market at 19% CAGR", "45K target companies in the $2.1B addressable segment", "$50M-$500M revenue mid-market sweet spot"],
+        tag: "context",
+      },
+      {
+        heading: "Value Proposition",
+        points: ["10x faster setup: 2 weeks vs 3 months", "Zero-code pipelines for business analysts", "Enterprise security: SOC 2 Type II, HIPAA"],
+        tag: "insight",
+      },
+      {
+        heading: "Channel Strategy",
+        points: ["Direct sales: 8 AEs targeting $500K+ ACV", "SI partnerships with Accenture, Deloitte", "PLG free tier → 30% pipeline by Q3"],
+        tag: "action",
+      },
+      {
+        heading: "Budget & Timeline",
+        points: ["$5.7M total GTM budget", "Brand launch Q1, content engine Q2, event circuit Q3"],
+        tag: "risk",
+      },
+    ],
+    slides: [
+      {
+        title: "Executive Summary",
+        type: "executive_summary",
+        blockType: "exec_summary",
+        aiImageQuery: "B2B SaaS go to market strategy",
+        bullets: [
+          "$12.4B market growing 19% — CloudSync targets the underserved mid-market",
+          "10x faster setup and 60% lower cost than incumbent solutions",
+          "Three-channel strategy: direct sales, partners, and product-led growth",
+        ],
+      },
+      {
+        title: "Competitive Positioning",
+        type: "current_state",
+        blockType: "comparison_table",
+        aiImageQuery: "competitive analysis business strategy",
+        bullets: [
+          "2-week setup vs 4 weeks (Fivetran) and 3+ months (Informatica)",
+          "$2K/mo pricing vs $4K-$15K alternatives",
+          "Full no-code capability vs limited or dev-only competitors",
+        ],
+      },
+      {
+        title: "Channel Strategy",
+        type: "strategic_options",
+        blockType: "three_pillars",
+        bullets: [
+          "Direct Sales: 8 AEs focused on healthcare and fintech verticals",
+          "Partner Channel: SI partnerships for enterprise credibility",
+          "Product-Led Growth: free tier converting to 30% of pipeline",
+        ],
+      },
+      {
+        title: "Budget & Milestones",
+        type: "recommended_path",
+        blockType: "timeline_block",
+        bullets: [
+          "Q1: Brand launch, website relaunch, analyst briefings",
+          "Q2: Content engine — 12 case studies, 6 webinars",
+          "Q3: Event circuit — AWS re:Invent, industry conferences",
+        ],
+      },
+    ],
+    interactiveBlocks: [
+      { type: "tabs", label: "Budget Allocation", preview: ["Sales: $2.4M", "Marketing: $1.8M", "Partners: $600K", "PLG: $900K"] },
+      { type: "toggle", label: "CloudSync vs Legacy", preview: ["CloudSync: 2 weeks, $2K/mo", "Legacy: 3 months, $15K/mo"] },
+      { type: "reveal", label: "GTM Milestones", preview: ["Q1: Brand launch", "Q2: Content engine", "Q3: Event circuit"] },
     ],
   },
 ];
