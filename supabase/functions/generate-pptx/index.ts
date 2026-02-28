@@ -580,19 +580,16 @@ serve(async (req) => {
       addBlockToSlide(pres, block, brand);
     }
 
-    // Generate buffer
-    const buffer = await pres.write({ outputType: "arraybuffer" });
-    const uint8 = new Uint8Array(buffer as ArrayBuffer);
+    // Generate as base64 to avoid binary transfer corruption
+    const base64 = await pres.write({ outputType: "base64" }) as string;
 
     const fileName = `${(project.title || "deck").replace(/[^a-zA-Z0-9]/g, "_")}.pptx`;
 
-    return new Response(uint8, {
+    return new Response(JSON.stringify({ base64, fileName }), {
       status: 200,
       headers: {
         ...corsHeaders,
-        "Content-Type":
-          "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        "Content-Disposition": `attachment; filename="${fileName}"`,
+        "Content-Type": "application/json",
       },
     });
   } catch (e) {
