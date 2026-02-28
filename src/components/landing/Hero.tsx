@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Play } from "lucide-react";
+import { ArrowRight, Sparkles, Play, Quote } from "lucide-react";
 import { Link } from "react-router-dom";
+import HeroLiveDemo from "./HeroLiveDemo";
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen-safe flex items-center justify-center overflow-hidden pt-20 pb-8 px-4">
+    <section className="relative flex items-center justify-center overflow-hidden pt-20 pb-8 px-4">
       {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] md:w-[800px] h-[400px] md:h-[600px] bg-accent/10 rounded-full blur-[120px] opacity-60" />
@@ -67,8 +68,24 @@ const Hero = () => {
             </Link>
           </div>
 
-          {/* Trust indicators */}
+          {/* Live Demo — the key conversion feature */}
+          <HeroLiveDemo />
+
+          {/* Testimonial + Trust indicators */}
           <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-white/5 animate-fade-in-up animation-delay-400">
+            {/* Customer quote */}
+            <div className="max-w-xl mx-auto mb-5 flex items-start gap-3 text-left">
+              <Quote className="h-5 w-5 text-accent shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm text-foreground/80 italic leading-relaxed">
+                  "I had the board deck done in under 10 minutes — our CFO thought it was made by McKinsey."
+                </p>
+                <p className="text-xs text-muted-foreground mt-1.5 font-medium">
+                  VP of Strategy, Series C Fintech
+                </p>
+              </div>
+            </div>
+
             <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
               Trusted by leaders at consulting firms, enterprises, and startups
             </p>

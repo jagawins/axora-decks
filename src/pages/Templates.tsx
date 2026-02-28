@@ -45,17 +45,28 @@ export default function Templates() {
 
       <main className="min-h-screen pt-24 pb-16">
         <div className="container-wide">
-          <div className="mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-              Templates
-            </h1>
+          {/* Example Decks — front and center, no sign-up needed */}
+          <div className="mb-12">
+            <div className="mb-6">
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+                Complete Example Decks
+              </h1>
+              <p className="text-muted-foreground mt-1 text-lg">
+                Browse full slide decks — no sign-up required
+              </p>
+            </div>
+            <ExampleDecks />
+          </div>
+
+          {/* Template library */}
+          <div className="mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              All Templates
+            </h2>
             <p className="text-muted-foreground mt-1">
               Start with a professionally designed template, or create your own
             </p>
           </div>
-
-          {/* Example Decks showcase */}
-          <ExampleDecks />
 
           <TemplatesGrid
             templates={templates}
