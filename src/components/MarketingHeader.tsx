@@ -23,20 +23,20 @@ const MarketingHeader = () => {
 
           {/* Center: SEO Navigation Links */}
           <div className="flex items-center justify-center gap-6">
-            <Link to="/ai-deck-generator" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              AI Deck Generator
+            <Link to="/features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Features
             </Link>
-            <Link to="/gamma-alternative" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Gamma Alternative
+            <Link to="/templates" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Templates
             </Link>
-            <Link to="/powerpoint-ai" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              PowerPoint AI
+            <Link to="/demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Demo
             </Link>
             <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Pricing
             </Link>
-            <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Contact
+            <Link to="/gamma-alternative" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Gamma Alternative
             </Link>
           </div>
 
@@ -84,40 +84,20 @@ const MarketingHeader = () => {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-white/5 bg-background/95 backdrop-blur-xl">
           <div className="container-wide py-4 flex flex-col gap-4">
-            <Link 
-              to="/ai-deck-generator" 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              AI Deck Generator
+            <Link to="/features" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
+              Features
             </Link>
-            <Link 
-              to="/gamma-alternative" 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Gamma Alternative
+            <Link to="/templates" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
+              Templates
             </Link>
-            <Link 
-              to="/powerpoint-ai" 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              PowerPoint AI
+            <Link to="/demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
+              Demo
             </Link>
-            <Link 
-              to="/pricing" 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
               Pricing
             </Link>
-            <Link 
-              to="/contact" 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Contact
+            <Link to="/gamma-alternative" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
+              Gamma Alternative
             </Link>
             <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
               {loading ? null : user ? (

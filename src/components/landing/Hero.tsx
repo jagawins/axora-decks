@@ -38,16 +38,17 @@ const Hero = () => {
 
           {/* Subheadline with SEO internal links */}
           <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-3 sm:mb-4 leading-relaxed animate-fade-in-up animation-delay-200">
-            Build executive-ready presentations with structured AI.
+            AI generation · Interactive blocks · Brand kit · PPT export — all in one tool.
           </p>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto mb-8 sm:mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
             Explore our{" "}
             <Link to="/ai-deck-generator" className="text-accent hover:underline">AI deck generator</Link>
+            , browse{" "}
+            <Link to="/templates" className="text-accent hover:underline">60+ executive templates</Link>
             , see{" "}
             <Link to="/gamma-alternative" className="text-accent hover:underline">why teams switch from Gamma</Link>
-            , or generate{" "}
-            <Link to="/powerpoint-ai" className="text-accent hover:underline">PowerPoint-ready slides</Link>
-            {" "}in minutes.
+            , or{" "}
+            <Link to="/demo" className="text-accent hover:underline">watch a live demo</Link>.
           </p>
 
           {/* CTA buttons */}

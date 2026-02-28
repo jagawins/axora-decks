@@ -71,13 +71,28 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/features" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                <Link to="/demo" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  Live Demo
+                </Link>
+              </li>
+              <li>
+                <Link to="/how-it-works" className="text-sm text-muted-foreground hover:text-accent transition-colors">
                   How It Works
                 </Link>
               </li>
               <li>
                 <Link to="/pricing" className="text-sm text-muted-foreground hover:text-accent transition-colors">
                   Pricing
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link to="/roadmap" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  Roadmap
                 </Link>
               </li>
             </ul>
@@ -136,7 +151,7 @@ const Footer = () => {
 
           {/* Copyright */}
           <p className="text-xs sm:text-sm text-muted-foreground order-2 md:order-3">
-            © 2024 AXORA. All rights reserved.
+            © 2025 AXORA. All rights reserved.
           </p>
         </div>
       </div>
