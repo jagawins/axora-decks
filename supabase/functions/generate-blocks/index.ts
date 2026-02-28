@@ -926,40 +926,41 @@ function validateBlocks(
   };
 }
 
-// Parse AI response and extract blocks
+// Parse Anthropic AI response and extract blocks
 function parseAIResponse(data: Record<string, unknown>, requestId: string): { blocks: Array<{ type: string; content: BlockContent }> | null; parseError?: string } {
-  // Try tool call first
-  const toolCall = (data.choices as Array<{ message?: { tool_calls?: Array<{ function?: { arguments?: string } }> } }>)?.[0]?.message?.tool_calls?.[0];
-  if (toolCall?.function?.arguments) {
-    try {
-      const result = JSON.parse(toolCall.function.arguments);
+  // Anthropic format: content is an array of blocks
+  const contentBlocks = data.content as Array<{ type: string; name?: string; input?: unknown; text?: string }> | undefined;
+  
+  if (Array.isArray(contentBlocks)) {
+    // Look for tool_use block
+    const toolUse = contentBlocks.find(b => b.type === "tool_use" && b.name === "create_blocks");
+    if (toolUse?.input) {
+      const result = toolUse.input as { blocks?: Array<{ type: string; content: BlockContent }> };
       console.log(`[${requestId}] First block shape:`, JSON.stringify(result.blocks?.[0] ?? {}).slice(0, 300));
       if (Array.isArray(result.blocks)) {
         return { blocks: result.blocks };
       }
-      return { blocks: null, parseError: "tool call result missing blocks array" };
-    } catch (e) {
-      return { blocks: null, parseError: `tool call parse error: ${e}` };
+      return { blocks: null, parseError: "tool_use result missing blocks array" };
     }
-  }
 
-  // Fallback: try content
-  const content = (data.choices as Array<{ message?: { content?: string } }>)?.[0]?.message?.content;
-  if (content) {
-    try {
-      const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      const result = JSON.parse(cleanContent);
-      console.log(`[${requestId}] First block shape (content):`, JSON.stringify(result.blocks?.[0] ?? {}).slice(0, 300));
-      if (Array.isArray(result.blocks)) {
-        return { blocks: result.blocks };
+    // Fallback: try text block
+    const textBlock = contentBlocks.find(b => b.type === "text" && b.text);
+    if (textBlock?.text) {
+      try {
+        const cleanContent = textBlock.text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        const result = JSON.parse(cleanContent);
+        console.log(`[${requestId}] First block shape (text):`, JSON.stringify(result.blocks?.[0] ?? {}).slice(0, 300));
+        if (Array.isArray(result.blocks)) {
+          return { blocks: result.blocks };
+        }
+        return { blocks: null, parseError: "text result missing blocks array" };
+      } catch (e) {
+        return { blocks: null, parseError: `text parse error: ${e}` };
       }
-      return { blocks: null, parseError: "content result missing blocks array" };
-    } catch (e) {
-      return { blocks: null, parseError: `content parse error: ${e}` };
     }
   }
 
-  return { blocks: null, parseError: "no tool call or content in response" };
+  return { blocks: null, parseError: "no tool_use or text content in Anthropic response" };
 }
 
 function getDensityBlockConstraints(density: string): string {
@@ -1821,6 +1822,19 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
     }
   };
 
+  // Strip properties not supported by Anthropic's tool schema
+  function stripUnsupportedSchemaProps(obj: unknown): unknown {
+    if (Array.isArray(obj)) return obj.map(stripUnsupportedSchemaProps);
+    if (!obj || typeof obj !== "object") return obj;
+    const out: Record<string, unknown> = {};
+    const UNSUPPORTED = new Set(["minLength", "maxLength", "minItems", "maxItems", "minimum", "maximum", "additionalProperties"]);
+    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+      if (UNSUPPORTED.has(k)) continue;
+      out[k] = stripUnsupportedSchemaProps(v);
+    }
+    return out;
+  }
+
   // Inject sectionIndex into every schema's content properties
   function addSectionIndex(schema: Record<string, unknown>): Record<string, unknown> {
     const props = schema.properties as Record<string, unknown>;
@@ -1834,7 +1848,7 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
           ...contentSchema,
           properties: {
             ...contentProps,
-            sectionIndex: { type: "integer", minimum: 0, description: "Index of the outline section (0-based) this block belongs to" },
+            sectionIndex: { type: "integer", description: "Index of the outline section (0-based) this block belongs to" },
           },
         },
       },
@@ -1855,56 +1869,47 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
 
   // If decision mode is enabled, only use decision block schemas (3-4 blocks, scenario_set optional)
   if (decisionMode) {
-    return {
-      type: "function",
-      function: {
-        name: "create_blocks",
-        description: "Create a decision deck with 3-4 blocks: decision_summary (required first), evidence_map (required second), scenario_set (optional, only if meaningful), recommendation_panel (required last).",
-        parameters: {
-          type: "object",
-          required: ["blocks"],
-          properties: {
-            blocks: {
-              type: "array",
-              minItems: 3,
-              maxItems: 4,
-              items: {
-                oneOf: decisionBlockSchemas
-              }
+    return stripUnsupportedSchemaProps({
+      name: "create_blocks",
+      description: "Create a decision deck with 3-4 blocks: decision_summary (required first), evidence_map (required second), scenario_set (optional, only if meaningful), recommendation_panel (required last).",
+      input_schema: {
+        type: "object",
+        required: ["blocks"],
+        properties: {
+          blocks: {
+            type: "array",
+            items: {
+              oneOf: decisionBlockSchemas
             }
           }
         }
       }
-    };
+    }) as ReturnType<typeof getToolSchema>;
   }
 
   const blockSchemas = enableVisualBlocks 
     ? [...basicBlockSchemas, ...visualBlockSchemas]
     : basicBlockSchemas;
 
-  return {
-    type: "function",
-    function: {
-      name: "create_blocks",
-      description: "Create presentation blocks. Each block MUST include sectionIndex (0-based integer) mapping to the outline section it belongs to. Use visual block types for richer presentations.",
-      parameters: {
-        type: "object",
-        required: ["blocks"],
-        properties: {
-          blocks: {
-            type: "array",
-            minItems: 5,
-            items: {
-              oneOf: blockSchemas
-            }
+  return stripUnsupportedSchemaProps({
+    name: "create_blocks",
+    description: "Create presentation blocks. Each block MUST include sectionIndex (0-based integer) mapping to the outline section it belongs to. Use visual block types for richer presentations.",
+    input_schema: {
+      type: "object",
+      required: ["blocks"],
+      properties: {
+        blocks: {
+          type: "array",
+          items: {
+            oneOf: blockSchemas
           }
         }
       }
     }
-  };
+  }) as ReturnType<typeof getToolSchema>;
 }
 
-// Call Lovable AI gateway
+// Call Anthropic Claude API
 async function callAI(
   apiKey: string,
   systemPrompt: string,
@@ -1915,21 +1920,22 @@ async function callAI(
   try {
     const toolSchema = getToolSchema(enableVisualBlocks, decisionMode);
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 8192,
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
         tools: [toolSchema],
-        tool_choice: { type: "function", function: { name: "create_blocks" } },
+        tool_choice: { type: "tool", name: "create_blocks" },
       }),
     });
 
@@ -1976,10 +1982,10 @@ serve(async (req) => {
     const decisionMode = validation.decisionMode ?? false;
     const targetSlideCount = validation.targetSlideCount;
     const visualDensity = validation.visualDensity ?? "balanced";
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
-    if (!LOVABLE_API_KEY) {
-      console.error(`[${requestId}] LOVABLE_API_KEY not configured`);
+    if (!ANTHROPIC_API_KEY) {
+      console.error(`[${requestId}] ANTHROPIC_API_KEY not configured`);
       return new Response(
         JSON.stringify({ error: "AI service not configured", requestId }),
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -2021,7 +2027,7 @@ ${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideC
 
     // First attempt
     const systemPrompt1 = buildSystemPrompt(false, undefined, density, enableVisualBlocks, preserveWording, decisionMode, visualDensity, targetSlideCount);
-    const result1 = await callAI(LOVABLE_API_KEY, systemPrompt1, userPrompt, enableVisualBlocks, decisionMode);
+    const result1 = await callAI(ANTHROPIC_API_KEY, systemPrompt1, userPrompt, enableVisualBlocks, decisionMode);
 
     if (result1.error) {
       console.error(`[${requestId}] AI call failed:`, result1.error);
@@ -2079,7 +2085,7 @@ ${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideC
       const intentCorrection = buildSlideIntentCorrectionPrompt(blockValidation1.intentViolations ?? []);
       const correctionErrors = [...allErrors.slice(0, 3), intentCorrection].filter(Boolean);
       const systemPrompt2 = buildSystemPrompt(true, correctionErrors, density, enableVisualBlocks, preserveWording, decisionMode, visualDensity, targetSlideCount);
-      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks, decisionMode);
+      const result2 = await callAI(ANTHROPIC_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks, decisionMode);
 
       if (result2.error || !result2.response?.ok) {
         console.error(`[${requestId}] Retry failed: ${result2.error || result2.response?.status}`);
@@ -2148,7 +2154,7 @@ ${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideC
       console.log(`[${requestId}] Retrying after parse failure...`);
 
       const systemPrompt2 = buildSystemPrompt(true, ["Previous response was not valid JSON"], density, enableVisualBlocks, preserveWording, decisionMode, visualDensity, targetSlideCount);
-      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks, decisionMode);
+      const result2 = await callAI(ANTHROPIC_API_KEY, systemPrompt2, userPrompt, enableVisualBlocks, decisionMode);
 
       if (result2.response?.ok) {
         const data2 = await result2.response.json();

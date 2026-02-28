@@ -244,28 +244,22 @@ async function callAI(
   try {
     const toolSchema = getToolSchema();
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 4096,
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        tools: [{
-          type: "function",
-          function: {
-            name: toolSchema.name,
-            description: toolSchema.description,
-            parameters: toolSchema.input_schema,
-          },
-        }],
-        tool_choice: { type: "function", function: { name: "create_outline" } },
+        tools: [toolSchema],
+        tool_choice: { type: "tool", name: "create_outline" },
       }),
     });
 
@@ -276,27 +270,29 @@ async function callAI(
 }
 
 function parseAIResponse(data: Record<string, unknown>): { outline: Outline | null; parseError?: string } {
-  const toolCall = (data.choices as Array<{ message?: { tool_calls?: Array<{ function?: { arguments?: string } }> } }>)?.[0]?.message?.tool_calls?.[0];
+  // Anthropic format: content is an array of blocks
+  const contentBlocks = data.content as Array<{ type: string; name?: string; input?: unknown; text?: string }> | undefined;
   
-  if (toolCall?.function?.arguments) {
-    try {
-      return { outline: JSON.parse(toolCall.function.arguments) };
-    } catch (e) {
-      return { outline: null, parseError: `tool call parse error: ${e}` };
+  if (Array.isArray(contentBlocks)) {
+    // Look for tool_use block
+    const toolUse = contentBlocks.find(b => b.type === "tool_use" && b.name === "create_outline");
+    if (toolUse?.input) {
+      return { outline: toolUse.input as Outline };
+    }
+
+    // Fallback: try text block
+    const textBlock = contentBlocks.find(b => b.type === "text" && b.text);
+    if (textBlock?.text) {
+      try {
+        const cleanContent = textBlock.text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        return { outline: JSON.parse(cleanContent) };
+      } catch (e) {
+        return { outline: null, parseError: `text parse error: ${e}` };
+      }
     }
   }
 
-  const content = (data.choices as Array<{ message?: { content?: string } }>)?.[0]?.message?.content;
-  if (content) {
-    try {
-      const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      return { outline: JSON.parse(cleanContent) };
-    } catch (e) {
-      return { outline: null, parseError: `content parse error: ${e}` };
-    }
-  }
-
-  return { outline: null, parseError: "no tool call or content in response" };
+  return { outline: null, parseError: "no tool_use or text content in Anthropic response" };
 }
 
 serve(async (req) => {
@@ -330,10 +326,10 @@ serve(async (req) => {
     }
 
     const { prompt, topic, tone, density, cardsCount } = validation.sanitized!;
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
-    if (!LOVABLE_API_KEY) {
-      console.error(`[${requestId}] LOVABLE_API_KEY not configured`);
+    if (!ANTHROPIC_API_KEY) {
+      console.error(`[${requestId}] ANTHROPIC_API_KEY not configured`);
       return new Response(
         JSON.stringify({ error: "AI service not configured", requestId }),
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -351,7 +347,7 @@ Generate a structured outline suitable for an executive presentation with approx
 
     // First attempt
     const systemPrompt1 = buildSystemPrompt(tone, density, cardsCount, false);
-    const result1 = await callAI(LOVABLE_API_KEY, systemPrompt1, userPrompt);
+    const result1 = await callAI(ANTHROPIC_API_KEY, systemPrompt1, userPrompt);
 
     if (result1.error) {
       console.error(`[${requestId}] AI call failed:`, result1.error);
@@ -406,7 +402,7 @@ Generate a structured outline suitable for an executive presentation with approx
       console.log(`[${requestId}] Retrying with correction prompt...`);
 
       const systemPrompt2 = buildSystemPrompt(tone, density, cardsCount, true, outlineValidation1.errors);
-      const result2 = await callAI(LOVABLE_API_KEY, systemPrompt2, userPrompt);
+      const result2 = await callAI(ANTHROPIC_API_KEY, systemPrompt2, userPrompt);
 
       if (result2.response?.ok) {
         const data2 = await result2.response.json();
