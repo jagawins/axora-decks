@@ -1,6 +1,7 @@
 // Types for the Visual Builder image selection system
 
-export type ImageSource = "stock" | "web" | "ai" | "illustration" | "gif" | "upload";
+export type ImageSource = "stock" | "web" | "ai" | "ai-infographic" | "illustration" | "gif" | "upload";
+export type ImageQuality = "standard" | "pro";
 export type VisualDensity = "minimal" | "balanced" | "visual";
 
 export interface ImageAsset {
