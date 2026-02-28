@@ -52,7 +52,8 @@ type SlideBlock = {
 function addBlockToSlide(
   pres: InstanceType<typeof pptxgen>,
   block: SlideBlock,
-  brand: BrandKit
+  brand: BrandKit,
+  showWatermark: boolean = false
 ) {
   const slide = pres.addSlide();
   const bg = safeColor(brand.colors?.background, "FFFFFF");
@@ -62,6 +63,22 @@ function addBlockToSlide(
   const bodyFont = fontName(brand.typography?.bodyFont, "Calibri");
 
   slide.background = { color: bg };
+
+  // Add Axora watermark for free/trial users
+  if (showWatermark) {
+    slide.addText("Made with AXORA", {
+      x: 8.5,
+      y: 6.8,
+      w: 3.5,
+      h: 0.5,
+      fontSize: 12,
+      fontFace: "Calibri",
+      color: "AAAAAA",
+      align: "right",
+      italic: true,
+      transparency: 30,
+    });
+  }
 
   const c = block.content || {};
 
@@ -531,7 +548,7 @@ serve(async (req) => {
       return json(503, { error: "Service not configured" });
     }
 
-    const { project_id } = await req.json();
+    const { project_id, is_paid } = await req.json();
 
     if (!project_id || typeof project_id !== "string") {
       return json(400, { error: "project_id is required" });
@@ -577,7 +594,7 @@ serve(async (req) => {
     pres.title = String(project.title || "Untitled Deck");
 
     for (const block of blocks) {
-      addBlockToSlide(pres, block, brand);
+      addBlockToSlide(pres, block, brand, !is_paid);
     }
 
     // Generate as base64 to avoid binary transfer corruption
