@@ -50,12 +50,12 @@ export function UpgradeGateModal({ open, onOpenChange, feature }: UpgradeGateMod
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg">
             <Lock className="h-5 w-5 text-accent" />
-            {feature ? `Unlock ${feature}` : "Generation Limit Reached"}
+            {feature ? `${feature} is a Pro Feature` : "Generation Limit Reached"}
           </DialogTitle>
           <DialogDescription>
             {feature
-              ? `${feature} is a Pro feature. Upgrade to unlock it and much more.`
-              : "You've used all 3 free deck generations. Upgrade to Pro for unlimited access."}
+              ? `${feature} requires an Axora Pro plan. Upgrade for $28/mo to unlock it and everything below.`
+              : "You've used all 3 free deck generations. Upgrade to Pro ($28/mo) for unlimited access."}
           </DialogDescription>
         </DialogHeader>
 
@@ -63,7 +63,7 @@ export function UpgradeGateModal({ open, onOpenChange, feature }: UpgradeGateMod
           <div className="rounded-xl border border-accent/20 bg-accent/5 p-5">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-4 w-4 text-accent" />
-              <p className="text-sm font-bold text-foreground">Everything in Pro:</p>
+              <p className="text-sm font-bold text-foreground">Everything in Pro — $28/mo:</p>
             </div>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {PRO_FEATURES.map((f) => (
@@ -77,7 +77,7 @@ export function UpgradeGateModal({ open, onOpenChange, feature }: UpgradeGateMod
 
           <div className="mt-4 text-center">
             <p className="text-xs text-success font-medium">
-              ✦ 14-day free trial — no credit card required
+              ✦ 14-day free trial — no credit card required • Full refund guarantee
             </p>
           </div>
         </div>
@@ -87,7 +87,7 @@ export function UpgradeGateModal({ open, onOpenChange, feature }: UpgradeGateMod
             Continue on Free
           </Button>
           <Button variant="hero" onClick={handleUpgrade} className="group">
-            Start Free Trial
+            Start 14-Day Free Trial
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Button>
         </DialogFooter>

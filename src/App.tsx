@@ -38,6 +38,7 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Demo from "./pages/Demo";
 import SettingsPage from "./pages/Settings";
+import Onboarding from "./pages/Onboarding";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
                 <Route path="/roadmap" element={<Roadmap />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/editor/:id" element={<Editor />} />
                 <Route path="/preview/:id" element={<Preview />} />
                 <Route path="/print/:id" element={<Print />} />
