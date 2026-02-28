@@ -6,6 +6,8 @@ import Pricing from "@/components/landing/Pricing";
 import CTA from "@/components/landing/CTA";
 import Footer from "@/components/landing/Footer";
 import FounderCard from "@/components/landing/FounderCard";
+import BeforeAfter from "@/components/landing/BeforeAfter";
+import ExampleDecks from "@/components/landing/ExampleDecks";
 
 const Index = () => {
   return (
@@ -15,6 +17,8 @@ const Index = () => {
         <Hero />
         <ValueTriplet />
         <Features />
+        <BeforeAfter />
+        <ExampleDecks />
         <FounderCard />
         <Pricing />
         <CTA />
