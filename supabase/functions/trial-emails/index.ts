@@ -146,8 +146,28 @@ serve(async (req) => {
           </body></html>
         `;
 
-        // Use Supabase edge function to send (simplified — log for now)
-        console.log(`[TRIAL-EMAILS] Would send "${drip.subject}" to ${user.email} (${drip.key})`);
+        // Send via Resend
+        const resendRes = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+          },
+          body: JSON.stringify({
+            from: "Axora <jag@axora.ai>",
+            to: [user.email],
+            subject: drip.subject,
+            html: htmlEmail,
+          }),
+        });
+
+        if (!resendRes.ok) {
+          const errBody = await resendRes.text();
+          console.error(`[TRIAL-EMAILS] Resend error for ${user.email} (${drip.key}):`, errBody);
+          continue;
+        }
+        await resendRes.text();
+        console.log(`[TRIAL-EMAILS] Sent "${drip.subject}" to ${user.email} (${drip.key})`);
 
         // Record the send
         await supabase.from("trial_emails").insert({
