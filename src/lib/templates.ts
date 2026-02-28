@@ -421,6 +421,14 @@ export async function getTemplatePreview(
 }
 
 /**
+ * Fetch example decks (templates tagged with "example-deck")
+ */
+export async function fetchExampleDecks(): Promise<Template[]> {
+  const all = await fetchTemplates();
+  return all.filter((t) => t.tags?.includes('example-deck'));
+}
+
+/**
  * Generate preview cache key for IndexedDB
  */
 export function getPreviewCacheKey(

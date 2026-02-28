@@ -5,6 +5,7 @@ import MarketingFooter from "@/components/MarketingFooter";
 import { TemplatesGrid } from "@/components/templates/TemplatesGrid";
 import { fetchTemplates, type Template } from "@/lib/templates";
 import { useToast } from "@/hooks/use-toast";
+import ExampleDecks from "@/components/landing/ExampleDecks";
 
 export default function Templates() {
   const { toast } = useToast();
@@ -52,6 +53,9 @@ export default function Templates() {
               Start with a professionally designed template, or create your own
             </p>
           </div>
+
+          {/* Example Decks showcase */}
+          <ExampleDecks />
 
           <TemplatesGrid
             templates={templates}
