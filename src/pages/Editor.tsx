@@ -81,6 +81,7 @@ import EditorToolset from "@/components/editor/EditorToolset";
 import { BLOCK_ICONS, getBlockIcon } from "@/lib/block-icons";
 import { BrandKitPanel } from "@/components/BrandKitPanel";
 import { ExportMenu } from "@/components/ExportMenu";
+import { EditorMoreMenu } from "@/components/editor/EditorMoreMenu";
 import type { BrandKit } from "@/lib/brand";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -1006,67 +1007,6 @@ const Editor = () => {
               </span>
             )}
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCreateDeckOpen(true)}
-              className="border-accent/30 text-accent hover:bg-accent/10"
-            >
-              <Sparkles className="h-4 w-4 mr-2" />
-              Generate Deck
-            </Button>
-
-            {/* Quick Polish */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleQuickPolish}
-              disabled={polishing || blocks.length === 0}
-            >
-              {polishing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Polishing…
-                </>
-              ) : (
-                <>
-                  <Zap className="h-4 w-4 mr-2" />
-                  Quick Polish
-                </>
-              )}
-            </Button>
-
-            {/* Make it Visual */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleMakeItVisual}
-              disabled={blocks.length === 0}
-            >
-              <Layers className="h-4 w-4 mr-2" />
-              Make it Visual
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <LayoutTemplate className="h-4 w-4 mr-2" />
-                  Layout
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {(Object.keys(LAYOUT_PRESETS) as LayoutPresetId[]).map((id) => (
-                  <DropdownMenuItem
-                    key={id}
-                    onClick={() => setLayoutPreset(id)}
-                    className={layoutPreset === id ? "bg-accent/20" : ""}
-                  >
-                    {LAYOUT_PRESETS[id].label}
-                    {layoutPreset === id && <Check className="h-4 w-4 ml-auto" />}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             {/* View Mode Toggle */}
             <div className="flex items-center bg-muted rounded-lg p-0.5">
               <Button
@@ -1088,47 +1028,6 @@ const Editor = () => {
                 Present
               </Button>
             </div>
-
-            <ExportMenu
-              onPrintPDF={exportPdf}
-              onShareLink={() => setShareDialogOpen(true)}
-              onPresenterView={() => navigate(`/present/${projectId}`)}
-              onExportPPTX={exportPptx}
-              pptxLoading={pptxLoading}
-            />
-
-            <Button variant="ghost" size="sm" onClick={() => setShareDialogOpen(true)}>
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
-            </Button>
-
-            {/* Brand Kit */}
-            <Button variant="ghost" size="sm" onClick={() => setBrandPanelOpen(true)}>
-              <Palette className="h-4 w-4 mr-2" />
-              Brand
-            </Button>
-
-            {/* Theme */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <Palette className="h-4 w-4 mr-2" />
-                  Theme
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {(Object.keys(THEMES) as ThemeId[]).map((t) => (
-                  <DropdownMenuItem
-                    key={t}
-                    onClick={() => updateTheme(t)}
-                    className={theme === t ? "bg-accent/20" : ""}
-                  >
-                    {THEMES[t].label}
-                    {theme === t && <Check className="h-4 w-4 ml-auto" />}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
 
             <Button variant="hero" size="sm" onClick={handleSave} disabled={saving || !hasUnsavedChanges}>
               {saving ? (
@@ -1152,6 +1051,71 @@ const Editor = () => {
               <Sparkles className="h-4 w-4" />
               Agent
             </Button>
+
+            {/* Gamma-style consolidated menu */}
+            <EditorMoreMenu
+              projectTitle={project?.title}
+              onBrandKit={() => setBrandPanelOpen(true)}
+              onThemeChange={updateTheme}
+              currentTheme={theme}
+              onLayoutChange={(id) => setLayoutPreset(id)}
+              currentLayout={layoutPreset}
+              onExportPDF={exportPdf}
+              onExportPPTX={exportPptx}
+              pptxLoading={pptxLoading}
+              onShare={() => setShareDialogOpen(true)}
+              onPresenterView={() => navigate(`/present/${projectId}`)}
+              onAnalytics={fetchViewAnalytics}
+              onGenerateDeck={() => setCreateDeckOpen(true)}
+              onQuickPolish={handleQuickPolish}
+              polishing={polishing}
+              onMakeItVisual={handleMakeItVisual}
+              blocksCount={blocks.length}
+              onImportContent={() => setImportContentOpen(true)}
+              onDuplicate={async () => {
+                if (!projectId || !project) return;
+                try {
+                  const { data: newProject, error } = await supabase
+                    .from("projects")
+                    .insert({
+                      title: `${project.title} (copy)`,
+                      description: project.description,
+                      user_id: user!.id,
+                      theme,
+                      brand_kit: brandKit as any,
+                    })
+                    .select("id")
+                    .single();
+                  if (error) throw error;
+                  if (blocks.length > 0) {
+                    const blocksToInsert = blocks.map((block, index) => ({
+                      project_id: newProject.id,
+                      type: block.type as any,
+                      content: block.content as any,
+                      order_index: index,
+                    }));
+                    await supabase.from("blocks").insert(blocksToInsert);
+                  }
+                  toast({ title: "Deck duplicated", description: "Opening the copy…" });
+                  navigate(`/editor/${newProject.id}`);
+                } catch (e) {
+                  console.error("Duplicate error:", e);
+                  toast({ title: "Duplicate failed", variant: "destructive" });
+                }
+              }}
+              onDelete={async () => {
+                if (!projectId || !window.confirm("Delete this deck permanently?")) return;
+                try {
+                  await supabase.from("blocks").delete().eq("project_id", projectId);
+                  await supabase.from("projects").delete().eq("id", projectId);
+                  toast({ title: "Deck deleted" });
+                  navigate("/dashboard");
+                } catch (e) {
+                  console.error("Delete error:", e);
+                  toast({ title: "Delete failed", variant: "destructive" });
+                }
+              }}
+            />
           </div>
 
           {/* Mobile header actions */}
