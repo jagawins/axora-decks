@@ -76,7 +76,8 @@ import MobileEditorTabs, { MobileTab } from "@/components/editor/MobileEditorTab
 import MobileBlocksPanel from "@/components/editor/MobileBlocksPanel";
 import MobileAIPanel from "@/components/editor/MobileAIPanel";
 import BlockHoverToolbar from "@/components/editor/BlockHoverToolbar";
-import AISidebar from "@/components/editor/AISidebar";
+import AgentChatSidebar from "@/components/editor/AgentChatSidebar";
+import EditorToolset from "@/components/editor/EditorToolset";
 import { BLOCK_ICONS, getBlockIcon } from "@/lib/block-icons";
 import { BrandKitPanel } from "@/components/BrandKitPanel";
 import { ExportMenu } from "@/components/ExportMenu";
@@ -1140,9 +1141,16 @@ const Editor = () => {
               )}
             </Button>
 
-            {/* AI Sidebar toggle - subtle icon */}
-            <Button variant="ghost" size="icon" onClick={() => setAiSidebarOpen(!aiSidebarOpen)} title="AI Analysis">
-              <PanelRight className="h-4 w-4" />
+            {/* Agent Sidebar toggle */}
+            <Button
+              variant={aiSidebarOpen ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => setAiSidebarOpen(!aiSidebarOpen)}
+              title="AI Agent"
+              className="gap-1.5"
+            >
+              <Sparkles className="h-4 w-4" />
+              Agent
             </Button>
           </div>
 
@@ -1363,13 +1371,64 @@ const Editor = () => {
           </div>
         </main>
 
-        {/* Right sidebar - AI Analysis Panel */}
-        <AISidebar
+        {/* Right sidebar - Agent Chat */}
+        <AgentChatSidebar
           open={aiSidebarOpen}
           onToggle={() => setAiSidebarOpen(!aiSidebarOpen)}
           blocks={blocks}
-          onScoreUpdate={(score) => setClarityScore(score)}
-          autoTriggerMode={stressTestTrigger}
+          deckTitle={project?.title}
+          onAgentAction={async (instruction) => {
+            // Apply the instruction to all blocks sequentially
+            for (const block of blocks) {
+              try {
+                const refined = await aiEngine.refineBlock({
+                  block: { type: block.type, content: block.content, order_index: block.order_index },
+                  instruction,
+                });
+                let sanitized = sanitizeContent(refined.content);
+                sanitized = normalizeBlockContent(block.type, sanitized);
+                if (block.type === "list" && Array.isArray(sanitized.items)) {
+                  sanitized.items = sanitizeListItems(sanitized.items);
+                }
+                updateBlock(block.id, sanitized);
+              } catch (err) {
+                console.error(`Agent action failed on block:`, err);
+              }
+            }
+            setHasUnsavedChanges(true);
+          }}
+          onQuickAction={async (blockIndex, instruction) => {
+            const block = blocks[blockIndex];
+            if (block) await handleQuickAIAction(block.id, instruction);
+          }}
+        />
+
+        {/* Right toolset strip */}
+        <EditorToolset
+          onAddBlock={(type) => {
+            const newBlock: Block = {
+              id: crypto.randomUUID(),
+              type,
+              content: getDefaultContent(type),
+              order_index: blocks.length,
+            };
+            setBlocks((prev) => [...prev, newBlock]);
+            setSelectedBlockId(newBlock.id);
+            setHasUnsavedChanges(true);
+          }}
+          currentTheme={theme}
+          onThemeChange={updateTheme}
+          onInsertImage={(src, alt) => {
+            const newBlock: Block = {
+              id: crypto.randomUUID(),
+              type: "image",
+              content: { src, alt, caption: "" },
+              order_index: blocks.length,
+            };
+            setBlocks((prev) => [...prev, newBlock]);
+            setSelectedBlockId(newBlock.id);
+            setHasUnsavedChanges(true);
+          }}
         />
       </div>
 
