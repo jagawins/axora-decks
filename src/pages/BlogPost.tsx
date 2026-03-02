@@ -206,7 +206,7 @@ export default function BlogPost() {
     author: {
       "@type": "Person",
       name: post.author,
-      url: "https://axora.lovable.app/founder",
+      url: "https://axiva.ai/founder",
     },
     publisher: {
       "@type": "Organization",

@@ -8,7 +8,7 @@ const Privacy = () => {
       <Helmet>
         <title>Privacy Policy | AXORA</title>
         <meta name="description" content="AXORA privacy policy. Learn what information we collect, how we use it, and how we protect your data." />
-        <link rel="canonical" href="https://axora.lovable.app/privacy" />
+        <link rel="canonical" href="https://axiva.ai/privacy" />
         <meta name="robots" content="index, follow" />
       </Helmet>
 
@@ -22,7 +22,7 @@ const Privacy = () => {
           
           <div className="prose prose-invert max-w-none space-y-8">
             <p className="text-lg text-muted-foreground">
-              AXORA values privacy. This policy explains what we collect, why we collect it, and how we handle it when you use axora.lovable.app and related services.
+              AXORA values privacy. This policy explains what we collect, why we collect it, and how we handle it when you use axiva.ai and related services.
             </p>
 
             <section>

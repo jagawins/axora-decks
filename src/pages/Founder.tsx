@@ -13,11 +13,11 @@ export default function Founder() {
     worksFor: {
       "@type": "Organization",
       name: "AXORA",
-      url: "https://axora.lovable.app",
+      url: "https://axiva.ai",
     },
     description:
       "Jag Mariappan is the founder of AXORA, an AI presentation platform built for executive communication.",
-    url: "https://axora.lovable.app/founder",
+    url: "https://axiva.ai/founder",
     sameAs: [
       "https://linkedin.com/in/jagmariappan",
       "https://twitter.com/jagmariappan",

@@ -122,7 +122,7 @@ const FAQ = () => {
       <Helmet>
         <title>FAQ — Axora</title>
         <meta name="description" content="Frequently asked questions about Axora — AI-powered presentations for executives and founders." />
-        <link rel="canonical" href="https://axora.lovable.app/faq" />
+        <link rel="canonical" href="https://axiva.ai/faq" />
       </Helmet>
 
       <MarketingHeader />

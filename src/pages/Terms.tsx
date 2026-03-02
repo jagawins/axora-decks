@@ -8,7 +8,7 @@ const Terms = () => {
       <Helmet>
         <title>Terms of Service | AXORA</title>
         <meta name="description" content="AXORA terms of service. Read about your rights and responsibilities when using our AI deck generator." />
-        <link rel="canonical" href="https://axora.lovable.app/terms" />
+        <link rel="canonical" href="https://axiva.ai/terms" />
         <meta name="robots" content="index, follow" />
       </Helmet>
 
@@ -22,7 +22,7 @@ const Terms = () => {
           
           <div className="prose prose-invert max-w-none space-y-8">
             <p className="text-lg text-muted-foreground">
-              These Terms govern your access to and use of AXORA at axora.lovable.app. By using the service, you agree to these Terms.
+              These Terms govern your access to and use of AXORA at axiva.ai. By using the service, you agree to these Terms.
             </p>
 
             <section>

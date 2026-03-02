@@ -53,7 +53,7 @@ const GammaAlternative = () => {
       <Helmet>
         <title>AXORA vs Gamma: AI Executive Deck Generator for Crisp Business Presentations</title>
         <meta name="description" content="Compare AXORA vs Gamma. See why executives choose AXORA for structured AI decks, clean PowerPoint exports, and business-ready presentations." />
-        <link rel="canonical" href="https://axora.lovable.app/gamma-alternative" />
+        <link rel="canonical" href="https://axiva.ai/gamma-alternative" />
       </Helmet>
 
       <MarketingHeader />

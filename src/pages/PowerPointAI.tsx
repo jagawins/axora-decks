@@ -42,7 +42,7 @@ const PowerPointAI = () => {
       <Helmet>
         <title>PowerPoint AI Generator: Create Executive Slides with AXORA</title>
         <meta name="description" content="Use AXORA as your PowerPoint AI generator. Create structured, executive-ready slides in minutes and export cleanly to PowerPoint." />
-        <link rel="canonical" href="https://axora.lovable.app/powerpoint-ai" />
+        <link rel="canonical" href="https://axiva.ai/powerpoint-ai" />
       </Helmet>
 
       <MarketingHeader />

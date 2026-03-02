@@ -11,13 +11,13 @@ export default function Press() {
     name: "AXORA",
     description:
       "AXORA is an AI-powered presentation generator built for executives who need structured, board-ready decks.",
-    url: "https://axora.lovable.app",
+    url: "https://axiva.ai",
     founder: {
       "@type": "Person",
       name: "Jag Mariappan",
-      url: "https://axora.lovable.app/founder",
+      url: "https://axiva.ai/founder",
     },
-    logo: "https://axora.lovable.app/favicon.png",
+    logo: "https://axiva.ai/favicon.png",
   };
 
   return (
@@ -180,7 +180,7 @@ export default function Press() {
               </div>
               <div className="p-6 rounded-xl border border-border bg-card">
                 <h3 className="font-semibold mb-2">Website</h3>
-                <p className="text-muted-foreground">axora.lovable.app</p>
+                <p className="text-muted-foreground">axiva.ai</p>
               </div>
             </div>
           </section>

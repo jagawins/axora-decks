@@ -13,13 +13,13 @@ const About = () => {
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://axora.lovable.app/#organization",
+        "@id": "https://axiva.ai/#organization",
         "name": "AXORA",
-        "url": "https://axora.lovable.app",
-        "logo": "https://axora.lovable.app/favicon.svg",
+        "url": "https://axiva.ai",
+        "logo": "https://axiva.ai/favicon.svg",
         "description": "AI-powered executive presentation generator. Turn raw ideas into structured, decision-ready decks.",
         "founder": {
-          "@id": "https://axora.lovable.app/#person"
+          "@id": "https://axiva.ai/#person"
         },
         "sameAs": [
           "https://x.com/inaxora"
@@ -27,7 +27,7 @@ const About = () => {
       },
       {
         "@type": "Person",
-        "@id": "https://axora.lovable.app/#person",
+        "@id": "https://axiva.ai/#person",
         "name": "Jag Mariappan",
         "jobTitle": "Founder",
         "affiliation": {
@@ -35,10 +35,10 @@ const About = () => {
           "name": "AXORA"
         },
         "worksFor": {
-          "@id": "https://axora.lovable.app/#organization"
+          "@id": "https://axiva.ai/#organization"
         },
-        "image": "https://axora.lovable.app/founder-card-og.png",
-        "url": "https://axora.lovable.app/about",
+        "image": "https://axiva.ai/founder-card-og.png",
+        "url": "https://axiva.ai/about",
         "sameAs": [
           "https://www.linkedin.com/in/jagwinstoday",
           "https://jagmariappan.com"
@@ -87,22 +87,22 @@ const About = () => {
           name="description" 
           content="Meet Jag Mariappan, founder of AXORA. Two decades of experience in technology, healthcare, and enterprise systems. Building executive-grade AI presentation tools for leaders." 
         />
-        <link rel="canonical" href="https://axora.lovable.app/about" />
+        <link rel="canonical" href="https://axiva.ai/about" />
         
         {/* OG Tags with wide founder image */}
         <meta property="og:title" content="About the Founder — Jag Mariappan | AXORA" />
         <meta property="og:description" content="Meet Jag Mariappan, founder of AXORA. Building executive-grade AI presentation tools for leaders and strategists." />
-        <meta property="og:image" content="https://axora.lovable.app/founder-card-og.png" />
+        <meta property="og:image" content="https://axiva.ai/founder-card-og.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="628" />
         <meta property="og:type" content="profile" />
-        <meta property="og:url" content="https://axora.lovable.app/about" />
+        <meta property="og:url" content="https://axiva.ai/about" />
         
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="About the Founder — Jag Mariappan | AXORA" />
         <meta name="twitter:description" content="Meet Jag Mariappan, founder of AXORA. Building executive-grade AI presentation tools." />
-        <meta name="twitter:image" content="https://axora.lovable.app/founder-card-og.png" />
+        <meta name="twitter:image" content="https://axiva.ai/founder-card-og.png" />
         <meta name="twitter:creator" content="@inaxora" />
         
         {/* JSON-LD Structured Data */}

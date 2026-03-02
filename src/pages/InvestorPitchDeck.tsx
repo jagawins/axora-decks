@@ -70,7 +70,7 @@ const InvestorPitchDeck = () => {
       <Helmet>
         <title>AI Investor Pitch Deck Generator | Axora</title>
         <meta name="description" content="Build a fundable investor pitch deck in minutes with Axora. AI-powered narrative structure, boardroom-ready design, and PowerPoint export. Used by 2,400+ founders." />
-        <link rel="canonical" href="https://axora.lovable.app/investor-pitch-deck" />
+        <link rel="canonical" href="https://axiva.ai/investor-pitch-deck" />
       </Helmet>
 
       <MarketingHeader />
