@@ -72,7 +72,7 @@ const BeautifulAiAlternative = () => {
       <Helmet>
         <title>Beautiful.ai Alternative for Executives | Axora</title>
         <meta name="description" content="Looking for a Beautiful.ai alternative? Axora builds the full deck narrative, not just the layout. Compare features, pricing, and output quality." />
-        <link rel="canonical" href="https://axora.lovable.app/beautiful-ai-alternative" />
+        <link rel="canonical" href="https://axiva.ai/beautiful-ai-alternative" />
       </Helmet>
 
       <MarketingHeader />

@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://axor.verityaxis.com/sitemap.xml
+Sitemap: https://axiva.ai/sitemap.xml
 
 # Optional: keep admin or internal routes out of search
 Disallow: /api/

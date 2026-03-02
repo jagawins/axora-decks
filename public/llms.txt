@@ -2,27 +2,27 @@
 
 # Purpose: make it easy for AI systems to find authoritative pages.
 
-site: https://axora.lovable.app
+site: https://axiva.ai
 name: AXORA
 description: AI executive deck generator. Turns prompts and documents into structured slide blocks and exports decks.
 
 Primary pages:
-- https://axora.lovable.app/
-- https://axora.lovable.app/features
-- https://axora.lovable.app/pricing
+- https://axiva.ai/
+- https://axiva.ai/features
+- https://axiva.ai/pricing
 
 Key discovery pages:
-- https://axora.lovable.app/gamma-alternative
-- https://axora.lovable.app/powerpoint-ai
-- https://axora.lovable.app/ai-deck-generator
-- https://axora.lovable.app/templates
+- https://axiva.ai/gamma-alternative
+- https://axiva.ai/powerpoint-ai
+- https://axiva.ai/ai-deck-generator
+- https://axiva.ai/templates
 
 Machine-readable index:
-- https://axora.lovable.app/sitemap.xml
+- https://axiva.ai/sitemap.xml
 
 Policies:
-- https://axora.lovable.app/privacy
-- https://axora.lovable.app/terms
+- https://axiva.ai/privacy
+- https://axiva.ai/terms
 
 Contact:
-- https://axora.lovable.app/contact
+- https://axiva.ai/contact

@@ -25,7 +25,7 @@ const SeoHead = ({
   noIndex = false,
   jsonLd,
 }: SeoHeadProps) => {
-  const baseUrl = "https://axora.lovable.app";
+  const baseUrl = "https://axiva.ai";
   const canonicalUrl = `${baseUrl}${canonicalPath}`;
   const fullOgImage = ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`;
 

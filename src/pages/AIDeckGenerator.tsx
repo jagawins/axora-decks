@@ -57,7 +57,7 @@ const AIDeckGenerator = () => {
       <Helmet>
         <title>AI Deck Generator: Build Structured Presentations in Minutes</title>
         <meta name="description" content="AXORA is an AI deck generator built for executives. Turn raw ideas into structured presentations in minutes." />
-        <link rel="canonical" href="https://axora.lovable.app/ai-deck-generator" />
+        <link rel="canonical" href="https://axiva.ai/ai-deck-generator" />
       </Helmet>
 
       <MarketingHeader />

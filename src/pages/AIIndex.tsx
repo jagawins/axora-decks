@@ -12,7 +12,7 @@ const AIIndex = () => {
         <title>AXORA — AI Executive Presentation Generator</title>
         <meta name="description" content="AXORA converts raw ideas into structured executive-grade presentations. AI PowerPoint generator for leaders, consultants, and strategists." />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://axora.lovable.app/ai-index" />
+        <link rel="canonical" href="https://axiva.ai/ai-index" />
       </Helmet>
       
       <main style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px', fontFamily: 'system-ui, sans-serif', lineHeight: 1.6 }}>
@@ -52,17 +52,17 @@ const AIIndex = () => {
         </ul>
         
         <p>
-          Visit <a href="https://axora.lovable.app">https://axora.lovable.app</a> for full product access.
+          Visit <a href="https://axiva.ai">https://axiva.ai</a> for full product access.
         </p>
         
         <h2>Related Pages</h2>
         <ul>
-          <li><a href="https://axora.lovable.app/gamma-alternative">AXORA vs Gamma Comparison</a></li>
-          <li><a href="https://axora.lovable.app/powerpoint-ai">AI PowerPoint Generator</a></li>
-          <li><a href="https://axora.lovable.app/ppt-generator">Online PPT Generator</a></li>
-          <li><a href="https://axora.lovable.app/executive-deck-generator">Executive Deck Generator</a></li>
-          <li><a href="https://axora.lovable.app/features">Features</a></li>
-          <li><a href="https://axora.lovable.app/pricing">Pricing</a></li>
+          <li><a href="https://axiva.ai/gamma-alternative">AXORA vs Gamma Comparison</a></li>
+          <li><a href="https://axiva.ai/powerpoint-ai">AI PowerPoint Generator</a></li>
+          <li><a href="https://axiva.ai/ppt-generator">Online PPT Generator</a></li>
+          <li><a href="https://axiva.ai/executive-deck-generator">Executive Deck Generator</a></li>
+          <li><a href="https://axiva.ai/features">Features</a></li>
+          <li><a href="https://axiva.ai/pricing">Pricing</a></li>
         </ul>
       </main>
     </>

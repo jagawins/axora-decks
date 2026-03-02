@@ -76,7 +76,7 @@ serve(async (req) => {
   );
 
   try {
-    const appUrl = req.headers.get("origin") || Deno.env.get("SUPABASE_URL")?.replace(".supabase.co", "") || "https://axor.lovable.app";
+    const appUrl = req.headers.get("origin") || "https://axiva.ai";
     
     // Get all free-tier users who signed up in the last 14 days
     const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
@@ -142,7 +142,7 @@ serve(async (req) => {
             ${body}
             <hr style="margin-top:32px;border:none;border-top:1px solid #eee"/>
             <p style="font-size:12px;color:#999;margin-top:16px">Axora — Executive-grade presentations, powered by AI.<br/>
-            <a href="${appUrl}" style="color:#999">axor.lovable.app</a></p>
+            <a href="${appUrl}" style="color:#999">axiva.ai</a></p>
           </body></html>
         `;
 
@@ -154,7 +154,7 @@ serve(async (req) => {
             Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
           },
           body: JSON.stringify({
-            from: "Axora <jag@axor.verityaxis.com>",
+            from: "Axora <jag@axiva.ai>",
             to: [user.email],
             subject: drip.subject,
             html: htmlEmail,
