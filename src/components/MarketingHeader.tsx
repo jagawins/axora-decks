@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import axoraWordmarkDark from "@/assets/axora-wordmark-dark.svg";
-import axoraWordmarkLight from "@/assets/axora-wordmark.svg";
+import axivaWordmarkDark from "@/assets/axiva-wordmark-dark.svg";
+import axivaWordmarkLight from "@/assets/axiva-wordmark.svg";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -12,7 +12,7 @@ const MarketingHeader = () => {
   const { theme } = useTheme();
   const { user, loading } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const axoraWordmark = theme === 'light' ? axoraWordmarkLight : axoraWordmarkDark;
+  const axivaWordmark = theme === 'light' ? axivaWordmarkLight : axivaWordmarkDark;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
@@ -22,7 +22,7 @@ const MarketingHeader = () => {
           {/* Left: Logo with fixed width */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <img src={axoraWordmark} alt="AXORA" className="h-7 w-auto" />
+              <img src={axivaWordmark} alt="AXIVA" className="h-7 w-auto" />
             </Link>
           </div>
 
@@ -74,7 +74,7 @@ const MarketingHeader = () => {
         {/* Mobile: Logo + hamburger */}
         <div className="flex md:hidden h-16 items-center justify-between">
           <Link to="/" className="flex items-center">
-            <img src={axoraWordmark} alt="AXORA" className="h-6 w-auto" />
+            <img src={axivaWordmark} alt="AXIVA" className="h-6 w-auto" />
           </Link>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

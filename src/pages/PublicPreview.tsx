@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { invokeFunction } from "@/lib/supabase-function-client";
 import DeckPlayer from "@/components/DeckPlayer";
 import { Loader2, AlertCircle, Lock } from "lucide-react";
-import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
+import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
 import { BrandKit } from "@/lib/brand";
 import type { BlockType } from "@/lib/blocks";
@@ -159,7 +159,7 @@ export default function PublicPreview() {
         <div className="flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-4">
             <a href="/" className="flex items-center">
-              <img src={axoraWordmark} alt="AXORA" className="h-5 w-auto" />
+              <img src={axivaWordmark} alt="AXIVA" className="h-5 w-auto" />
             </a>
             <span className="text-muted-foreground">|</span>
             <h1 className="font-semibold truncate max-w-[300px]">
