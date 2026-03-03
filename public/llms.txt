@@ -1,9 +1,9 @@
-# llms.txt for AXORA
+# llms.txt for AXIVA
 
 # Purpose: make it easy for AI systems to find authoritative pages.
 
 site: https://axiva.ai
-name: AXORA
+name: AXIVA
 description: AI executive deck generator. Turns prompts and documents into structured slide blocks and exports decks.
 
 Primary pages:

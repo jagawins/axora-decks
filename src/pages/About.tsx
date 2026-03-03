@@ -14,7 +14,7 @@ const About = () => {
       {
         "@type": "Organization",
         "@id": "https://axiva.ai/#organization",
-        "name": "AXORA",
+        "name": "AXIVA",
         "url": "https://axiva.ai",
         "logo": "https://axiva.ai/favicon.svg",
         "description": "AI-powered executive presentation generator. Turn raw ideas into structured, decision-ready decks.",
@@ -22,7 +22,7 @@ const About = () => {
           "@id": "https://axiva.ai/#person"
         },
         "sameAs": [
-          "https://x.com/inaxora"
+          "https://x.com/inaxiva"
         ]
       },
       {
@@ -32,7 +32,7 @@ const About = () => {
         "jobTitle": "Founder",
         "affiliation": {
           "@type": "Organization",
-          "name": "AXORA"
+          "name": "AXIVA"
         },
         "worksFor": {
           "@id": "https://axiva.ai/#organization"
@@ -52,7 +52,7 @@ const About = () => {
           "Healthcare technology",
           "AI-driven workflows"
         ],
-        "description": "Founder of AXORA. Building executive-grade AI presentation tools for leaders, consultants, and strategists. Two decades of experience in technology, healthcare, enterprise systems, and AI-driven transformation."
+        "description": "Founder of AXIVA. Building executive-grade AI presentation tools for leaders, consultants, and strategists. Two decades of experience in technology, healthcare, enterprise systems, and AI-driven transformation."
       }
     ]
   };
@@ -67,31 +67,31 @@ const About = () => {
   const philosophyItems = [
     {
       title: "Structure reveals clarity",
-      description: "Great leaders don't speak more — they speak with intention. AXORA mirrors that mindset through structured blocks, meaningful hierarchy, and visual discipline."
+      description: "Great leaders don't speak more — they speak with intention. AXIVA mirrors that mindset through structured blocks, meaningful hierarchy, and visual discipline."
     },
     {
       title: "Precision matters more than decoration",
-      description: "Beautiful slides fail instantly if the logic is weak. AXORA prioritizes thinking, logic flow, and coherence."
+      description: "Beautiful slides fail instantly if the logic is weak. AXIVA prioritizes thinking, logic flow, and coherence."
     },
     {
       title: "AI should enhance judgment, not replace it",
-      description: "The platform uses AI to accelerate clarity, not overwhelm it. AXORA is designed so users stay in control — every block, every refinement, every choice."
+      description: "The platform uses AI to accelerate clarity, not overwhelm it. AXIVA is designed so users stay in control — every block, every refinement, every choice."
     }
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>About the Founder — Jag Mariappan | AXORA</title>
+        <title>About the Founder — Jag Mariappan | AXIVA</title>
         <meta 
           name="description" 
-          content="Meet Jag Mariappan, founder of AXORA. Two decades of experience in technology, healthcare, and enterprise systems. Building executive-grade AI presentation tools for leaders." 
+          content="Meet Jag Mariappan, founder of AXIVA. Two decades of experience in technology, healthcare, and enterprise systems. Building executive-grade AI presentation tools for leaders." 
         />
         <link rel="canonical" href="https://axiva.ai/about" />
         
         {/* OG Tags with wide founder image */}
-        <meta property="og:title" content="About the Founder — Jag Mariappan | AXORA" />
-        <meta property="og:description" content="Meet Jag Mariappan, founder of AXORA. Building executive-grade AI presentation tools for leaders and strategists." />
+        <meta property="og:title" content="About the Founder — Jag Mariappan | AXIVA" />
+        <meta property="og:description" content="Meet Jag Mariappan, founder of AXIVA. Building executive-grade AI presentation tools for leaders and strategists." />
         <meta property="og:image" content="https://axiva.ai/founder-card-og.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="628" />
@@ -100,10 +100,10 @@ const About = () => {
         
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="About the Founder — Jag Mariappan | AXORA" />
-        <meta name="twitter:description" content="Meet Jag Mariappan, founder of AXORA. Building executive-grade AI presentation tools." />
+        <meta name="twitter:title" content="About the Founder — Jag Mariappan | AXIVA" />
+        <meta name="twitter:description" content="Meet Jag Mariappan, founder of AXIVA. Building executive-grade AI presentation tools." />
         <meta name="twitter:image" content="https://axiva.ai/founder-card-og.png" />
-        <meta name="twitter:creator" content="@inaxora" />
+        <meta name="twitter:creator" content="@inaxiva" />
         
         {/* JSON-LD Structured Data */}
         <script type="application/ld+json">
@@ -138,7 +138,7 @@ const About = () => {
                     {/* Profile image - using square for page */}
                     <img 
                       src={founderCardSquare} 
-                      alt="Jag Mariappan — Founder of AXORA" 
+                      alt="Jag Mariappan — Founder of AXIVA" 
                       className="w-32 h-32 rounded-2xl border-4 border-background shadow-xl object-cover"
                     />
                     
@@ -149,11 +149,11 @@ const About = () => {
                           Jag Mariappan
                         </h2>
                         <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-sm font-semibold">
-                          AXORA
+                          AXIVA
                         </span>
                       </div>
                       <p className="text-lg text-muted-foreground">
-                        Founder & Creator of <span className="text-accent font-medium">AXORA</span>
+                        Founder & Creator of <span className="text-accent font-medium">AXIVA</span>
                       </p>
                     </div>
                     
@@ -184,11 +184,11 @@ const About = () => {
 
               {/* The Commitment Section */}
               <div className="mb-16">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-6">The commitment behind AXORA</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-6">The commitment behind AXIVA</h2>
                 
                 <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
                   <p>
-                    AXORA was built from a simple idea: <span className="text-foreground font-medium">clarity is the foundation of leadership.</span>
+                    AXIVA was built from a simple idea: <span className="text-foreground font-medium">clarity is the foundation of leadership.</span>
                   </p>
                   <p>
                     In every executive room, every board meeting, and every strategic review, the leaders who win are the ones who communicate with precision.
@@ -199,7 +199,7 @@ const About = () => {
                     His work spans digital operations, enterprise governance, AI-enabled workflows, and large-scale transformation programs across institutions and emerging startups.
                   </p>
                   <p>
-                    AXORA reflects that experience. It is not a toy, not a writing assistant, not a generic deck generator — 
+                    AXIVA reflects that experience. It is not a toy, not a writing assistant, not a generic deck generator — 
                     it is a tool built for people who think, move, and lead at an executive level.
                   </p>
                 </div>
@@ -207,7 +207,7 @@ const About = () => {
 
               {/* Philosophy Section */}
               <div className="mb-16">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-8">The philosophy that shaped AXORA</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-8">The philosophy that shaped AXIVA</h2>
                 
                 <div className="grid gap-6">
                   {philosophyItems.map((item, i) => (
@@ -235,21 +235,21 @@ const About = () => {
                 </ul>
                 
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  AXORA is the convergence of those domains — a platform built by someone who has lived the work, not just observed it.
+                  AXIVA is the convergence of those domains — a platform built by someone who has lived the work, not just observed it.
                 </p>
               </div>
 
               {/* Name Origin Section */}
               <div className="mb-16">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-6">Why the name AXORA?</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-6">Why the name AXIVA?</h2>
                 
                 <div className="glass-card p-8 border-accent/20">
-                  <p className="text-lg text-muted-foreground mb-4">AXORA represents:</p>
+                  <p className="text-lg text-muted-foreground mb-4">AXIVA represents:</p>
                   
                   <div className="text-center py-6">
-                    <p className="text-2xl font-bold text-accent mb-2">Axiom + Aura</p>
-                    <p className="text-lg text-muted-foreground">Truth + Insight</p>
-                    <p className="text-lg text-muted-foreground">Clarity + Presence</p>
+                    <p className="text-2xl font-bold text-accent mb-2">Axiom + Viva</p>
+                    <p className="text-lg text-muted-foreground">Truth + Life</p>
+                    <p className="text-lg text-muted-foreground">Clarity + Energy</p>
                   </div>
                   
                   <p className="text-lg text-muted-foreground leading-relaxed">
@@ -274,7 +274,7 @@ const About = () => {
               <div className="flex flex-wrap gap-4">
                 <Link to="/auth">
                   <Button variant="hero" size="xl" className="group">
-                    Try AXORA Free
+                    Try AXIVA Free
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </Link>

@@ -1,7 +1,7 @@
 import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
+import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import {
   DropdownMenu,
@@ -46,8 +46,8 @@ const navItems = [
 ];
 
 const socialLinks = [
-  { label: "X", href: "https://x.com/AXORAHQ", icon: XIcon },
-  { label: "Instagram", href: "https://www.instagram.com/axoraexec/", icon: InstagramIcon },
+  { label: "X", href: "https://x.com/inaxiva", icon: XIcon },
+  { label: "Instagram", href: "https://www.instagram.com/axivaexec/", icon: InstagramIcon },
   { label: "LinkedIn", href: "https://www.linkedin.com/company/111021149/", icon: LinkedInIcon },
 ];
 
@@ -61,13 +61,13 @@ export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }:
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted/50 transition-colors group">
-              <img src={axoraWordmark} alt="AXORA" className="h-6 w-auto" />
+              <img src={axivaWordmark} alt="AXIVA" className="h-6 w-auto" />
               <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
             <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
-              Follow Axora
+              Follow Axiva
             </DropdownMenuLabel>
             {socialLinks.map((link) => (
               <DropdownMenuItem key={link.label} asChild>

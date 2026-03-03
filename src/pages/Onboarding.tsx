@@ -7,7 +7,7 @@ import { aiEngine } from "@/lib/ai-engine";
 import { Loader2, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
+import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
 
 const Onboarding = () => {
   const { user, loading: authLoading } = useAuth();
@@ -99,7 +99,7 @@ const Onboarding = () => {
         {/* Logo */}
         <div className="text-center mb-10">
           <a href="/" className="inline-flex items-center justify-center mb-6">
-            <img src={axoraWordmark} alt="AXORA" className="h-8 w-auto" />
+            <img src={axivaWordmark} alt="AXIVA" className="h-8 w-auto" />
           </a>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-sm font-medium mb-6">
             <Sparkles className="h-4 w-4" />

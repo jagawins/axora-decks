@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
+import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
 
 const MarketingFooter = () => {
   return (
@@ -167,22 +167,22 @@ const MarketingFooter = () => {
             <Link to="/founder" className="text-accent hover:underline font-medium">
               Jag Mariappan
             </Link>{" "}
-            — Founder of AXORA
+            — Founder of AXIVA
           </p>
         </div>
 
         {/* Bottom Bar */}
         <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between md:gap-6">
           <div className="flex items-center">
-            <img src={axoraWordmark} alt="AXORA" className="h-5 sm:h-6 w-auto" />
+            <img src={axivaWordmark} alt="AXIVA" className="h-5 sm:h-6 w-auto" />
           </div>
 
           <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md order-3 md:order-2">
-            AXORA is an AI deck generator built for executives who need structured, presentation-ready slides.
+            AXIVA is an AI deck generator built for executives who need structured, presentation-ready slides.
           </p>
 
           <p className="text-xs sm:text-sm text-muted-foreground order-2 md:order-3">
-            © {new Date().getFullYear()} AXORA. All rights reserved.
+            © {new Date().getFullYear()} AXIVA. All rights reserved.
           </p>
         </div>
       </div>

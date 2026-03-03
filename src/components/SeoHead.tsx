@@ -37,7 +37,7 @@ const SeoHead = ({
     url: canonicalUrl,
     publisher: {
       "@type": "Organization",
-      name: "AXORA",
+      name: "AXIVA",
       url: baseUrl,
       logo: {
         "@type": "ImageObject",
@@ -66,7 +66,7 @@ const SeoHead = ({
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:type" content={ogType} />
       <meta property="og:image" content={fullOgImage} />
-      <meta property="og:site_name" content="AXORA" />
+      <meta property="og:site_name" content="AXIVA" />
 
       {/* Article metadata */}
       {ogType === "article" && articlePublishedTime && (

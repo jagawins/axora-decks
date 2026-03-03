@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import axoraWordmarkDark from "@/assets/axora-wordmark-dark.svg";
-import axoraWordmarkLight from "@/assets/axora-wordmark.svg";
+import axivaWordmarkDark from "@/assets/axiva-wordmark-dark.svg";
+import axivaWordmarkLight from "@/assets/axiva-wordmark.svg";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -12,7 +12,7 @@ const Navbar = () => {
   const { theme } = useTheme();
   const { user, loading } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const axoraWordmark = theme === 'light' ? axoraWordmarkLight : axoraWordmarkDark;
+  const axivaWordmark = theme === 'light' ? axivaWordmarkLight : axivaWordmarkDark;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl safe-area-top">
@@ -20,7 +20,7 @@ const Navbar = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src={axoraWordmark} alt="AXORA" className="h-6 sm:h-7 w-auto" />
+            <img src={axivaWordmark} alt="AXIVA" className="h-6 sm:h-7 w-auto" />
           </Link>
 
           {/* Navigation Links - Desktop */}

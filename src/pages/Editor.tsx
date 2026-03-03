@@ -47,7 +47,7 @@ import {
   Layers,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import axoraWordmark from "@/assets/axora-wordmark-dark.svg";
+import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
 import {
   Dialog,
   DialogContent,
@@ -821,7 +821,7 @@ const Editor = () => {
       a.remove();
       URL.revokeObjectURL(url);
 
-      toast({ title: "PowerPoint exported", description: isPaid ? "Your .pptx file is downloading." : "Your .pptx file is downloading (with Axora watermark)." });
+      toast({ title: "PowerPoint exported", description: isPaid ? "Your .pptx file is downloading." : "Your .pptx file is downloading (with Axiva watermark)." });
     } catch (e) {
       console.error("PPTX export error:", e);
       toast({ title: "Export failed", description: "Could not generate PowerPoint file. Please try again.", variant: "destructive" });
@@ -977,7 +977,7 @@ const Editor = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="flex items-center gap-2 sm:gap-3">
-              <img src={axoraWordmark} alt="AXORA" className="h-4 w-auto hidden sm:block" />
+              <img src={axivaWordmark} alt="AXIVA" className="h-4 w-auto hidden sm:block" />
               <span className="text-muted-foreground hidden sm:inline">|</span>
               <input
                 className="font-semibold truncate max-w-[120px] sm:max-w-[200px] text-sm sm:text-base bg-transparent border-none outline-none focus:ring-1 focus:ring-primary/50 rounded px-1 -mx-1 cursor-text"

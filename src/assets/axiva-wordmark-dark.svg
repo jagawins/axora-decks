@@ -1,0 +1,10 @@
+<svg width="520" height="140" viewBox="0 0 520 140" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .serif { font-family: "Playfair Display","Times New Roman",serif; font-weight: 600; }
+    .sans  { font-family: "Inter","Helvetica Neue",Arial,sans-serif; font-weight: 800; }
+  </style>
+  <rect width="520" height="140" fill="#0B0B12"/>
+  <text x="10" y="96" font-size="86" fill="#FFFFFF" letter-spacing="6">
+    <tspan class="serif">A</tspan><tspan class="sans">XIVA</tspan>
+  </text>
+</svg>
