@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
-import { Badge } from '@/components/ui/badge';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Star, ArrowRight, Eye } from 'lucide-react';
+import { ArrowRight, Eye, Download, Sparkles, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { inferVisualCategory, getCategoryStyle } from './TemplateThumbnail';
 import { TemplatePreviewImage } from './TemplatePreviewImage';
@@ -16,6 +15,7 @@ interface TemplateCardProps {
   tags: string[];
   isFeatured: boolean;
   previewBlocks?: TemplateBlock[];
+  slideCount?: number;
   onSelect: (id: string) => void;
   onPreview?: (id: string) => void;
 }
@@ -28,12 +28,14 @@ export function TemplateCard({
   tags,
   isFeatured,
   previewBlocks,
+  slideCount,
   onSelect,
   onPreview,
 }: TemplateCardProps) {
   const visualCat = inferVisualCategory(category, tags);
   const style = getCategoryStyle(visualCat);
   const [isVisible, setIsVisible] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Lazy loading via IntersectionObserver
@@ -48,78 +50,73 @@ export function TemplateCard({
     return () => obs.disconnect();
   }, []);
 
-  const visibleTags = tags.slice(0, 3);
-  const extraTags = tags.length - 3;
+  const handlePreview = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onPreview?.(id);
+  }, [id, onPreview]);
+
+  const handleUse = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onSelect(id);
+  }, [id, onSelect]);
+
+  const effectiveSlideCount = slideCount || (previewBlocks?.length ?? 0);
 
   return (
     <div
       ref={cardRef}
       className={cn(
-        'group relative flex flex-col rounded-xl border bg-card overflow-hidden transition-all duration-200',
-        'hover:shadow-xl hover:scale-[1.02] hover:-translate-y-0.5',
+        'group relative flex flex-col rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer',
+        'bg-card border border-border/50',
+        'hover:shadow-2xl hover:shadow-black/8 hover:border-border hover:scale-[1.02] hover:-translate-y-1',
         isFeatured && 'ring-1 ring-accent/20'
       )}
-      style={{ borderColor: 'hsl(var(--border))' }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = style.accent + '60';
-        (e.currentTarget as HTMLDivElement).style.borderLeftWidth = '3px';
-        (e.currentTarget as HTMLDivElement).style.borderLeftColor = style.accent;
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = 'hsl(var(--border))';
-        (e.currentTarget as HTMLDivElement).style.borderLeftWidth = '1px';
-      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={handlePreview}
     >
-      {/* Featured badge */}
-      {isFeatured && (
-        <div className="absolute top-2 right-2 z-10">
-          <Badge variant="default" className="bg-accent text-accent-foreground gap-1 shadow-lg text-[10px] px-1.5 py-0.5">
-            <Star className="h-3 w-3 fill-current" />
-            Featured
-          </Badge>
-        </div>
-      )}
-
-      {/* Category badge */}
-      <div className="absolute top-2 left-2 z-10">
-        <Badge
-          className="text-[10px] px-1.5 py-0.5 font-bold text-white border-0"
-          style={{ backgroundColor: style.accent }}
-        >
-          {style.label}
-        </Badge>
-      </div>
-
-      {/* Thumbnail — real block preview with lazy loading */}
-      <div className="relative w-full">
+      {/* Preview Image — dominant area, YouExec style */}
+      <div className="relative w-full aspect-[16/10] overflow-hidden bg-muted/20">
         {isVisible && previewBlocks ? (
           <TemplatePreviewImage
             templateId={id}
             blocks={previewBlocks}
-            className="w-full h-[160px] rounded-none border-b border-border/50"
+            className="w-full h-full rounded-none border-0"
           />
         ) : (
-          <Skeleton className="w-full h-[160px] rounded-none" />
+          <Skeleton className="w-full h-full rounded-none" />
         )}
 
-        {/* Hover overlay with two actions */}
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-          {onPreview && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5 shadow-lg"
-              onClick={(e) => { e.stopPropagation(); onPreview(id); }}
-            >
-              <Eye className="h-3.5 w-3.5" />
-              Preview
-            </Button>
-          )}
+        {/* Featured spark — top left */}
+        {isFeatured && (
+          <div className="absolute top-3 left-3 z-10">
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/90 text-white text-[10px] font-semibold backdrop-blur-sm shadow-sm">
+              <Sparkles className="h-3 w-3" />
+              Featured
+            </div>
+          </div>
+        )}
+
+        {/* Hover overlay — clean centered actions */}
+        <div className={cn(
+          'absolute inset-0 flex items-center justify-center gap-3 transition-all duration-300',
+          isHovered
+            ? 'opacity-100 bg-black/50 backdrop-blur-[2px]'
+            : 'opacity-0 pointer-events-none'
+        )}>
           <Button
-            variant="hero"
+            variant="outline"
             size="sm"
-            className="gap-1.5 shadow-lg"
-            onClick={(e) => { e.stopPropagation(); onSelect(id); }}
+            className="gap-1.5 bg-white/95 hover:bg-white text-gray-900 border-0 shadow-lg rounded-full px-5 text-xs font-semibold"
+            onClick={handlePreview}
+          >
+            <Eye className="h-3.5 w-3.5" />
+            Preview
+          </Button>
+          <Button
+            size="sm"
+            className="gap-1.5 bg-accent hover:bg-accent/90 text-accent-foreground border-0 shadow-lg rounded-full px-5 text-xs font-semibold"
+            onClick={handleUse}
           >
             Use Template
             <ArrowRight className="h-3.5 w-3.5" />
@@ -127,29 +124,34 @@ export function TemplateCard({
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-4 flex-1 flex flex-col">
-        <div className="flex-1 min-h-0">
-          <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors line-clamp-1 text-sm">
-            {title}
-          </h3>
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
-            {description}
-          </p>
-        </div>
+      {/* Content — minimal, YouExec-style bottom section */}
+      <div className="px-4 py-3.5 flex flex-col gap-1.5 border-t border-border/30">
+        <h3 className="font-semibold text-foreground line-clamp-1 text-[15px] leading-tight tracking-tight group-hover:text-accent transition-colors">
+          {title}
+        </h3>
 
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1 mt-3">
-          {visibleTags.map((tag) => (
-            <Badge key={tag} variant="outline" className="text-[10px] px-1.5 py-0">
-              {tag}
-            </Badge>
-          ))}
-          {extraTags > 0 && (
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-              +{extraTags} more
-            </Badge>
+        {/* Meta row: Category · Slides · PPTX */}
+        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+          <span
+            className="font-semibold"
+            style={{ color: style.accent }}
+          >
+            {style.label}
+          </span>
+          {effectiveSlideCount > 0 && (
+            <>
+              <span className="opacity-30">·</span>
+              <span className="flex items-center gap-1">
+                <Layers className="h-3 w-3 opacity-60" />
+                {effectiveSlideCount} Slides
+              </span>
+            </>
           )}
+          <span className="opacity-30">·</span>
+          <span className="flex items-center gap-1">
+            <Download className="h-3 w-3 opacity-60" />
+            PPTX
+          </span>
         </div>
       </div>
     </div>
