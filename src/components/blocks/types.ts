@@ -216,10 +216,11 @@ export interface DecisionNextStepsPayload extends BaseBlockPayload {
 
 // Chart Block
 export interface ChartBlockPayload extends BaseBlockPayload {
-  chartType: 'bar' | 'line';
+  chartType: 'bar' | 'line' | 'donut' | 'area' | 'stacked_bar';
   data: Array<{ label: string; value: number; series?: string }>;
   xLabel?: string;
   yLabel?: string;
+  colors?: string[];
 }
 
 // Tabs Block
