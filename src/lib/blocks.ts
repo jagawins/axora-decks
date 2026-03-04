@@ -29,7 +29,8 @@ export type VisualBlockType =
   | "chart_block"
   | "tabs_block"
   | "toggle_block"
-  | "kpi_dashboard";
+  | "kpi_dashboard"
+  | "relationship_matrix";
 
 // Decision block types (Decision Layer)
 export type DecisionBlockType =
@@ -61,6 +62,7 @@ export const VISUAL_BLOCK_TYPES: VisualBlockType[] = [
   "tabs_block",
   "toggle_block",
   "kpi_dashboard",
+  "relationship_matrix",
 ];
 
 // Decision block type array for runtime checks
@@ -926,6 +928,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   tabs_block: "Tabs",
   toggle_block: "Toggle",
   kpi_dashboard: "KPI Dashboard",
+  relationship_matrix: "Relationship Matrix",
   // Decision blocks
   decision_summary: "Decision Summary",
   evidence_map: "Evidence Map",

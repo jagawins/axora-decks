@@ -64,6 +64,7 @@ const VISUAL_BLOCK_PURPOSE_MAP: Record<VisualBlockType, BlockPurpose> = {
   tabs_block: "context",
   toggle_block: "decision",
   kpi_dashboard: "proof",
+  relationship_matrix: "context",
 };
 
 // Purpose detection patterns for basic blocks

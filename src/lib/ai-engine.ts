@@ -22,7 +22,8 @@ export type VisualBlockType =
   | "chart_block"
   | "tabs_block"
   | "toggle_block"
-  | "kpi_dashboard";
+  | "kpi_dashboard"
+  | "relationship_matrix";
 
 // Decision block types (Decision Layer)
 export type DecisionBlockType =

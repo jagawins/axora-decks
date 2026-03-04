@@ -239,6 +239,16 @@ export interface ToggleBlockPayload extends BaseBlockPayload {
   defaultState?: 'a' | 'b';
 }
 
+// Relationship Matrix Block
+export interface RelationshipMatrixPayload extends BaseBlockPayload {
+  labels: string[];
+  relationships: Array<{
+    row: number;
+    col: number;
+    type: 'confirmed' | 'suspected' | 'key';
+  }>;
+}
+
 // KPI Dashboard Block
 export interface KpiDashboardPayload extends BaseBlockPayload {
   cards: Array<{
@@ -276,7 +286,8 @@ export type VisualBlockPayload =
   | ChartBlockPayload
   | TabsBlockPayload
   | ToggleBlockPayload
-  | KpiDashboardPayload;
+  | KpiDashboardPayload
+  | RelationshipMatrixPayload;
 
 // Visual block type names
 export type VisualBlockType =
@@ -298,7 +309,8 @@ export type VisualBlockType =
   | 'chart_block'
   | 'tabs_block'
   | 'toggle_block'
-  | 'kpi_dashboard';
+  | 'kpi_dashboard'
+  | 'relationship_matrix';
 
 // Decision block type names
 export type DecisionBlockType =
