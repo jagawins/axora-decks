@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight, Check, X, Sparkles, Loader2, Shield, Zap,
-  BarChart3, FileText, Palette, Users, Lock, Download,
-  Layout, Image, MousePointerClick, Type, Eye
+  Users, Download, MessageSquare
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MarketingHeader from "@/components/MarketingHeader";
@@ -19,60 +18,63 @@ const FEATURE_CATEGORIES = [
   {
     category: "AI Generation",
     features: [
-      { name: "Full deck generations", free: "3 total", pro: "Unlimited", team: "Unlimited" },
-      { name: "AI block refinements", free: "Unlimited", pro: "Unlimited", team: "Unlimited" },
-      { name: "AI image generation", free: false, pro: true, team: true },
-      { name: "Smart content structuring (MECE)", free: true, pro: true, team: true },
-      { name: "Document import & conversion", free: "1 per day", pro: "Unlimited", team: "Unlimited" },
+      { name: "Full deck generations", free: "3 total", pro: "Unlimited", team: "Unlimited", enterprise: "Unlimited" },
+      { name: "AI block refinements", free: "Unlimited", pro: "Unlimited", team: "Unlimited", enterprise: "Unlimited" },
+      { name: "AI image generation", free: false, pro: true, team: true, enterprise: true },
+      { name: "Smart content structuring (MECE)", free: true, pro: true, team: true, enterprise: true },
+      { name: "Document import & conversion", free: "1 per day", pro: "Unlimited", team: "Unlimited", enterprise: "Unlimited" },
     ],
   },
   {
     category: "Templates & Themes",
     features: [
-      { name: "Starter templates", free: true, pro: true, team: true },
-      { name: "Premium templates", free: false, pro: true, team: true },
-      { name: "Custom themes (Ocean, Rose, Forest, Sunset…)", free: false, pro: true, team: true },
-      { name: "Brand Kit (fonts, colors, logo)", free: false, pro: true, team: true },
-      { name: "Custom heading & body fonts", free: false, pro: true, team: true },
+      { name: "Starter templates", free: true, pro: true, team: true, enterprise: true },
+      { name: "Premium templates", free: false, pro: true, team: true, enterprise: true },
+      { name: "Custom themes (Ocean, Rose, Forest, Sunset…)", free: false, pro: true, team: true, enterprise: true },
+      { name: "Brand Kit (fonts, colors, logo)", free: false, pro: true, team: true, enterprise: true },
+      { name: "Custom heading & body fonts", free: false, pro: true, team: true, enterprise: true },
     ],
   },
   {
     category: "Blocks & Interactivity",
     features: [
-      { name: "25+ executive block types", free: true, pro: true, team: true },
-      { name: "Interactive blocks (Tabs, Toggle, Reveal)", free: false, pro: true, team: true },
-      { name: "Charts & data visualization", free: false, pro: true, team: true },
-      { name: "Decision frameworks & matrices", free: false, pro: true, team: true },
-      { name: "Quick AI actions (Shorter, Visual, Decision)", free: false, pro: true, team: true },
+      { name: "25+ executive block types", free: true, pro: true, team: true, enterprise: true },
+      { name: "Interactive blocks (Tabs, Toggle, Reveal)", free: false, pro: true, team: true, enterprise: true },
+      { name: "Charts & data visualization", free: false, pro: true, team: true, enterprise: true },
+      { name: "Decision frameworks & matrices", free: false, pro: true, team: true, enterprise: true },
+      { name: "Quick AI actions (Shorter, Visual, Decision)", free: false, pro: true, team: true, enterprise: true },
     ],
   },
   {
     category: "Presentation & Sharing",
     features: [
-      { name: "Deck mode (16:9 canvas)", free: true, pro: true, team: true },
-      { name: "Document mode (scroll)", free: true, pro: true, team: true },
-      { name: "Presenter view (dual-pane)", free: false, pro: true, team: true },
-      { name: "Share with passcode protection", free: false, pro: true, team: true },
-      { name: "Slide-level analytics", free: false, pro: true, team: true },
+      { name: "Deck mode (16:9 canvas)", free: true, pro: true, team: true, enterprise: true },
+      { name: "Document mode (scroll)", free: true, pro: true, team: true, enterprise: true },
+      { name: "Presenter view (dual-pane)", free: false, pro: true, team: true, enterprise: true },
+      { name: "Share with passcode protection", free: false, pro: true, team: true, enterprise: true },
+      { name: "Slide-level analytics", free: false, pro: true, team: true, enterprise: true },
     ],
   },
   {
     category: "Export",
     features: [
-      { name: "PNG export", free: true, pro: true, team: true },
-      { name: "PDF export", free: false, pro: true, team: true },
-      { name: "PowerPoint (.pptx) export", free: false, pro: true, team: true },
-      { name: "Web link sharing", free: true, pro: true, team: true },
+      { name: "PNG export", free: true, pro: true, team: true, enterprise: true },
+      { name: "PDF export", free: false, pro: true, team: true, enterprise: true },
+      { name: "PowerPoint (.pptx) export", free: false, pro: true, team: true, enterprise: true },
+      { name: "Web link sharing", free: true, pro: true, team: true, enterprise: true },
     ],
   },
   {
     category: "Workspace & Team",
     features: [
-      { name: "Projects", free: "10", pro: "Unlimited", team: "Unlimited" },
-      { name: "Workspace settings", free: false, pro: true, team: true },
-      { name: "Shared workspaces", free: false, pro: false, team: true },
-      { name: "Centralized billing", free: false, pro: false, team: true },
-      { name: "Admin dashboard & governance", free: false, pro: false, team: true },
+      { name: "Projects", free: "10", pro: "Unlimited", team: "Unlimited", enterprise: "Unlimited" },
+      { name: "Workspace settings", free: false, pro: true, team: true, enterprise: true },
+      { name: "Shared workspaces", free: false, pro: false, team: true, enterprise: true },
+      { name: "Centralized billing", free: false, pro: false, team: true, enterprise: true },
+      { name: "Admin dashboard & governance", free: false, pro: false, team: true, enterprise: true },
+      { name: "SSO & SAML", free: false, pro: false, team: false, enterprise: true },
+      { name: "Custom integrations & API", free: false, pro: false, team: false, enterprise: true },
+      { name: "Dedicated account manager", free: false, pro: false, team: false, enterprise: true },
     ],
   },
 ];
@@ -183,9 +185,32 @@ const Pricing = () => {
       hasTrial: true,
       icon: Users,
     },
+    {
+      name: "Enterprise",
+      description: "Custom solutions at scale",
+      monthlyPrice: "Custom",
+      yearlyPrice: "Custom",
+      highlights: [
+        "Everything in Team",
+        "SSO & SAML authentication",
+        "Dedicated account manager",
+        "Custom integrations & API",
+        "SLA & uptime guarantee",
+        "On-premise deployment option",
+      ],
+      cta: "Contact Sales",
+      featured: false,
+      tier: "enterprise" as const,
+      perUser: false,
+      icon: Shield,
+    },
   ];
 
-  const handlePlanClick = async (tier: "free" | "pro" | "team") => {
+  const handlePlanClick = async (tier: "free" | "pro" | "team" | "enterprise") => {
+    if (tier === "enterprise") {
+      window.location.href = "mailto:jagawins@gmail.com?subject=AXIVA Enterprise Inquiry";
+      return;
+    }
     if (!user) {
       navigate("/auth");
       return;
@@ -279,8 +304,8 @@ const Pricing = () => {
 
         {/* ═══ Pricing Cards ═══ */}
         <section className="py-16">
-          <div className="container-narrow">
-            <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+          <div className="container-wide">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
               {plans.map((plan, i) => {
                 const isCurrentPlan = user && subscription.tier === plan.tier;
                 const Icon = plan.icon;
@@ -318,10 +343,12 @@ const Pricing = () => {
 
                     <div className="mb-1">
                       <span className="text-4xl font-bold">{isAnnual ? plan.yearlyPrice : plan.monthlyPrice}</span>
-                      <span className="text-muted-foreground text-sm">
-                        /{isAnnual ? "year" : "month"}
-                        {plan.perUser && "/user"}
-                      </span>
+                      {plan.tier !== "enterprise" && (
+                        <span className="text-muted-foreground text-sm">
+                          /{isAnnual ? "year" : "month"}
+                          {plan.perUser && "/user"}
+                        </span>
+                      )}
                     </div>
 
                     {isAnnual && plan.yearlySavings && (
@@ -381,13 +408,14 @@ const Pricing = () => {
               <table className="w-full min-w-[700px]">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-4 px-4 text-sm font-medium text-muted-foreground w-[40%]">Feature</th>
-                    <th className="text-center py-4 px-4 text-sm font-bold w-[20%]">Free</th>
-                    <th className="text-center py-4 px-4 text-sm font-bold text-accent w-[20%]">
+                    <th className="text-left py-4 px-4 text-sm font-medium text-muted-foreground w-[35%]">Feature</th>
+                    <th className="text-center py-4 px-4 text-sm font-bold w-[16%]">Free</th>
+                    <th className="text-center py-4 px-4 text-sm font-bold text-accent w-[16%]">
                       Pro
                       <span className="block text-xs font-normal text-muted-foreground">Most popular</span>
                     </th>
-                    <th className="text-center py-4 px-4 text-sm font-bold w-[20%]">Team</th>
+                    <th className="text-center py-4 px-4 text-sm font-bold w-[16%]">Team</th>
+                    <th className="text-center py-4 px-4 text-sm font-bold w-[16%]">Enterprise</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -404,6 +432,7 @@ const Pricing = () => {
                           <td className="py-3 px-4 text-center">{renderFeatureValue(f.free)}</td>
                           <td className="py-3 px-4 text-center bg-accent/[0.02]">{renderFeatureValue(f.pro)}</td>
                           <td className="py-3 px-4 text-center">{renderFeatureValue(f.team)}</td>
+                          <td className="py-3 px-4 text-center">{renderFeatureValue((f as any).enterprise)}</td>
                         </tr>
                       ))}
                     </>
