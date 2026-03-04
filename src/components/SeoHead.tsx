@@ -18,7 +18,7 @@ const SeoHead = ({
   description,
   canonicalPath,
   keywords,
-  ogImage = "/og-image.png",
+  ogImage = "/og-image-axiva.png",
   ogType = "website",
   articlePublishedTime,
   articleAuthor,
