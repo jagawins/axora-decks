@@ -239,6 +239,19 @@ export interface ToggleBlockPayload extends BaseBlockPayload {
   defaultState?: 'a' | 'b';
 }
 
+// KPI Dashboard Block
+export interface KpiDashboardPayload extends BaseBlockPayload {
+  cards: Array<{
+    title: string;
+    value: string;
+    change?: string;
+    trend?: 'up' | 'down' | 'neutral';
+    chartType?: 'bar' | 'area' | 'donut';
+    chartData?: number[];
+    color?: string;
+  }>;
+}
+
 // Union type for all visual block payloads
 export type VisualBlockPayload =
   | StatBlockPayload
@@ -262,7 +275,8 @@ export type VisualBlockPayload =
   | DecisionNextStepsPayload
   | ChartBlockPayload
   | TabsBlockPayload
-  | ToggleBlockPayload;
+  | ToggleBlockPayload
+  | KpiDashboardPayload;
 
 // Visual block type names
 export type VisualBlockType =
@@ -283,7 +297,8 @@ export type VisualBlockType =
   | 'decision_next_steps'
   | 'chart_block'
   | 'tabs_block'
-  | 'toggle_block';
+  | 'toggle_block'
+  | 'kpi_dashboard';
 
 // Decision block type names
 export type DecisionBlockType =

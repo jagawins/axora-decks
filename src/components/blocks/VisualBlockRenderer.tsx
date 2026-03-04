@@ -34,6 +34,7 @@ import { ThreePillars } from './ThreePillars';
 import { TwoByTwoMatrix } from './TwoByTwoMatrix';
 import { DecisionNextSteps } from './DecisionNextSteps';
 import { ChartBlock } from './ChartBlock';
+import { KpiDashboard } from './KpiDashboard';
 
 // Interactive block components
 import { TabsBlock } from './TabsBlock';
@@ -62,6 +63,7 @@ import type {
   ChartBlockPayload,
   TabsBlockPayload,
   ToggleBlockPayload,
+  KpiDashboardPayload,
 } from '@/components/blocks/types';
 
 interface VisualBlockRendererProps {
@@ -143,6 +145,8 @@ export function VisualBlockRenderer({
       return <DecisionNextSteps payload={payload as unknown as DecisionNextStepsPayload} readOnly={readOnly} className={className} />;
     case 'chart_block':
       return <ChartBlock payload={payload as unknown as ChartBlockPayload} readOnly={readOnly} className={className} />;
+    case 'kpi_dashboard':
+      return <KpiDashboard payload={payload as unknown as KpiDashboardPayload} readOnly={readOnly} className={className} />;
     
     // Interactive block types
     case 'tabs_block':

@@ -26,7 +26,8 @@ export type VisualBlockType =
   | 'decision_next_steps'
   | 'chart_block'
   | 'tabs_block'
-  | 'toggle_block';
+  | 'toggle_block'
+  | 'kpi_dashboard';
 
 // Decision block types (Decision Layer)
 export type DecisionBlockType =

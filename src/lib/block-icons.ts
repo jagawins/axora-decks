@@ -31,6 +31,7 @@ import {
   ListChecks,
   PanelTop,
   ToggleLeft,
+  Gauge,
 } from "lucide-react";
 import { BlockType } from "./blocks";
 
@@ -64,6 +65,7 @@ export const BLOCK_ICONS: Record<BlockType, LucideIcon> = {
   chart_block: BarChart3,
   tabs_block: PanelTop,
   toggle_block: ToggleLeft,
+  kpi_dashboard: Gauge,
   // Decision blocks
   decision_summary: HelpCircle,
   evidence_map: MapPin,
