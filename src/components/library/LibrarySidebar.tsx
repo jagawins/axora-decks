@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { UsageMeter } from "@/components/UsageMeter";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -116,42 +117,22 @@ export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }:
       </nav>
 
       {/* Subscription status */}
-      <div className="p-4 border-t border-border">
-        <div className="glass-card p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            {subscription.tier === 'team' && <Crown className="h-4 w-4 text-success" />}
-            <span className={cn(
-              "text-xs font-medium uppercase tracking-wider",
-              subscription.tier === 'team' 
-                ? "text-success" 
-                : subscription.tier === 'pro' 
-                  ? "text-accent" 
-                  : "text-muted-foreground"
-            )}>
-              {subscription.tier} Plan
-            </span>
-          </div>
-          {subscription.subscribed ? (
+      {/* Usage meter & plan status */}
+      <div className="border-t border-border">
+        <UsageMeter />
+        {subscription.subscribed && (
+          <div className="px-4 pb-3">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="w-full justify-start" 
+              className="w-full justify-start text-xs" 
               onClick={onManageSubscription}
             >
-              <CreditCard className="h-4 w-4 mr-2" />
+              <CreditCard className="h-3.5 w-3.5 mr-2" />
               Manage Subscription
             </Button>
-          ) : (
-            <Button 
-              variant="hero-outline" 
-              size="sm" 
-              className="w-full"
-              onClick={() => onTabChange('upgrade')}
-            >
-              Upgrade to Pro
-            </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </aside>
   );

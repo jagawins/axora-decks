@@ -68,6 +68,7 @@ import { CreateDeckModal } from "@/components/CreateDeckModal";
 import { ImportContentModal } from "@/components/ImportContentModal";
 import { ApplyTemplateModal } from "@/components/ApplyTemplateModal";
 import { UpgradeGateModal, canGenerateDeck, incrementDeckGenCount } from "@/components/UpgradeGateModal";
+import { PostGenBanner } from "@/components/PostGenBanner";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { Badge } from "@/components/ui/badge";
 import { getTemplateById } from "@/lib/block-templates";
@@ -179,6 +180,7 @@ const Editor = () => {
   const [beforeAfterMode, setBeforeAfterMode] = useState<"after" | "before">("after");
   const [recentBadges, setRecentBadges] = useState<Record<string, string>>({});
   const [upgradeGateOpen, setUpgradeGateOpen] = useState(false);
+  const [showPostGenBanner, setShowPostGenBanner] = useState(false);
   const [upgradeGateFeature, setUpgradeGateFeature] = useState<string | undefined>();
   const [clarityScore, setClarityScore] = useState<number | null>(null);
   const [stressTestTrigger, setStressTestTrigger] = useState<string | null>(null);
@@ -610,6 +612,11 @@ const Editor = () => {
       setCreateDeckOpen(false);
       incrementDeckGenCount();
 
+      // Show post-generation upgrade nudge for free users
+      if (subscription.tier === "free") {
+        setShowPostGenBanner(true);
+      }
+
       await saveBlocksAndNavigate(newBlocks);
 
       // Async hero image enrichment (non-blocking)
@@ -790,11 +797,12 @@ const Editor = () => {
   const exportPptx = async () => {
     if (!projectId) return;
 
-    // Show upgrade prompt for free users (but still allow export with watermark)
+    // Show upgrade prompt for free users — hard gate (no watermarked download)
     const isPaid = subscription.subscribed && subscription.tier !== 'free';
     if (!isPaid) {
       setUpgradeGateFeature("PowerPoint Export");
       setUpgradeGateOpen(true);
+      return; // Block export for free users — key conversion point
     }
 
     setPptxLoading(true);
@@ -1739,6 +1747,11 @@ const Editor = () => {
 
       {/* Upgrade Gate Modal */}
       <UpgradeGateModal open={upgradeGateOpen} onOpenChange={setUpgradeGateOpen} feature={upgradeGateFeature} />
+      <PostGenBanner
+        visible={showPostGenBanner}
+        onDismiss={() => setShowPostGenBanner(false)}
+        slideCount={blocks.length}
+      />
 
       {/* Export Polish Overlay */}
       <Dialog open={exportOverlayOpen} onOpenChange={() => {}}>
