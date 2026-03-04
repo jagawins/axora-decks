@@ -21,6 +21,7 @@ import { SUBSCRIPTION_TIERS, getProjectLimit } from '@/lib/subscription';
 import { fetchTemplates, Template } from '@/lib/templates';
 import { FirstDeckModal } from '@/components/FirstDeckModal';
 import { BrandKitCard } from '@/components/dashboard/BrandKitCard';
+import InfographicGenerator from '@/components/infographics/InfographicGenerator';
 
 interface Project {
   id: string;
@@ -36,6 +37,75 @@ interface Project {
 
 interface Profile {
   name: string | null;
+}
+
+/* ── Templates sub-tabs (Templates | AI Infographics) ─────────── */
+function DashboardTemplatesTabs({
+  templates,
+  templatesLoading,
+  onRefreshTemplates,
+}: {
+  templates: Template[];
+  templatesLoading: boolean;
+  onRefreshTemplates: () => Promise<void>;
+}) {
+  const [subTab, setSubTab] = useState<'templates' | 'infographics'>('templates');
+
+  return (
+    <>
+      <div className="flex items-center gap-1 border-b border-border -mt-2">
+        <button
+          onClick={() => setSubTab('templates')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors relative ${
+            subTab === 'templates' ? 'text-accent' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <FileText className="h-4 w-4" />
+          Templates
+          {subTab === 'templates' && (
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent rounded-t-full" />
+          )}
+        </button>
+        <button
+          onClick={() => setSubTab('infographics')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors relative ${
+            subTab === 'infographics' ? 'text-accent' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <Sparkles className="h-4 w-4" />
+          AI Infographics
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent uppercase">
+            BETA
+          </span>
+          {subTab === 'infographics' && (
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent rounded-t-full" />
+          )}
+        </button>
+      </div>
+
+      {subTab === 'templates' && (
+        <div className="space-y-4">
+          <div>
+            <h1 className="text-2xl font-bold">Templates</h1>
+            <p className="text-muted-foreground max-w-2xl mt-1">
+              Professional templates for every use case. Click any template to create a new deck with pre-built content.
+            </p>
+          </div>
+          <TemplatesGrid
+            templates={templates}
+            loading={templatesLoading}
+            onRefresh={onRefreshTemplates}
+          />
+        </div>
+      )}
+
+      {subTab === 'infographics' && (
+        <div className="py-4">
+          <InfographicGenerator />
+        </div>
+      )}
+    </>
+  );
 }
 
 const Dashboard = () => {
@@ -565,14 +635,23 @@ const Dashboard = () => {
 
           {sidebarTab === 'templates' && (
             <div className="space-y-6">
-              <h1 className="text-2xl font-bold">Templates</h1>
-              <p className="text-muted-foreground max-w-2xl">
-                Professional templates for every use case. Click any template to create a new deck with pre-built content.
-              </p>
-              <TemplatesGrid 
-                templates={templates} 
-                loading={templatesLoading} 
-                onRefresh={async () => {
+              {/* Sub-tabs: Templates | AI Infographics */}
+              <div className="flex items-center gap-1 border-b border-border">
+                <button
+                  onClick={() => {
+                    const el = document.getElementById('tmpl-subtab');
+                    if (el) el.dataset.tab = 'templates';
+                    // Force re-render via a state the component already has
+                    setTemplatesLoading((v) => v);
+                  }}
+                  className="hidden"
+                  id="tmpl-templates-btn"
+                />
+              </div>
+              <DashboardTemplatesTabs
+                templates={templates}
+                templatesLoading={templatesLoading}
+                onRefreshTemplates={async () => {
                   setTemplatesLoading(true);
                   try {
                     const data = await fetchTemplates();
