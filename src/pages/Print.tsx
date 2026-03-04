@@ -108,14 +108,16 @@ export default function Print() {
         {blocks.map((b, i) => (
           <div
             key={b.id}
-            className="slide-page bg-[var(--deck-bg)] text-[var(--deck-fg)] rounded-xl border border-[var(--deck-border)] shadow-xl p-12 flex flex-col items-center justify-center"
+            className="slide-page bg-[var(--deck-bg)] text-[var(--deck-fg)] rounded-xl border border-[var(--deck-border)] shadow-xl overflow-hidden flex flex-col"
           >
-            <p className="screen-only text-sm text-[var(--deck-muted)] mb-4">Slide {i + 1}</p>
-            <div className="flex-1 flex items-center justify-center w-full">
-              <VisualBlockRenderer
-                block={{ type: b.type as any, content: b.content as any } as any}
-                readOnly
-              />
+            <p className="screen-only text-sm text-[var(--deck-muted)] px-6 pt-4 pb-0">Slide {i + 1}</p>
+            <div className="flex-1 flex items-center justify-center w-full p-8 overflow-hidden">
+              <div className="slide-content-wrapper w-full h-full flex items-center justify-center">
+                <VisualBlockRenderer
+                  block={{ type: b.type as any, content: b.content as any } as any}
+                  readOnly
+                />
+              </div>
             </div>
           </div>
         ))}
@@ -129,6 +131,9 @@ export default function Print() {
             margin: 0 auto;
           }
           .screen-only { display: block; }
+          .slide-content-wrapper {
+            container-type: inline-size;
+          }
         }
         @media print {
           .screen-only { display: none !important; }
@@ -141,12 +146,37 @@ export default function Print() {
             box-shadow: none !important;
             border-radius: 0 !important;
             aspect-ratio: auto;
+            width: 100%;
             height: 7.5in;
             margin: 0;
+            padding: 0.4in;
             max-width: none;
+            overflow: hidden;
           }
           .slide-page:last-child {
             page-break-after: avoid;
+          }
+          .slide-content-wrapper {
+            max-height: 100%;
+            overflow: hidden;
+          }
+          /* Scale down content that overflows the slide */
+          .slide-content-wrapper > * {
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+          }
+          /* Tables should shrink to fit */
+          table {
+            font-size: 0.85em;
+            width: 100% !important;
+            table-layout: fixed;
+          }
+          /* Prevent large text from overflowing */
+          h1, h2, h3, h4 {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            hyphens: auto;
           }
           @page {
             size: letter landscape;
