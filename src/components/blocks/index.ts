@@ -31,6 +31,7 @@ export { ThreePillars } from './ThreePillars';
 export { TwoByTwoMatrix } from './TwoByTwoMatrix';
 export { DecisionNextSteps } from './DecisionNextSteps';
 export { ChartBlock } from './ChartBlock';
+export { FlowDiagram } from './FlowDiagram';
 
 // Interactive Block Components
 export { TabsBlock } from './TabsBlock';

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -63,6 +63,14 @@ export function TemplatePreviewModal({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showBrand, setShowBrand] = useState(false);
 
+  // Slide transition direction tracking
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Touch swipe refs
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
   // Check if brand kit exists
   const hasBrandKit = useMemo(() => {
     try {
@@ -85,8 +93,25 @@ export function TemplatePreviewModal({
   const slides = useMemo(() => chunkBlocks(allBlocks), [allBlocks]);
   const totalSlides = slides.length;
 
-  const goNext = useCallback(() => setCurrentSlide((p) => Math.min(p + 1, totalSlides - 1)), [totalSlides]);
-  const goPrev = useCallback(() => setCurrentSlide((p) => Math.max(p - 1, 0)), []);
+  const goNext = useCallback(() => {
+    if (isTransitioning) return;
+    setSlideDirection('right');
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentSlide((p) => Math.min(p + 1, totalSlides - 1));
+      setIsTransitioning(false);
+    }, 150);
+  }, [totalSlides, isTransitioning]);
+
+  const goPrev = useCallback(() => {
+    if (isTransitioning) return;
+    setSlideDirection('left');
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentSlide((p) => Math.max(p - 1, 0));
+      setIsTransitioning(false);
+    }, 150);
+  }, [isTransitioning]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -99,6 +124,31 @@ export function TemplatePreviewModal({
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [open, goNext, goPrev, onClose]);
+
+  // Touch swipe handlers
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+
+    // Only trigger if horizontal swipe is dominant and > 50px
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+      if (deltaX < 0 && currentSlide < totalSlides - 1) {
+        goNext();
+      } else if (deltaX > 0 && currentSlide > 0) {
+        goPrev();
+      }
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+  }, [currentSlide, totalSlides, goNext, goPrev]);
 
   if (!template) return null;
 
@@ -116,6 +166,13 @@ export function TemplatePreviewModal({
       }
     } catch { /* ignore */ }
   }
+
+  // Transition classes for slide content
+  const slideTransformClass = isTransitioning
+    ? slideDirection === 'right'
+      ? 'opacity-0 translate-x-4'
+      : 'opacity-0 -translate-x-4'
+    : 'opacity-100 translate-x-0';
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -158,7 +215,11 @@ export function TemplatePreviewModal({
         </div>
 
         {/* Slide Area */}
-        <div className="flex-1 flex items-center justify-center px-4 py-6 relative min-h-0">
+        <div
+          className="flex-1 flex items-center justify-center px-4 py-6 relative min-h-0"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           {loading ? (
             <Loader2 className="h-8 w-8 animate-spin text-accent" />
           ) : slides.length > 0 ? (
@@ -173,8 +234,13 @@ export function TemplatePreviewModal({
                 </button>
               )}
 
-              {/* Slide */}
-              <div className="w-full max-w-4xl mx-auto">
+              {/* Slide with transition */}
+              <div
+                className={cn(
+                  'w-full max-w-4xl mx-auto transition-all duration-200 ease-out',
+                  slideTransformClass
+                )}
+              >
                 <TemplatePreview
                   blocks={slides[currentSlide]}
                   className="shadow-lg"
@@ -212,16 +278,18 @@ export function TemplatePreviewModal({
             )}
           </div>
 
-          {/* Mobile slide dots */}
-          {isMobile && totalSlides > 1 && (
+          {/* Slide dots (mobile + desktop) */}
+          {totalSlides > 1 && (
             <div className="flex gap-1.5">
               {slides.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentSlide(i)}
                   className={cn(
-                    'w-2 h-2 rounded-full transition-colors',
-                    i === currentSlide ? 'bg-accent' : 'bg-muted-foreground/30'
+                    'w-2 h-2 rounded-full transition-all duration-200',
+                    i === currentSlide
+                      ? 'bg-accent scale-125'
+                      : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
                   )}
                 />
               ))}

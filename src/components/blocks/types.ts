@@ -249,6 +249,19 @@ export interface RelationshipMatrixPayload extends BaseBlockPayload {
   }>;
 }
 
+// Flow Diagram Block (Deloitte governance-style)
+export interface FlowDiagramPayload extends BaseBlockPayload {
+  columns: Array<{
+    title: string;
+    color: string;
+    items: Array<{
+      title: string;
+      subtitle?: string;
+    }>;
+  }>;
+  connector?: 'bridge' | 'arrows' | 'line';
+}
+
 // KPI Dashboard Block
 export interface KpiDashboardPayload extends BaseBlockPayload {
   cards: Array<{
@@ -287,7 +300,8 @@ export type VisualBlockPayload =
   | TabsBlockPayload
   | ToggleBlockPayload
   | KpiDashboardPayload
-  | RelationshipMatrixPayload;
+  | RelationshipMatrixPayload
+  | FlowDiagramPayload;
 
 // Visual block type names
 export type VisualBlockType =
@@ -310,7 +324,8 @@ export type VisualBlockType =
   | 'tabs_block'
   | 'toggle_block'
   | 'kpi_dashboard'
-  | 'relationship_matrix';
+  | 'relationship_matrix'
+  | 'flow_diagram';
 
 // Decision block type names
 export type DecisionBlockType =

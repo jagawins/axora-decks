@@ -36,6 +36,7 @@ import { DecisionNextSteps } from './DecisionNextSteps';
 import { ChartBlock } from './ChartBlock';
 import { KpiDashboard } from './KpiDashboard';
 import { RelationshipMatrix } from './RelationshipMatrix';
+import { FlowDiagram } from './FlowDiagram';
 
 // Interactive block components
 import { TabsBlock } from './TabsBlock';
@@ -66,6 +67,7 @@ import type {
   ToggleBlockPayload,
   KpiDashboardPayload,
   RelationshipMatrixPayload,
+  FlowDiagramPayload,
 } from '@/components/blocks/types';
 
 interface VisualBlockRendererProps {
@@ -151,6 +153,8 @@ export function VisualBlockRenderer({
       return <KpiDashboard payload={payload as unknown as KpiDashboardPayload} readOnly={readOnly} className={className} />;
     case 'relationship_matrix':
       return <RelationshipMatrix payload={payload as unknown as RelationshipMatrixPayload} readOnly={readOnly} className={className} />;
+    case 'flow_diagram':
+      return <FlowDiagram payload={payload as unknown as FlowDiagramPayload} readOnly={readOnly} className={className} />;
     
     // Interactive block types
     case 'tabs_block':
