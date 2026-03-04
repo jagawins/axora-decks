@@ -1,6 +1,6 @@
 /**
  * Chart Block Component
- * Renders Recharts BarChart or LineChart from numeric data
+ * Renders Recharts BarChart, LineChart, AreaChart, PieChart (donut), or stacked bar
  */
 
 import {
@@ -9,6 +9,11 @@ import {
   Bar,
   LineChart,
   Line,
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   Tooltip,
@@ -17,12 +22,145 @@ import {
 import type { ChartBlockPayload } from './types';
 import type { VisualBlockProps } from './types';
 
+const DEFAULT_COLORS = ['#14b8a6', '#06b6d4', '#0ea5e9', '#6366f1', '#8b5cf6'];
+
 export function ChartBlock({ payload, className = '' }: VisualBlockProps<ChartBlockPayload>) {
-  const { chartType = 'bar', data = [], title, xLabel, yLabel } = payload;
+  const { chartType = 'bar', data = [], title, xLabel, yLabel, colors } = payload;
 
   if (!data.length) return null;
 
+  const palette = colors?.length ? colors : DEFAULT_COLORS;
   const chartData = data.map((d) => ({ name: d.label, value: d.value }));
+
+  const axisProps = {
+    x: {
+      dataKey: 'name' as const,
+      tick: { fill: 'hsl(var(--muted-foreground))', fontSize: 12 },
+      label: xLabel ? { value: xLabel, position: 'insideBottom' as const, offset: -5, fill: 'hsl(var(--muted-foreground))' } : undefined,
+    },
+    y: {
+      tick: { fill: 'hsl(var(--muted-foreground))', fontSize: 12 },
+      label: yLabel ? { value: yLabel, angle: -90, position: 'insideLeft' as const, fill: 'hsl(var(--muted-foreground))' } : undefined,
+    },
+  };
+
+  const tooltipStyle = {
+    backgroundColor: 'hsl(var(--card))',
+    border: '1px solid hsl(var(--border))',
+    borderRadius: '8px',
+    color: 'hsl(var(--foreground))',
+  };
+
+  const renderChart = () => {
+    switch (chartType) {
+      case 'donut': {
+        return (
+          <PieChart>
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              innerRadius="55%"
+              outerRadius="80%"
+              paddingAngle={3}
+              strokeWidth={0}
+            >
+              {chartData.map((_, i) => (
+                <Cell key={i} fill={palette[i % palette.length]} />
+              ))}
+            </Pie>
+            <Tooltip contentStyle={tooltipStyle} />
+          </PieChart>
+        );
+      }
+
+      case 'area': {
+        return (
+          <AreaChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis {...axisProps.x} />
+            <YAxis {...axisProps.y} />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke={palette[0]}
+              fill={palette[0]}
+              fillOpacity={0.15}
+              strokeWidth={2}
+            />
+          </AreaChart>
+        );
+      }
+
+      case 'stacked_bar': {
+        const total = data.reduce((s, d) => s + d.value, 0);
+        return (
+          <div className="flex flex-col gap-3 w-full h-full justify-center">
+            <div className="flex w-full h-8 rounded-lg overflow-hidden">
+              {data.map((d, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: `${(d.value / total) * 100}%`,
+                    backgroundColor: palette[i % palette.length],
+                  }}
+                  className="transition-all"
+                  title={`${d.label}: ${d.value}`}
+                />
+              ))}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+              {data.map((d, i) => (
+                <div key={i} className="flex items-center gap-1.5">
+                  <span
+                    className="w-2.5 h-2.5 rounded-sm shrink-0"
+                    style={{ backgroundColor: palette[i % palette.length] }}
+                  />
+                  <span className="text-[var(--deck-fg,hsl(var(--muted-foreground)))] truncate">
+                    {d.label} ({Math.round((d.value / total) * 100)}%)
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      case 'line': {
+        return (
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis {...axisProps.x} />
+            <YAxis {...axisProps.y} />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="hsl(var(--primary))"
+              strokeWidth={2}
+              dot={{ fill: 'hsl(var(--primary))', r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+          </LineChart>
+        );
+      }
+
+      default: {
+        return (
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis {...axisProps.x} />
+            <YAxis {...axisProps.y} />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        );
+      }
+    }
+  };
+
+  const needsResponsive = chartType !== 'stacked_bar';
 
   return (
     <div className={`space-y-3 ${className}`}>
@@ -32,64 +170,13 @@ export function ChartBlock({ payload, className = '' }: VisualBlockProps<ChartBl
         </h3>
       )}
       <div className="w-full h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          {chartType === 'line' ? (
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis
-                dataKey="name"
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                label={xLabel ? { value: xLabel, position: 'insideBottom', offset: -5, fill: 'hsl(var(--muted-foreground))' } : undefined}
-              />
-              <YAxis
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                label={yLabel ? { value: yLabel, angle: -90, position: 'insideLeft', fill: 'hsl(var(--muted-foreground))' } : undefined}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  color: 'hsl(var(--foreground))',
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke="hsl(var(--primary))"
-                strokeWidth={2}
-                dot={{ fill: 'hsl(var(--primary))', r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          ) : (
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis
-                dataKey="name"
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                label={xLabel ? { value: xLabel, position: 'insideBottom', offset: -5, fill: 'hsl(var(--muted-foreground))' } : undefined}
-              />
-              <YAxis
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                label={yLabel ? { value: yLabel, angle: -90, position: 'insideLeft', fill: 'hsl(var(--muted-foreground))' } : undefined}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  color: 'hsl(var(--foreground))',
-                }}
-              />
-              <Bar
-                dataKey="value"
-                fill="hsl(var(--primary))"
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          )}
-        </ResponsiveContainer>
+        {needsResponsive ? (
+          <ResponsiveContainer width="100%" height="100%">
+            {renderChart() as React.ReactElement}
+          </ResponsiveContainer>
+        ) : (
+          renderChart()
+        )}
       </div>
     </div>
   );
