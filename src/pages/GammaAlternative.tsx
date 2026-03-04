@@ -95,7 +95,7 @@ const GammaAlternative = () => {
         </section>
 
         {/* Why Different */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8">
               Why AXIVA Is Different from Gamma
@@ -121,7 +121,7 @@ const GammaAlternative = () => {
         </section>
 
         {/* Structured Blocks */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8">
               Structured Blocks, Not Guesswork
@@ -160,7 +160,7 @@ const GammaAlternative = () => {
                       </li>
                     ))}
                   </ul>
-                  <p className="text-lg font-medium border-t border-white/10 pt-6">
+                  <p className="text-lg font-medium border-t border-border/60 pt-6">
                     Gamma emphasizes creative layouts.<br />
                     <span className="text-accent">AXIVA emphasizes clear thinking.</span>
                   </p>
@@ -171,7 +171,7 @@ const GammaAlternative = () => {
         </section>
 
         {/* Executive Tone */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8">
               Executive Tone by Default
@@ -192,7 +192,7 @@ const GammaAlternative = () => {
         </section>
 
         {/* Export Ready */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8">
               Export-Ready for PowerPoint and PDF
@@ -222,7 +222,7 @@ const GammaAlternative = () => {
         </section>
 
         {/* Feature Comparison */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
               AXIVA vs Gamma: Feature Comparison
@@ -230,7 +230,7 @@ const GammaAlternative = () => {
             <div className="overflow-x-auto">
               <table className="w-full max-w-3xl mx-auto">
                 <thead>
-                  <tr className="border-b border-white/10">
+                  <tr className="border-b border-border/60">
                     <th className="text-left py-4 px-4 font-semibold">Feature</th>
                     <th className="text-center py-4 px-4 font-semibold text-accent">AXIVA</th>
                     <th className="text-center py-4 px-4 font-semibold">Gamma</th>
@@ -238,7 +238,7 @@ const GammaAlternative = () => {
                 </thead>
                 <tbody>
                   {features.map((row, i) => (
-                    <tr key={i} className="border-b border-white/5">
+                    <tr key={i} className="border-b border-border/40">
                       <td className="py-4 px-4 text-muted-foreground">{row.feature}</td>
                       <td className="text-center py-4 px-4">
                         {row.axor === true ? (
@@ -265,7 +265,7 @@ const GammaAlternative = () => {
         </section>
 
         {/* When to Choose */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
               When to Choose AXIVA
@@ -306,7 +306,7 @@ const GammaAlternative = () => {
         </section>
 
         {/* FAQs */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
               Frequently Asked Questions
@@ -339,7 +339,7 @@ const GammaAlternative = () => {
         <CreatorNote />
 
         {/* Internal Links */}
-        <section className="py-12 border-t border-white/5">
+        <section className="py-12 border-t border-border/40">
           <div className="container-narrow">
             <div className="flex flex-wrap justify-center gap-6">
               <Link to="/powerpoint-ai" className="text-accent hover:underline">
@@ -356,7 +356,7 @@ const GammaAlternative = () => {
         </section>
 
         {/* CTA */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <div className="glass-card p-12 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold mb-6">

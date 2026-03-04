@@ -84,7 +84,7 @@ const PowerPointAI = () => {
         </section>
 
         {/* AI That Thinks in Slides */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8">
               AI That Thinks in Slides, Not Prompts
@@ -109,7 +109,7 @@ const PowerPointAI = () => {
         </section>
 
         {/* Built for PowerPoint Export */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8">
               Built for PowerPoint Export
@@ -139,7 +139,7 @@ const PowerPointAI = () => {
         </section>
 
         {/* Use Cases */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
               Typical PowerPoint Use Cases
@@ -155,7 +155,7 @@ const PowerPointAI = () => {
         </section>
 
         {/* Improves Workflows */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
               How AXOR Improves PowerPoint Workflows
@@ -196,7 +196,7 @@ const PowerPointAI = () => {
         </section>
 
         {/* FAQs */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
               Frequently Asked Questions
@@ -229,7 +229,7 @@ const PowerPointAI = () => {
         <CreatorNote />
 
         {/* Internal Links */}
-        <section className="py-12 border-t border-white/5">
+        <section className="py-12 border-t border-border/40">
           <div className="container-narrow">
             <div className="flex flex-wrap justify-center gap-6">
               <Link to="/gamma-alternative" className="text-accent hover:underline">
@@ -246,7 +246,7 @@ const PowerPointAI = () => {
         </section>
 
         {/* CTA */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <div className="glass-card p-12 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold mb-6">

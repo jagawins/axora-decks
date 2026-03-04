@@ -98,7 +98,7 @@ const AIDeckGenerator = () => {
         </section>
 
         {/* From Raw Ideas */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
               From Raw Ideas to Structured Decks
@@ -134,7 +134,7 @@ const AIDeckGenerator = () => {
         </section>
 
         {/* Block-Based */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8">
               Block-Based Deck Generation
@@ -164,7 +164,7 @@ const AIDeckGenerator = () => {
         </section>
 
         {/* Speed and Control */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8">
               Built for Speed and Control
@@ -184,7 +184,7 @@ const AIDeckGenerator = () => {
         </section>
 
         {/* Who Uses */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
               Who Uses AXOR
@@ -204,7 +204,7 @@ const AIDeckGenerator = () => {
         </section>
 
         {/* FAQs */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
               Frequently Asked Questions
@@ -237,7 +237,7 @@ const AIDeckGenerator = () => {
         <CreatorNote />
 
         {/* Internal Links */}
-        <section className="py-12 border-t border-white/5">
+        <section className="py-12 border-t border-border/40">
           <div className="container-narrow">
             <div className="flex flex-wrap justify-center gap-6">
               <Link to="/gamma-alternative" className="text-accent hover:underline">
@@ -254,7 +254,7 @@ const AIDeckGenerator = () => {
         </section>
 
         {/* CTA */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <div className="glass-card p-12 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold mb-6">

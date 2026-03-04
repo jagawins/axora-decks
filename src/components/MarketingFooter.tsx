@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
-import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
+import axivaWordmarkDark from "@/assets/axiva-wordmark-dark.svg";
+import axivaWordmarkLight from "@/assets/axiva-wordmark.svg";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const MarketingFooter = () => {
+  const { theme } = useTheme();
+  const axivaWordmark = theme === 'light' ? axivaWordmarkLight : axivaWordmarkDark;
   return (
     <footer className="border-t border-border py-12 md:py-16 pb-safe">
       <div className="container-wide">
@@ -161,7 +165,7 @@ const MarketingFooter = () => {
         </div>
 
         {/* Founder Signature */}
-        <div className="border-t border-white/5 pt-8 mb-8">
+        <div className="border-t border-border/50 pt-8 mb-8">
           <p className="text-sm text-center text-muted-foreground">
             Built by{" "}
             <Link to="/founder" className="text-accent hover:underline font-medium">

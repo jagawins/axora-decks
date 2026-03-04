@@ -63,7 +63,7 @@ const ExecutiveDeckGenerator = () => {
         </section>
 
         {/* What Makes It Executive */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
               What Makes AXIVA "Executive"
@@ -81,7 +81,7 @@ const ExecutiveDeckGenerator = () => {
         </section>
 
         {/* Slide Types */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
               Slide Types AXIVA Generates
@@ -107,7 +107,7 @@ const ExecutiveDeckGenerator = () => {
         <CreatorNote />
 
         {/* CTA */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <div className="glass-card p-12 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold mb-6">

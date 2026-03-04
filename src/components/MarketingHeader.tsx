@@ -15,7 +15,7 @@ const MarketingHeader = () => {
   const axivaWordmark = theme === 'light' ? axivaWordmarkLight : axivaWordmarkDark;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="container-wide">
         {/* Desktop: 3-column grid */}
         <div className="hidden md:grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-4">
@@ -88,7 +88,7 @@ const MarketingHeader = () => {
 
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-white/5 bg-background/95 backdrop-blur-xl">
+        <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl">
           <div className="container-wide py-4 flex flex-col gap-4">
             <Link to="/features" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
               Features
@@ -105,7 +105,7 @@ const MarketingHeader = () => {
             <Link to="/gamma-alternative" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
               Gamma Alternative
             </Link>
-            <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
+            <div className="flex flex-col gap-2 pt-2 border-t border-border">
               <ThemeToggle showLabel />
               {loading ? null : user ? (
                 <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>

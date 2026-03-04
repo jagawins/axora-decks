@@ -266,9 +266,9 @@ function ThemePreviewCard({
 
           {/* Color swatches row */}
           <div className="flex items-center gap-1.5 mt-3">
-            <div className="w-4 h-4 rounded-full border border-white/10" style={{ background: theme.accent }} />
-            <div className="w-4 h-4 rounded-full border border-white/10" style={{ background: theme.fg }} />
-            <div className="w-4 h-4 rounded-full border border-white/10 opacity-50" style={{ background: theme.muted }} />
+            <div className="w-4 h-4 rounded-full border border-border/60" style={{ background: theme.accent }} />
+            <div className="w-4 h-4 rounded-full border border-border/60" style={{ background: theme.fg }} />
+            <div className="w-4 h-4 rounded-full border border-border/60 opacity-50" style={{ background: theme.muted }} />
           </div>
         </div>
 

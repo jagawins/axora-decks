@@ -289,7 +289,7 @@ const About = () => {
         </section>
 
         {/* Links Section */}
-        <section className="py-12 border-t border-white/5">
+        <section className="py-12 border-t border-border/40">
           <div className="container-narrow">
             <div className="flex flex-wrap justify-center gap-6">
               <Link to="/ai-deck-generator" className="text-accent hover:underline">

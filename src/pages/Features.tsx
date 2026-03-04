@@ -65,7 +65,7 @@ const Features = () => {
         </section>
 
         {/* Features Grid */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <div className="grid gap-8">
               {features.map((feature, i) => (
@@ -84,7 +84,7 @@ const Features = () => {
         </section>
 
         {/* SEO Link */}
-        <section className="py-12 border-t border-white/5">
+        <section className="py-12 border-t border-border/40">
           <div className="container-narrow text-center">
             <p className="text-muted-foreground">
               Looking for a{" "}
@@ -97,7 +97,7 @@ const Features = () => {
         </section>
 
         {/* CTA */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <div className="glass-card p-12 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold mb-6">

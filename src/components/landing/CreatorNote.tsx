@@ -7,7 +7,7 @@ interface CreatorNoteProps {
 
 const CreatorNote = ({ className = "" }: CreatorNoteProps) => {
   return (
-    <section className={`py-12 border-t border-white/5 ${className}`}>
+    <section className={`py-12 border-t border-border/40 ${className}`}>
       <div className="container-narrow">
         <div className="flex flex-col sm:flex-row items-center gap-6 max-w-2xl mx-auto">
           <Link to="/about" className="shrink-0">

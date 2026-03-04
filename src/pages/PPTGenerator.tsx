@@ -54,7 +54,7 @@ const PPTGenerator = () => {
         </section>
 
         {/* Built for Business */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
               Built for Real Business Use
@@ -77,7 +77,7 @@ const PPTGenerator = () => {
         </section>
 
         {/* Exports */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <div className="max-w-3xl mx-auto text-center">
               <div className="h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-8">
@@ -101,7 +101,7 @@ const PPTGenerator = () => {
         <CreatorNote />
 
         {/* CTA */}
-        <section className="py-20 border-t border-white/5">
+        <section className="py-20 border-t border-border/40">
           <div className="container-narrow">
             <div className="glass-card p-12 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold mb-6">

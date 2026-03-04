@@ -15,7 +15,7 @@ const Navbar = () => {
   const axivaWordmark = theme === 'light' ? axivaWordmarkLight : axivaWordmarkDark;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl safe-area-top">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl safe-area-top">
       <div className="container-wide">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -89,7 +89,7 @@ const Navbar = () => {
 
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-white/5 bg-background/95 backdrop-blur-xl">
+        <div className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-xl">
           <div className="container-wide py-4 flex flex-col gap-3">
             <Link 
               to="/templates" 

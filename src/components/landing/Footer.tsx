@@ -127,7 +127,7 @@ const Footer = () => {
         </div>
 
         {/* Founder Signature */}
-        <div className="border-t border-white/5 pt-8 mb-8">
+        <div className="border-t border-border/40 pt-8 mb-8">
           <p className="text-sm text-center text-muted-foreground">
             Built by{" "}
             <Link to="/about" className="text-accent hover:underline font-medium">
