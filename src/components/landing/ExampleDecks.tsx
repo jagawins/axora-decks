@@ -1,197 +1,214 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Eye, Layers, TrendingUp, BarChart3, Target, Building2, Play } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Play, Layers } from 'lucide-react';
 import { fetchExampleDecks, type Template, createDeckFromTemplate } from '@/lib/templates';
 import { TemplatePreviewModal } from '@/components/templates/TemplatePreviewModal';
 import { EXAMPLE_DECK_META } from '@/data/example-decks.seed';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
-/* ── Static themed preview cards ────────────────────────────────── */
+/* ── YouExec-style slide preview cards ──────────────────────────── */
+/* Instead of rendering actual blocks at tiny scales (which looks broken),
+   we render hand-crafted slide representations that look like real
+   presentation slides — like YouExec's screenshot thumbnails. */
 
-const DECK_PREVIEWS: Record<string, {
+interface SlidePreviewData {
   gradient: string;
-  accentColor: string;
-  accentHex: string;
-  icon: React.ReactNode;
-  stats: Array<{ value: string; label: string }>;
+  accent: string;
+  accentLight: string;
   headline: string;
   subline: string;
-}> = {
+  badge: string;
+  stats: { value: string; label: string }[];
+  bullets?: string[];
+}
+
+const SLIDES: Record<string, SlidePreviewData> = {
   'example-mediflow-investor-pitch': {
-    gradient: 'from-[#0B1628] via-[#0e1f3d] to-[#122a52]',
-    accentColor: 'text-sky-400',
-    accentHex: '#38bdf8',
-    icon: <TrendingUp className="h-5 w-5 text-sky-400" />,
+    gradient: 'linear-gradient(135deg, #0B1628 0%, #0e1f3d 50%, #163060 100%)',
+    accent: '#38bdf8',
+    accentLight: '#38bdf820',
+    headline: 'MediFlow AI',
+    subline: 'AI-Powered Clinical Workflow Automation',
+    badge: 'SERIES A · $15M RAISE',
     stats: [
       { value: '$2.4M', label: 'ARR' },
-      { value: '340%', label: 'YoY' },
+      { value: '340%', label: 'YoY Growth' },
       { value: '127', label: 'Clinics' },
       { value: '94%', label: 'Retention' },
     ],
-    headline: 'MediFlow AI',
-    subline: 'Series A · $15M Raise',
+    bullets: ['Real-time AI clinical notes', 'Smart prior authorization', 'Population health analytics'],
   },
   'example-fintech-board-update': {
-    gradient: 'from-[#1A1A2E] via-[#1e1e3a] to-[#252550]',
-    accentColor: 'text-violet-400',
-    accentHex: '#a78bfa',
-    icon: <BarChart3 className="h-5 w-5 text-violet-400" />,
+    gradient: 'linear-gradient(135deg, #1A1A2E 0%, #1e1e3a 50%, #2d2d5a 100%)',
+    accent: '#a78bfa',
+    accentLight: '#a78bfa20',
+    headline: 'FinTech Capital',
+    subline: 'Q4 2024 Board Update',
+    badge: 'CONFIDENTIAL · BOARD ONLY',
     stats: [
       { value: '$34.2M', label: 'Revenue' },
-      { value: '+18%', label: 'QoQ' },
+      { value: '+18%', label: 'QoQ Growth' },
       { value: '2.3x', label: 'MOIC' },
       { value: '12', label: 'Portfolio' },
     ],
-    headline: 'FinTech Capital',
-    subline: 'Q4 Board Update',
+    bullets: ['Revenue exceeded target by 7%', '3 portfolio cos profitable', 'Risk exposure down 22%'],
   },
   'example-cloudsync-gtm-strategy': {
-    gradient: 'from-[#0F172A] via-[#131d38] to-[#1a2847]',
-    accentColor: 'text-indigo-400',
-    accentHex: '#818cf8',
-    icon: <Target className="h-5 w-5 text-indigo-400" />,
+    gradient: 'linear-gradient(135deg, #0F172A 0%, #131d38 50%, #1e3055 100%)',
+    accent: '#818cf8',
+    accentLight: '#818cf820',
+    headline: 'CloudSync Enterprise',
+    subline: '2025 Go-to-Market Strategy',
+    badge: 'GTM STRATEGY · B2B SAAS',
     stats: [
       { value: '$12.4B', label: 'Market' },
       { value: '19%', label: 'CAGR' },
       { value: '45K', label: 'Targets' },
       { value: '10x', label: 'Faster' },
     ],
-    headline: 'CloudSync',
-    subline: '2025 GTM Strategy',
+    bullets: ['200+ pre-built connectors', 'Zero-code pipeline builder', 'SOC 2 + HIPAA compliant'],
   },
   'example-city-innovation-quarterly': {
-    gradient: 'from-[#0A1A0F] via-[#0e2216] to-[#142d1e]',
-    accentColor: 'text-emerald-400',
-    accentHex: '#34d399',
-    icon: <Building2 className="h-5 w-5 text-emerald-400" />,
-    stats: [
-      { value: '311', label: 'AI Chatbot' },
-      { value: '34%', label: 'Faster' },
-      { value: '47', label: 'Datasets' },
-      { value: '12K', label: 'Monthly' },
-    ],
+    gradient: 'linear-gradient(135deg, #0A1A0F 0%, #0e2216 50%, #1a3d28 100%)',
+    accent: '#34d399',
+    accentLight: '#34d39920',
     headline: 'City Innovation Lab',
-    subline: 'Q1 Quarterly Review',
+    subline: 'Q1 2025 Quarterly Review',
+    badge: 'GOVERNMENT · Q1 REVIEW',
+    stats: [
+      { value: '34%', label: 'Automated' },
+      { value: '67%', label: 'Faster' },
+      { value: '4.2/5', label: 'Satisfaction' },
+      { value: '$2.1M', label: 'Savings' },
+    ],
+    bullets: ['311 AI chatbot launched', 'Permit processing: 21→7 days', '47 open datasets published'],
   },
 };
 
-/* ── Animated shimmer CSS injected once ─────────────────────────── */
-
-const SHIMMER_STYLES = `
-@keyframes deckShimmer {
-  0% { transform: translateX(-100%) skewX(-15deg); }
-  100% { transform: translateX(200%) skewX(-15deg); }
-}
-@keyframes deckPulseGlow {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.7; }
-}
-@keyframes deckStatReveal {
-  0% { opacity: 0; transform: translateY(8px) scale(0.95); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes deckBorderGlow {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 0.6; }
-}
-@keyframes deckFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-.deck-card-shimmer::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 55%, transparent 100%);
-  animation: deckShimmer 4s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 5;
-}
-.deck-card-shimmer:nth-child(2)::after { animation-delay: 0.8s; }
-.deck-card-shimmer:nth-child(3)::after { animation-delay: 1.6s; }
-.deck-card-shimmer:nth-child(4)::after { animation-delay: 2.4s; }
-`;
-
-function DeckPreviewCard({ slug, isHovered }: { slug: string; isHovered: boolean }) {
-  const preview = DECK_PREVIEWS[slug];
-  if (!preview) return <div className="w-full h-full bg-muted/30 rounded-lg" />;
+/** Hand-crafted slide that looks like a real presentation screenshot */
+function SlideCard({ slug, isHovered }: { slug: string; isHovered: boolean }) {
+  const s = SLIDES[slug];
+  if (!s) return null;
 
   return (
-    <div className={`w-full h-full bg-gradient-to-br ${preview.gradient} rounded-t-2xl p-5 flex flex-col justify-between relative overflow-hidden`}>
-      {/* Animated grid pattern */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)',
-        backgroundSize: '24px 24px',
-      }} />
+    <div
+      className="w-full h-full relative overflow-hidden select-none"
+      style={{ background: s.gradient }}
+    >
+      {/* Subtle dot grid */}
+      <svg className="absolute inset-0 w-full h-full opacity-[0.035]" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id={`grid-${slug}`} width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.8" fill="white" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#grid-${slug})`} />
+      </svg>
 
-      {/* Radial glow on hover */}
+      {/* Decorative accent circle */}
       <div
-        className="absolute inset-0 transition-opacity duration-700 pointer-events-none"
+        className="absolute -top-16 -right-16 w-48 h-48 rounded-full blur-[60px] transition-opacity duration-700"
         style={{
-          opacity: isHovered ? 0.15 : 0.05,
-          background: `radial-gradient(ellipse at 30% 20%, ${preview.accentHex}40 0%, transparent 70%)`,
+          background: s.accent,
+          opacity: isHovered ? 0.18 : 0.06,
         }}
       />
 
-      {/* Pulsing accent orb */}
-      <div
-        className="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-3xl pointer-events-none"
-        style={{
-          background: preview.accentHex,
-          opacity: isHovered ? 0.12 : 0.04,
-          animation: 'deckPulseGlow 3s ease-in-out infinite',
-          transition: 'opacity 0.5s ease',
-        }}
-      />
-      
-      {/* Header */}
-      <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="p-1 rounded-md bg-white/[0.06] backdrop-blur-sm">
-            {preview.icon}
-          </div>
-          <span className={`text-[10px] font-semibold ${preview.accentColor} uppercase tracking-[0.15em]`}>
-            {preview.subline}
+      {/* Content layout — mimics a real slide */}
+      <div className="relative z-10 h-full flex flex-col p-5 sm:p-6">
+        {/* Badge */}
+        <div className="mb-3">
+          <span
+            className="inline-block text-[9px] font-bold uppercase tracking-[0.18em] px-2.5 py-1 rounded-full"
+            style={{ color: s.accent, background: s.accentLight }}
+          >
+            {s.badge}
           </span>
         </div>
-        <h4 className="text-base font-bold text-white/95 leading-tight tracking-tight">
-          {preview.headline}
-        </h4>
-      </div>
 
-      {/* Stats grid — animated reveal on hover */}
-      <div className="relative z-10 grid grid-cols-4 gap-2 mt-auto">
-        {preview.stats.map((stat, i) => (
-          <div
-            key={i}
-            className="bg-white/[0.07] backdrop-blur-sm rounded-lg px-2 py-2 text-center border border-white/[0.08] transition-all duration-300"
-            style={{
-              animation: isHovered ? `deckStatReveal 0.4s ease-out ${i * 0.08}s both` : 'none',
-              transform: isHovered ? 'scale(1.03)' : 'scale(1)',
-              borderColor: isHovered ? `${preview.accentHex}25` : 'rgba(255,255,255,0.08)',
-            }}
-          >
-            <div className={`text-sm font-bold ${preview.accentColor}`}>{stat.value}</div>
-            <div className="text-[9px] text-white/40 leading-tight mt-0.5 font-medium">{stat.label}</div>
+        {/* Title */}
+        <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight leading-tight mb-1">
+          {s.headline}
+        </h3>
+        <p className="text-[11px] sm:text-xs text-white/50 mb-4">{s.subline}</p>
+
+        {/* Bullet points — like a real slide */}
+        {s.bullets && (
+          <div className="flex flex-col gap-1.5 mb-4">
+            {s.bullets.map((b, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <div
+                  className="w-1.5 h-1.5 rounded-full mt-1 shrink-0"
+                  style={{ background: s.accent }}
+                />
+                <span className="text-[11px] text-white/65 leading-tight">{b}</span>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
+
+        {/* Spacer pushes stats to bottom */}
+        <div className="flex-1" />
+
+        {/* Stats row — bottom of slide like a real KPI bar */}
+        <div className="grid grid-cols-4 gap-1.5">
+          {s.stats.map((stat, i) => (
+            <div
+              key={i}
+              className="rounded-lg px-2 py-2 text-center transition-all duration-300"
+              style={{
+                background: isHovered ? `${s.accent}15` : 'rgba(255,255,255,0.05)',
+                border: `1px solid ${isHovered ? s.accent + '30' : 'rgba(255,255,255,0.06)'}`,
+                transform: isHovered ? 'translateY(-2px)' : 'none',
+                transitionDelay: `${i * 50}ms`,
+              }}
+            >
+              <div className="text-xs sm:text-sm font-bold" style={{ color: s.accent }}>
+                {stat.value}
+              </div>
+              <div className="text-[8px] text-white/40 mt-0.5 font-medium leading-tight">
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Bottom accent glow line */}
+      {/* Bottom accent line */}
       <div
         className="absolute bottom-0 left-0 right-0 h-[2px] transition-opacity duration-500"
         style={{
-          background: `linear-gradient(90deg, transparent, ${preview.accentHex}60, transparent)`,
-          opacity: isHovered ? 1 : 0.3,
-          animation: isHovered ? 'deckBorderGlow 2s ease-in-out infinite' : 'none',
+          background: `linear-gradient(90deg, transparent, ${s.accent}60, transparent)`,
+          opacity: isHovered ? 1 : 0.25,
         }}
       />
     </div>
   );
 }
+
+/* ── Shimmer animation CSS ──────────────────────────────────────── */
+
+const STYLES = `
+@keyframes exDeckShimmer {
+  0% { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(250%) skewX(-12deg); }
+}
+.ex-deck-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 60%, transparent 100%);
+  animation: exDeckShimmer 5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 15;
+  border-radius: inherit;
+}
+.ex-deck-shimmer:nth-child(2)::before { animation-delay: 1s; }
+.ex-deck-shimmer:nth-child(3)::before { animation-delay: 2s; }
+.ex-deck-shimmer:nth-child(4)::before { animation-delay: 3s; }
+`;
 
 /* ── Main component ─────────────────────────────────────────────── */
 
@@ -205,14 +222,14 @@ export default function ExampleDecks() {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const stylesRef = useRef(false);
 
-  // Inject shimmer keyframes once
+  // Inject keyframes once
   useEffect(() => {
     if (stylesRef.current) return;
     stylesRef.current = true;
-    const style = document.createElement('style');
-    style.textContent = SHIMMER_STYLES;
-    document.head.appendChild(style);
-    return () => { document.head.removeChild(style); };
+    const el = document.createElement('style');
+    el.textContent = STYLES;
+    document.head.appendChild(el);
+    return () => { document.head.removeChild(el); };
   }, []);
 
   useEffect(() => {
@@ -240,7 +257,7 @@ export default function ExampleDecks() {
 
   return (
     <section className="section-padding relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.02] to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.015] to-transparent" />
       <div className="container-wide relative">
         {/* Header */}
         <div className="text-center mb-14">
@@ -250,78 +267,82 @@ export default function ExampleDecks() {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
             See what you can build
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
             Browse complete decks generated with AXORA — real slide layouts, real data visualizations, real executive quality.
           </p>
         </div>
 
-        {/* Cards grid — cinematic hover with shimmer */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Cards grid — YouExec 16:9 slide cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 lg:gap-6 max-w-5xl mx-auto">
           {cards.map((card) => {
             const isHovered = hoveredCard === card.slug;
-            const preview = DECK_PREVIEWS[card.slug];
-            
+            const slideData = SLIDES[card.slug];
+
             return (
               <div
                 key={card.slug}
-                className="deck-card-shimmer group relative flex flex-col rounded-2xl border border-border/50 bg-card overflow-hidden cursor-pointer"
+                className="ex-deck-shimmer group relative rounded-2xl overflow-hidden cursor-pointer"
                 style={{
-                  transition: 'transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.3s ease',
-                  transform: isHovered ? 'scale(1.04) translateY(-6px)' : 'scale(1) translateY(0)',
+                  aspectRatio: '16 / 10',
+                  transition: 'transform 0.45s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.45s cubic-bezier(0.23, 1, 0.32, 1)',
+                  transform: isHovered ? 'scale(1.03) translateY(-4px)' : 'scale(1) translateY(0)',
                   boxShadow: isHovered
-                    ? `0 20px 60px -15px ${preview?.accentHex || '#000'}30, 0 8px 24px -8px rgba(0,0,0,0.3)`
-                    : '0 2px 8px rgba(0,0,0,0.1)',
-                  borderColor: isHovered ? `${preview?.accentHex || '#888'}40` : undefined,
+                    ? `0 24px 64px -16px ${slideData?.accent || '#000'}35, 0 12px 32px -8px rgba(0,0,0,0.25)`
+                    : '0 4px 16px rgba(0,0,0,0.15)',
                 }}
                 onMouseEnter={() => setHoveredCard(card.slug)}
                 onMouseLeave={() => setHoveredCard(null)}
                 onClick={() => card.template && setPreviewTemplate(card.template)}
               >
-                {/* Themed preview card — larger */}
-                <div className="relative w-full h-[200px]">
-                  <DeckPreviewCard slug={card.slug} isHovered={isHovered} />
+                {/* Full-bleed slide preview */}
+                <SlideCard slug={card.slug} isHovered={isHovered} />
 
-                  {/* Hover overlay — centered play-style button */}
-                  <div
-                    className="absolute inset-0 flex items-center justify-center rounded-t-2xl transition-all duration-400 z-10"
+                {/* Hover overlay with preview button */}
+                <div
+                  className="absolute inset-0 flex items-center justify-center z-20 transition-all duration-300"
+                  style={{
+                    opacity: isHovered ? 1 : 0,
+                    background: isHovered ? 'rgba(0,0,0,0.35)' : 'transparent',
+                    backdropFilter: isHovered ? 'blur(2px)' : 'none',
+                    pointerEvents: isHovered ? 'auto' : 'none',
+                  }}
+                >
+                  <Button
+                    size="default"
+                    className="gap-2.5 rounded-full px-8 py-2.5 shadow-2xl bg-white hover:bg-white text-gray-900 font-semibold text-sm"
                     style={{
+                      transform: isHovered ? 'scale(1) translateY(0)' : 'scale(0.85) translateY(12px)',
+                      transition: 'transform 0.35s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease',
                       opacity: isHovered ? 1 : 0,
-                      background: isHovered ? 'rgba(0,0,0,0.4)' : 'transparent',
-                      backdropFilter: isHovered ? 'blur(2px)' : 'none',
                     }}
+                    disabled={!card.template}
                   >
-                    <Button
-                      size="sm"
-                      className="gap-2 rounded-full px-6 shadow-2xl bg-white/95 hover:bg-white text-gray-900 font-semibold text-xs"
-                      style={{
-                        transform: isHovered ? 'scale(1) translateY(0)' : 'scale(0.9) translateY(8px)',
-                        transition: 'transform 0.3s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease',
-                        opacity: isHovered ? 1 : 0,
-                      }}
-                      disabled={!card.template}
-                    >
-                      <Play className="h-3.5 w-3.5 fill-current" />
-                      Preview Deck
-                    </Button>
-                  </div>
+                    <Play className="h-4 w-4 fill-current" />
+                    Preview Full Deck
+                  </Button>
                 </div>
 
-                {/* Content — clean bottom section */}
-                <div className="p-4 flex-1 flex flex-col gap-2 border-t border-border/30">
-                  <h3 className="font-semibold text-foreground text-sm line-clamp-1 group-hover:text-accent transition-colors duration-300">
-                    {card.title}
-                  </h3>
-                  <div className="flex flex-wrap gap-1.5">
-                    <Badge variant="outline" className="text-[10px] px-2 py-0.5 rounded-full border-border/50 text-muted-foreground">
-                      {card.industry}
-                    </Badge>
-                    <Badge variant="outline" className="text-[10px] px-2 py-0.5 rounded-full border-border/50 text-muted-foreground">
-                      {card.deckType}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mt-auto pt-1">
-                    <Layers className="h-3 w-3" />
-                    {card.slideCount} slides
+                {/* Bottom info bar — overlaid on slide like YouExec */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 z-10 px-5 py-3 transition-opacity duration-300"
+                  style={{
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, transparent 100%)',
+                    opacity: isHovered ? 0 : 1,
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-white text-sm font-semibold tracking-tight">{card.title}</h4>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-white/50 text-[11px]">{card.industry}</span>
+                        <span className="text-white/30">·</span>
+                        <span className="text-white/50 text-[11px]">{card.deckType}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 text-white/40 text-xs">
+                      <Layers className="h-3.5 w-3.5" />
+                      {card.slideCount}
+                    </div>
                   </div>
                 </div>
               </div>
