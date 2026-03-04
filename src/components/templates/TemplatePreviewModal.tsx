@@ -16,39 +16,9 @@ interface TemplatePreviewModalProps {
   onUseTemplate: (id: string) => void;
 }
 
-function chunkBlocks(blocks: TemplateBlock[], size = 3): TemplateBlock[][] {
-  // Prefer sectionIndex grouping if available
-  const hasSectionIndex = blocks.some(
-    (b) => (b.block_meta as any)?.sectionIndex != null
-  );
-
-  if (hasSectionIndex) {
-    const groups = new Map<number, TemplateBlock[]>();
-    let ungrouped: TemplateBlock[] = [];
-    for (const b of blocks) {
-      const si = (b.block_meta as any)?.sectionIndex;
-      if (si != null) {
-        if (!groups.has(si)) groups.set(si, []);
-        groups.get(si)!.push(b);
-      } else {
-        ungrouped.push(b);
-      }
-    }
-    const sorted = Array.from(groups.entries())
-      .sort(([a], [b]) => a - b)
-      .map(([, v]) => v);
-    if (ungrouped.length > 0) sorted.push(ungrouped);
-    return sorted;
-  } else {
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('[TemplatePreviewModal] Template has no sectionIndex values — using fixed chunks.');
-    }
-    const chunks: TemplateBlock[][] = [];
-    for (let i = 0; i < blocks.length; i += size) {
-      chunks.push(blocks.slice(i, i + size));
-    }
-    return chunks;
-  }
+function chunkBlocks(blocks: TemplateBlock[], size = 1): TemplateBlock[][] {
+  // Each block is its own slide — YouExec style, one visual per slide
+  return blocks.map((b) => [b]);
 }
 
 export function TemplatePreviewModal({
@@ -216,49 +186,84 @@ export function TemplatePreviewModal({
 
         {/* Slide Area */}
         <div
-          className="flex-1 flex items-center justify-center px-4 py-6 relative min-h-0"
+          className="flex-1 flex min-h-0"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
           {loading ? (
-            <Loader2 className="h-8 w-8 animate-spin text-accent" />
+            <div className="flex-1 flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-accent" />
+            </div>
           ) : slides.length > 0 ? (
             <>
-              {/* Prev arrow */}
-              {!isMobile && currentSlide > 0 && (
-                <button
-                  onClick={goPrev}
-                  className="absolute left-2 z-10 p-2 rounded-full bg-card border border-border shadow-md hover:bg-muted transition-colors"
-                >
-                  <ChevronLeft className="h-5 w-5 text-foreground" />
-                </button>
+              {/* Slide thumbnail strip — left sidebar (desktop only) */}
+              {!isMobile && totalSlides > 1 && (
+                <div className="w-[140px] shrink-0 border-r border-border overflow-y-auto py-3 px-2 flex flex-col gap-2 bg-muted/30">
+                  {slides.map((slideBlocks, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentSlide(i)}
+                      className={cn(
+                        'relative w-full aspect-[16/10] rounded-lg overflow-hidden border-2 transition-all duration-200 shrink-0',
+                        i === currentSlide
+                          ? 'border-accent shadow-md ring-1 ring-accent/30'
+                          : 'border-transparent hover:border-border opacity-60 hover:opacity-100'
+                      )}
+                    >
+                      <div className="w-full h-full bg-card">
+                        <TemplatePreview
+                          blocks={slideBlocks}
+                          className="shadow-none border-0 rounded-none"
+                        />
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 py-0.5">
+                        <span className="text-[9px] text-white font-medium">{i + 1}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               )}
 
-              {/* Slide with transition */}
-              <div
-                className={cn(
-                  'w-full max-w-4xl mx-auto transition-all duration-200 ease-out',
-                  slideTransformClass
+              {/* Main slide area */}
+              <div className="flex-1 flex items-center justify-center px-4 py-6 relative min-h-0">
+                {/* Prev arrow */}
+                {!isMobile && currentSlide > 0 && (
+                  <button
+                    onClick={goPrev}
+                    className="absolute left-2 z-10 p-2 rounded-full bg-card border border-border shadow-md hover:bg-muted transition-colors"
+                  >
+                    <ChevronLeft className="h-5 w-5 text-foreground" />
+                  </button>
                 )}
-              >
-                <TemplatePreview
-                  blocks={slides[currentSlide]}
-                  className="shadow-lg"
-                />
-              </div>
 
-              {/* Next arrow */}
-              {!isMobile && currentSlide < totalSlides - 1 && (
-                <button
-                  onClick={goNext}
-                  className="absolute right-2 z-10 p-2 rounded-full bg-card border border-border shadow-md hover:bg-muted transition-colors"
+                {/* Slide with transition */}
+                <div
+                  className={cn(
+                    'w-full max-w-4xl mx-auto transition-all duration-200 ease-out',
+                    slideTransformClass
+                  )}
                 >
-                  <ChevronRight className="h-5 w-5 text-foreground" />
-                </button>
-              )}
+                  <TemplatePreview
+                    blocks={slides[currentSlide]}
+                    className="shadow-lg"
+                  />
+                </div>
+
+                {/* Next arrow */}
+                {!isMobile && currentSlide < totalSlides - 1 && (
+                  <button
+                    onClick={goNext}
+                    className="absolute right-2 z-10 p-2 rounded-full bg-card border border-border shadow-md hover:bg-muted transition-colors"
+                  >
+                    <ChevronRight className="h-5 w-5 text-foreground" />
+                  </button>
+                )}
+              </div>
             </>
           ) : (
-            <p className="text-muted-foreground">No slides available</p>
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-muted-foreground">No slides available</p>
+            </div>
           )}
         </div>
 

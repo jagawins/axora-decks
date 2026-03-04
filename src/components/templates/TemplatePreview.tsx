@@ -63,7 +63,7 @@ export function TemplatePreview({
   
   // Apply fixed order for decision blocks
   const orderedBlocks = useMemo(() => getOrderedBlocks(blocks), [blocks]);
-  const previewBlocks = orderedBlocks.slice(0, 3);
+  const previewBlocks = orderedBlocks.slice(0, 4);
 
   useEffect(() => {
     const updateScale = () => {
