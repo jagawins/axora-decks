@@ -32,10 +32,10 @@ const FRAMEWORK = [
 ];
 
 const STEPS = [
-  "Tell Axora about your startup — what you do, who you serve, your stage and traction",
+  "Tell Axiva about your startup — what you do, who you serve, your stage and traction",
   "Upload any existing materials — one-pager, product brief, financial model, website",
   "Choose your style — minimal, bold, or enterprise",
-  "Axora generates your complete deck in under 60 seconds",
+  "Axiva generates your complete deck in under 60 seconds",
   "Review, edit, and refine — you control every word and slide",
   "Export to PowerPoint or share a live link",
 ];
@@ -51,12 +51,12 @@ const TEMPLATES = [
 
 const FAQS = [
   {
-    q: "Can I customize the deck after Axora generates it?",
+    q: "Can I customize the deck after Axiva generates it?",
     a: "Yes — completely. Every slide is editable. Add, remove, reorder, and rewrite anything.",
   },
   {
     q: "Will my deck look generic?",
-    a: "No. Axora customizes each deck to your company, your data, and your narrative. Upload your brand kit and every deck reflects your identity.",
+    a: "No. Axiva customizes each deck to your company, your data, and your narrative. Upload your brand kit and every deck reflects your identity.",
   },
   {
     q: "Can I export to PowerPoint?",
@@ -68,8 +68,8 @@ const InvestorPitchDeck = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>AI Investor Pitch Deck Generator | Axora</title>
-        <meta name="description" content="Build a fundable investor pitch deck in minutes with Axora. AI-powered narrative structure, boardroom-ready design, and PowerPoint export. Used by 2,400+ founders." />
+        <title>AI Investor Pitch Deck Generator | Axiva</title>
+        <meta name="description" content="Build a fundable investor pitch deck in minutes with Axiva. AI-powered narrative structure, boardroom-ready design, and PowerPoint export. Used by 2,400+ founders." />
         <link rel="canonical" href="https://axiva.ai/investor-pitch-deck" />
       </Helmet>
 
@@ -91,7 +91,7 @@ const InvestorPitchDeck = () => {
               <span className="text-gradient">AI-Powered Pitch Decks</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-              Build a fundable pitch deck in minutes — not days. Axora creates investor-ready presentations that tell your story, showcase your traction, and help you close your round.
+              Build a fundable pitch deck in minutes — not days. Axiva creates investor-ready presentations that tell your story, showcase your traction, and help you close your round.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/create">
@@ -138,7 +138,7 @@ const InvestorPitchDeck = () => {
               </p>
               <p>
                 The problem isn't effort. It's the wrong tool. Presentation software was built for slide designers, not founders.{" "}
-                <span className="text-accent font-medium">Axora was built for you.</span>
+                <span className="text-accent font-medium">Axiva was built for you.</span>
               </p>
             </div>
           </div>
@@ -148,10 +148,10 @@ const InvestorPitchDeck = () => {
         <section className="py-20 border-t border-border/30">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4">
-              The 10-Slide Framework Axora Uses
+              The 10-Slide Framework Axiva Uses
             </h2>
             <p className="text-center text-muted-foreground text-lg mb-12 max-w-2xl mx-auto">
-              Axora structures investor decks around the framework that has helped thousands of startups raise successfully.
+              Axiva structures investor decks around the framework that has helped thousands of startups raise successfully.
             </p>
             <div className="max-w-3xl mx-auto space-y-3">
               {FRAMEWORK.map((item) => (
@@ -169,11 +169,11 @@ const InvestorPitchDeck = () => {
           </div>
         </section>
 
-        {/* How Axora Builds */}
+        {/* How Axiva Builds */}
         <section className="py-20 border-t border-border/30">
           <div className="container-narrow max-w-3xl mx-auto">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
-              How Axora Builds Your Pitch Deck
+              How Axiva Builds Your Pitch Deck
             </h2>
             <div className="space-y-4">
               {STEPS.map((step, i) => (
@@ -189,7 +189,7 @@ const InvestorPitchDeck = () => {
             {/* Callout */}
             <div className="mt-10 rounded-2xl border border-accent/30 bg-accent/5 p-8 text-center">
               <p className="text-lg font-medium">
-                The average Axora pitch deck takes <span className="text-accent font-bold">under 2 minutes</span> to generate — compared to the industry average of <span className="text-accent font-bold">15–20 hours</span> building from scratch.
+                The average Axiva pitch deck takes <span className="text-accent font-bold">under 2 minutes</span> to generate — compared to the industry average of <span className="text-accent font-bold">15–20 hours</span> building from scratch.
               </p>
             </div>
           </div>

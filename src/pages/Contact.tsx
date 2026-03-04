@@ -7,8 +7,8 @@ const Contact = () => {
   return (
     <>
       <Helmet>
-        <title>Contact | AXORA</title>
-        <meta name="description" content="Contact AXORA for support, partnership, or press inquiries. Get in touch with the team behind the AI executive deck generator." />
+        <title>Contact | AXIVA</title>
+        <meta name="description" content="Contact AXIVA for support, partnership, or press inquiries. Get in touch with the team behind the AI executive deck generator." />
         <link rel="canonical" href="https://axiva.ai/contact" />
         <meta name="robots" content="index, follow" />
       </Helmet>

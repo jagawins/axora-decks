@@ -34,7 +34,7 @@ const CITIES = [
 export default function HealthcareAIPresentations() {
   const jsonLd = {
     "@type": "SoftwareApplication",
-    name: "AXORA — Healthcare AI Presentation Generator",
+    name: "AXIVA — Healthcare AI Presentation Generator",
     applicationCategory: "BusinessApplication",
     description: "AI-powered presentation generator built for healthcare executives. Create Joint Commission-compliant board decks, CMS reporting presentations, and clinical operations reviews in minutes.",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -44,7 +44,7 @@ export default function HealthcareAIPresentations() {
   return (
     <>
       <SeoHead
-        title="Healthcare AI Presentation Generator | Board Decks for Health Systems — AXORA"
+        title="Healthcare AI Presentation Generator | Board Decks for Health Systems — AXIVA"
         description="Create Joint Commission-compliant board decks, CMS reporting presentations, and clinical operations reviews in minutes. AI-powered for healthcare executives at enterprise health systems."
         canonicalPath="/healthcare-ai-presentations"
         keywords="healthcare presentation generator, hospital board deck, Joint Commission compliance presentation, CMS reporting deck, healthcare executive presentation, clinical operations review, health system board update"
@@ -109,7 +109,7 @@ export default function HealthcareAIPresentations() {
               Use Cases for Health System Leaders
             </h2>
             <p className="text-muted-foreground text-center mb-10 max-w-2xl mx-auto">
-              AXORA is used by Chiefs of Staff, VPs of Strategy, Healthcare CMOs, and Directors of Clinical Operations across enterprise health systems.
+              AXIVA is used by Chiefs of Staff, VPs of Strategy, Healthcare CMOs, and Directors of Clinical Operations across enterprise health systems.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
               {USE_CASES.map((uc) => (
@@ -127,7 +127,7 @@ export default function HealthcareAIPresentations() {
               Trusted by Leaders at Top Healthcare Hubs
             </h2>
             <p className="text-muted-foreground text-center mb-10 max-w-2xl mx-auto">
-              AXORA serves healthcare executives across North America's largest health system clusters.
+              AXIVA serves healthcare executives across North America's largest health system clusters.
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
               {CITIES.map((city) => (

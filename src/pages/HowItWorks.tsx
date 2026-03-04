@@ -13,7 +13,7 @@ const steps = [
     icon: Sparkles,
     title: "Describe Your Deck",
     description:
-      "Enter a topic, paste a document, or describe your presentation goals. AXORA's AI analyzes your input and understands the context.",
+      "Enter a topic, paste a document, or describe your presentation goals. AXIVA's AI analyzes your input and understands the context.",
     mockType: "typing" as const,
   },
   {
@@ -62,7 +62,7 @@ function TypingMock({ active }: { active: boolean }) {
         <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
         <div className="w-2.5 h-2.5 rounded-full bg-warning/60" />
         <div className="w-2.5 h-2.5 rounded-full bg-success/60" />
-        <span className="text-[10px] text-muted-foreground ml-2 font-mono">axora — new deck</span>
+        <span className="text-[10px] text-muted-foreground ml-2 font-mono">axiva — new deck</span>
       </div>
       <div className="flex-1 rounded-lg bg-background/60 border border-border/50 p-4">
         <p className="text-xs text-muted-foreground mb-2 font-medium">What's your deck about?</p>
@@ -239,9 +239,9 @@ export default function HowItWorks() {
 
   const jsonLd = {
     "@type": "HowTo",
-    name: "How to Create AI-Powered Executive Presentations with AXORA",
+    name: "How to Create AI-Powered Executive Presentations with AXIVA",
     description:
-      "Learn how to create professional executive presentations using AXORA's AI deck generator in four simple steps.",
+      "Learn how to create professional executive presentations using AXIVA's AI deck generator in four simple steps.",
     step: steps.map((step, index) => ({
       "@type": "HowToStep",
       position: index + 1,
@@ -253,8 +253,8 @@ export default function HowItWorks() {
   return (
     <>
       <SeoHead
-        title="How It Works | AXORA - AI Presentation Generator"
-        description="Create executive presentations in 4 steps: describe your topic, generate structured slides, refine with AI, and present. See how AXORA works."
+        title="How It Works | AXIVA - AI Presentation Generator"
+        description="Create executive presentations in 4 steps: describe your topic, generate structured slides, refine with AI, and present. See how AXIVA works."
         canonicalPath="/how-it-works"
         keywords="how to create presentations, AI presentation generator, executive deck workflow, presentation software"
         jsonLd={jsonLd}
@@ -270,7 +270,7 @@ export default function HowItWorks() {
               From Idea to Executive Deck in Minutes
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-              AXORA transforms how executives create presentations. No templates to fill, no slides to design — just describe what you need.
+              AXIVA transforms how executives create presentations. No templates to fill, no slides to design — just describe what you need.
             </p>
             <Button asChild size="lg" className="w-full sm:w-auto">
               <Link to="/create">

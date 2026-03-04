@@ -2,7 +2,7 @@
   "template": {
     "title": "Visual Blocks Showcase",
     "slug": "visual-blocks-showcase",
-    "description": "A comprehensive demonstration of all visual block types available in Axora, featuring statistics, quotes, timelines, comparisons, and more.",
+    "description": "A comprehensive demonstration of all visual block types available in Axiva, featuring statistics, quotes, timelines, comparisons, and more.",
     "category": "Demo",
     "tags": ["demo", "showcase", "visual", "blocks", "example"],
     "is_featured": true,
@@ -14,7 +14,7 @@
       "order_index": 0,
       "block_payload": {
         "heading": "Visual Blocks Showcase",
-        "subheading": "Discover all the visual block types available in Axora",
+        "subheading": "Discover all the visual block types available in Axiva",
         "cta": {
           "text": "Explore Now",
           "variant": "primary"
@@ -52,7 +52,7 @@
       "type": "quote_block",
       "order_index": 4,
       "block_payload": {
-        "quote": "Axora transformed how we create presentations. What used to take hours now takes minutes.",
+        "quote": "Axiva transformed how we create presentations. What used to take hours now takes minutes.",
         "author": "Sarah Chen",
         "role": "VP of Marketing, TechCorp"
       }
@@ -89,7 +89,7 @@
       "type": "comparison_table",
       "order_index": 8,
       "block_payload": {
-        "headers": ["Feature", "Axora", "Competitor A", "Competitor B"],
+        "headers": ["Feature", "Axiva", "Competitor A", "Competitor B"],
         "rows": [
           { "label": "AI-Powered Generation", "values": ["✓ Full", "Partial", "✗"] },
           { "label": "Visual Block Types", "values": ["18+", "8", "5"] },
@@ -143,7 +143,7 @@
       "type": "exec_summary",
       "order_index": 13,
       "block_payload": {
-        "summary": "Axora's visual block system transforms raw content into executive-ready presentations through intelligent layout decisions and professional design patterns.",
+        "summary": "Axiva's visual block system transforms raw content into executive-ready presentations through intelligent layout decisions and professional design patterns.",
         "keyPoints": [
           "18+ visual block types for every content scenario",
           "AI-powered automatic block type selection",
@@ -165,7 +165,7 @@
       "type": "text",
       "order_index": 15,
       "block_payload": {
-        "text": "In addition to visual blocks, Axora supports all standard content types including text paragraphs, headings, lists, tables, and images. These basic blocks work seamlessly alongside visual blocks to create comprehensive presentations."
+        "text": "In addition to visual blocks, Axiva supports all standard content types including text paragraphs, headings, lists, tables, and images. These basic blocks work seamlessly alongside visual blocks to create comprehensive presentations."
       }
     },
     {

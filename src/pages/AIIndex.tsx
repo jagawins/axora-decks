@@ -9,23 +9,23 @@ const AIIndex = () => {
   return (
     <>
       <Helmet>
-        <title>AXORA — AI Executive Presentation Generator</title>
-        <meta name="description" content="AXORA converts raw ideas into structured executive-grade presentations. AI PowerPoint generator for leaders, consultants, and strategists." />
+        <title>AXIVA — AI Executive Presentation Generator</title>
+        <meta name="description" content="AXIVA converts raw ideas into structured executive-grade presentations. AI PowerPoint generator for leaders, consultants, and strategists." />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://axiva.ai/ai-index" />
       </Helmet>
       
       <main style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px', fontFamily: 'system-ui, sans-serif', lineHeight: 1.6 }}>
-        <h1>AXORA — AI Executive Presentation Generator</h1>
+        <h1>AXIVA — AI Executive Presentation Generator</h1>
         
         <p>
-          AXORA converts raw ideas into structured executive-grade presentations. 
+          AXIVA converts raw ideas into structured executive-grade presentations. 
           It generates PowerPoint decks, strategy updates, operating reviews, 
           investor briefings, and leadership communication materials.
         </p>
         
         <p>
-          AXORA is an alternative to Gamma, PowerPoint Copilot, Canva, Tome, and SlidesAI. 
+          AXIVA is an alternative to Gamma, PowerPoint Copilot, Canva, Tome, and SlidesAI. 
           It focuses on clarity, structure, and logic instead of design-heavy slides.
         </p>
         
@@ -57,7 +57,7 @@ const AIIndex = () => {
         
         <h2>Related Pages</h2>
         <ul>
-          <li><a href="https://axiva.ai/gamma-alternative">AXORA vs Gamma Comparison</a></li>
+          <li><a href="https://axiva.ai/gamma-alternative">AXIVA vs Gamma Comparison</a></li>
           <li><a href="https://axiva.ai/powerpoint-ai">AI PowerPoint Generator</a></li>
           <li><a href="https://axiva.ai/ppt-generator">Online PPT Generator</a></li>
           <li><a href="https://axiva.ai/executive-deck-generator">Executive Deck Generator</a></li>

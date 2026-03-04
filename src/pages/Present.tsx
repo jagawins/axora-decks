@@ -118,7 +118,7 @@ export default function Present() {
   // BroadcastChannel sync
   useEffect(() => {
     if (!projectId) return;
-    const channel = new BroadcastChannel(`axora-present-${projectId}`);
+    const channel = new BroadcastChannel(`axiva-present-${projectId}`);
     channel.postMessage({ slide: currentSlide });
     return () => channel.close();
   }, [currentSlide, projectId]);

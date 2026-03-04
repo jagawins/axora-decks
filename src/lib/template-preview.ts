@@ -6,7 +6,7 @@
 import { toPng } from 'html-to-image';
 import type { TemplateBlock, BlockPayload } from '@/lib/templates';
 
-const CACHE_PREFIX = 'axora:tpl:preview:';
+const CACHE_PREFIX = 'axiva:tpl:preview:';
 
 /**
  * Get cached preview URL from localStorage

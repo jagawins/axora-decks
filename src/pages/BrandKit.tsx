@@ -161,7 +161,7 @@ export default function BrandKitPage() {
   return (
     <>
       <SeoHead
-        title="Brand Kit | AXORA"
+        title="Brand Kit | AXIVA"
         description="Customize your brand identity — colors, fonts, logo, and company name for all generated decks."
         canonicalPath="/brand-kit"
       />

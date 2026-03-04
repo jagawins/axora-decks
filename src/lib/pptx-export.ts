@@ -54,7 +54,7 @@ function addBlockToSlide(
   slide.background = { color: bg };
 
   if (showWatermark) {
-    slide.addText("Made with AXORA", {
+    slide.addText("Made with AXIVA", {
       x: sx(8.5), y: 6.8, w: sx(3.5), h: 0.5,
       fontSize: 12, fontFace: "Calibri", color: "AAAAAA",
       align: "right", italic: true, transparency: 30,
@@ -675,9 +675,9 @@ export interface ExportPptxOptions {
 export async function generatePptxBlob(opts: ExportPptxOptions): Promise<Blob> {
   const pres = new pptxgen();
   // Use 16x9 layout (10" x 5.625") matching our content positioning
-  pres.defineLayout({ name: "AXORA_16x9", width: 13.33, height: 7.5 });
-  pres.layout = "AXORA_16x9";
-  pres.author = "Axora";
+  pres.defineLayout({ name: "AXIVA_16x9", width: 13.33, height: 7.5 });
+  pres.layout = "AXIVA_16x9";
+  pres.author = "Axiva";
   pres.title = opts.title;
 
   const brand: BrandKit = opts.brandKit || {};

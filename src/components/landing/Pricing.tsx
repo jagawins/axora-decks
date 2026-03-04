@@ -13,7 +13,7 @@ const plans = [
     name: "Free",
     monthlyPrice: "$0",
     yearlyPrice: "$0",
-    description: "Perfect for trying AXORA",
+    description: "Perfect for trying AXIVA",
     features: [
       "3 projects",
       "Basic AI generation",

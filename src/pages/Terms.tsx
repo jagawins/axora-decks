@@ -6,8 +6,8 @@ const Terms = () => {
   return (
     <>
       <Helmet>
-        <title>Terms of Service | AXORA</title>
-        <meta name="description" content="AXORA terms of service. Read about your rights and responsibilities when using our AI deck generator." />
+        <title>Terms of Service | AXIVA</title>
+        <meta name="description" content="AXIVA terms of service. Read about your rights and responsibilities when using our AI deck generator." />
         <link rel="canonical" href="https://axiva.ai/terms" />
         <meta name="robots" content="index, follow" />
       </Helmet>
@@ -22,13 +22,13 @@ const Terms = () => {
           
           <div className="prose prose-invert max-w-none space-y-8">
             <p className="text-lg text-muted-foreground">
-              These Terms govern your access to and use of AXORA at axiva.ai. By using the service, you agree to these Terms.
+              These Terms govern your access to and use of AXIVA at axiva.ai. By using the service, you agree to these Terms.
             </p>
 
             <section>
               <h2 className="text-2xl font-semibold mb-4">1. The service</h2>
               <p className="text-muted-foreground">
-                AXORA provides tools to create, edit, and export presentation content.
+                AXIVA provides tools to create, edit, and export presentation content.
               </p>
             </section>
 
@@ -53,7 +53,7 @@ const Terms = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">4. Your content</h2>
               <p className="text-muted-foreground">
-                You retain ownership of content you submit. You grant AXORA a limited license to host, process, and display your content only to operate the service and provide requested outputs.
+                You retain ownership of content you submit. You grant AXIVA a limited license to host, process, and display your content only to operate the service and provide requested outputs.
               </p>
             </section>
 
@@ -74,7 +74,7 @@ const Terms = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">7. Intellectual property</h2>
               <p className="text-muted-foreground">
-                AXORA and its software, design, and branding are owned by AXORA or its licensors. You may not copy or resell the service except as allowed by law.
+                AXIVA and its software, design, and branding are owned by AXIVA or its licensors. You may not copy or resell the service except as allowed by law.
               </p>
             </section>
 
@@ -102,7 +102,7 @@ const Terms = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">11. Limitation of liability</h2>
               <p className="text-muted-foreground">
-                To the fullest extent permitted by law, AXORA will not be liable for indirect, incidental, special, consequential, or punitive damages. Our total liability for any claim will not exceed the amount you paid to AXORA in the 12 months before the event giving rise to the claim.
+                To the fullest extent permitted by law, AXIVA will not be liable for indirect, incidental, special, consequential, or punitive damages. Our total liability for any claim will not exceed the amount you paid to AXIVA in the 12 months before the event giving rise to the claim.
               </p>
             </section>
 

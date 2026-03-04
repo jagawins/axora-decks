@@ -32,7 +32,7 @@ Add a collapsible "Try it now" section below the CTA buttons:
 
 Enhance the existing ExampleDecks component:
 - Add a "Browse All Slides" button on each card that opens the existing `TemplatePreviewModal` (already wired up)
-- Add a dedicated section header: "See What AXORA Creates" with a subtitle about no sign-up needed
+- Add a dedicated section header: "See What AXIVA Creates" with a subtitle about no sign-up needed
 - This is already mostly working — the main fix is making sure the modal opens reliably and the slide previews are populated
 
 **File: `src/pages/Templates.tsx`**

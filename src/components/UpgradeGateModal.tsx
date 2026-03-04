@@ -54,7 +54,7 @@ export function UpgradeGateModal({ open, onOpenChange, feature }: UpgradeGateMod
           </DialogTitle>
           <DialogDescription>
             {feature
-              ? `${feature} requires an Axora Pro plan. Upgrade for $28/mo to unlock it and everything below.`
+              ? `${feature} requires an Axiva Pro plan. Upgrade for $28/mo to unlock it and everything below.`
               : "You've used all 3 free deck generations. Upgrade to Pro ($28/mo) for unlimited access."}
           </DialogDescription>
         </DialogHeader>
@@ -109,7 +109,7 @@ export function UpgradeGateModal({ open, onOpenChange, feature }: UpgradeGateMod
 }
 
 // Utility functions for soft gating
-const STORAGE_KEY = "axora_deck_gen_count";
+const STORAGE_KEY = "axiva_deck_gen_count";
 const MAX_FREE_GENERATIONS = 3;
 
 export function getDeckGenCount(): number {

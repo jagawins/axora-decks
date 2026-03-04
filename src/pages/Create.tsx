@@ -371,7 +371,7 @@ Create exactly ${cardsCount} slides/cards.`;
   return (
     <>
       <Helmet>
-        <title>Create with AI | AXORA</title>
+        <title>Create with AI | AXIVA</title>
         <meta
           name="description"
           content="Create executive-grade presentations with AI. Generate from scratch with full control over style, length, and content density."

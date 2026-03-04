@@ -268,7 +268,7 @@ export default function ExampleDecks() {
             See what you can build
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
-            Browse complete decks generated with AXORA — real slide layouts, real data visualizations, real executive quality.
+            Browse complete decks generated with AXIVA — real slide layouts, real data visualizations, real executive quality.
           </p>
         </div>
 

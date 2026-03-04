@@ -27,26 +27,26 @@ const AIDeckGenerator = () => {
 
   const faqs = [
     {
-      q: "What makes AXORA different from other AI deck generators?",
-      a: "AXORA prioritizes structure, executive tone, and PowerPoint-ready output."
+      q: "What makes AXIVA different from other AI deck generators?",
+      a: "AXIVA prioritizes structure, executive tone, and PowerPoint-ready output."
     },
     {
       q: "Can I control tone and depth?",
-      a: "Yes. AXORA supports executive, analytical, persuasive, and crisp tones."
+      a: "Yes. AXIVA supports executive, analytical, persuasive, and crisp tones."
     },
     {
-      q: "Is AXORA suitable for professional use?",
-      a: "Yes. AXORA is designed specifically for business and leadership presentations."
+      q: "Is AXIVA suitable for professional use?",
+      a: "Yes. AXIVA is designed specifically for business and leadership presentations."
     },
     {
-      q: "How does AXORA compare to Gamma?",
-      a: "AXORA is designed as a structured, executive-grade alternative to Gamma for business presentations.",
+      q: "How does AXIVA compare to Gamma?",
+      a: "AXIVA is designed as a structured, executive-grade alternative to Gamma for business presentations.",
       link: "/gamma-alternative",
-      linkText: "AXORA vs Gamma comparison"
+      linkText: "AXIVA vs Gamma comparison"
     },
     {
-      q: "Does AXORA work with PowerPoint?",
-      a: "Yes. AXORA exports clean, editable PowerPoint files. Learn more about our PowerPoint integration.",
+      q: "Does AXIVA work with PowerPoint?",
+      a: "Yes. AXIVA exports clean, editable PowerPoint files. Learn more about our PowerPoint integration.",
       link: "/powerpoint-ai",
       linkText: "PowerPoint AI generator"
     }
@@ -56,7 +56,7 @@ const AIDeckGenerator = () => {
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>AI Deck Generator: Build Structured Presentations in Minutes</title>
-        <meta name="description" content="AXORA is an AI deck generator built for executives. Turn raw ideas into structured presentations in minutes." />
+        <meta name="description" content="AXIVA is an AI deck generator built for executives. Turn raw ideas into structured presentations in minutes." />
         <link rel="canonical" href="https://axiva.ai/ai-deck-generator" />
       </Helmet>
 

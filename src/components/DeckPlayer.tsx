@@ -71,10 +71,10 @@ export default function DeckPlayer({
 
   useEffect(() => {
     // Generate a simple viewer hash from random ID stored in sessionStorage
-    let hash = sessionStorage.getItem("axora_vh");
+    let hash = sessionStorage.getItem("axiva_vh");
     if (!hash) {
       hash = crypto.randomUUID().slice(0, 8);
-      sessionStorage.setItem("axora_vh", hash);
+      sessionStorage.setItem("axiva_vh", hash);
     }
     viewerHash.current = hash;
   }, []);

@@ -18,30 +18,30 @@ const PowerPointAI = () => {
 
   const faqs = [
     {
-      q: "Is AXORA a PowerPoint replacement?",
-      a: "No. AXORA generates the content and structure. PowerPoint remains the delivery format."
+      q: "Is AXIVA a PowerPoint replacement?",
+      a: "No. AXIVA generates the content and structure. PowerPoint remains the delivery format."
     },
     {
       q: "Can I edit slides after export?",
-      a: "Yes. AXORA exports editable PowerPoint files."
+      a: "Yes. AXIVA exports editable PowerPoint files."
     },
     {
       q: "Is this better than PowerPoint Copilot?",
-      a: "AXORA focuses on structure and clarity first, before design or formatting."
+      a: "AXIVA focuses on structure and clarity first, before design or formatting."
     },
     {
-      q: "How does AXORA compare to Gamma?",
-      a: "AXORA is built as a structured alternative to Gamma for executives. See our detailed comparison.",
+      q: "How does AXIVA compare to Gamma?",
+      a: "AXIVA is built as a structured alternative to Gamma for executives. See our detailed comparison.",
       link: "/gamma-alternative",
-      linkText: "AXORA vs Gamma"
+      linkText: "AXIVA vs Gamma"
     }
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>PowerPoint AI Generator: Create Executive Slides with AXORA</title>
-        <meta name="description" content="Use AXORA as your PowerPoint AI generator. Create structured, executive-ready slides in minutes and export cleanly to PowerPoint." />
+        <title>PowerPoint AI Generator: Create Executive Slides with AXIVA</title>
+        <meta name="description" content="Use AXIVA as your PowerPoint AI generator. Create structured, executive-ready slides in minutes and export cleanly to PowerPoint." />
         <link rel="canonical" href="https://axiva.ai/powerpoint-ai" />
       </Helmet>
 

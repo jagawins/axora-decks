@@ -26,7 +26,7 @@ const ValueTriplet = () => {
         {/* Section header */}
         <div className="text-center mb-16">
           <p className="text-accent font-medium text-sm uppercase tracking-wider mb-3">
-            The AXORA Method
+            The AXIVA Method
           </p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
             Three steps to clarity

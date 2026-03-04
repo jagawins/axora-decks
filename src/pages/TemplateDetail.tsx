@@ -97,7 +97,7 @@ export default function TemplateDetail() {
     description: template.description,
     creator: {
       "@type": "Organization",
-      name: "AXORA",
+      name: "AXIVA",
     },
     keywords: template.tags?.join(", "),
   };
@@ -105,10 +105,10 @@ export default function TemplateDetail() {
   return (
     <>
       <SeoHead
-        title={`${template.title} Template | AXORA`}
+        title={`${template.title} Template | AXIVA`}
         description={
           template.description ||
-          `Use the ${template.title} template to create professional presentations with AXORA's AI deck generator.`
+          `Use the ${template.title} template to create professional presentations with AXIVA's AI deck generator.`
         }
         canonicalPath={`/template/${template.slug}`}
         keywords={template.tags?.join(", ")}

@@ -18,14 +18,14 @@ function getEmailBody(key: string, appUrl: string): string {
   switch (key) {
     case "day0":
       return `
-        <h2 style="margin:0 0 16px">Welcome to Axora 👋</h2>
+        <h2 style="margin:0 0 16px">Welcome to Axiva 👋</h2>
         <p>Your first executive-grade deck is one prompt away.</p>
-        <p>Just describe what you need — "Seed round pitch for an AI startup" — and Axora builds a polished presentation in under 2 minutes.</p>
+        <p>Just describe what you need — "Seed round pitch for an AI startup" — and Axiva builds a polished presentation in under 2 minutes.</p>
         <a href="${appUrl}/onboarding" style="display:inline-block;padding:12px 24px;background:#000;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:12px">Create Your First Deck →</a>
       `;
     case "day3":
       return `
-        <h2 style="margin:0 0 16px">See what Axora can do in 90 seconds ⚡</h2>
+        <h2 style="margin:0 0 16px">See what Axiva can do in 90 seconds ⚡</h2>
         <p>We noticed you haven't created a deck yet. No worries — here's what a single prompt produces:</p>
         <p><strong>Prompt:</strong> "Q4 board update with revenue metrics and strategic outlook"</p>
         <p>→ 8 slides, structured narrative, data visualizations, executive formatting — all in under 2 minutes.</p>
@@ -48,14 +48,14 @@ function getEmailBody(key: string, appUrl: string): string {
     case "day10":
       return `
         <h2 style="margin:0 0 16px">You're halfway through your trial ⏳</h2>
-        <p>4 days left to experience everything Axora Pro offers — unlimited deck generations, Brand Kit, PowerPoint export, interactive blocks, and more.</p>
-        <p>Don't let your trial expire without trying the features that make Axora indispensable.</p>
+        <p>4 days left to experience everything Axiva Pro offers — unlimited deck generations, Brand Kit, PowerPoint export, interactive blocks, and more.</p>
+        <p>Don't let your trial expire without trying the features that make Axiva indispensable.</p>
         <a href="${appUrl}/pricing" style="display:inline-block;padding:12px 24px;background:#000;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:12px">Upgrade Now — $28/mo →</a>
       `;
     case "day13":
       return `
         <h2 style="margin:0 0 16px">Your trial ends tomorrow 🔔</h2>
-        <p>This is your last chance to lock in Axora Pro before your account reverts to Free (3 deck limit, no Brand Kit, no PowerPoint export).</p>
+        <p>This is your last chance to lock in Axiva Pro before your account reverts to Free (3 deck limit, no Brand Kit, no PowerPoint export).</p>
         <p><strong>$28/mo</strong> — and if you're not satisfied, we offer a full 14-day refund guarantee. Zero risk.</p>
         <a href="${appUrl}/pricing" style="display:inline-block;padding:12px 24px;background:#000;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:12px">Keep Pro — Start Now →</a>
       `;
@@ -141,7 +141,7 @@ serve(async (req) => {
           <body style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#333;">
             ${body}
             <hr style="margin-top:32px;border:none;border-top:1px solid #eee"/>
-            <p style="font-size:12px;color:#999;margin-top:16px">Axora — Executive-grade presentations, powered by AI.<br/>
+            <p style="font-size:12px;color:#999;margin-top:16px">Axiva — Executive-grade presentations, powered by AI.<br/>
             <a href="${appUrl}" style="color:#999">axiva.ai</a></p>
           </body></html>
         `;
@@ -154,7 +154,7 @@ serve(async (req) => {
             Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
           },
           body: JSON.stringify({
-            from: "Axora <jag@axiva.ai>",
+            from: "Axiva <jag@axiva.ai>",
             to: [user.email],
             subject: drip.subject,
             html: htmlEmail,

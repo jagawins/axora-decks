@@ -252,8 +252,8 @@ export default function Demo() {
   return (
     <>
       <Helmet>
-        <title>Live Demo | AXORA — Executive Thinking Engine</title>
-        <meta name="description" content="Watch Axora transform raw executive notes into board-ready presentations with templates, brand kits, AI images, and interactive blocks." />
+        <title>Live Demo | AXIVA — Executive Thinking Engine</title>
+        <meta name="description" content="Watch Axiva transform raw executive notes into board-ready presentations with templates, brand kits, AI images, and interactive blocks." />
       </Helmet>
 
       <Navbar />
@@ -295,7 +295,7 @@ export default function Demo() {
               <div className="text-center mb-12">
                 <p className="text-sm font-medium text-accent mb-3 tracking-wide uppercase">Live Demo</p>
                 <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground mb-4">
-                  See AXORA in Action
+                  See AXIVA in Action
                 </h1>
                 <p className="text-lg text-muted-foreground max-w-xl mx-auto">
                   Watch messy notes become themed, branded, interactive board decks — with AI images, custom fonts, and one-click export.

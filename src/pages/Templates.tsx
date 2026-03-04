@@ -46,7 +46,7 @@ export default function Templates() {
   return (
     <>
       <SeoHead
-        title="Presentation Templates | Axora — AI Deck Generator"
+        title="Presentation Templates | Axiva — AI Deck Generator"
         description="60+ professional presentation templates for board decks, executive summaries, product roadmaps, and sales playbooks. Start with a template and customize with AI."
         canonicalPath="/templates"
         keywords="presentation templates, executive deck templates, board deck template, pitch deck template, AI presentation templates, AI infographic generator"

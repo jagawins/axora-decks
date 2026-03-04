@@ -1,5 +1,5 @@
 /**
- * Static seed data for 4 example decks showcasing AXORA output quality.
+ * Static seed data for 4 example decks showcasing AXIVA output quality.
  * These are inserted into templates table with "example-deck" tag.
  */
 

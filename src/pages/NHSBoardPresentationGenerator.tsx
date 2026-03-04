@@ -24,7 +24,7 @@ const USE_CASES = [
 export default function NHSBoardPresentationGenerator() {
   const jsonLd = {
     "@type": "SoftwareApplication",
-    name: "AXORA — NHS Board Presentation Generator",
+    name: "AXIVA — NHS Board Presentation Generator",
     applicationCategory: "BusinessApplication",
     description: "AI-powered presentation generator for NHS leaders. Create CQC-aligned board papers, Trust performance packs, and ICB governance decks in minutes.",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -34,7 +34,7 @@ export default function NHSBoardPresentationGenerator() {
   return (
     <>
       <SeoHead
-        title="NHS Board Presentation Generator | AI Deck Builder for NHS Trusts — AXORA"
+        title="NHS Board Presentation Generator | AI Deck Builder for NHS Trusts — AXIVA"
         description="Create CQC-aligned board papers, Trust performance packs, and ICB governance presentations in minutes. AI-powered for NHS executives and healthcare leaders in the UK."
         canonicalPath="/nhs-board-presentation-generator"
         keywords="NHS board presentation, NHS Trust board papers, CQC presentation generator, ICB governance deck, NHS executive presentation, healthcare board pack UK, NHS board meeting slides"
@@ -99,7 +99,7 @@ export default function NHSBoardPresentationGenerator() {
               Built for Every Level of NHS Leadership
             </h2>
             <p className="text-muted-foreground text-center mb-10 max-w-2xl mx-auto">
-              From Trust CEOs to clinical directors — AXORA helps NHS leaders present with clarity and confidence.
+              From Trust CEOs to clinical directors — AXIVA helps NHS leaders present with clarity and confidence.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
               {USE_CASES.map((uc) => (
@@ -116,7 +116,7 @@ export default function NHSBoardPresentationGenerator() {
             <h2 className="text-3xl font-bold mb-4">Also Available for Canadian Health Systems</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
               Provincial health authorities in Canada have similar governance documentation requirements. 
-              AXORA works with any health system structure — from NHS England to Ontario Health.
+              AXIVA works with any health system structure — from NHS England to Ontario Health.
             </p>
             <Link to="/create">
               <Button variant="outline" size="lg" className="gap-2">

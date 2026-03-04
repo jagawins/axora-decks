@@ -14,12 +14,12 @@ const FounderCard = ({ variant = "default", className = "" }: FounderCardProps) 
       <Link to="/about" className={`flex items-center gap-4 hover:opacity-80 transition-opacity ${className}`}>
         <img 
           src={founderCardSquare} 
-          alt="Jag Mariappan — Founder of AXORA" 
+          alt="Jag Mariappan — Founder of AXIVA" 
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
           <p className="font-semibold text-foreground">Jag Mariappan</p>
-          <p className="text-sm text-muted-foreground">Founder of AXORA</p>
+          <p className="text-sm text-muted-foreground">Founder of AXIVA</p>
         </div>
       </Link>
     );
@@ -39,7 +39,7 @@ const FounderCard = ({ variant = "default", className = "" }: FounderCardProps) 
               <Link to="/about">
                 <img 
                   src={founderCardSquare} 
-                  alt="Jag Mariappan — Founder of AXORA" 
+                  alt="Jag Mariappan — Founder of AXIVA" 
                   className="w-24 h-24 rounded-2xl border-4 border-background shadow-lg object-cover hover:shadow-xl transition-shadow"
                 />
               </Link>
@@ -53,17 +53,17 @@ const FounderCard = ({ variant = "default", className = "" }: FounderCardProps) 
                     </h3>
                   </Link>
                   <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-sm font-semibold">
-                    AXORA
+                    AXIVA
                   </span>
                 </div>
                 <p className="text-muted-foreground mt-1">
-                  Founder of AXORA · <a 
-                    href="https://x.com/inaxora" 
+                  Founder of AXIVA · <a 
+                    href="https://x.com/inaxiva" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-accent hover:underline"
                   >
-                    @inaxora
+                    @inaxiva
                   </a>
                 </p>
               </div>
@@ -78,7 +78,7 @@ const FounderCard = ({ variant = "default", className = "" }: FounderCardProps) 
             <div className="flex flex-wrap gap-4">
               <Link to="/auth">
                 <Button variant="hero" size="lg" className="group">
-                  Try AXORA
+                  Try AXIVA
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>

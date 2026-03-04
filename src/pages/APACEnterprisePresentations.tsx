@@ -33,7 +33,7 @@ const USE_CASES = [
 export default function SingaporeEnterprisePresentations() {
   const jsonLd = {
     "@type": "SoftwareApplication",
-    name: "AXORA — Asia-Pacific Enterprise Presentation Generator",
+    name: "AXIVA — Asia-Pacific Enterprise Presentation Generator",
     applicationCategory: "BusinessApplication",
     description: "AI-powered presentation generator for Asia-Pacific enterprises. Create SGX-compliant board decks, APAC market analysis, and cross-border executive presentations in minutes.",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -43,7 +43,7 @@ export default function SingaporeEnterprisePresentations() {
   return (
     <>
       <SeoHead
-        title="AI Presentation Generator for Asia-Pacific | Enterprise Decks for APAC — AXORA"
+        title="AI Presentation Generator for Asia-Pacific | Enterprise Decks for APAC — AXIVA"
         description="Create SGX-compliant board decks, APAC market analysis presentations, and cross-border executive slides in minutes. AI-powered for enterprise teams in Singapore, Australia, and Asia-Pacific."
         canonicalPath="/asia-pacific-enterprise-presentations"
         keywords="AI presentation generator Asia-Pacific, Singapore enterprise deck, APAC board presentation, Australia executive presentation, SGX board pack, Asia-Pacific business presentation, enterprise AI slides APAC"
@@ -108,7 +108,7 @@ export default function SingaporeEnterprisePresentations() {
               Key Markets We Serve
             </h2>
             <p className="text-muted-foreground text-center mb-10 max-w-2xl mx-auto">
-              From Singapore's financial hub to Australia's enterprise sector — AXORA supports executive presentation needs across APAC.
+              From Singapore's financial hub to Australia's enterprise sector — AXIVA supports executive presentation needs across APAC.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
               {MARKETS.map((m) => (

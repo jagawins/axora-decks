@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* AXORA Executive Design System */
+    /* AXIVA Executive Design System */
     --background: 220 20% 4%;
     --foreground: 210 20% 98%;
 
@@ -49,7 +49,7 @@
     --radius: 0.75rem;
 
     /* =====================================================
-       AXORA VISUAL BLOCK DESIGN TOKENS
+       AXIVA VISUAL BLOCK DESIGN TOKENS
        ===================================================== */
     
     /* Typographic Scale (fluid, executive-grade) */

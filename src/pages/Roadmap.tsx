@@ -118,10 +118,10 @@ export default function Roadmap() {
   return (
     <>
       <SeoHead
-        title="Product Roadmap | AXORA - AI Presentation Generator"
-        description="See what's shipped, in progress, and planned for AXORA. Our roadmap for building the best AI presentation generator for executives."
+        title="Product Roadmap | AXIVA - AI Presentation Generator"
+        description="See what's shipped, in progress, and planned for AXIVA. Our roadmap for building the best AI presentation generator for executives."
         canonicalPath="/roadmap"
-        keywords="AXORA roadmap, AI presentation features, product updates, upcoming features"
+        keywords="AXIVA roadmap, AI presentation features, product updates, upcoming features"
       />
 
       <Navbar />
@@ -192,7 +192,7 @@ export default function Roadmap() {
             </h2>
             <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
               We build based on what executives actually need. Tell us what
-              would make AXORA more valuable for your workflow.
+              would make AXIVA more valuable for your workflow.
             </p>
             <Button asChild size="lg" className="w-full sm:w-auto">
               <Link to="/contact">Share Your Ideas</Link>

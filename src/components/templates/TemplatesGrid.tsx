@@ -299,7 +299,7 @@ export function TemplatesGrid({ templates, loading, onRefresh }: TemplatesGridPr
             Try adjusting your filters or request a custom template.
           </p>
           <Button variant="outline" size="sm" className="gap-2" asChild>
-            <a href="mailto:templates@axora.ai?subject=Template%20Request">
+            <a href="mailto:templates@axiva.ai?subject=Template%20Request">
               <Mail className="h-4 w-4" />
               Request This Template
             </a>

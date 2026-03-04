@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 export default function Press() {
   const jsonLd = {
     "@type": "Organization",
-    name: "AXORA",
+    name: "AXIVA",
     description:
-      "AXORA is an AI-powered presentation generator built for executives who need structured, board-ready decks.",
+      "AXIVA is an AI-powered presentation generator built for executives who need structured, board-ready decks.",
     url: "https://axiva.ai",
     founder: {
       "@type": "Person",
@@ -23,10 +23,10 @@ export default function Press() {
   return (
     <>
       <SeoHead
-        title="Press Kit | AXORA - AI Presentation Generator"
-        description="Download AXORA press assets, brand guidelines, and media resources. Get information about AXORA and founder Jag Mariappan for press coverage."
+        title="Press Kit | AXIVA - AI Presentation Generator"
+        description="Download AXIVA press assets, brand guidelines, and media resources. Get information about AXIVA and founder Jag Mariappan for press coverage."
         canonicalPath="/press"
-        keywords="AXORA press kit, AXORA media, Jag Mariappan, AI presentation company"
+        keywords="AXIVA press kit, AXIVA media, Jag Mariappan, AI presentation company"
         jsonLd={jsonLd}
       />
 
@@ -40,20 +40,20 @@ export default function Press() {
               Press & Media
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Resources for journalists, bloggers, and media covering AXORA and
+              Resources for journalists, bloggers, and media covering AXIVA and
               AI-powered executive presentations.
             </p>
           </section>
 
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* About AXORA */}
+            {/* About AXIVA */}
             <section>
-              <h2 className="text-2xl font-bold mb-6">About AXORA</h2>
+              <h2 className="text-2xl font-bold mb-6">About AXIVA</h2>
               <div className="p-6 rounded-xl border border-border bg-card">
                 <p className="text-muted-foreground mb-4 leading-relaxed">
-                  AXORA is an AI-powered presentation generator built specifically
+                  AXIVA is an AI-powered presentation generator built specifically
                   for executives who need structured, board-ready decks. Unlike
-                  general-purpose AI tools, AXORA is trained on executive
+                  general-purpose AI tools, AXIVA is trained on executive
                   communication patterns — board presentations, strategy updates,
                   and decision frameworks.
                 </p>
@@ -67,7 +67,7 @@ export default function Press() {
                   <Link to="/founder" className="text-accent hover:underline">
                     Jag Mariappan
                   </Link>
-                  , AXORA addresses the gap between generic AI presentation tools
+                  , AXIVA addresses the gap between generic AI presentation tools
                   and the specific needs of executive communication.
                 </p>
               </div>
@@ -87,9 +87,9 @@ export default function Press() {
                   </div>
                 </div>
                 <p className="text-muted-foreground mb-4 leading-relaxed">
-                  Jag Mariappan is the founder of AXORA, an AI presentation
+                  Jag Mariappan is the founder of AXIVA, an AI presentation
                   platform for executive communication. With a background in
-                  enterprise technology and executive leadership, Jag built AXORA
+                  enterprise technology and executive leadership, Jag built AXIVA
                   to solve the presentation creation challenges he experienced
                   firsthand.
                 </p>
@@ -109,7 +109,7 @@ export default function Press() {
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                 <div>
                   <h3 className="text-xl font-semibold mb-2">
-                    AXORA Press Kit
+                    AXIVA Press Kit
                   </h3>
                   <p className="text-muted-foreground">
                     Logos, wordmarks, brand guidelines, and approved imagery for
@@ -117,7 +117,7 @@ export default function Press() {
                   </p>
                 </div>
                 <Button asChild size="lg" className="w-full md:w-auto shrink-0">
-                  <a href="/assets/axora-presskit.zip" download>
+                  <a href="/assets/axiva-presskit.zip" download>
                     <Download className="mr-2 h-4 w-4" />
                     Download Press Kit
                   </a>

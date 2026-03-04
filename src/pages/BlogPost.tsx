@@ -111,15 +111,15 @@ Supporting data for those who want depth. Reference it, don't present it.
 
 **Missing the "so what."** Data without interpretation is noise. Every chart needs a headline that tells the story.
 
-## The AXORA Approach
+## The AXIVA Approach
 
-This is why we built AXORA for executive communication. The AI understands these structures. When you describe a board update, it generates slides that follow decision-ready frameworks — not marketing templates.
+This is why we built AXIVA for executive communication. The AI understands these structures. When you describe a board update, it generates slides that follow decision-ready frameworks — not marketing templates.
 
 Start with the decision you need. Build backward from there.
     `,
   },
-  "gamma-vs-axora-comparison": {
-    title: "Gamma vs AXORA: Which AI Presentation Tool Fits Your Workflow?",
+  "gamma-vs-axiva-comparison": {
+    title: "Gamma vs AXIVA: Which AI Presentation Tool Fits Your Workflow?",
     excerpt:
       "An honest comparison of AI presentation tools for executives who need structured, professional decks.",
     category: "Product",
@@ -128,9 +128,9 @@ Start with the decision you need. Build backward from there.
     content: `
 ## The AI Presentation Landscape
 
-AI presentation tools have exploded in 2024-2025. Gamma pioneered the category. Beautiful.ai refined the design automation angle. We built AXORA for a different user: executives who need structured, decision-ready decks.
+AI presentation tools have exploded in 2024-2025. Gamma pioneered the category. Beautiful.ai refined the design automation angle. We built AXIVA for a different user: executives who need structured, decision-ready decks.
 
-This comparison is written by AXORA's founder, so take it with appropriate context. I'll try to be fair, but I obviously believe we've built something valuable.
+This comparison is written by AXIVA's founder, so take it with appropriate context. I'll try to be fair, but I obviously believe we've built something valuable.
 
 ## Gamma: The Pioneer
 
@@ -143,20 +143,20 @@ Gamma defined what AI presentations could be. Their strengths:
 
 Gamma works well for marketing content, pitch decks, and presentations where visual impact matters more than structural density.
 
-## AXORA: Built for Executive Communication
+## AXIVA: Built for Executive Communication
 
-We built AXORA after years of creating board decks and executive presentations. Different priorities:
+We built AXIVA after years of creating board decks and executive presentations. Different priorities:
 
 - **Structure:** AI trained on executive communication patterns — not marketing templates
 - **Density:** Supports high-information slides that boards expect
 - **Refinement:** Block-level AI editing preserves formatting while updating content
 - **Export:** Clean PDF and presentation exports without platform lock-in
 
-AXORA works best for board decks, strategy presentations, executive updates, and anywhere that structured thinking matters more than visual flourish.
+AXIVA works best for board decks, strategy presentations, executive updates, and anywhere that structured thinking matters more than visual flourish.
 
 ## Key Differences
 
-| Aspect | Gamma | AXORA |
+| Aspect | Gamma | AXIVA |
 |--------|-------|-------|
 | Primary use case | Marketing, pitch decks | Executive, board decks |
 | Design focus | Visual impact | Information structure |
@@ -165,7 +165,7 @@ AXORA works best for board decks, strategy presentations, executive updates, and
 
 ## The Honest Take
 
-If you're creating marketing content or investor pitch decks, Gamma does excellent work. If you're preparing board materials, strategy updates, or executive communications, AXORA is purpose-built for that workflow.
+If you're creating marketing content or investor pitch decks, Gamma does excellent work. If you're preparing board materials, strategy updates, or executive communications, AXIVA is purpose-built for that workflow.
 
 The tools aren't competing for the same job. They're optimized for different outcomes.
 
@@ -210,14 +210,14 @@ export default function BlogPost() {
     },
     publisher: {
       "@type": "Organization",
-      name: "AXORA",
+      name: "AXIVA",
     },
   };
 
   return (
     <>
       <SeoHead
-        title={`${post.title} | AXORA Blog`}
+        title={`${post.title} | AXIVA Blog`}
         description={post.excerpt}
         canonicalPath={`/blog/${slug}`}
         ogType="article"
@@ -272,7 +272,7 @@ export default function BlogPost() {
                 <div>
                   <div className="font-medium">{post.author}</div>
                   <div className="text-sm text-muted-foreground">
-                    Founder, AXORA
+                    Founder, AXIVA
                   </div>
                 </div>
               </Link>
@@ -330,7 +330,7 @@ export default function BlogPost() {
               Ready to create your own executive deck?
             </h3>
             <p className="text-muted-foreground mb-6">
-              Try AXORA free and see how AI can transform your presentations.
+              Try AXIVA free and see how AI can transform your presentations.
             </p>
             <Button asChild size="lg" className="w-full sm:w-auto">
               <Link to="/create">Start Creating</Link>

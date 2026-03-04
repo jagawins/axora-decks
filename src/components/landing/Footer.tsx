@@ -40,7 +40,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <Link to="/gamma-alternative" className="text-sm text-muted-foreground hover:text-accent transition-colors">
-                  AXORA vs Gamma
+                  AXIVA vs Gamma
                 </Link>
               </li>
               <li>

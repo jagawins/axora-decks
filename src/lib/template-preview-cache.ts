@@ -5,7 +5,7 @@
 
 import { getPreviewCacheKey, RENDERER_VERSION } from './templates';
 
-const DB_NAME = 'axora-previews';
+const DB_NAME = 'axiva-previews';
 const DB_VERSION = 1;
 const STORE_NAME = 'previews';
 
@@ -18,7 +18,7 @@ interface PreviewMetadata {
   cachedAt: number;
 }
 
-const METADATA_PREFIX = 'axora:preview:meta:';
+const METADATA_PREFIX = 'axiva:preview:meta:';
 
 // =============================================================================
 // IndexedDB Operations

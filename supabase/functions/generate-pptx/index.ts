@@ -64,9 +64,9 @@ function addBlockToSlide(
 
   slide.background = { color: bg };
 
-  // Add Axora watermark for free/trial users
+  // Add Axiva watermark for free/trial users
   if (showWatermark) {
-    slide.addText("Made with AXORA", {
+    slide.addText("Made with AXIVA", {
       x: 8.5,
       y: 6.8,
       w: 3.5,
@@ -590,7 +590,7 @@ serve(async (req) => {
     // Build presentation
     const pres = new pptxgen();
     pres.layout = "LAYOUT_WIDE"; // 13.33 x 7.5 inches (16:9)
-    pres.author = "Axora";
+    pres.author = "Axiva";
     pres.title = String(project.title || "Untitled Deck");
 
     for (const block of blocks) {

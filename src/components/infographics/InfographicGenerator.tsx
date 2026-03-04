@@ -200,7 +200,7 @@ export default function InfographicGenerator() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `axora-infographic-${Date.now()}.png`;
+      a.download = `axiva-infographic-${Date.now()}.png`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

@@ -32,7 +32,7 @@ const CTA = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/auth">
               <Button variant="hero" size="xl" className="group">
-                Try AXORA Free
+                Try AXIVA Free
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>

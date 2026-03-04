@@ -107,7 +107,7 @@ export default function SettingsPage() {
 
   return (
     <>
-      <SeoHead title="Settings | AXORA" description="Manage your workspace settings, brand defaults, and billing." canonicalPath="/settings" />
+      <SeoHead title="Settings | AXIVA" description="Manage your workspace settings, brand defaults, and billing." canonicalPath="/settings" />
       <Navbar />
       <main className="min-h-screen pt-24 pb-16">
         <div className="container-wide">

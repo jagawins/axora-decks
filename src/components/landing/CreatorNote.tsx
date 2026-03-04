@@ -13,14 +13,14 @@ const CreatorNote = ({ className = "" }: CreatorNoteProps) => {
           <Link to="/about" className="shrink-0">
             <img 
               src={founderCardSquare} 
-              alt="Jag Mariappan — Founder of AXORA" 
+              alt="Jag Mariappan — Founder of AXIVA" 
               className="w-16 h-16 rounded-full object-cover hover:shadow-lg transition-shadow"
             />
           </Link>
           <div className="text-center sm:text-left">
             <h3 className="font-semibold text-foreground mb-1">About the Creator</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              AXORA was created by{" "}
+              AXIVA was created by{" "}
               <Link to="/about" className="text-accent hover:underline font-medium">
                 Jag Mariappan
               </Link>{" "}

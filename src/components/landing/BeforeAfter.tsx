@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 
 /**
  * Before & After split-screen comparison section for the homepage.
- * Left: generic PowerPoint mockup. Right: polished AXORA output preview.
+ * Left: generic PowerPoint mockup. Right: polished AXIVA output preview.
  */
 export default function BeforeAfter() {
   return (
@@ -78,10 +78,10 @@ export default function BeforeAfter() {
                 <div className="w-2.5 h-2.5 rounded-full bg-accent/40" />
                 <div className="w-2.5 h-2.5 rounded-full bg-accent/20" />
               </div>
-              <span className="text-[10px] text-accent/70 font-mono">AXORA — Executive Deck</span>
+              <span className="text-[10px] text-accent/70 font-mono">AXIVA — Executive Deck</span>
             </div>
             <div className="p-6 aspect-video flex flex-col gap-3 bg-gradient-to-br from-accent/[0.03] to-transparent">
-              {/* Mock AXORA slide thumbnails */}
+              {/* Mock AXIVA slide thumbnails */}
               <div className="flex-1 grid grid-rows-3 gap-2.5">
                 {/* Slide 1: Executive Summary */}
                 <div className="rounded-lg border border-accent/10 bg-card/80 p-3 flex items-center gap-3">

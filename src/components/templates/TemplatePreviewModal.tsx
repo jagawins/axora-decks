@@ -44,7 +44,7 @@ export function TemplatePreviewModal({
   // Check if brand kit exists
   const hasBrandKit = useMemo(() => {
     try {
-      const stored = localStorage.getItem('axora_brand_kit');
+      const stored = localStorage.getItem('axiva_brand_kit');
       return !!stored;
     } catch { return false; }
   }, []);
@@ -129,7 +129,7 @@ export function TemplatePreviewModal({
   const brandStyles: React.CSSProperties = {};
   if (showBrand) {
     try {
-      const kit = JSON.parse(localStorage.getItem('axora_brand_kit') || '{}');
+      const kit = JSON.parse(localStorage.getItem('axiva_brand_kit') || '{}');
       if (kit.primaryColor) {
         (brandStyles as any)['--deck-accent'] = kit.primaryColor;
         (brandStyles as any)['--deck-heading'] = kit.primaryColor;

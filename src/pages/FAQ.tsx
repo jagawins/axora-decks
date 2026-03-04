@@ -13,19 +13,19 @@ const sections = [
     title: "General",
     items: [
       {
-        q: "What is Axora?",
-        a: "Axora is an AI-powered presentation platform built for executives, founders, and professionals who need polished, boardroom-ready decks — fast. You describe what you need, and Axora generates a fully structured, beautifully designed presentation in seconds. No drag-and-drop. No template wrestling. Just professional output you can trust.",
+        q: "What is Axiva?",
+        a: "Axiva is an AI-powered presentation platform built for executives, founders, and professionals who need polished, boardroom-ready decks — fast. You describe what you need, and Axiva generates a fully structured, beautifully designed presentation in seconds. No drag-and-drop. No template wrestling. Just professional output you can trust.",
       },
       {
-        q: "How does Axora generate my deck?",
-        a: "Axora uses advanced AI to analyze your input — whether that's a prompt, a document, or a rough outline — and produces a structured narrative with matching visuals, charts, and design. Our AI understands presentation logic, not just text, so it knows when to use a comparison slide vs. a data callout vs. a storytelling section.",
+        q: "How does Axiva generate my deck?",
+        a: "Axiva uses advanced AI to analyze your input — whether that's a prompt, a document, or a rough outline — and produces a structured narrative with matching visuals, charts, and design. Our AI understands presentation logic, not just text, so it knows when to use a comparison slide vs. a data callout vs. a storytelling section.",
       },
       {
-        q: "What types of presentations can Axora create?",
+        q: "What types of presentations can Axiva create?",
         a: "Investor pitch decks (Seed through Series B), board of directors updates, executive business reviews, sales decks and proposals, consulting deliverables, and marketing and product presentations.",
       },
       {
-        q: "Who is Axora built for?",
+        q: "Who is Axiva built for?",
         a: "Professionals who care about output quality but don't have time to spend hours in PowerPoint — startup founders preparing for fundraising, executives presenting to boards, sales leaders building proposal decks, and consultants delivering client work.",
       },
     ],
@@ -34,24 +34,24 @@ const sections = [
     title: "Features",
     items: [
       {
-        q: "Can I edit slides after Axora generates them?",
-        a: "Yes, fully. Axora gives you a complete, editable presentation — not a locked template. You can adjust text, swap visuals, reorder sections, change themes, and fine-tune every slide. Think of the AI output as your first draft that's already 90% of the way there.",
+        q: "Can I edit slides after Axiva generates them?",
+        a: "Yes, fully. Axiva gives you a complete, editable presentation — not a locked template. You can adjust text, swap visuals, reorder sections, change themes, and fine-tune every slide. Think of the AI output as your first draft that's already 90% of the way there.",
       },
       {
-        q: "Does Axora support custom branding?",
-        a: "Yes. Upload your brand kit — logo, colors, fonts — and Axora applies your brand identity across every slide. Available on Pro and Team plans.",
+        q: "Does Axiva support custom branding?",
+        a: "Yes. Upload your brand kit — logo, colors, fonts — and Axiva applies your brand identity across every slide. Available on Pro and Team plans.",
       },
       {
-        q: "Can I import an existing presentation into Axora?",
-        a: "Yes. Upload an existing PowerPoint or PDF and Axora will analyze its structure. Free plan supports 1 import per day; Pro and Team plans are unlimited.",
+        q: "Can I import an existing presentation into Axiva?",
+        a: "Yes. Upload an existing PowerPoint or PDF and Axiva will analyze its structure. Free plan supports 1 import per day; Pro and Team plans are unlimited.",
       },
       {
         q: "What file formats can I export?",
         a: "PNG and web link (Free). PDF and PowerPoint (.pptx) on Pro and Team plans.",
       },
       {
-        q: "Does Axora support speaker notes?",
-        a: "Yes. Axora generates speaker notes alongside each slide with talking points and narrative context. Fully editable.",
+        q: "Does Axiva support speaker notes?",
+        a: "Yes. Axiva generates speaker notes alongside each slide with talking points and narrative context. Fully editable.",
       },
     ],
   },
@@ -92,7 +92,7 @@ const sections = [
         a: "Yes. All data is encrypted in transit and at rest. Your content is never shared with third parties and never used to train our AI models.",
       },
       {
-        q: "Is Axora safe for sensitive business content?",
+        q: "Is Axiva safe for sensitive business content?",
         a: "Yes. Many users regularly create highly sensitive board materials and investor documents with full confidence.",
       },
     ],
@@ -106,11 +106,11 @@ const sections = [
       },
       {
         q: "Do I need design skills?",
-        a: "Not at all. If you can describe what you want in plain language, Axora can build it.",
+        a: "Not at all. If you can describe what you want in plain language, Axiva can build it.",
       },
       {
         q: "How do I get the best results?",
-        a: "Give Axora context — your audience, the purpose of the deck, and key points you want to hit. Upload existing materials if you have them (a doc, a brief, notes). The more context, the better the output.",
+        a: "Give Axiva context — your audience, the purpose of the deck, and key points you want to hit. Upload existing materials if you have them (a doc, a brief, notes). The more context, the better the output.",
       },
     ],
   },
@@ -120,8 +120,8 @@ const FAQ = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>FAQ — Axora</title>
-        <meta name="description" content="Frequently asked questions about Axora — AI-powered presentations for executives and founders." />
+        <title>FAQ — Axiva</title>
+        <meta name="description" content="Frequently asked questions about Axiva — AI-powered presentations for executives and founders." />
         <link rel="canonical" href="https://axiva.ai/faq" />
       </Helmet>
 
@@ -138,7 +138,7 @@ const FAQ = () => {
               Frequently Asked Questions
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-              Everything you need to know about Axora — from your first deck to enterprise rollout.
+              Everything you need to know about Axiva — from your first deck to enterprise rollout.
             </p>
           </div>
         </section>

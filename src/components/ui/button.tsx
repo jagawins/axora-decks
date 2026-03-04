@@ -15,7 +15,7 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-muted hover:text-foreground",
         link: "text-accent underline-offset-4 hover:underline",
-        // AXORA Premium variants
+        // AXIVA Premium variants
         hero: "bg-accent text-accent-foreground font-semibold shadow-lg hover:shadow-xl hover:shadow-accent/20 hover:-translate-y-0.5 active:translate-y-0",
         "hero-outline": "border-2 border-accent/50 text-foreground bg-transparent hover:bg-accent/10 hover:border-accent font-semibold",
         glass: "bg-white/5 backdrop-blur-lg border border-white/10 text-foreground hover:bg-white/10 hover:border-white/20",

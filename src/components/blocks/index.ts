@@ -1,6 +1,6 @@
 /**
  * Visual Block Components Export
- * Central export for all Axora visual block components
+ * Central export for all Axiva visual block components
  */
 
 // Types

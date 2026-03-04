@@ -83,7 +83,7 @@ const Auth = () => {
           }
         } else {
           toast({
-            title: 'Welcome to AXORA!',
+            title: 'Welcome to AXIVA!',
             description: 'Your account has been created successfully.',
           });
           navigate('/onboarding');

@@ -51,8 +51,8 @@ const GammaAlternative = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>AXORA vs Gamma: AI Executive Deck Generator for Crisp Business Presentations</title>
-        <meta name="description" content="Compare AXORA vs Gamma. See why executives choose AXORA for structured AI decks, clean PowerPoint exports, and business-ready presentations." />
+        <title>AXIVA vs Gamma: AI Executive Deck Generator for Crisp Business Presentations</title>
+        <meta name="description" content="Compare AXIVA vs Gamma. See why executives choose AXIVA for structured AI decks, clean PowerPoint exports, and business-ready presentations." />
         <link rel="canonical" href="https://axiva.ai/gamma-alternative" />
       </Helmet>
 
@@ -73,20 +73,20 @@ const GammaAlternative = () => {
               </div>
               
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
-                AXORA vs Gamma
+                AXIVA vs Gamma
               </h1>
               
               <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-6 leading-relaxed">
-                Gamma popularized AI-generated presentations. AXORA refines them for executives.
+                Gamma popularized AI-generated presentations. AXIVA refines them for executives.
               </p>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-10">
                 If you need clarity over creativity, structure over slideshows, and business-ready decks 
-                over visual experiments, AXORA is built for you.
+                over visual experiments, AXIVA is built for you.
               </p>
 
               <Link to="/auth">
                 <Button variant="hero" size="xl" className="group">
-                  Try AXORA Free
+                  Try AXIVA Free
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
@@ -98,12 +98,12 @@ const GammaAlternative = () => {
         <section className="py-20 border-t border-white/5">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8">
-              Why AXORA Is Different from Gamma
+              Why AXIVA Is Different from Gamma
             </h2>
             <div className="max-w-3xl mx-auto text-center mb-12">
               <p className="text-xl text-muted-foreground mb-4">
                 Gamma focuses on visual storytelling.<br />
-                <span className="text-accent font-medium">AXORA focuses on executive communication.</span>
+                <span className="text-accent font-medium">AXIVA focuses on executive communication.</span>
               </p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
@@ -129,7 +129,7 @@ const GammaAlternative = () => {
             <div className="max-w-4xl mx-auto">
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="glass-card p-8">
-                  <h3 className="text-xl font-bold mb-4">AXORA uses a block-based system:</h3>
+                  <h3 className="text-xl font-bold mb-4">AXIVA uses a block-based system:</h3>
                   <ul className="space-y-3">
                     {[
                       "Headings with hierarchy (H1, H2, H3)",
@@ -162,7 +162,7 @@ const GammaAlternative = () => {
                   </ul>
                   <p className="text-lg font-medium border-t border-white/10 pt-6">
                     Gamma emphasizes creative layouts.<br />
-                    <span className="text-accent">AXORA emphasizes clear thinking.</span>
+                    <span className="text-accent">AXIVA emphasizes clear thinking.</span>
                   </p>
                 </div>
               </div>
@@ -177,7 +177,7 @@ const GammaAlternative = () => {
               Executive Tone by Default
             </h2>
             <div className="max-w-3xl mx-auto text-center">
-              <p className="text-lg text-muted-foreground mb-6">AXORA generates decks with:</p>
+              <p className="text-lg text-muted-foreground mb-6">AXIVA generates decks with:</p>
               <div className="flex flex-wrap justify-center gap-4 mb-8">
                 {["Professional language", "Concise phrasing", "Neutral, board-safe tone"].map((item, i) => (
                   <span key={i} className="px-4 py-2 rounded-full bg-accent/10 text-accent font-medium">
@@ -199,7 +199,7 @@ const GammaAlternative = () => {
             </h2>
             <div className="max-w-3xl mx-auto">
               <p className="text-center text-lg text-muted-foreground mb-8">
-                AXORA decks are built to export cleanly.
+                AXIVA decks are built to export cleanly.
               </p>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
@@ -225,14 +225,14 @@ const GammaAlternative = () => {
         <section className="py-20 border-t border-white/5">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
-              AXORA vs Gamma: Feature Comparison
+              AXIVA vs Gamma: Feature Comparison
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full max-w-3xl mx-auto">
                 <thead>
                   <tr className="border-b border-white/10">
                     <th className="text-left py-4 px-4 font-semibold">Feature</th>
-                    <th className="text-center py-4 px-4 font-semibold text-accent">AXORA</th>
+                    <th className="text-center py-4 px-4 font-semibold text-accent">AXIVA</th>
                     <th className="text-center py-4 px-4 font-semibold">Gamma</th>
                   </tr>
                 </thead>
@@ -268,11 +268,11 @@ const GammaAlternative = () => {
         <section className="py-20 border-t border-white/5">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
-              When to Choose AXORA
+              When to Choose AXIVA
             </h2>
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <div className="glass-card p-8 border-accent/20">
-                <h3 className="text-xl font-bold mb-4 text-accent">Choose AXORA if you:</h3>
+                <h3 className="text-xl font-bold mb-4 text-accent">Choose AXIVA if you:</h3>
                 <ul className="space-y-3">
                   {[
                     "Present to leadership or boards",
@@ -364,7 +364,7 @@ const GammaAlternative = () => {
               </h2>
               <Link to="/auth">
                 <Button variant="hero" size="xl" className="group">
-                  Try AXORA Free
+                  Try AXIVA Free
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>

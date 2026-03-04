@@ -6,8 +6,8 @@ const Privacy = () => {
   return (
     <>
       <Helmet>
-        <title>Privacy Policy | AXORA</title>
-        <meta name="description" content="AXORA privacy policy. Learn what information we collect, how we use it, and how we protect your data." />
+        <title>Privacy Policy | AXIVA</title>
+        <meta name="description" content="AXIVA privacy policy. Learn what information we collect, how we use it, and how we protect your data." />
         <link rel="canonical" href="https://axiva.ai/privacy" />
         <meta name="robots" content="index, follow" />
       </Helmet>
@@ -22,7 +22,7 @@ const Privacy = () => {
           
           <div className="prose prose-invert max-w-none space-y-8">
             <p className="text-lg text-muted-foreground">
-              AXORA values privacy. This policy explains what we collect, why we collect it, and how we handle it when you use axiva.ai and related services.
+              AXIVA values privacy. This policy explains what we collect, why we collect it, and how we handle it when you use axiva.ai and related services.
             </p>
 
             <section>
@@ -58,7 +58,7 @@ const Privacy = () => {
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                 <li><strong className="text-foreground">Service providers:</strong> hosting, analytics, email delivery, payment processing.</li>
                 <li><strong className="text-foreground">Legal and safety:</strong> to comply with law, respond to valid requests, and protect users and the service.</li>
-                <li><strong className="text-foreground">Business changes:</strong> if AXORA is involved in a merger, acquisition, or asset sale, information may transfer as part of that transaction.</li>
+                <li><strong className="text-foreground">Business changes:</strong> if AXIVA is involved in a merger, acquisition, or asset sale, information may transfer as part of that transaction.</li>
               </ul>
             </section>
 
@@ -88,7 +88,7 @@ const Privacy = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">8. International users</h2>
               <p className="text-muted-foreground">
-                If you access AXORA from outside the United States, your information may be processed in the United States or other locations where our providers operate.
+                If you access AXIVA from outside the United States, your information may be processed in the United States or other locations where our providers operate.
               </p>
             </section>
 

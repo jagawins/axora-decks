@@ -12,18 +12,18 @@ import {
 } from "@/components/ui/accordion";
 
 const COMPARISON = [
-  { feature: "AI Deck Generation from Prompt", beautiful: "Limited", axora: "Full generation" },
-  { feature: "Narrative & Story Structure", beautiful: "Manual", axora: "AI-powered" },
-  { feature: "Custom Branding", beautiful: true, axora: true },
-  { feature: "Smart Slide Layouts", beautiful: true, axora: true },
-  { feature: "Import Existing Decks", beautiful: true, axora: true },
-  { feature: "Export to PowerPoint", beautiful: "Yes (paid)", axora: "Yes (Pro)" },
-  { feature: "Executive / Board Deck Templates", beautiful: "Generic", axora: "Purpose-built" },
-  { feature: "Investor Pitch Deck AI", beautiful: false, axora: true },
-  { feature: "Speaker Notes Generation", beautiful: false, axora: true },
-  { feature: "Data Visualization from Text", beautiful: false, axora: true },
-  { feature: "Free Plan", beautiful: true, axora: "Yes (3 decks)" },
-  { feature: "Starting Price", beautiful: "$12/mo", axora: "$28/mo" },
+  { feature: "AI Deck Generation from Prompt", beautiful: "Limited", axiva: "Full generation" },
+  { feature: "Narrative & Story Structure", beautiful: "Manual", axiva: "AI-powered" },
+  { feature: "Custom Branding", beautiful: true, axiva: true },
+  { feature: "Smart Slide Layouts", beautiful: true, axiva: true },
+  { feature: "Import Existing Decks", beautiful: true, axiva: true },
+  { feature: "Export to PowerPoint", beautiful: "Yes (paid)", axiva: "Yes (Pro)" },
+  { feature: "Executive / Board Deck Templates", beautiful: "Generic", axiva: "Purpose-built" },
+  { feature: "Investor Pitch Deck AI", beautiful: false, axiva: true },
+  { feature: "Speaker Notes Generation", beautiful: false, axiva: true },
+  { feature: "Data Visualization from Text", beautiful: false, axiva: true },
+  { feature: "Free Plan", beautiful: true, axiva: "Yes (3 decks)" },
+  { feature: "Starting Price", beautiful: "$12/mo", axiva: "$28/mo" },
 ];
 
 const SHORTCOMINGS = [
@@ -37,26 +37,26 @@ const SHORTCOMINGS = [
   },
   {
     title: "No narrative intelligence",
-    body: "Beautiful.ai doesn't know that a Series A investor pitch should lead with traction, not product. It doesn't know that a board update needs a clear exec summary on slide one. Axora does. The AI understands presentation logic by context, not just by format.",
+    body: "Beautiful.ai doesn't know that a Series A investor pitch should lead with traction, not product. It doesn't know that a board update needs a clear exec summary on slide one. Axiva does. The AI understands presentation logic by context, not just by format.",
   },
 ];
 
 const MIGRATION_STEPS = [
   "Export your Beautiful.ai deck as PowerPoint (.pptx)",
-  "Upload it to Axora — it will analyze the structure and content",
-  "Tell Axora what you want to improve or rebuild",
-  "Axora regenerates the sections you need with enhanced narrative and design",
-  "Export back to PowerPoint or present directly from Axora",
+  "Upload it to Axiva — it will analyze the structure and content",
+  "Tell Axiva what you want to improve or rebuild",
+  "Axiva regenerates the sections you need with enhanced narrative and design",
+  "Export back to PowerPoint or present directly from Axiva",
 ];
 
 const FAQS = [
   {
-    q: "Can I import my Beautiful.ai decks into Axora?",
-    a: "Yes. Export from Beautiful.ai as PowerPoint and upload directly to Axora. We'll preserve your content and let you choose which sections to enhance or regenerate.",
+    q: "Can I import my Beautiful.ai decks into Axiva?",
+    a: "Yes. Export from Beautiful.ai as PowerPoint and upload directly to Axiva. We'll preserve your content and let you choose which sections to enhance or regenerate.",
   },
   {
-    q: "Is Axora more expensive than Beautiful.ai?",
-    a: "Axora Pro is $28/mo vs Beautiful.ai Pro at $12/mo. The difference is narrative AI — Axora doesn't just format your content, it structures your argument. For high-stakes decks (investor meetings, board presentations, enterprise sales), that's worth the premium. Try it free for 14 days.",
+    q: "Is Axiva more expensive than Beautiful.ai?",
+    a: "Axiva Pro is $28/mo vs Beautiful.ai Pro at $12/mo. The difference is narrative AI — Axiva doesn't just format your content, it structures your argument. For high-stakes decks (investor meetings, board presentations, enterprise sales), that's worth the premium. Try it free for 14 days.",
   },
 ];
 
@@ -70,8 +70,8 @@ const BeautifulAiAlternative = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Beautiful.ai Alternative for Executives | Axora</title>
-        <meta name="description" content="Looking for a Beautiful.ai alternative? Axora builds the full deck narrative, not just the layout. Compare features, pricing, and output quality." />
+        <title>Beautiful.ai Alternative for Executives | Axiva</title>
+        <meta name="description" content="Looking for a Beautiful.ai alternative? Axiva builds the full deck narrative, not just the layout. Compare features, pricing, and output quality." />
         <link rel="canonical" href="https://axiva.ai/beautiful-ai-alternative" />
       </Helmet>
 
@@ -93,7 +93,7 @@ const BeautifulAiAlternative = () => {
               <span className="text-gradient">Built for Professionals</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-              Beautiful.ai is great for templates. Axora is built for outcomes. If you need boardroom-ready decks that tell a compelling story — not just pretty slides — it's time to make the switch.
+              Beautiful.ai is great for templates. Axiva is built for outcomes. If you need boardroom-ready decks that tell a compelling story — not just pretty slides — it's time to make the switch.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/auth">
@@ -119,13 +119,13 @@ const BeautifulAiAlternative = () => {
             </h2>
             <div className="text-lg text-muted-foreground leading-relaxed space-y-4">
               <p>
-                Beautiful.ai made presentation design easier. <span className="text-accent font-medium">Axora makes presentation thinking easier.</span>
+                Beautiful.ai made presentation design easier. <span className="text-accent font-medium">Axiva makes presentation thinking easier.</span>
               </p>
               <p>
                 Beautiful.ai gives you smarter templates and auto-adjusting layouts — you still decide what goes on each slide, how to structure your narrative, and how to visualize your data. The design work gets easier, but the hard work stays with you.
               </p>
               <p>
-                Axora starts from your goal and builds the entire deck: structure, narrative, data slides, and design. You review and refine. The thinking and the doing happen together.
+                Axiva starts from your goal and builds the entire deck: structure, narrative, data slides, and design. You review and refine. The thinking and the doing happen together.
               </p>
             </div>
           </div>
@@ -143,7 +143,7 @@ const BeautifulAiAlternative = () => {
                   <tr className="border-b border-border">
                     <th className="text-left py-4 px-4 font-semibold w-[40%]">Feature</th>
                     <th className="text-center py-4 px-4 font-semibold w-[30%]">Beautiful.ai</th>
-                    <th className="text-center py-4 px-4 font-semibold text-accent w-[30%]">Axora</th>
+                    <th className="text-center py-4 px-4 font-semibold text-accent w-[30%]">Axiva</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -151,7 +151,7 @@ const BeautifulAiAlternative = () => {
                     <tr key={i} className="border-b border-border/30 hover:bg-accent/[0.02] transition-colors">
                       <td className="py-4 px-4 text-muted-foreground">{row.feature}</td>
                       <td className="text-center py-4 px-4">{renderVal(row.beautiful)}</td>
-                      <td className="text-center py-4 px-4 bg-accent/[0.02]">{renderVal(row.axora)}</td>
+                      <td className="text-center py-4 px-4 bg-accent/[0.02]">{renderVal(row.axiva)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -181,7 +181,7 @@ const BeautifulAiAlternative = () => {
         <section className="py-20 border-t border-border/30">
           <div className="container-narrow max-w-3xl mx-auto">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
-              How to Switch from Beautiful.ai to Axora
+              How to Switch from Beautiful.ai to Axiva
             </h2>
             <div className="space-y-3">
               {MIGRATION_STEPS.map((step, i) => (

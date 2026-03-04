@@ -70,7 +70,7 @@ export default function HeroLiveDemo() {
       setGenerating(false);
       setOutline(match);
       // Store prompt for /create page
-      sessionStorage.setItem("axora_prefill_prompt", topic);
+      sessionStorage.setItem("axiva_prefill_prompt", topic);
     }, 1800);
   };
 

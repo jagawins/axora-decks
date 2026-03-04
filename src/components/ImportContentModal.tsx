@@ -510,7 +510,7 @@ export function ImportContentModal({
           <DialogDescription>
             {showPreview 
               ? `${previewBlocks.length} blocks generated. Review and insert them into your deck.`
-              : "Import any content—Axora will structure it into executive-grade slides."
+              : "Import any content—Axiva will structure it into executive-grade slides."
             }
           </DialogDescription>
         </DialogHeader>
@@ -561,7 +561,7 @@ export function ImportContentModal({
             {/* Textarea */}
             <div className="space-y-2">
               <Textarea
-                placeholder="Paste text, meeting notes, transcripts, or upload a file. Axora identifies structure, detects insights, and converts it into a clean narrative."
+                placeholder="Paste text, meeting notes, transcripts, or upload a file. Axiva identifies structure, detects insights, and converts it into a clean narrative."
                 value={content}
                 onChange={(e) => {
                   setContent(e.target.value);

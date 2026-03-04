@@ -48,7 +48,7 @@ const ExecutiveDeckGenerator = () => {
               </h1>
               
               <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-                AXORA structures your thinking into clear, concise, high-judgment slides. 
+                AXIVA structures your thinking into clear, concise, high-judgment slides. 
                 No fluff. No jargon.
               </p>
 
@@ -66,7 +66,7 @@ const ExecutiveDeckGenerator = () => {
         <section className="py-20 border-t border-white/5">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
-              What Makes AXORA "Executive"
+              What Makes AXIVA "Executive"
             </h2>
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 max-w-4xl mx-auto">
@@ -84,7 +84,7 @@ const ExecutiveDeckGenerator = () => {
         <section className="py-20 border-t border-white/5">
           <div className="container-narrow">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
-              Slide Types AXORA Generates
+              Slide Types AXIVA Generates
             </h2>
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -438,5 +438,5 @@ export function getPreviewCacheKey(
   templateVersion: number,
   themeId: string
 ): string {
-  return `axora:preview:${templateId}:v${templateVersion}:${themeId}:r${RENDERER_VERSION}`;
+  return `axiva:preview:${templateId}:v${templateVersion}:${themeId}:r${RENDERER_VERSION}`;
 }

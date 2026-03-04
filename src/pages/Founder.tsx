@@ -12,11 +12,11 @@ export default function Founder() {
     jobTitle: "Founder & CEO",
     worksFor: {
       "@type": "Organization",
-      name: "AXORA",
+      name: "AXIVA",
       url: "https://axiva.ai",
     },
     description:
-      "Jag Mariappan is the founder of AXORA, an AI presentation platform built for executive communication.",
+      "Jag Mariappan is the founder of AXIVA, an AI presentation platform built for executive communication.",
     url: "https://axiva.ai/founder",
     sameAs: [
       "https://linkedin.com/in/jagmariappan",
@@ -27,10 +27,10 @@ export default function Founder() {
   return (
     <>
       <SeoHead
-        title="Jag Mariappan - Founder of AXORA | AI Presentation Platform"
-        description="Jag Mariappan is the founder of AXORA, an AI-powered presentation generator built for executives. Learn about his vision for transforming executive communication."
+        title="Jag Mariappan - Founder of AXIVA | AI Presentation Platform"
+        description="Jag Mariappan is the founder of AXIVA, an AI-powered presentation generator built for executives. Learn about his vision for transforming executive communication."
         canonicalPath="/founder"
-        keywords="Jag Mariappan, AXORA founder, AI presentation founder, executive communication"
+        keywords="Jag Mariappan, AXIVA founder, AI presentation founder, executive communication"
         ogImage="/founder-card-og.png"
         jsonLd={jsonLd}
       />
@@ -48,7 +48,7 @@ export default function Founder() {
               Jag Mariappan
             </h1>
             <p className="text-xl text-muted-foreground mb-6">
-              Founder & CEO, AXORA
+              Founder & CEO, AXIVA
             </p>
             <div className="flex justify-center gap-4">
               <Button asChild variant="outline" size="icon">
@@ -83,7 +83,7 @@ export default function Founder() {
           <section className="prose prose-invert prose-lg max-w-none mb-16">
             <h2>Building the Future of Executive Communication</h2>
             <p>
-              I started AXORA after spending years creating board presentations,
+              I started AXIVA after spending years creating board presentations,
               strategy decks, and executive updates. The pattern was always the
               same: complex ideas requiring clear structure, tight deadlines
               demanding speed, and audiences expecting polish.
@@ -96,7 +96,7 @@ export default function Founder() {
               boardrooms.
             </p>
             <p>
-              AXORA is purpose-built for executive communication. The AI
+              AXIVA is purpose-built for executive communication. The AI
               understands board deck structures, strategy frameworks, and the
               density that senior leaders expect. It's not about flashy
               animations — it's about clear thinking, well organized.
@@ -106,7 +106,7 @@ export default function Founder() {
             <p>
               Every executive spends too much time on presentations. Not because
               they lack ideas, but because translating strategic thinking into
-              structured slides is slow work. AXORA gives that time back.
+              structured slides is slow work. AXIVA gives that time back.
             </p>
             <p>
               My goal is simple: let executives focus on strategy, not slides.
@@ -117,13 +117,13 @@ export default function Founder() {
 
             <h2>Background</h2>
             <p>
-              Before founding AXORA, I built products at the intersection of
+              Before founding AXIVA, I built products at the intersection of
               enterprise technology and user experience. I've seen firsthand how
               the best tools disappear into workflows — they amplify capability
               without adding friction.
             </p>
             <p>
-              That's the standard for AXORA: AI that feels like an extension of
+              That's the standard for AXIVA: AI that feels like an extension of
               how you already think, not a new tool to learn.
             </p>
           </section>
@@ -131,7 +131,7 @@ export default function Founder() {
           {/* CTA */}
           <section className="text-center py-12 px-8 rounded-2xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20">
             <h2 className="text-2xl font-bold mb-4">
-              See What AXORA Can Build
+              See What AXIVA Can Build
             </h2>
             <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
               Try the AI presentation generator built for executives. Create your

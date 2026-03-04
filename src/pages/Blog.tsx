@@ -25,8 +25,8 @@ const blogPosts = [
     author: "Jag Mariappan",
   },
   {
-    slug: "gamma-vs-axora-comparison",
-    title: "Gamma vs AXORA: Which AI Presentation Tool Fits Your Workflow?",
+    slug: "gamma-vs-axiva-comparison",
+    title: "Gamma vs AXIVA: Which AI Presentation Tool Fits Your Workflow?",
     excerpt:
       "An honest comparison of AI presentation tools for executives who need structured, professional decks.",
     category: "Product",
@@ -38,12 +38,12 @@ const blogPosts = [
 export default function Blog() {
   const jsonLd = {
     "@type": "Blog",
-    name: "AXORA Blog",
+    name: "AXIVA Blog",
     description:
       "Insights on AI presentations, executive communication, and building effective board decks.",
     publisher: {
       "@type": "Organization",
-      name: "AXORA",
+      name: "AXIVA",
     },
     blogPost: blogPosts.map((post) => ({
       "@type": "BlogPosting",
@@ -60,8 +60,8 @@ export default function Blog() {
   return (
     <>
       <SeoHead
-        title="Blog | AXORA - AI Presentation Insights"
-        description="Insights on AI presentations, executive communication, and building effective board decks from AXORA founder Jag Mariappan."
+        title="Blog | AXIVA - AI Presentation Insights"
+        description="Insights on AI presentations, executive communication, and building effective board decks from AXIVA founder Jag Mariappan."
         canonicalPath="/blog"
         keywords="AI presentations, executive decks, board presentations, presentation tips"
         jsonLd={jsonLd}
@@ -74,7 +74,7 @@ export default function Blog() {
           {/* Header */}
           <section className="text-center mb-16">
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground mb-4">
-              AXORA Blog
+              AXIVA Blog
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Insights on AI presentations, executive communication, and building decks that drive decisions.

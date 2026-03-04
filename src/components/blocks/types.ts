@@ -1,6 +1,6 @@
 /**
  * Visual Block Types and Shared Interfaces
- * These types power the Axora visual template system
+ * These types power the Axiva visual template system
  */
 
 import type { LucideIcon } from 'lucide-react';

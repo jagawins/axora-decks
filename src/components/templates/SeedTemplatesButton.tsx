@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Database } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import seedData from '@/data/axora-templates.seed.json';
+import seedData from '@/data/axiva-templates.seed.json';
 
 interface SeedTemplatesButtonProps {
   onSeeded: () => void;
