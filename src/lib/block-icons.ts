@@ -32,6 +32,7 @@ import {
   PanelTop,
   ToggleLeft,
   Gauge,
+  Network,
 } from "lucide-react";
 import { BlockType } from "./blocks";
 
@@ -66,6 +67,7 @@ export const BLOCK_ICONS: Record<BlockType, LucideIcon> = {
   tabs_block: PanelTop,
   toggle_block: ToggleLeft,
   kpi_dashboard: Gauge,
+  relationship_matrix: Network,
   // Decision blocks
   decision_summary: HelpCircle,
   evidence_map: MapPin,

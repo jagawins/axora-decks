@@ -35,6 +35,7 @@ import { TwoByTwoMatrix } from './TwoByTwoMatrix';
 import { DecisionNextSteps } from './DecisionNextSteps';
 import { ChartBlock } from './ChartBlock';
 import { KpiDashboard } from './KpiDashboard';
+import { RelationshipMatrix } from './RelationshipMatrix';
 
 // Interactive block components
 import { TabsBlock } from './TabsBlock';
@@ -64,6 +65,7 @@ import type {
   TabsBlockPayload,
   ToggleBlockPayload,
   KpiDashboardPayload,
+  RelationshipMatrixPayload,
 } from '@/components/blocks/types';
 
 interface VisualBlockRendererProps {
@@ -147,6 +149,8 @@ export function VisualBlockRenderer({
       return <ChartBlock payload={payload as unknown as ChartBlockPayload} readOnly={readOnly} className={className} />;
     case 'kpi_dashboard':
       return <KpiDashboard payload={payload as unknown as KpiDashboardPayload} readOnly={readOnly} className={className} />;
+    case 'relationship_matrix':
+      return <RelationshipMatrix payload={payload as unknown as RelationshipMatrixPayload} readOnly={readOnly} className={className} />;
     
     // Interactive block types
     case 'tabs_block':
