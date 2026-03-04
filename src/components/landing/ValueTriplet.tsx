@@ -1,66 +1,79 @@
 import { Link } from "react-router-dom";
-import { Shuffle, Layout, Send } from "lucide-react";
+import { MessageSquare, Wand2, Download } from "lucide-react";
 
-const values = [
+const steps = [
   {
-    icon: Shuffle,
-    title: "From chaos to structure",
-    description: "Transform scattered notes and ideas into organized, logical frameworks that communicate with precision."
+    num: "01",
+    icon: MessageSquare,
+    title: "Describe your goal",
+    description: "Paste meeting notes, an outline, or just type a one-liner. Our AI understands executive context.",
+    color: "#3B82F6",
   },
   {
-    icon: Layout,
-    title: "From structure to narrative",
-    description: "Convert your frameworks into compelling stories that resonate with executives and drive decisions."
+    num: "02",
+    icon: Wand2,
+    title: "AI builds the deck",
+    description: "Structured slides with visual blocks — charts, KPIs, timelines, comparisons — not generic bullet points.",
+    color: "#8B5CF6",
   },
   {
-    icon: Send,
-    title: "From narrative to delivery",
-    description: "Export beautiful PDFs, slides, or shareable links ready for boardrooms and client presentations."
-  }
+    num: "03",
+    icon: Download,
+    title: "Present & export",
+    description: "Present live, export to PowerPoint or PDF, or share a link. Apply your brand kit with one click.",
+    color: "#10B981",
+  },
 ];
 
 const ValueTriplet = () => {
   return (
-    <section id="how-it-works" className="section-padding relative">
-      <div className="container-wide">
-        {/* Section header */}
+    <section className="section-padding relative overflow-hidden">
+      {/* Subtle background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.015] to-transparent" />
+
+      <div className="container-wide relative">
+        {/* Header */}
         <div className="text-center mb-16">
           <p className="text-accent font-medium text-sm uppercase tracking-wider mb-3">
-            The AXIVA Method
+            How it works
           </p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
-            Three steps to clarity
+            Three steps to a polished deck
           </h2>
         </div>
 
-        {/* Value cards */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {values.map((value, index) => (
-            <div
-              key={value.title}
-              className="group relative glass-card p-8 card-hover"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              {/* Icon */}
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-accent/10 text-accent mb-6 transition-transform group-hover:scale-110">
-                <value.icon className="h-7 w-7" />
-              </div>
+        {/* Steps — horizontal with connecting line */}
+        <div className="relative max-w-5xl mx-auto">
+          {/* Connecting line (desktop) */}
+          <div className="hidden md:block absolute top-16 left-[16%] right-[16%] h-px bg-gradient-to-r from-[#3B82F6]/30 via-[#8B5CF6]/30 to-[#10B981]/30" />
 
-              {/* Content */}
-              <h3 className="text-xl font-semibold mb-3">{value.title}</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                {value.description}
-              </p>
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+            {steps.map((step, i) => (
+              <div key={step.num} className="relative text-center group">
+                {/* Number circle */}
+                <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 transition-transform group-hover:scale-110 duration-300"
+                  style={{ background: `${step.color}15` }}
+                >
+                  <step.icon className="h-7 w-7" style={{ color: step.color }} />
+                  {/* Step number badge */}
+                  <div
+                    className="absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white"
+                    style={{ background: step.color }}
+                  >
+                    {step.num}
+                  </div>
+                </div>
 
-              {/* Step number */}
-              <div className="absolute top-6 right-6 text-5xl font-bold text-white/[0.03]">
-                {index + 1}
+                <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
+                <p className="text-muted-foreground leading-relaxed max-w-xs mx-auto">
+                  {step.description}
+                </p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Contextual SEO link */}
+        {/* SEO link */}
         <div className="text-center mt-12">
           <p className="text-muted-foreground">
             Our{" "}
