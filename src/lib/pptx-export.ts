@@ -448,6 +448,211 @@ function addBlockToSlide(
       });
       break;
 
+    case "chart_block": {
+      const title = String(c.title || "");
+      const chartType = String(c.chartType || "bar");
+      const data = Array.isArray(c.data) ? c.data : [];
+      if (title) {
+        slide.addText(title, { x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.7, fontSize: 24, fontFace: headFont, color: fg, bold: true });
+      }
+      if (!data.length) break;
+      if (chartType === "donut") {
+        const chartData = [{ name: "Data", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
+        slide.addChart(pres.charts.DOUGHNUT, chartData, { x: sx(2), y: 1.3, w: sx(6), h: 4.5, showLegend: true, legendPos: "b", legendFontSize: 10, dataLabelPosition: "outEnd", dataLabelFontSize: 11, dataLabelColor: fg, chartColors: ["14B8A6", "06B6D4", "0EA5E9", "6366F1", "8B5CF6"] });
+      } else if (chartType === "area") {
+        const chartData = [{ name: "Value", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
+        slide.addChart(pres.charts.AREA, chartData, { x: sx(0.8), y: 1.3, w: sx(8.4), h: 4.5, showLegend: false, chartColors: ["14B8A6"], lineSize: 2 });
+      } else if (chartType === "stacked_bar") {
+        const total = data.reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
+        const colors = ["14B8A6", "06B6D4", "0EA5E9", "6366F1", "8B5CF6", "A855F7"];
+        let xOff = sx(0.8);
+        const barW = sx(8.4);
+        data.forEach((d: any, i: number) => {
+          const pct = total > 0 ? (Number(d.value) || 0) / total : 0;
+          const w = barW * pct;
+          slide.addShape(pres.ShapeType.rect, { x: xOff, y: 1.8, w, h: 0.6, fill: { color: colors[i % colors.length] } });
+          if (pct > 0.06) slide.addText(`${Math.round(pct * 100)}%`, { x: xOff, y: 1.8, w, h: 0.6, fontSize: 10, fontFace: bodyFont, color: "FFFFFF", bold: true, align: "center", valign: "middle" });
+          xOff += w;
+        });
+        const legendY = 2.8;
+        const cols = Math.min(data.length, 3);
+        const legendColW = sx(8.4) / cols;
+        data.forEach((d: any, i: number) => {
+          const col = i % cols; const row = Math.floor(i / cols);
+          const x = sx(0.8) + col * legendColW; const y = legendY + row * 0.5;
+          const pct = total > 0 ? Math.round(((Number(d.value) || 0) / total) * 100) : 0;
+          slide.addShape(pres.ShapeType.rect, { x, y: y + 0.05, w: 0.15, h: 0.15, fill: { color: colors[i % colors.length] }, rectRadius: 0.02 });
+          slide.addText(`${String(d.label || "")} (${pct}%)`, { x: x + 0.25, y, w: legendColW - 0.3, h: 0.3, fontSize: 10, fontFace: bodyFont, color: fg });
+        });
+      } else if (chartType === "line") {
+        const chartData = [{ name: "Value", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
+        slide.addChart(pres.charts.LINE, chartData, { x: sx(0.8), y: 1.3, w: sx(8.4), h: 4.5, showLegend: false, chartColors: [accent], lineSize: 2, lineDataSymbol: "circle", lineDataSymbolSize: 6 });
+      } else {
+        const chartData = [{ name: "Value", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
+        slide.addChart(pres.charts.BAR, chartData, { x: sx(0.8), y: 1.3, w: sx(8.4), h: 4.5, showLegend: false, barDir: "col", chartColors: [accent] });
+      }
+      break;
+    }
+
+    case "kpi_dashboard": {
+      const cards = Array.isArray(c.cards) ? c.cards : [];
+      const title = String(c.title || "");
+      const kpiColors = ["14B8A6", "06B6D4", "0EA5E9", "6366F1"];
+      if (title) slide.addText(title, { x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.6, fontSize: 22, fontFace: headFont, color: fg, bold: true });
+      const cardW = sx(4) - 0.2; const cardH = 2.4;
+      cards.slice(0, 4).forEach((card: any, i: number) => {
+        const col = i % 2; const row = Math.floor(i / 2);
+        const x = sx(0.8) + col * (cardW + 0.4); const y = 1.1 + row * (cardH + 0.3);
+        const kpiColor = safeColor(card.color, kpiColors[i % kpiColors.length]);
+        slide.addShape(pres.ShapeType.roundRect, { x, y, w: cardW, h: cardH, fill: { color: bg }, line: { color: "CCCCCC", width: 1 }, rectRadius: 0.1 });
+        slide.addText(String(card.title || "").toUpperCase(), { x: x + 0.2, y: y + 0.15, w: cardW - 0.4, h: 0.35, fontSize: 9, fontFace: bodyFont, color: "888888", bold: true });
+        slide.addText(String(card.value || ""), { x: x + 0.2, y: y + 0.5, w: cardW * 0.55, h: 0.8, fontSize: 28, fontFace: headFont, color: kpiColor, bold: true, valign: "top" });
+        if (card.change) {
+          const trendArrow = card.trend === "up" ? "▲ " : card.trend === "down" ? "▼ " : "";
+          const trendColor = card.trend === "up" ? "10B981" : card.trend === "down" ? "EF4444" : "888888";
+          slide.addText(`${trendArrow}${String(card.change)}`, { x: x + 0.2, y: y + 1.3, w: cardW * 0.55, h: 0.35, fontSize: 10, fontFace: bodyFont, color: trendColor, bold: true });
+        }
+        if (Array.isArray(card.chartData) && card.chartData.length > 0) {
+          const chartLabel = card.chartType === "donut" ? "●" : card.chartType === "area" ? "📈" : "📊";
+          slide.addText(chartLabel, { x: x + cardW * 0.6, y: y + 0.5, w: cardW * 0.35, h: 1.4, fontSize: 32, align: "center", valign: "middle", color: kpiColor });
+        }
+      });
+      break;
+    }
+
+    case "relationship_matrix": {
+      const labels = Array.isArray(c.labels) ? c.labels.map(String) : [];
+      const rels = Array.isArray(c.relationships) ? c.relationships : [];
+      const title = String(c.title || "");
+      if (title) slide.addText(title, { x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.7, fontSize: 24, fontFace: headFont, color: fg, bold: true });
+      if (labels.length < 2) break;
+      const n = labels.length;
+      const relMap = new Map<string, string>();
+      rels.forEach((r: any) => relMap.set(`${r.row}-${r.col}`, String(r.type)));
+      const tableRows: Array<Array<{ text: string; options: Record<string, unknown> }>> = [];
+      tableRows.push([{ text: "", options: { fontSize: 9 } }, ...labels.slice(1).map((l: string) => ({ text: l, options: { fontSize: 9, fontFace: headFont, color: fg, bold: true, align: "center" } }))]);
+      labels.slice(0, -1).forEach((rowLabel: string, ri: number) => {
+        const row = [{ text: rowLabel, options: { fontSize: 9, fontFace: headFont, color: fg, bold: true } },
+          ...labels.slice(1).map((_: string, ci: number) => {
+            if (ci < ri) return { text: "", options: { fontSize: 9 } };
+            const relType = relMap.get(`${ri}-${ci + 1}`) || relMap.get(`${ci + 1}-${ri}`);
+            const marker = relType === "confirmed" ? "●" : relType === "suspected" ? "○" : relType === "key" ? "+" : "";
+            return { text: marker, options: { fontSize: 12, fontFace: bodyFont, color: accent, align: "center" } };
+          })];
+        tableRows.push(row);
+      });
+      if (tableRows.length) slide.addTable(tableRows, { x: sx(0.8), y: 1.2, w: sx(8.4), border: { type: "solid", pt: 0.5, color: "DDDDDD" }, colW: Array(n).fill(sx(8.4) / n), rowH: Array(n).fill(0.45) });
+      slide.addText("●  Confirmed     ○  Suspected     +  Key Individual", { x: sx(0.8), y: 5.8, w: sx(8.4), h: 0.4, fontSize: 10, fontFace: bodyFont, color: "888888" });
+      break;
+    }
+
+    case "flow_diagram": {
+      const columns = Array.isArray(c.columns) ? c.columns : [];
+      const title = String(c.title || "");
+      const flowColors = ["059669", "2563EB", "0D9488", "7C3AED", "DC2626"];
+      if (title) slide.addText(title, { x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.6, fontSize: 22, fontFace: headFont, color: fg, bold: true });
+      const colCount = Math.min(columns.length, 5);
+      const totalW = sx(8.4); const colGap = 0.3; const colW = (totalW - colGap * (colCount - 1)) / colCount;
+      columns.slice(0, colCount).forEach((col: any, i: number) => {
+        const x = sx(0.8) + i * (colW + colGap);
+        const colColor = safeColor(col.color, flowColors[i % flowColors.length]);
+        slide.addShape(pres.ShapeType.roundRect, { x, y: 1.1, w: colW, h: 0.55, fill: { color: colColor }, rectRadius: 0.05 });
+        slide.addText(String(col.title || "").toUpperCase(), { x, y: 1.1, w: colW, h: 0.55, fontSize: 11, fontFace: headFont, color: "FFFFFF", bold: true, align: "center", valign: "middle" });
+        const items = Array.isArray(col.items) ? col.items : [];
+        items.slice(0, 5).forEach((item: any, j: number) => {
+          const itemY = 1.8 + j * 0.85;
+          slide.addShape(pres.ShapeType.roundRect, { x: x + 0.05, y: itemY, w: colW - 0.1, h: 0.75, fill: { color: colColor, transparency: 90 }, line: { color: colColor, width: 0.5, transparency: 60 }, rectRadius: 0.05 });
+          slide.addText(String(item.title || ""), { x: x + 0.15, y: itemY + 0.05, w: colW - 0.3, h: 0.35, fontSize: 10, fontFace: headFont, color: fg, bold: true });
+          if (item.subtitle) slide.addText(String(item.subtitle), { x: x + 0.15, y: itemY + 0.38, w: colW - 0.3, h: 0.32, fontSize: 8, fontFace: bodyFont, color: "888888", wrap: true });
+        });
+        if (i < colCount - 1) slide.addText("→", { x: x + colW + colGap * 0.15, y: 1.1 + 0.55 / 2 - 0.15, w: colGap * 0.7, h: 0.3, fontSize: 16, color: "AAAAAA", align: "center", valign: "middle" });
+      });
+      break;
+    }
+
+    case "evidence_map": {
+      slide.addText(String(c.title || "Evidence Map"), { x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.7, fontSize: 24, fontFace: headFont, color: fg, bold: true });
+      const categories = Array.isArray(c.categories) ? c.categories : [];
+      let yPos = 1.2;
+      categories.slice(0, 3).forEach((cat: any) => {
+        slide.addText(String(cat.name || ""), { x: sx(0.8), y: yPos, w: sx(8.4), h: 0.45, fontSize: 14, fontFace: headFont, color: accent, bold: true });
+        yPos += 0.5;
+        const items = Array.isArray(cat.items) ? cat.items : [];
+        items.slice(0, 3).forEach((item: any) => {
+          const conf = String(item.confidence || item.impact || "");
+          slide.addText(`• ${String(item.claim || "")}${conf ? ` [${conf}]` : ""}`, { x: sx(1.2), y: yPos, w: sx(7.6), h: 0.4, fontSize: 11, fontFace: bodyFont, color: fg, wrap: true });
+          yPos += 0.42;
+        });
+        yPos += 0.15;
+      });
+      break;
+    }
+
+    case "scenario_set": {
+      slide.addText(String(c.title || "Scenarios"), { x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.7, fontSize: 24, fontFace: headFont, color: fg, bold: true });
+      const scenarios = Array.isArray(c.scenarios) ? c.scenarios : [];
+      const sCount = Math.min(scenarios.length, 3); const sColW = sx(8.4) / sCount - 0.2;
+      scenarios.slice(0, 3).forEach((sc: any, i: number) => {
+        const x = sx(0.8) + i * (sColW + 0.2);
+        slide.addText(String(sc.name || "").replace(/_/g, " "), { x, y: 1.2, w: sColW, h: 0.5, fontSize: 14, fontFace: headFont, color: accent, bold: true, align: "center" });
+        const outcomes = Array.isArray(sc.outcomes) ? sc.outcomes : [];
+        slide.addText(outcomes.map((o: unknown) => `• ${String(o)}`).join("\n"), { x, y: 1.8, w: sColW, h: 3, fontSize: 11, fontFace: bodyFont, color: fg, valign: "top", wrap: true });
+      });
+      break;
+    }
+
+    case "icon_text_block": {
+      const title = String(c.title || "");
+      if (title) slide.addText(title, { x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.7, fontSize: 24, fontFace: headFont, color: fg, bold: true });
+      const iconItems = Array.isArray(c.items) ? c.items : [];
+      iconItems.slice(0, 4).forEach((item: any, i: number) => {
+        const y = 1.2 + i * 1.1;
+        slide.addText(String(item.icon || "▸"), { x: sx(0.8), y, w: sx(0.6), h: 0.5, fontSize: 18, color: accent, align: "center" });
+        slide.addText(String(item.title || ""), { x: sx(1.5), y, w: sx(7.7), h: 0.4, fontSize: 14, fontFace: headFont, color: fg, bold: true });
+        if (item.description) slide.addText(String(item.description), { x: sx(1.5), y: y + 0.4, w: sx(7.7), h: 0.55, fontSize: 11, fontFace: bodyFont, color: fg, wrap: true });
+      });
+      break;
+    }
+
+    case "framed_insight": {
+      const insightType = String(c.type || "insight");
+      const borderColor = insightType === "warning" ? "EAB308" : insightType === "tip" ? "10B981" : accent;
+      slide.addShape(pres.ShapeType.roundRect, { x: sx(1), y: 1.2, w: sx(8), h: 3.5, fill: { color: borderColor, transparency: 92 }, line: { color: borderColor, width: 2 }, rectRadius: 0.1 });
+      slide.addText(String(c.title || insightType.toUpperCase()), { x: sx(1.3), y: 1.4, w: sx(7.4), h: 0.6, fontSize: 16, fontFace: headFont, color: borderColor, bold: true });
+      slide.addText(String(c.insight || ""), { x: sx(1.3), y: 2.1, w: sx(7.4), h: 1.5, fontSize: 14, fontFace: bodyFont, color: fg, valign: "top", wrap: true });
+      if (c.source) slide.addText(`Source: ${String(c.source)}`, { x: sx(1.3), y: 3.8, w: sx(7.4), h: 0.4, fontSize: 10, fontFace: bodyFont, color: "888888", italic: true });
+      break;
+    }
+
+    case "two_by_two_matrix": {
+      const title = String(c.title || "");
+      if (title) slide.addText(title, { x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.6, fontSize: 22, fontFace: headFont, color: fg, bold: true, align: "center" });
+      const quadrants = Array.isArray(c.quadrants) ? c.quadrants : [];
+      const positions: Record<string, [number, number]> = { "top-left": [sx(0.8), 1.1], "top-right": [sx(5.1), 1.1], "bottom-left": [sx(0.8), 3.9], "bottom-right": [sx(5.1), 3.9] };
+      const qW = sx(4.1); const qH = 2.5;
+      quadrants.slice(0, 4).forEach((q: any) => {
+        const [x, y] = positions[q.position] || [sx(0.8), 1.1];
+        slide.addShape(pres.ShapeType.roundRect, { x, y, w: qW, h: qH, fill: { color: accent, transparency: 92 }, line: { color: accent, width: 0.5, transparency: 60 }, rectRadius: 0.08 });
+        slide.addText(String(q.label || ""), { x: x + 0.15, y: y + 0.1, w: qW - 0.3, h: 0.45, fontSize: 13, fontFace: headFont, color: accent, bold: true });
+        const items = Array.isArray(q.items) ? q.items : [];
+        slide.addText(items.map((it: unknown) => `• ${String(it)}`).join("\n"), { x: x + 0.15, y: y + 0.55, w: qW - 0.3, h: qH - 0.7, fontSize: 10, fontFace: bodyFont, color: fg, valign: "top", wrap: true });
+      });
+      if (c.xAxis) slide.addText(String(c.xAxis), { x: sx(0.8), y: 6.6, w: sx(8.4), h: 0.35, fontSize: 10, fontFace: bodyFont, color: "888888", align: "center" });
+      break;
+    }
+
+    case "decision_next_steps": {
+      slide.addText(String(c.title || "Decision & Next Steps"), { x: sx(0.8), y: 0.3, w: sx(8.4), h: 0.6, fontSize: 22, fontFace: headFont, color: fg, bold: true });
+      if (c.decision) slide.addText(String(c.decision), { x: sx(0.8), y: 1.1, w: sx(8.4), h: 0.8, fontSize: 16, fontFace: headFont, color: accent, bold: true, valign: "top", wrap: true });
+      if (c.rationale) slide.addText(String(c.rationale), { x: sx(0.8), y: 2, w: sx(8.4), h: 0.7, fontSize: 12, fontFace: bodyFont, color: fg, italic: true, wrap: true });
+      const steps = Array.isArray(c.next_steps) ? c.next_steps : [];
+      steps.slice(0, 5).forEach((step: any, i: number) => {
+        const owner = step.owner ? ` (${String(step.owner)})` : "";
+        slide.addText(`${i + 1}. ${String(step.action || "")}${owner}`, { x: sx(1), y: 2.9 + i * 0.7, w: sx(7.8), h: 0.55, fontSize: 12, fontFace: bodyFont, color: fg, wrap: true });
+      });
+      break;
+    }
+
     default: {
       const title =
         String(c.title || c.heading || c.headline || c.text || block.type.replace(/_/g, " "));
