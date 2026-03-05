@@ -69,6 +69,7 @@ import { ImportContentModal } from "@/components/ImportContentModal";
 import { ApplyTemplateModal } from "@/components/ApplyTemplateModal";
 import { UpgradeGateModal, canGenerateDeck, incrementDeckGenCount } from "@/components/UpgradeGateModal";
 import { PostGenBanner } from "@/components/PostGenBanner";
+import InviteTeamModal, { shouldShowInviteTeam, dismissInviteTeam } from "@/components/InviteTeamModal";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { Badge } from "@/components/ui/badge";
 import { getTemplateById } from "@/lib/block-templates";
@@ -191,6 +192,7 @@ const Editor = () => {
   const [recentBadges, setRecentBadges] = useState<Record<string, string>>({});
   const [upgradeGateOpen, setUpgradeGateOpen] = useState(false);
   const [showPostGenBanner, setShowPostGenBanner] = useState(false);
+  const [showInviteTeam, setShowInviteTeam] = useState(false);
   const [upgradeGateFeature, setUpgradeGateFeature] = useState<string | undefined>();
   const [clarityScore, setClarityScore] = useState<number | null>(null);
   const [stressTestTrigger, setStressTestTrigger] = useState<string | null>(null);
@@ -625,6 +627,15 @@ const Editor = () => {
       // Show post-generation upgrade nudge for free users
       if (subscription.tier === "free") {
         setShowPostGenBanner(true);
+      }
+
+      // Show "invite your team" after 2nd deck creation
+      const { getDeckGenCount } = await import("@/lib/usage-gates");
+      if (shouldShowInviteTeam(getDeckGenCount())) {
+        setTimeout(() => {
+          setShowInviteTeam(true);
+          dismissInviteTeam();
+        }, 3000); // 3s delay — let post-gen banner show first
       }
 
       await saveBlocksAndNavigate(newBlocks);
@@ -1781,6 +1792,12 @@ const Editor = () => {
         visible={showPostGenBanner}
         onDismiss={() => setShowPostGenBanner(false)}
         slideCount={blocks.length}
+      />
+
+      {/* Invite Team Modal — triggers after 2nd deck */}
+      <InviteTeamModal
+        open={showInviteTeam}
+        onClose={() => setShowInviteTeam(false)}
       />
 
       {/* Export Polish Overlay */}
