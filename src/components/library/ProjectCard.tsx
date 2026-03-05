@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MoreHorizontal, Pencil, Copy, FolderInput, Star, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Copy, FolderInput, Star, Trash2, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -183,6 +183,7 @@ export const ProjectCard = ({
           <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
             <DropdownMenuItem onClick={() => onRename(id)}><Pencil className="h-4 w-4 mr-2" />Rename</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onDuplicate(id)}><Copy className="h-4 w-4 mr-2" />Duplicate</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => window.location.href = `/editor/${id}?share=true`}><Share2 className="h-4 w-4 mr-2" />Share</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onMoveToFolder(id)}><FolderInput className="h-4 w-4 mr-2" />Move to folder</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onToggleFavorite(id, !isFavorite)}>
               <Star className={cn("h-4 w-4 mr-2", isFavorite && "fill-current")} />
@@ -235,6 +236,7 @@ export const ProjectCard = ({
           <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
             <DropdownMenuItem onClick={() => onRename(id)}><Pencil className="h-4 w-4 mr-2" />Rename</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onDuplicate(id)}><Copy className="h-4 w-4 mr-2" />Duplicate</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => window.location.href = `/editor/${id}?share=true`}><Share2 className="h-4 w-4 mr-2" />Share</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onMoveToFolder(id)}><FolderInput className="h-4 w-4 mr-2" />Move to folder</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onToggleFavorite(id, !isFavorite)}>
               <Star className={cn("h-4 w-4 mr-2", isFavorite && "fill-current")} />

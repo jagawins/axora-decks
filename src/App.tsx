@@ -18,6 +18,7 @@ import Present from "./pages/Present";
 import Create from "./pages/Create";
 import Templates from "./pages/Templates";
 import TemplateDetail from "./pages/TemplateDetail";
+import TemplateSEOPage from "./pages/TemplateSEOPage";
 import HowItWorks from "./pages/HowItWorks";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -66,6 +67,7 @@ const App = () => (
                 <Route path="/create" element={<Create />} />
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/template/:slug" element={<TemplateDetail />} />
+                <Route path="/templates/:slug" element={<TemplateSEOPage />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />

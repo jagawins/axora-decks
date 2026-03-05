@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { aiEngine } from "@/lib/ai-engine";
@@ -124,6 +124,7 @@ const Editor = () => {
   const { user, loading: authLoading } = useAuth();
   const { subscription } = useSubscription();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
@@ -167,6 +168,15 @@ const Editor = () => {
   const [shareEnabled, setShareEnabled] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+
+  // Auto-open share dialog from URL param (?share=true)
+  useEffect(() => {
+    if (searchParams.get("share") === "true") {
+      setShareDialogOpen(true);
+      searchParams.delete("share");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Theme state
   const [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME);
@@ -784,6 +794,15 @@ const Editor = () => {
 
   const exportPdf = () => {
     if (!projectId) return;
+
+    // Hard gate — PDF export is paid-only (same as PPTX)
+    const isPaid = subscription.subscribed && subscription.tier !== 'free';
+    if (!isPaid) {
+      setUpgradeGateFeature("PDF Export");
+      setUpgradeGateOpen(true);
+      return;
+    }
+
     setExportOverlayOpen(true);
     setExportStage(0);
     setTimeout(() => setExportStage(1), 1000);
@@ -1046,6 +1065,17 @@ const Editor = () => {
                   Save
                 </>
               )}
+            </Button>
+
+            {/* Prominent Share button — key growth driver */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShareDialogOpen(true)}
+              className="gap-1.5"
+            >
+              <Share2 className="h-4 w-4" />
+              Share
             </Button>
 
             {/* Agent Sidebar toggle */}
