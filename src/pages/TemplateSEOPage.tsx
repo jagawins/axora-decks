@@ -29,7 +29,7 @@ export default function TemplateSEOPage() {
       <SeoHead
         title={page.title}
         description={page.description}
-        path={`/templates/${page.slug}`}
+        canonicalPath={`/templates/${page.slug}`}
       />
       <MarketingHeader />
 
