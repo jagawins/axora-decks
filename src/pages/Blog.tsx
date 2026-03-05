@@ -3,44 +3,14 @@ import { ArrowRight } from "lucide-react";
 import SeoHead from "@/components/SeoHead";
 import Navbar from "@/components/landing/Navbar";
 import MarketingFooter from "@/components/MarketingFooter";
-
-// Static blog posts - no placeholder text
-const blogPosts = [
-  {
-    slug: "ai-presentations-executive-guide",
-    title: "The Executive Guide to AI-Powered Presentations",
-    excerpt:
-      "How senior leaders are using AI to cut presentation creation time by 80% while maintaining the strategic depth boards expect.",
-    category: "Strategy",
-    publishedAt: "2025-01-15",
-    author: "Jag Mariappan",
-  },
-  {
-    slug: "board-deck-best-practices",
-    title: "Board Deck Best Practices: Structure That Drives Decisions",
-    excerpt:
-      "A framework for organizing board presentations that communicate complex information clearly and drive alignment.",
-    category: "Best Practices",
-    publishedAt: "2025-01-10",
-    author: "Jag Mariappan",
-  },
-  {
-    slug: "gamma-vs-axiva-comparison",
-    title: "Gamma vs AXIVA: Which AI Presentation Tool Fits Your Workflow?",
-    excerpt:
-      "An honest comparison of AI presentation tools for executives who need structured, professional decks.",
-    category: "Product",
-    publishedAt: "2025-01-05",
-    author: "Jag Mariappan",
-  },
-];
+import { blogPosts } from "@/data/blog-posts";
 
 export default function Blog() {
   const jsonLd = {
     "@type": "Blog",
     name: "AXIVA Blog",
     description:
-      "Insights on AI presentations, executive communication, and building effective board decks.",
+      "Executive case studies, templates, and insights on AI-powered presentations for board decks, strategy updates, and investor pitches.",
     publisher: {
       "@type": "Organization",
       name: "AXIVA",
@@ -60,10 +30,10 @@ export default function Blog() {
   return (
     <>
       <SeoHead
-        title="Blog | AXIVA - AI Presentation Insights"
-        description="Insights on AI presentations, executive communication, and building effective board decks from AXIVA founder Jag Mariappan."
+        title="Blog | AXIVA - Executive AI Presentation Insights"
+        description="Case studies, templates, and best practices for AI-powered executive presentations. Board decks, investor pitches, QBRs, and strategy updates."
         canonicalPath="/blog"
-        keywords="AI presentations, executive decks, board presentations, presentation tips"
+        keywords="AI presentations, executive decks, board presentations, investor pitch deck, quarterly business review, strategy presentation"
         jsonLd={jsonLd}
       />
 
@@ -74,16 +44,48 @@ export default function Blog() {
           {/* Header */}
           <section className="text-center mb-16">
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground mb-4">
-              AXIVA Blog
+              Executive Presentation Insights
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Insights on AI presentations, executive communication, and building decks that drive decisions.
+              Case studies, templates, and strategies for executives who build decks that drive decisions.
             </p>
           </section>
 
+          {/* Featured Post */}
+          {blogPosts.length > 0 && (
+            <section className="mb-12">
+              <article className="group relative p-8 md:p-10 rounded-2xl border border-border bg-card hover:border-accent/40 transition-colors">
+                <div className="md:max-w-2xl">
+                  <span className="inline-block text-xs font-semibold tracking-wider uppercase text-accent mb-3">
+                    {blogPosts[0].category}
+                  </span>
+                  <h2 className="text-2xl md:text-3xl font-bold mb-4 group-hover:text-accent transition-colors">
+                    <Link to={`/blog/${blogPosts[0].slug}`}>{blogPosts[0].title}</Link>
+                  </h2>
+                  <p className="text-muted-foreground mb-6 leading-relaxed">
+                    {blogPosts[0].excerpt}
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-muted-foreground">
+                      {blogPosts[0].author}
+                    </span>
+                    <span className="text-muted-foreground">·</span>
+                    <time className="text-sm text-muted-foreground">
+                      {new Date(blogPosts[0].publishedAt).toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </time>
+                  </div>
+                </div>
+              </article>
+            </section>
+          )}
+
           {/* Posts Grid */}
           <section className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {blogPosts.map((post) => (
+            {blogPosts.slice(1).map((post) => (
               <article
                 key={post.slug}
                 className="group p-6 rounded-xl border border-border bg-card hover:border-accent/50 transition-colors"

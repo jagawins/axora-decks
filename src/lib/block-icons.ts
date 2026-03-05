@@ -33,6 +33,7 @@ import {
   ToggleLeft,
   Gauge,
   Network,
+  GitBranch,
 } from "lucide-react";
 import { BlockType } from "./blocks";
 
@@ -68,6 +69,7 @@ export const BLOCK_ICONS: Record<BlockType, LucideIcon> = {
   toggle_block: ToggleLeft,
   kpi_dashboard: Gauge,
   relationship_matrix: Network,
+  flow_diagram: GitBranch,
   // Decision blocks
   decision_summary: HelpCircle,
   evidence_map: MapPin,

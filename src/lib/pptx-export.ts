@@ -460,10 +460,10 @@ function addBlockToSlide(
       if (!data.length) break;
       if (chartType === "donut") {
         const chartData = [{ name: "Data", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
-        slide.addChart(pres.charts.DOUGHNUT, chartData, { x: sx(2), y: sy(1.3), w: sx(6), h: sy(4.5), showLegend: true, legendPos: "b", legendFontSize: 10, dataLabelPosition: "outEnd", dataLabelFontSize: 11, dataLabelColor: fg, chartColors: ["14B8A6", "06B6D4", "0EA5E9", "6366F1", "8B5CF6"] });
+        slide.addChart((pres as any).charts.DOUGHNUT, chartData, { x: sx(2), y: sy(1.3), w: sx(6), h: sy(4.5), showLegend: true, legendPos: "b", legendFontSize: 10, dataLabelPosition: "outEnd", dataLabelFontSize: 11, dataLabelColor: fg, chartColors: ["14B8A6", "06B6D4", "0EA5E9", "6366F1", "8B5CF6"] });
       } else if (chartType === "area") {
         const chartData = [{ name: "Value", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
-        slide.addChart(pres.charts.AREA, chartData, { x: sx(0.8), y: sy(1.3), w: sx(8.4), h: sy(4.5), showLegend: false, chartColors: ["14B8A6"], lineSize: 2 });
+        slide.addChart((pres as any).charts.AREA, chartData, { x: sx(0.8), y: sy(1.3), w: sx(8.4), h: sy(4.5), showLegend: false, chartColors: ["14B8A6"], lineSize: 2 });
       } else if (chartType === "stacked_bar") {
         const total = data.reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
         const colors = ["14B8A6", "06B6D4", "0EA5E9", "6366F1", "8B5CF6", "A855F7"];
@@ -488,10 +488,10 @@ function addBlockToSlide(
         });
       } else if (chartType === "line") {
         const chartData = [{ name: "Value", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
-        slide.addChart(pres.charts.LINE, chartData, { x: sx(0.8), y: sy(1.3), w: sx(8.4), h: sy(4.5), showLegend: false, chartColors: [accent], lineSize: 2, lineDataSymbol: "circle", lineDataSymbolSize: 6 });
+        slide.addChart((pres as any).charts.LINE, chartData, { x: sx(0.8), y: sy(1.3), w: sx(8.4), h: sy(4.5), showLegend: false, chartColors: [accent], lineSize: 2, lineDataSymbol: "circle", lineDataSymbolSize: 6 });
       } else {
         const chartData = [{ name: "Value", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
-        slide.addChart(pres.charts.BAR, chartData, { x: sx(0.8), y: sy(1.3), w: sx(8.4), h: sy(4.5), showLegend: false, barDir: "col", chartColors: [accent] });
+        slide.addChart((pres as any).charts.BAR, chartData, { x: sx(0.8), y: sy(1.3), w: sx(8.4), h: sy(4.5), showLegend: false, barDir: "col", chartColors: [accent] });
       }
       break;
     }

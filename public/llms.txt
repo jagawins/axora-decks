@@ -17,6 +17,16 @@ Key discovery pages:
 - https://axiva.ai/ai-deck-generator
 - https://axiva.ai/templates
 
+Blog & case studies:
+- https://axiva.ai/blog
+- https://axiva.ai/blog/board-deck-10-minutes
+- https://axiva.ai/blog/investor-pitch-deck-raised-5m
+- https://axiva.ai/blog/quarterly-review-template-vps
+- https://axiva.ai/blog/strategy-presentation-ceo
+- https://axiva.ai/blog/consultant-client-decks
+- https://axiva.ai/blog/sales-enablement-enterprise
+- https://axiva.ai/blog/nonprofit-board-reporting
+
 Machine-readable index:
 - https://axiva.ai/sitemap.xml
 

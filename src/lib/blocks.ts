@@ -931,6 +931,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   toggle_block: "Toggle",
   kpi_dashboard: "KPI Dashboard",
   relationship_matrix: "Relationship Matrix",
+  flow_diagram: "Flow Diagram",
   // Decision blocks
   decision_summary: "Decision Summary",
   evidence_map: "Evidence Map",

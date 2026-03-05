@@ -524,6 +524,9 @@ export type Database = {
         | "recommendation_panel"
         | "tabs_block"
         | "toggle_block"
+        | "kpi_dashboard"
+        | "relationship_matrix"
+        | "flow_diagram"
       export_format: "pdf" | "slides" | "web"
       user_tier: "free" | "pro" | "executive"
     }
@@ -682,6 +685,9 @@ export const Constants = {
         "recommendation_panel",
         "tabs_block",
         "toggle_block",
+        "kpi_dashboard",
+        "relationship_matrix",
+        "flow_diagram",
       ],
       export_format: ["pdf", "slides", "web"],
       user_tier: ["free", "pro", "executive"],
