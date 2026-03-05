@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { UsageMeter } from "@/components/UsageMeter";
+import ReferralPanel from "@/components/ReferralPanel";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -120,6 +121,11 @@ export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }:
       {/* Usage meter & plan status */}
       <div className="border-t border-border">
         <UsageMeter />
+        {!subscription.subscribed && (
+          <div className="px-4 pb-3">
+            <ReferralPanel />
+          </div>
+        )}
         {subscription.subscribed && (
           <div className="px-4 pb-3">
             <Button 

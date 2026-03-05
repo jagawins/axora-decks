@@ -166,10 +166,18 @@ export default function PublicPreview() {
               {project?.title || "Untitled"}
             </h1>
           </div>
+          <a
+            href="https://axiva.ai/?ref=shared-deck"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-muted-foreground hover:text-accent transition-colors"
+          >
+            Create your own deck →
+          </a>
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="flex-1 relative">
         <DeckPlayer
           blocks={blocks}
           title={project?.title}
@@ -178,6 +186,21 @@ export default function PublicPreview() {
           trackViews
           projectId={project?.id}
         />
+
+        {/* "Made with AXIVA" watermark — shown on all shared decks */}
+        <a
+          href="https://axiva.ai/?ref=watermark"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-4 right-4 z-50 flex items-center gap-2 px-3.5 py-2 rounded-full bg-card/90 backdrop-blur-md border border-border/60 shadow-lg hover:shadow-xl hover:border-accent/40 transition-all duration-300 group"
+        >
+          <svg width="16" height="16" viewBox="0 0 520 140" xmlns="http://www.w3.org/2000/svg" className="opacity-70 group-hover:opacity-100 transition-opacity">
+            <text x="10" y="110" fontSize="120" fill="currentColor" fontWeight="700" fontFamily="Inter,Arial,sans-serif" letterSpacing="6">A</text>
+          </svg>
+          <span className="text-[11px] font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+            Made with <span className="font-bold text-foreground group-hover:text-accent transition-colors">AXIVA</span>
+          </span>
+        </a>
       </main>
     </div>
   );

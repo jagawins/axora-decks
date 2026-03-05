@@ -35,6 +35,9 @@ const STORAGE_KEYS = {
   lastResetDate: "axiva_usage_reset_date",
   dismissedUpgradeBanner: "axiva_dismissed_upgrade_banner",
   seenFeatureGates: "axiva_seen_gates",  // track which gates user has seen
+  referralCredits: "axiva_referral_credits",  // bonus deck gens from referrals
+  referralCode: "axiva_referral_code",  // user's unique referral code
+  referralCount: "axiva_referral_count",  // how many people referred
 } as const;
 
 // ─── Usage Tracking ───────────────────────────────────
@@ -70,6 +73,39 @@ function maybeResetDaily(): void {
   }
 }
 
+// ─── Referral Credits ─────────────────────────────────
+
+export function getReferralCredits(): number {
+  return getStorageInt(STORAGE_KEYS.referralCredits);
+}
+
+export function getReferralCount(): number {
+  return getStorageInt(STORAGE_KEYS.referralCount);
+}
+
+export function addReferralCredit(): number {
+  const credits = getReferralCredits() + 1;
+  const count = getReferralCount() + 1;
+  setStorageInt(STORAGE_KEYS.referralCredits, credits);
+  setStorageInt(STORAGE_KEYS.referralCount, count);
+  return credits;
+}
+
+export function getReferralCode(userId: string): string {
+  let code = getStorageString(STORAGE_KEYS.referralCode);
+  if (!code) {
+    // Generate from user ID — short, shareable
+    code = userId.replace(/-/g, "").slice(0, 8);
+    setStorageString(STORAGE_KEYS.referralCode, code);
+  }
+  return code;
+}
+
+export function getEffectiveDeckLimit(tier: string): number {
+  if (tier !== "free") return -1; // unlimited
+  return FREE_LIMITS.maxDecks + getReferralCredits();
+}
+
 // ─── Deck Generation ──────────────────────────────────
 
 export function getDeckGenCount(): number {
@@ -84,12 +120,12 @@ export function incrementDeckGenCount(): number {
 
 export function canGenerateDeck(tier: string): boolean {
   if (tier !== "free") return true;
-  return getDeckGenCount() < FREE_LIMITS.maxDecks;
+  return getDeckGenCount() < getEffectiveDeckLimit(tier);
 }
 
 export function getDecksRemaining(tier: string): number {
   if (tier !== "free") return -1; // unlimited
-  return Math.max(0, FREE_LIMITS.maxDecks - getDeckGenCount());
+  return Math.max(0, getEffectiveDeckLimit(tier) - getDeckGenCount());
 }
 
 // ─── AI Generation (regenerate, expand, rewrite) ──────
@@ -223,16 +259,20 @@ export interface UsageSummary {
   tier: string;
   inReverseTrial: boolean;
   reverseTrialHoursLeft: number;
+  referralCredits: number;
+  referralCount: number;
 }
 
 export function getUsageSummary(tier: string): UsageSummary {
   const unlimited = tier !== "free";
   return {
-    decks: { used: getDeckGenCount(), limit: FREE_LIMITS.maxDecks, unlimited },
+    decks: { used: getDeckGenCount(), limit: getEffectiveDeckLimit(tier), unlimited },
     aiGens: { used: getAiGenCount(), limit: FREE_LIMITS.maxAiGenerations, unlimited },
     aiImages: { used: getAiImageCount(), limit: FREE_LIMITS.maxAiImageGenerations, unlimited },
     tier,
     inReverseTrial: isInReverseTrial(),
     reverseTrialHoursLeft: getReverseTrialHoursLeft(),
+    referralCredits: getReferralCredits(),
+    referralCount: getReferralCount(),
   };
 }
