@@ -1,22 +1,56 @@
-import { Sparkles, ArrowRight, Crown } from "lucide-react";
+import { useEffect } from "react";
+import { Sparkles, ArrowRight, Crown, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { getUsageSummary } from "@/lib/usage-gates";
 import { useNavigate } from "react-router-dom";
+import { getVariant, trackABEvent } from "@/lib/ab-testing";
 
 /**
  * Persistent usage meter — always visible in dashboard sidebar.
- * 
- * Conversion psychology: Gamma's key insight was making usage VISIBLE.
- * When users can see "2/3 decks used", they feel scarcity before hitting
- * the wall. This creates urgency without frustration.
+ * A/B tested with executive-focused copy variants.
  */
+
+const VARIANT_COPY = {
+  control: {
+    ctaLabel: "Upgrade to Pro",
+    ctaIcon: Sparkles,
+    subtext: "14-day free trial · No credit card",
+    lowLabel: "Running low",
+    fullLabel: "Almost full",
+  },
+  scarcity: {
+    ctaLabel: "Unlock Unlimited Decks",
+    ctaIcon: Sparkles,
+    subtext: "Don't let limits slow your strategy work",
+    lowLabel: "Running out",
+    fullLabel: "Limit reached",
+  },
+  value: {
+    ctaLabel: "Go Executive",
+    ctaIcon: Briefcase,
+    subtext: "Board decks, investor updates, brand kits",
+    lowLabel: "Almost there",
+    fullLabel: "Time to upgrade",
+  },
+};
+
 export function UsageMeter() {
   const { subscription, createCheckout } = useSubscription();
   const navigate = useNavigate();
   const usage = getUsageSummary(subscription.tier);
+  const variant = getVariant("usage_meter_copy") as keyof typeof VARIANT_COPY;
+  const copy = VARIANT_COPY[variant] || VARIANT_COPY.control;
+  const Icon = copy.ctaIcon;
+
+  useEffect(() => {
+    if (subscription.tier === "free") {
+      trackABEvent("usage_meter_copy", "impression");
+    }
+  }, [subscription.tier]);
 
   const handleUpgrade = async () => {
+    trackABEvent("usage_meter_copy", "click");
     const { SUBSCRIPTION_TIERS } = await import("@/lib/subscription");
     const priceId = SUBSCRIPTION_TIERS.pro.monthlyPriceId;
     if (!priceId) return;
@@ -24,7 +58,6 @@ export function UsageMeter() {
     if (url) window.open(url, "_blank");
   };
 
-  // Paid users see a minimal "Pro" badge
   if (subscription.tier !== "free") {
     return (
       <div className="px-4 py-3">
@@ -49,17 +82,15 @@ export function UsageMeter() {
   return (
     <div className="px-4 py-3">
       <div className="rounded-xl border border-border/50 bg-card/30 p-3 space-y-3">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Free Plan</span>
           {totalUsedPct >= 60 && (
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 font-medium">
-              {totalUsedPct >= 90 ? "Almost full" : "Running low"}
+              {totalUsedPct >= 90 ? copy.fullLabel : copy.lowLabel}
             </span>
           )}
         </div>
 
-        {/* Meters */}
         {meters.map(m => {
           const pct = Math.min(100, (m.used / m.limit) * 100);
           const isMaxed = m.used >= m.limit;
@@ -84,19 +115,18 @@ export function UsageMeter() {
           );
         })}
 
-        {/* Upgrade CTA */}
         <Button
           variant="hero"
           size="sm"
           onClick={handleUpgrade}
           className="w-full text-xs gap-1.5 h-8"
         >
-          <Sparkles className="h-3 w-3" />
-          Upgrade to Pro
+          <Icon className="h-3 w-3" />
+          {copy.ctaLabel}
         </Button>
 
         <p className="text-center text-[10px] text-muted-foreground">
-          14-day free trial · No credit card
+          {copy.subtext}
         </p>
       </div>
     </div>

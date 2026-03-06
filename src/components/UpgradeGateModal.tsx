@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,8 +8,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Lock, Sparkles, Check, ArrowRight, Crown, Zap, Image, Download, Palette, BarChart3 } from "lucide-react";
+import { Lock, Sparkles, Check, ArrowRight, Crown, Zap, Image, Download, Palette, BarChart3, Briefcase } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { getVariant, trackABEvent } from "@/lib/ab-testing";
 import { SUBSCRIPTION_TIERS } from "@/lib/subscription";
 import { useNavigate } from "react-router-dom";
 import { getUsageSummary } from "@/lib/usage-gates";
@@ -83,26 +85,39 @@ const DEFAULT_CONTEXT = {
   highlight: "Pro users generate unlimited decks with zero restrictions",
 };
 
+const VARIANT_CTA = {
+  control: { cta: "Start 14-Day Free Trial", subCta: "No credit card required" },
+  trial_emphasis: { cta: "Try Pro Free for 14 Days", subCta: "Cancel anytime — no commitment" },
+  feature_preview: { cta: "Unlock Executive Features", subCta: "Board decks, investor updates, brand kits" },
+};
+
 const PRO_FEATURES = [
-  "Unlimited deck generations",
+  "Unlimited board & strategy decks",
   "PowerPoint & PDF export",
   "AI image generation",
-  "60+ premium templates",
+  "60+ executive templates",
   "Brand Kit (fonts, colors, logo)",
-  "Interactive blocks",
-  "Presenter view & analytics",
+  "Interactive blocks & KPI dashboards",
+  "Presenter view & deck analytics",
   "Priority support",
 ];
 
 export function UpgradeGateModal({ open, onOpenChange, feature }: UpgradeGateModalProps) {
   const { subscription, createCheckout } = useSubscription();
   const navigate = useNavigate();
+  const variant = getVariant("upgrade_gate_cta") as keyof typeof VARIANT_CTA;
+  const ctaCopy = VARIANT_CTA[variant] || VARIANT_CTA.control;
 
   const ctx = feature ? (FEATURE_CONTEXTS[feature] || { ...DEFAULT_CONTEXT, headline: `${feature} is a Pro Feature` }) : DEFAULT_CONTEXT;
   const Icon = ctx.icon;
   const usage = getUsageSummary(subscription.tier);
 
+  useEffect(() => {
+    if (open) trackABEvent("upgrade_gate_cta", "impression", feature);
+  }, [open, feature]);
+
   const handleUpgrade = async () => {
+    trackABEvent("upgrade_gate_cta", "click", feature);
     const priceId = SUBSCRIPTION_TIERS.pro.monthlyPriceId;
     if (!priceId) return;
     const url = await createCheckout(priceId);
@@ -179,13 +194,13 @@ export function UpgradeGateModal({ open, onOpenChange, feature }: UpgradeGateMod
             Maybe Later
           </Button>
           <Button variant="hero" onClick={handleUpgrade} className="group flex-1">
-            Start 14-Day Free Trial
+            {ctaCopy.cta}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Button>
         </DialogFooter>
 
         <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground">
-          <span>No credit card required</span>
+          <span>{ctaCopy.subCta}</span>
           <span>•</span>
           <span>Cancel anytime</span>
           <span>•</span>
