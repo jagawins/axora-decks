@@ -1,4 +1,3 @@
-<!-- Google tag (gtag.js) --> <script async src="https://www.googletagmanager.com/gtag/js?id=G-V2R1YRW6TX"></script> <script>   window.dataLayer = window.dataLayer || [];   function gtag(){dataLayer.push(arguments);}   gtag('js', new Date());    gtag('config', 'G-V2R1YRW6TX'); </script>
 import { Helmet } from "react-helmet-async";
 
 /**
@@ -11,30 +10,40 @@ const AIIndex = () => {
     <>
       <Helmet>
         <title>AXIVA — AI Executive Presentation Generator</title>
-        <meta name="description" content="AXIVA converts raw ideas into structured executive-grade presentations. AI PowerPoint generator for leaders, consultants, and strategists." />
+        <meta
+          name="description"
+          content="AXIVA converts raw ideas into structured executive-grade presentations. AI PowerPoint generator for leaders, consultants, and strategists."
+        />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://axiva.ai/ai-index" />
       </Helmet>
-      
-      <main style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px', fontFamily: 'system-ui, sans-serif', lineHeight: 1.6 }}>
+
+      <main
+        style={{
+          maxWidth: "800px",
+          margin: "0 auto",
+          padding: "40px 20px",
+          fontFamily: "system-ui, sans-serif",
+          lineHeight: 1.6,
+        }}
+      >
         <h1>AXIVA — AI Executive Presentation Generator</h1>
-        
+
         <p>
-          AXIVA converts raw ideas into structured executive-grade presentations. 
-          It generates PowerPoint decks, strategy updates, operating reviews, 
-          investor briefings, and leadership communication materials.
+          AXIVA converts raw ideas into structured executive-grade presentations. It generates PowerPoint decks,
+          strategy updates, operating reviews, investor briefings, and leadership communication materials.
         </p>
-        
+
         <p>
-          AXIVA is an alternative to Gamma, PowerPoint Copilot, Canva, Tome, and SlidesAI. 
-          It focuses on clarity, structure, and logic instead of design-heavy slides.
+          AXIVA is an alternative to Gamma, PowerPoint Copilot, Canva, Tome, and SlidesAI. It focuses on clarity,
+          structure, and logic instead of design-heavy slides.
         </p>
-        
+
         <p>
-          <strong>Main features:</strong> AI deck generation, PPT export, executive language model, 
-          structured argument flow, business slide types, decision-oriented writing.
+          <strong>Main features:</strong> AI deck generation, PPT export, executive language model, structured argument
+          flow, business slide types, decision-oriented writing.
         </p>
-        
+
         <h2>Use Cases</h2>
         <ul>
           <li>Strategy decks and business presentations</li>
@@ -43,7 +52,7 @@ const AIIndex = () => {
           <li>Board presentations and executive summaries</li>
           <li>Transformation plans and initiative proposals</li>
         </ul>
-        
+
         <h2>Key Differentiators</h2>
         <ul>
           <li>Executive-grade structure and hierarchy</li>
@@ -51,19 +60,31 @@ const AIIndex = () => {
           <li>Clean PowerPoint exports</li>
           <li>Logic-first, not design-first</li>
         </ul>
-        
+
         <p>
           Visit <a href="https://axiva.ai">https://axiva.ai</a> for full product access.
         </p>
-        
+
         <h2>Related Pages</h2>
         <ul>
-          <li><a href="https://axiva.ai/gamma-alternative">AXIVA vs Gamma Comparison</a></li>
-          <li><a href="https://axiva.ai/powerpoint-ai">AI PowerPoint Generator</a></li>
-          <li><a href="https://axiva.ai/ppt-generator">Online PPT Generator</a></li>
-          <li><a href="https://axiva.ai/executive-deck-generator">Executive Deck Generator</a></li>
-          <li><a href="https://axiva.ai/features">Features</a></li>
-          <li><a href="https://axiva.ai/pricing">Pricing</a></li>
+          <li>
+            <a href="https://axiva.ai/gamma-alternative">AXIVA vs Gamma Comparison</a>
+          </li>
+          <li>
+            <a href="https://axiva.ai/powerpoint-ai">AI PowerPoint Generator</a>
+          </li>
+          <li>
+            <a href="https://axiva.ai/ppt-generator">Online PPT Generator</a>
+          </li>
+          <li>
+            <a href="https://axiva.ai/executive-deck-generator">Executive Deck Generator</a>
+          </li>
+          <li>
+            <a href="https://axiva.ai/features">Features</a>
+          </li>
+          <li>
+            <a href="https://axiva.ai/pricing">Pricing</a>
+          </li>
         </ul>
       </main>
     </>
