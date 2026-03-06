@@ -20,12 +20,12 @@ const CTA = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-6">
             Ready to build your next
             <br className="hidden sm:block" />
-            <span className="text-accent"> executive deck?</span>
+            <span className="text-accent"> board-ready deck?</span>
           </h2>
 
           {/* Subtext */}
           <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10">
-            Join strategists, consultants, and founders who ship polished decks in minutes.
+            Join strategists, board directors, and C-suite leaders who prepare polished executive decks in minutes.
           </p>
 
           {/* CTA buttons */}

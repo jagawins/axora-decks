@@ -1,65 +1,119 @@
-import { useState } from "react";
-import { Sparkles, X, ArrowRight, Crown, Download, Palette } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Sparkles, X, ArrowRight, Crown, Download, Palette, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { SUBSCRIPTION_TIERS } from "@/lib/subscription";
 import { isDismissedUpgradeBanner, dismissUpgradeBanner, getDecksRemaining } from "@/lib/usage-gates";
+import { getVariant, trackABEvent } from "@/lib/ab-testing";
 
 /**
  * Inline upgrade nudge — appears in the editor at high-intent moments.
- *
- * Conversion psychology: The best time to upsell is when the user
- * just experienced value. After generating their first deck, they're
- * excited — that's when you show what Pro unlocks NEXT.
- *
- * This is NOT a blocker. It's a gentle "you could do more" nudge.
+ * A/B tested with executive-focused copy variants.
  */
 
 interface EditorUpgradeNudgeProps {
-  /** Which context triggered the nudge */
   context?: "post-generation" | "export-attempt" | "feature-locked" | "sidebar";
 }
 
-const NUDGE_MESSAGES = {
-  "post-generation": {
-    title: "Nice deck! Want to make it even better?",
-    body: "Pro unlocks AI images, premium templates, and PowerPoint export.",
-    icon: Sparkles,
+// ─── A/B Variant Copy ─────────────────────────────────
+
+const VARIANT_MESSAGES = {
+  control: {
+    "post-generation": {
+      title: "Nice deck! Want to make it even better?",
+      body: "Pro unlocks AI images, premium templates, and PowerPoint export.",
+      icon: Sparkles,
+    },
+    "export-attempt": {
+      title: "Export to PowerPoint & PDF",
+      body: "Free exports include an AXIVA watermark. Upgrade for clean exports.",
+      icon: Download,
+    },
+    "feature-locked": {
+      title: "This feature is Pro-only",
+      body: "Start a free trial to unlock the full AXIVA experience.",
+      icon: Crown,
+    },
+    "sidebar": {
+      title: "Unlock the full toolkit",
+      body: "Brand kits, premium themes, interactive blocks, and more.",
+      icon: Palette,
+    },
   },
-  "export-attempt": {
-    title: "Export to PowerPoint & PDF",
-    body: "Free exports include an AXIVA watermark. Upgrade for clean exports.",
-    icon: Download,
+  boardroom: {
+    "post-generation": {
+      title: "Board-ready in seconds",
+      body: "Pro adds executive templates, brand consistency, and watermark-free PPTX export for your next board meeting.",
+      icon: Briefcase,
+    },
+    "export-attempt": {
+      title: "Share with your board, not a watermark",
+      body: "Export clean PowerPoint files ready for the boardroom.",
+      icon: Download,
+    },
+    "feature-locked": {
+      title: "Built for executive teams",
+      body: "Unlock board packs, investor updates, and strategy deck templates.",
+      icon: Crown,
+    },
+    "sidebar": {
+      title: "Your executive presentation toolkit",
+      body: "Board templates, brand kits, and presenter analytics.",
+      icon: Briefcase,
+    },
   },
-  "feature-locked": {
-    title: "This feature is Pro-only",
-    body: "Start a free trial to unlock the full AXIVA experience.",
-    icon: Crown,
-  },
-  "sidebar": {
-    title: "Unlock the full toolkit",
-    body: "Brand kits, premium themes, interactive blocks, and more.",
-    icon: Palette,
+  roi: {
+    "post-generation": {
+      title: "Save 4 hours on your next deck",
+      body: "Pro users prepare board decks 10× faster with AI generation and premium templates.",
+      icon: Sparkles,
+    },
+    "export-attempt": {
+      title: "Professional exports, zero friction",
+      body: "One click to PowerPoint — ready for your exec team or investors.",
+      icon: Download,
+    },
+    "feature-locked": {
+      title: "Trusted by strategy teams",
+      body: "Join 2,400+ executives who ship polished decks in minutes, not hours.",
+      icon: Crown,
+    },
+    "sidebar": {
+      title: "From draft to boardroom in minutes",
+      body: "AI-powered decks with enterprise-grade brand consistency.",
+      icon: Sparkles,
+    },
   },
 };
 
 export function EditorUpgradeNudge({ context = "sidebar" }: EditorUpgradeNudgeProps) {
   const { subscription, createCheckout } = useSubscription();
   const [dismissed, setDismissed] = useState(isDismissedUpgradeBanner());
+  const variant = getVariant("editor_nudge") as keyof typeof VARIANT_MESSAGES;
+
+  const messages = VARIANT_MESSAGES[variant] || VARIANT_MESSAGES.control;
+  const msg = messages[context];
+  const Icon = msg.icon;
+  const remaining = getDecksRemaining(subscription.tier);
+
+  // Track impression on mount
+  useEffect(() => {
+    if (subscription.tier === "free" && !dismissed) {
+      trackABEvent("editor_nudge", "impression", context);
+    }
+  }, [context, subscription.tier, dismissed]);
 
   // Don't show for paid users
   if (subscription.tier !== "free" || dismissed) return null;
 
-  const msg = NUDGE_MESSAGES[context];
-  const Icon = msg.icon;
-  const remaining = getDecksRemaining(subscription.tier);
-
   const handleDismiss = () => {
+    trackABEvent("editor_nudge", "dismiss", context);
     dismissUpgradeBanner();
     setDismissed(true);
   };
 
   const handleUpgrade = async () => {
+    trackABEvent("editor_nudge", "click", context);
     const priceId = SUBSCRIPTION_TIERS.pro.monthlyPriceId;
     if (!priceId) return;
     const url = await createCheckout(priceId);
@@ -68,7 +122,6 @@ export function EditorUpgradeNudge({ context = "sidebar" }: EditorUpgradeNudgePr
 
   return (
     <div className="relative mx-3 my-2 rounded-xl border border-accent/20 bg-gradient-to-br from-accent/5 to-accent/10 p-3.5 animate-fade-in">
-      {/* Dismiss */}
       <button
         onClick={handleDismiss}
         className="absolute top-2 right-2 p-1 rounded-full hover:bg-accent/10 text-muted-foreground hover:text-foreground transition-colors"
@@ -87,7 +140,6 @@ export function EditorUpgradeNudge({ context = "sidebar" }: EditorUpgradeNudgePr
         </div>
       </div>
 
-      {/* Remaining counter */}
       {remaining >= 0 && remaining < 3 && (
         <div className="flex items-center gap-1.5 mb-2.5 text-[10px] text-amber-500">
           <div className="flex gap-0.5">
