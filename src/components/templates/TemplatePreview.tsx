@@ -12,21 +12,16 @@ interface TemplatePreviewProps {
 // Design size for the slide (16:9 aspect ratio)
 const DESIGN_WIDTH = 1280;
 const DESIGN_HEIGHT = 720;
+const MIN_SCALE = 0.25;  // Increased from 0.2 for better visibility
+const MAX_SCALE = 0.6;   // Cap max scale to prevent overflow
 
 // Fixed decision block render order
 const DECISION_BLOCK_ORDER = ['decision_summary', 'evidence_map', 'scenario_set', 'recommendation_panel'];
 
-/**
- * Detect if blocks contain decision blocks and sort them in fixed order if so
- */
 function getOrderedBlocks(blocks: TemplateBlock[]): TemplateBlock[] {
   const hasDecisionBlocks = blocks.some(b => DECISION_BLOCK_TYPES.includes(b.type as any));
+  if (!hasDecisionBlocks) return blocks;
   
-  if (!hasDecisionBlocks) {
-    return blocks;
-  }
-  
-  // Sort decision blocks in fixed order, non-decision blocks stay at end
   const decisionBlocks: TemplateBlock[] = [];
   const otherBlocks: TemplateBlock[] = [];
   
@@ -38,7 +33,6 @@ function getOrderedBlocks(blocks: TemplateBlock[]): TemplateBlock[] {
     }
   }
   
-  // Sort decision blocks by fixed order
   decisionBlocks.sort((a, b) => {
     const aIndex = DECISION_BLOCK_ORDER.indexOf(a.type);
     const bIndex = DECISION_BLOCK_ORDER.indexOf(b.type);
@@ -48,20 +42,10 @@ function getOrderedBlocks(blocks: TemplateBlock[]): TemplateBlock[] {
   return [...decisionBlocks, ...otherBlocks];
 }
 
-/**
- * Renders a scaled-down 16:9 preview of template blocks.
- * Shows first 3 blocks stacked vertically inside the slide canvas.
- * Decision blocks are rendered in fixed order when present.
- */
-export function TemplatePreview({ 
-  blocks, 
-  themeId = 'classic',
-  className = '' 
-}: TemplatePreviewProps) {
+export function TemplatePreview({ blocks, themeId = 'classic', className = '' }: TemplatePreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0.2);
-  
-  // Apply fixed order for decision blocks
+  const [scale, setScale] = useState(MIN_SCALE);
+
   const orderedBlocks = useMemo(() => getOrderedBlocks(blocks), [blocks]);
   const previewBlocks = orderedBlocks.slice(0, 4);
 
@@ -69,12 +53,12 @@ export function TemplatePreview({
     const updateScale = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
-        setScale(containerWidth / DESIGN_WIDTH);
+        const calculatedScale = containerWidth / DESIGN_WIDTH;
+        setScale(Math.min(Math.max(calculatedScale, MIN_SCALE), MAX_SCALE));
       }
     };
 
     updateScale();
-    
     const resizeObserver = new ResizeObserver(updateScale);
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
@@ -84,32 +68,33 @@ export function TemplatePreview({
   }, []);
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className={`aspect-[16/9] w-full rounded-xl border border-border bg-[var(--deck-bg,hsl(var(--card)))] overflow-hidden relative ${className}`}
-      data-theme={themeId}
+      className={`relative w-full bg-background rounded-lg overflow-hidden shadow-md ${className}`}
+      style={{ aspectRatio: '16 / 9' }}
     >
-      {/* Scaled content container */}
-      <div 
-        className="absolute top-0 left-0 origin-top-left"
+      <div
+        className="absolute inset-0 origin-top-left overflow-hidden"
         style={{
+          transform: `scale(${scale})`,
           width: `${DESIGN_WIDTH}px`,
           height: `${DESIGN_HEIGHT}px`,
-          transform: `scale(${scale})`,
         }}
       >
-        <div className="w-full h-full p-16 flex flex-col justify-center gap-8" style={{ pointerEvents: 'auto' }}>
+        <div className="w-full h-full flex flex-col gap-4 p-8 bg-background">
           {previewBlocks.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-[var(--deck-muted,hsl(var(--muted-foreground)))] text-4xl">
+            <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
               Empty template
             </div>
           ) : (
             previewBlocks.map((block, index) => (
-              <TemplateBlockRenderer
-                key={block.id || index}
-                block={block}
-                readOnly
-              />
+              <div key={`${block.id}-${index}`} className="flex-shrink-0">
+                <TemplateBlockRenderer
+                  block={block}
+                  themeId={themeId}
+                  isPreview
+                />
+              </div>
             ))
           )}
         </div>
