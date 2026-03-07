@@ -89,11 +89,11 @@ export function TemplatePreview({ blocks, themeId = 'classic', className = '' }:
               </div>
             ) : (
               previewBlocks.map((block, index) => (
-                <TemplateBlockRenderer
-                  key={index}
-                  block={block}
-                  isPreview={true}
-                />
+              <TemplateBlockRenderer
+                key={index}
+                block={block}
+                readOnly
+              />
               ))
             )}
           </div>
