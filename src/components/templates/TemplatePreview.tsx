@@ -72,7 +72,7 @@ export function TemplatePreview({ blocks, themeId = 'classic', className = '' }:
       className={`relative w-full bg-background rounded-lg overflow-hidden shadow-md ${className}`}
       style={{ aspectRatio: '16 / 9' }}
     >
-      <div className="absolute inset-0 flex items-start justify-center overflow-hidden">
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
         <div
           className="origin-top-center shrink-0"
           style={{
