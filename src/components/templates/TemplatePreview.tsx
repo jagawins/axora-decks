@@ -72,29 +72,31 @@ export function TemplatePreview({ blocks, themeId = 'classic', className = '' }:
       className={`relative w-full bg-background rounded-lg overflow-hidden shadow-md ${className}`}
       style={{ aspectRatio: '16 / 9' }}
     >
-      <div
-        className="absolute inset-0 origin-top-left overflow-hidden"
-        style={{
-          transform: `scale(${scale})`,
-          width: `${DESIGN_WIDTH}px`,
-          height: `${DESIGN_HEIGHT}px`,
-        }}
-      >
-        <div className="w-full h-full flex flex-col gap-4 p-8 bg-background">
-          {previewBlocks.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-              Empty template
-            </div>
-          ) : (
-            previewBlocks.map((block, index) => (
+      <div className="absolute inset-0 flex items-start justify-center overflow-hidden">
+        <div
+          className="origin-top-center shrink-0"
+          style={{
+            transform: `scale(${scale})`,
+            width: `${DESIGN_WIDTH}px`,
+            height: `${DESIGN_HEIGHT}px`,
+            transformOrigin: 'top center',
+          }}
+        >
+          <div className="w-full h-full flex flex-col gap-4 p-8 bg-background">
+            {previewBlocks.length === 0 ? (
+              <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                Empty template
+              </div>
+            ) : (
+              previewBlocks.map((block, index) => (
               <TemplateBlockRenderer
                 key={index}
                 block={block}
-                themeId={themeId}
-                isPreview={true}
+                readOnly
               />
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
