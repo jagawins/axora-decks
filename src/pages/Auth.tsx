@@ -4,117 +4,115 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
 
-// Validation schemas
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 const nameSchema = z.string().min(2, 'Name must be at least 2 characters').optional();
 
+const GoogleIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+    <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+    <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+  </svg>
+);
+
+const AppleIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 814 1000" fill="currentColor">
+    <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 376.7 0 248.7 0 125.8c0-70.5 24.2-135.4 68.1-182.4C112.2 95.6 171.5 64 240.6 64c66.3 0 119.1 41.5 160.1 41.5 39.6 0 101.1-44 176.6-44 28.5 0 130.9 2.6 198.3 99.2zm-234-181.5c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z"/>
+  </svg>
+);
+
+const MicrosoftIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 21 21" fill="none">
+    <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+    <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+    <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+    <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+  </svg>
+);
+
+type AuthMode = 'signin' | 'signup' | 'magic';
+
 const Auth = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [mode, setMode] = useState<AuthMode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [searchParams] = useSearchParams();
-
-  // Capture referral code from URL
-  useEffect(() => {
-    const ref = searchParams.get('ref');
-    if (ref) {
-      try {
-        localStorage.setItem('axiva_referred_by', ref);
-      } catch { /* silent */ }
-    }
-  }, [searchParams]);
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [magicSent, setMagicSent] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
-  
-  const { signIn, signUp, signInWithGoogle, user, loading } = useAuth();
+  const [searchParams] = useSearchParams();
+
+  const { signIn, signUp, signInWithGoogle, signInWithApple, signInWithMicrosoft, signInWithMagicLink, user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Redirect if already logged in
   useEffect(() => {
-    if (!loading && user) {
-      navigate('/dashboard');
+    const ref = searchParams.get('ref');
+    if (ref) {
+      try { localStorage.setItem('axiva_referred_by', ref); } catch { }
     }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!loading && user) navigate('/dashboard');
   }, [user, loading, navigate]);
+
+  const validateEmail = () => {
+    const result = emailSchema.safeParse(email);
+    if (!result.success) {
+      setErrors(e => ({ ...e, email: result.error.errors[0].message }));
+      return false;
+    }
+    setErrors(e => ({ ...e, email: undefined }));
+    return true;
+  };
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string; name?: string } = {};
-    
     const emailResult = emailSchema.safeParse(email);
-    if (!emailResult.success) {
-      newErrors.email = emailResult.error.errors[0].message;
-    }
-    
+    if (!emailResult.success) newErrors.email = emailResult.error.errors[0].message;
     const passwordResult = passwordSchema.safeParse(password);
-    if (!passwordResult.success) {
-      newErrors.password = passwordResult.error.errors[0].message;
-    }
-    
-    if (isSignUp && name) {
+    if (!passwordResult.success) newErrors.password = passwordResult.error.errors[0].message;
+    if (mode === 'signup' && name) {
       const nameResult = nameSchema.safeParse(name);
-      if (!nameResult.success) {
-        newErrors.name = nameResult.error.errors[0].message;
-      }
+      if (nameResult && !nameResult.success) newErrors.name = nameResult.error.errors[0].message;
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
-    
     setIsLoading(true);
-    
     try {
-      if (isSignUp) {
+      if (mode === 'signup') {
         const { error } = await signUp(email, password, name);
         if (error) {
-          if (error.message.includes('already registered')) {
-            toast({
-              title: 'Account exists',
-              description: 'An account with this email already exists. Please sign in instead.',
-              variant: 'destructive',
-            });
-          } else {
-            toast({
-              title: 'Sign up failed',
-              description: error.message,
-              variant: 'destructive',
-            });
-          }
-        } else {
           toast({
-            title: 'Welcome to AXIVA!',
-            description: 'Your account has been created successfully.',
+            title: error.message.includes('already registered') ? 'Account exists' : 'Sign up failed',
+            description: error.message.includes('already registered') ? 'An account with this email already exists.' : error.message,
+            variant: 'destructive',
           });
+        } else {
+          toast({ title: 'Welcome to AXIVA!', description: 'Your account has been created.' });
           navigate('/onboarding');
         }
       } else {
         const { error } = await signIn(email, password);
         if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            toast({
-              title: 'Invalid credentials',
-              description: 'Please check your email and password.',
-              variant: 'destructive',
-            });
-          } else {
-            toast({
-              title: 'Sign in failed',
-              description: error.message,
-              variant: 'destructive',
-            });
-          }
+          toast({
+            title: 'Sign in failed',
+            description: error.message.includes('Invalid login credentials') ? 'Please check your email and password.' : error.message,
+            variant: 'destructive',
+          });
         } else {
           navigate('/dashboard');
         }
@@ -124,15 +122,25 @@ const Auth = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleMagicLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateEmail()) return;
     setIsLoading(true);
-    const { error } = await signInWithGoogle();
+    const { error } = await signInWithMagicLink(email);
+    setIsLoading(false);
     if (error) {
-      toast({
-        title: 'Google sign in failed',
-        description: error.message,
-        variant: 'destructive',
-      });
+      toast({ title: 'Magic link failed', description: error.message, variant: 'destructive' });
+    } else {
+      setMagicSent(true);
+    }
+  };
+
+  const handleOAuth = async (provider: 'google' | 'apple' | 'microsoft') => {
+    setIsLoading(true);
+    const fn = provider === 'google' ? signInWithGoogle : provider === 'apple' ? signInWithApple : signInWithMicrosoft;
+    const { error } = await fn();
+    if (error) {
+      toast({ title: `${provider} sign in failed`, description: error.message, variant: 'destructive' });
       setIsLoading(false);
     }
   };
@@ -140,159 +148,139 @@ const Auth = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-accent/10 rounded-full blur-[100px] opacity-50" />
-      </div>
-
-      <div className="relative z-10 w-full max-w-md px-4">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <a href="/" className="inline-flex items-center justify-center mb-4">
-            <img src={axivaWordmark} alt="AXIVA" className="h-8 w-auto" />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/20 via-transparent to-transparent"></div>
+      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]"></div>
+      
+      <div className="w-full max-w-md relative z-10">
+        <div className="flex flex-col items-center mb-8">
+          <a href="/" className="mb-6 inline-block">
+            <img src={axivaWordmark} alt="AXIVA" className="h-8" />
           </a>
-          <h1 className="text-2xl font-bold">
-            {isSignUp ? 'Create your account' : 'Welcome back'}
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            {mode === 'signup' ? 'Create your account' : mode === 'magic' ? 'Sign in with email' : 'Welcome back'}
           </h1>
-          <p className="text-muted-foreground mt-2">
-            {isSignUp 
-              ? 'Start creating executive-grade presentations' 
-              : 'Sign in to continue to your dashboard'}
+          <p className="text-muted-foreground text-center">
+            {mode === 'signup' ? 'Start creating executive-grade presentations' : mode === 'magic' ? "We'll send you a magic link" : 'Sign in to continue to your dashboard'}
           </p>
         </div>
 
-        {/* Auth card */}
-        <div className="glass-card p-8">
-          {/* Google button */}
-          <Button 
-            variant="outline" 
-            className="w-full mb-6 h-12" 
-            onClick={handleGoogleSignIn}
-            disabled={isLoading}
-          >
-            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="currentColor"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="currentColor"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              />
-              <path
-                fill="currentColor"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-            </svg>
-            Continue with Google
-          </Button>
+        <div className="bg-card/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/40 p-8">
+          {mode !== 'magic' && (
+            <>
+              <div className="flex flex-col gap-2 mb-6">
+                <Button variant="outline" size="lg" onClick={() => handleOAuth('google')} disabled={isLoading} className="h-12 relative group hover:bg-muted/80">
+                  <GoogleIcon />
+                  <span className="ml-2">Continue with Google</span>
+                </Button>
+                <Button variant="outline" size="lg" onClick={() => handleOAuth('apple')} disabled={isLoading} className="h-12 relative group hover:bg-muted/80">
+                  <AppleIcon />
+                  <span className="ml-2">Continue with Apple</span>
+                </Button>
+                <Button variant="outline" size="lg" onClick={() => handleOAuth('microsoft')} disabled={isLoading} className="h-12 relative group hover:bg-muted/80">
+                  <MicrosoftIcon />
+                  <span className="ml-2">Continue with Microsoft</span>
+                </Button>
+              </div>
 
-          {/* Divider */}
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
-            </div>
-          </div>
+              <div className="relative mb-6">
+                <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border/60"></span></div>
+                <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or continue with email</span></div>
+              </div>
+            </>
+          )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="Your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="pl-10 h-12 bg-muted/50"
-                  />
+          {mode === 'magic' ? (
+            magicSent ? (
+              <div className="text-center py-8">
+                <CheckCircle2 className="w-16 h-16 text-accent mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Check your email</h3>
+                <p className="text-muted-foreground mb-6">We've sent a magic link to <span className="font-medium text-foreground">{email}</span></p>
+                <Button variant="outline" onClick={() => { setMagicSent(false); setMode('signin'); }}>
+                  Back to sign in
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleMagicLink} className="space-y-4">
+                <div>
+                  <Label htmlFor="magic-email">Email address</Label>
+                  <div className="relative mt-2">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input id="magic-email" type="email" placeholder="name@company.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-12 bg-muted/50" required />
+                  </div>
+                  {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
                 </div>
-                {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+                <Button type="submit" size="lg" className="w-full h-12" disabled={isLoading}>
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Sparkles className="w-5 h-5 mr-2" />Send magic link</>}
+                </Button>
+                <Button type="button" variant="ghost" className="w-full" onClick={() => setMode('signin')}>
+                  Back to sign in
+                </Button>
+              </form>
+            )
+          ) : (
+            <>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {mode === 'signup' && (
+                  <div>
+                    <Label htmlFor="name">Name</Label>
+                    <div className="relative mt-2">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Input id="name" type="text" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} className="pl-10 h-12 bg-muted/50" />
+                    </div>
+                    {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
+                  </div>
+                )}
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative mt-2">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input id="email" type="email" placeholder="name@company.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-12 bg-muted/50" required />
+                  </div>
+                  {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative mt-2">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 h-12 bg-muted/50" required />
+                  </div>
+                  {errors.password && <p className="text-xs text-destructive mt-1">{errors.password}</p>}
+                </div>
+                <Button type="submit" size="lg" className="w-full h-12 group" disabled={isLoading}>
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      {mode === 'signup' ? 'Create account' : 'Sign in'}
+                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </Button>
+              </form>
+
+              <div className="mt-6 space-y-4">
+                <div className="text-center text-sm">
+                  {mode === 'signup' ? 'Already have an account?' : "Don't have an account?"}{' '}
+                  <button onClick={() => { setMode(mode === 'signup' ? 'signin' : 'signup'); setErrors({}); }} className="text-accent hover:underline font-medium">
+                    {mode === 'signup' ? 'Sign in' : 'Sign up'}
+                  </button>
+                </div>
+                <div className="text-center">
+                  <button type="button" onClick={() => setMode('magic')} className="text-sm text-muted-foreground hover:text-foreground flex items-center justify-center mx-auto gap-2 group">
+                    <Sparkles className="w-4 h-4 group-hover:text-accent transition-colors" />
+                    Sign in with magic link
+                  </button>
+                </div>
               </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="name@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12 bg-muted/50"
-                  required
-                />
-              </div>
-              {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 h-12 bg-muted/50"
-                  required
-                />
-              </div>
-              {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-            </div>
-
-            <Button 
-              type="submit" 
-              variant="hero" 
-              className="w-full h-12" 
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <>
-                  {isSignUp ? 'Create account' : 'Sign in'}
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </>
-              )}
-            </Button>
-          </form>
-
-          {/* Toggle */}
-          <p className="text-center text-sm text-muted-foreground mt-6">
-            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-            <button
-              type="button"
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setErrors({});
-              }}
-              className="text-accent hover:underline font-medium"
-            >
-              {isSignUp ? 'Sign in' : 'Sign up'}
-            </button>
-          </p>
+            </>
+          )}
         </div>
       </div>
     </div>
