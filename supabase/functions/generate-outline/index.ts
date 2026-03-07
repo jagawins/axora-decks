@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 // Validation limits
-const MAX_TOPIC_LENGTH = 200;
+const MAX_TOPIC_LENGTH = 2000;
 const MAX_PROMPT_LENGTH = 6000;
 const VALID_TONES = ["professional", "crisp", "analytical", "persuasive", "executive", "casual"] as const;
 const DEFAULT_TONE = "professional";
