@@ -118,8 +118,9 @@ const Pricing = () => {
   const { subscription, createCheckout } = useSubscription();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
-  const [isAnnual, setIsAnnual] = useState(true);
+  const [isAnnual, setIsAnnual] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   const plans = [
@@ -143,12 +144,14 @@ const Pricing = () => {
       icon: Zap,
     },
     {
-      name: "Pro",
-      description: "For operators, leaders & consultants",
+      name: "AXORA Pro Monthly",
+      description: "Unlimited projects, PDF & Slide export, Brand kit integration, Advanced AI actions, Priority support - Monthly billing",
       monthlyPrice: "$28",
       yearlyPrice: "$269",
       yearlySavings: "Save $67",
       highlights: [
+        "14 days free trial",
+        "Then $28.00 per month starting March 20, 2026",
         "Unlimited deck generations",
         "AI images & smart refinements",
         "All templates & premium themes",
@@ -158,7 +161,7 @@ const Pricing = () => {
         "PDF & PowerPoint export",
         "Passcode-protected sharing",
       ],
-      cta: "Start 14-Day Free Trial",
+      cta: "Try AXORA Pro Monthly",
       featured: true,
       tier: "pro" as const,
       perUser: false,
@@ -211,16 +214,20 @@ const Pricing = () => {
       window.location.href = "mailto:jagawins@gmail.com?subject=AXIVA Enterprise Inquiry";
       return;
     }
+
     if (!user) {
       navigate("/auth");
       return;
     }
+
     if (tier === "free" || subscription.tier === tier) {
       navigate("/dashboard");
       return;
     }
+
     const tierConfig = SUBSCRIPTION_TIERS[tier];
     const priceId = isAnnual ? tierConfig.yearlyPriceId : tierConfig.monthlyPriceId;
+    
     if (!priceId) return;
 
     setLoadingTier(tier);
@@ -229,7 +236,11 @@ const Pricing = () => {
       if (url) {
         window.open(url, "_blank");
       } else {
-        toast({ title: "Error", description: "Failed to create checkout session.", variant: "destructive" });
+        toast({
+          title: "Error",
+          description: "Failed to create checkout session.",
+          variant: "destructive"
+        });
       }
     } finally {
       setLoadingTier(null);
@@ -245,30 +256,28 @@ const Pricing = () => {
   return (
     <div className="min-h-screen bg-background">
       <MarketingHeader />
-
       <main>
         {/* ═══ Hero ═══ */}
         <section className="relative pt-32 pb-16 overflow-hidden">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-accent/10 rounded-full blur-[120px] opacity-60" />
           </div>
-
           <div className="container-narrow relative z-10">
             <div className="text-center max-w-4xl mx-auto">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-sm font-medium mb-8">
                 <Sparkles className="h-4 w-4" />
                 <span>Simple, Transparent Pricing</span>
               </div>
-
+              
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
                 Build executive decks{" "}
                 <span className="text-gradient">10x faster</span>
               </h1>
-
+              
               <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-4">
                 Start free. Upgrade when you need unlimited generations, brand kits, interactive blocks, and PowerPoint export.
               </p>
-
+              
               <p className="text-sm text-success font-medium mb-8">
                 ✦ 14-day free trial on all paid plans — no credit card required
               </p>
@@ -309,7 +318,7 @@ const Pricing = () => {
               {plans.map((plan, i) => {
                 const isCurrentPlan = user && subscription.tier === plan.tier;
                 const Icon = plan.icon;
-
+                
                 return (
                   <div
                     key={i}
@@ -324,13 +333,12 @@ const Pricing = () => {
                         Most Popular
                       </div>
                     )}
-
                     {isCurrentPlan && (
                       <div className="absolute -top-3 right-4 px-3 py-1 bg-success text-success-foreground text-xs font-bold rounded-full">
                         Your Plan
                       </div>
                     )}
-
+                    
                     <div className="flex items-center gap-3 mb-4">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${plan.featured ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"}`}>
                         <Icon className="h-5 w-5" />
@@ -354,6 +362,7 @@ const Pricing = () => {
                     {isAnnual && plan.yearlySavings && (
                       <p className="text-xs text-success font-semibold mb-1">{plan.yearlySavings}</p>
                     )}
+                    
                     {plan.hasTrial && (
                       <p className="text-xs text-accent font-medium mb-1">14-day free trial</p>
                     )}
@@ -394,8 +403,6 @@ const Pricing = () => {
           </div>
         </section>
 
-
-
         {/* ═══ Feature Comparison Table ═══ */}
         <section className="py-20 border-t border-border/30">
           <div className="container-wide">
@@ -403,7 +410,7 @@ const Pricing = () => {
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">Compare every feature</h2>
               <p className="text-muted-foreground text-lg">See exactly what you get on each plan</p>
             </div>
-
+            
             <div className="overflow-x-auto">
               <table className="w-full min-w-[700px]">
                 <thead>
@@ -422,7 +429,7 @@ const Pricing = () => {
                   {FEATURE_CATEGORIES.map((cat) => (
                     <>
                       <tr key={cat.category}>
-                        <td colSpan={4} className="pt-8 pb-3 px-4">
+                        <td colSpan={5} className="pt-8 pb-3 px-4">
                           <span className="text-xs font-bold uppercase tracking-wider text-accent">{cat.category}</span>
                         </td>
                       </tr>
@@ -458,7 +465,7 @@ const Pricing = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">Frequently asked questions</h2>
             </div>
-
+            
             <div className="max-w-2xl mx-auto space-y-3">
               {FAQ_ITEMS.map((item, i) => (
                 <button
@@ -506,7 +513,6 @@ const Pricing = () => {
           </div>
         </section>
       </main>
-
       <Footer />
     </div>
   );
