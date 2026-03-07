@@ -194,10 +194,6 @@ const Auth = () => {
                   <AppleIcon />
                   <span className="ml-2">Continue with Apple</span>
                 </Button>
-                <Button variant="outline" size="lg" onClick={() => handleOAuth('microsoft')} disabled={isLoading} className="h-12 relative group hover:bg-muted/80">
-                  <MicrosoftIcon />
-                  <span className="ml-2">Continue with Microsoft</span>
-                </Button>
               </div>
 
               <div className="relative mb-6">
