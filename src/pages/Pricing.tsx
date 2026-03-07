@@ -1,16 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowRight,
-  Check,
-  X,
-  Sparkles,
-  Loader2,
-  Shield,
-  Zap,
-  Users,
-  Download,
-  MessageSquare
+  ArrowRight, Check, X, Sparkles, Loader2, Shield, Zap,
+  Users, Download, MessageSquare
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MarketingHeader from "@/components/MarketingHeader";
@@ -20,7 +12,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { SUBSCRIPTION_TIERS } from "@/lib/subscription";
 import { useToast } from "@/hooks/use-toast";
-import React from "react";
 
 /* ── Feature comparison data ────────────────────── */
 const FEATURE_CATEGORIES = [
@@ -39,7 +30,7 @@ const FEATURE_CATEGORIES = [
     features: [
       { name: "Starter templates", free: true, pro: true, team: true, enterprise: true },
       { name: "Premium templates", free: false, pro: true, team: true, enterprise: true },
-      { name: "Custom themes (Ocean, Rose, Forest, Sunset...)", free: false, pro: true, team: true, enterprise: true },
+      { name: "Custom themes (Ocean, Rose, Forest, Sunset…)", free: false, pro: true, team: true, enterprise: true },
       { name: "Brand Kit (fonts, colors, logo)", free: false, pro: true, team: true, enterprise: true },
       { name: "Custom heading & body fonts", free: false, pro: true, team: true, enterprise: true },
     ],
@@ -131,15 +122,10 @@ const Pricing = () => {
   const [isAnnual, setIsAnnual] = useState(true);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
-  const trialEndDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { 
-    month: 'long', 
-    day: 'numeric' 
-  });
-
   const plans = [
     {
       name: "Free",
-      description: "Explore the platform and build your first executive deck with AI structure.",
+      description: "Explore the platform",
       monthlyPrice: "$0",
       yearlyPrice: "$0",
       period: "forever",
@@ -158,7 +144,7 @@ const Pricing = () => {
     },
     {
       name: "Pro",
-      description: "Build executive-ready decks with AI architecture, custom branding, and interactive components.",
+      description: "For operators, leaders & consultants",
       monthlyPrice: "$28",
       yearlyPrice: "$269",
       yearlySavings: "Save $67",
@@ -171,7 +157,6 @@ const Pricing = () => {
         "Presenter view & slide analytics",
         "PDF & PowerPoint export",
         "Passcode-protected sharing",
-        "Governed narrative structure",
       ],
       cta: "Start 14-Day Free Trial",
       featured: true,
@@ -182,7 +167,7 @@ const Pricing = () => {
     },
     {
       name: "Team",
-      description: "For companies and departments that need a shared workspace and centralized governance.",
+      description: "For companies & departments",
       monthlyPrice: "$78",
       yearlyPrice: "$749",
       yearlySavings: "Save $187",
@@ -192,7 +177,6 @@ const Pricing = () => {
         "Centralized billing",
         "Admin dashboard & governance",
         "Priority support",
-        "Template governance with no drift",
       ],
       cta: "Start 14-Day Free Trial",
       featured: false,
@@ -203,13 +187,11 @@ const Pricing = () => {
     },
     {
       name: "Enterprise",
-      description: "Custom solutions for large organizations that need role-based narrative locking and document lineage tracking.",
+      description: "Custom solutions at scale",
       monthlyPrice: "Custom",
       yearlyPrice: "Custom",
       highlights: [
         "Everything in Team",
-        "Role-based narrative locking",
-        "Document lineage tracking",
         "SSO & SAML authentication",
         "Dedicated account manager",
         "Custom integrations & API",
@@ -237,8 +219,7 @@ const Pricing = () => {
       navigate("/dashboard");
       return;
     }
-
-    const tierConfig = SUBSCRIPTION_TIERS[tier as keyof typeof SUBSCRIPTION_TIERS];
+    const tierConfig = SUBSCRIPTION_TIERS[tier];
     const priceId = isAnnual ? tierConfig.yearlyPriceId : tierConfig.monthlyPriceId;
     if (!priceId) return;
 
@@ -248,11 +229,7 @@ const Pricing = () => {
       if (url) {
         window.open(url, "_blank");
       } else {
-        toast({
-          title: "Error",
-          description: "Failed to create checkout session.",
-          variant: "destructive"
-        });
+        toast({ title: "Error", description: "Failed to create checkout session.", variant: "destructive" });
       }
     } finally {
       setLoadingTier(null);
@@ -260,274 +237,276 @@ const Pricing = () => {
   };
 
   const renderFeatureValue = (val: boolean | string) => {
-    if (val === true) return <Check className="w-5 h-5 text-primary mx-auto" />;
-    if (val === false) return <X className="w-5 h-5 text-muted-foreground/30 mx-auto" />;
-    return <span className="text-sm font-medium">{val}</span>;
+    if (val === true) return <Check className="h-4 w-4 text-success mx-auto" />;
+    if (val === false) return <X className="h-4 w-4 text-muted-foreground/30 mx-auto" />;
+    return <span className="text-sm text-foreground">{val}</span>;
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-background">
       <MarketingHeader />
-      
-      {/* ─── Hero ─── */}
-      <section className="pt-32 pb-16 px-6 relative">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
-            <Sparkles className="w-4 h-4" />
-            Simple, Transparent Pricing
+
+      <main>
+        {/* ═══ Hero ═══ */}
+        <section className="relative pt-32 pb-16 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-accent/10 rounded-full blur-[120px] opacity-60" />
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
-            Build executive decks{" "}
-            <span className="text-primary italic">10x faster</span>
-          </h1>
-          <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-            Start free. Upgrade when you need unlimited generations, brand kits, interactive blocks, and PowerPoint export.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm font-medium text-muted-foreground/80">
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-primary" />
-              ✦ 14-day free trial on all paid plans — no credit card required
+
+          <div className="container-narrow relative z-10">
+            <div className="text-center max-w-4xl mx-auto">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-sm font-medium mb-8">
+                <Sparkles className="h-4 w-4" />
+                <span>Simple, Transparent Pricing</span>
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
+                Build executive decks{" "}
+                <span className="text-gradient">10x faster</span>
+              </h1>
+
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-4">
+                Start free. Upgrade when you need unlimited generations, brand kits, interactive blocks, and PowerPoint export.
+              </p>
+
+              <p className="text-sm text-success font-medium mb-8">
+                ✦ 14-day free trial on all paid plans — no credit card required
+              </p>
+
+              {/* Billing toggle */}
+              <div className="flex items-center justify-center gap-3">
+                <span className={`text-sm font-medium ${!isAnnual ? "text-foreground" : "text-muted-foreground"}`}>Monthly</span>
+                <Switch checked={isAnnual} onCheckedChange={setIsAnnual} className="data-[state=checked]:bg-accent" />
+                <span className={`text-sm font-medium ${isAnnual ? "text-foreground" : "text-muted-foreground"}`}>Annual</span>
+                {isAnnual && (
+                  <span className="ml-2 px-2 py-0.5 bg-success/20 text-success text-xs font-bold rounded-full">
+                    Save 20%
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Billing toggle */}
-        <div className="mt-12 flex items-center justify-center gap-4">
-          <span className={`text-sm font-medium ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>Monthly</span>
-          <Switch 
-            checked={isAnnual} 
-            onCheckedChange={setIsAnnual}
-            className="data-[state=checked]:bg-primary"
-          />
-          <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>Annual</span>
-          {isAnnual && (
-            <span className="px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-xs font-bold">
-              Save 20%
-            </span>
-          )}
-        </div>
-      </section>
-
-      {/* ─── Social Proof Stats Bar ─── */}
-      <div className="max-w-6xl mx-auto px-6 mb-24">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-8 rounded-2xl bg-card/30 border border-border/50 backdrop-blur-sm">
-          {SOCIAL_PROOF.map((item) => (
-            <div key={item.label} className="text-center">
-              <div className="text-2xl font-bold text-foreground">{item.metric}</div>
-              <div className="text-sm text-muted-foreground">{item.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ─── Pricing Cards ─── */}
-      <section className="px-6 pb-32">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
-          {plans.map((plan, i) => {
-            const isCurrentPlan = user && subscription.tier === plan.tier;
-            const Icon = plan.icon;
-            
-            return (
-              <div 
-                key={plan.name}
-                className={`group relative p-8 rounded-3xl border transition-all duration-300 ${
-                  plan.featured 
-                    ? 'bg-card border-primary ring-1 ring-primary/20 shadow-2xl shadow-primary/10 scale-105 lg:scale-110 z-10' 
-                    : 'bg-card/50 border-border/50 hover:border-border hover:bg-card hover:shadow-xl'
-                }`}
-              >
-                {plan.featured && !isCurrentPlan && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest shadow-lg">
-                    Most Popular
-                  </div>
-                )}
-                {isCurrentPlan && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-green-500 text-white text-xs font-bold uppercase tracking-widest shadow-lg">
-                    Your Plan
-                  </div>
-                )}
-                <div className="mb-8">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-colors ${
-                    plan.featured ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary'
-                  }`}>
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed h-10">{plan.description}</p>
+        {/* ═══ Social Proof Stats Bar ═══ */}
+        <section className="pb-12">
+          <div className="container-narrow">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 rounded-2xl border border-border/50 bg-card/50 p-6 lg:p-8">
+              {SOCIAL_PROOF.map((item) => (
+                <div key={item.label} className="text-center">
+                  <p className="text-3xl lg:text-4xl font-bold text-accent mb-1">{item.metric}</p>
+                  <p className="text-sm text-muted-foreground">{item.label}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-                <div className="mb-8">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">{isAnnual ? plan.yearlyPrice : plan.monthlyPrice}</span>
-                    {plan.tier !== "enterprise" && (
-                      <span className="text-muted-foreground text-sm">/{isAnnual ? 'year' : 'month'}{plan.perUser && '/user'}</span>
+        {/* ═══ Pricing Cards ═══ */}
+        <section className="py-16">
+          <div className="container-wide">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+              {plans.map((plan, i) => {
+                const isCurrentPlan = user && subscription.tier === plan.tier;
+                const Icon = plan.icon;
+
+                return (
+                  <div
+                    key={i}
+                    className={`relative rounded-2xl border p-8 transition-all duration-300 ${
+                      plan.featured
+                        ? "border-accent/50 bg-accent/[0.03] ring-1 ring-accent/20 scale-[1.02] shadow-xl shadow-accent/5"
+                        : "border-border bg-card/50"
+                    } ${isCurrentPlan ? "ring-2 ring-success" : ""}`}
+                  >
+                    {plan.featured && !isCurrentPlan && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-accent text-accent-foreground text-sm font-bold rounded-full">
+                        Most Popular
+                      </div>
                     )}
+
+                    {isCurrentPlan && (
+                      <div className="absolute -top-3 right-4 px-3 py-1 bg-success text-success-foreground text-xs font-bold rounded-full">
+                        Your Plan
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${plan.featured ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"}`}>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold">{plan.name}</h3>
+                        <p className="text-xs text-muted-foreground">{plan.description}</p>
+                      </div>
+                    </div>
+
+                    <div className="mb-1">
+                      <span className="text-4xl font-bold">{isAnnual ? plan.yearlyPrice : plan.monthlyPrice}</span>
+                      {plan.tier !== "enterprise" && (
+                        <span className="text-muted-foreground text-sm">
+                          /{isAnnual ? "year" : "month"}
+                          {plan.perUser && "/user"}
+                        </span>
+                      )}
+                    </div>
+
+                    {isAnnual && plan.yearlySavings && (
+                      <p className="text-xs text-success font-semibold mb-1">{plan.yearlySavings}</p>
+                    )}
+                    {plan.hasTrial && (
+                      <p className="text-xs text-accent font-medium mb-1">14-day free trial</p>
+                    )}
+
+                    <div className="h-px bg-border my-5" />
+
+                    <ul className="space-y-3 mb-8">
+                      {plan.highlights.map((feature, j) => (
+                        <li key={j} className="flex items-start gap-2.5">
+                          <Check className={`h-4 w-4 mt-0.5 shrink-0 ${plan.featured ? "text-accent" : "text-success"}`} />
+                          <span className="text-sm text-muted-foreground">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <Button
+                      variant={plan.featured ? "hero" : "outline"}
+                      className="w-full"
+                      size="lg"
+                      onClick={() => handlePlanClick(plan.tier)}
+                      disabled={loadingTier === plan.tier || !!isCurrentPlan}
+                    >
+                      {loadingTier === plan.tier ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : isCurrentPlan ? (
+                        "Current Plan"
+                      ) : (
+                        <>
+                          {plan.cta}
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </>
+                      )}
+                    </Button>
                   </div>
-                  {isAnnual && plan.yearlySavings && (
-                    <div className="mt-1 text-xs font-bold text-green-500 uppercase tracking-tight">
-                      {plan.yearlySavings}
-                    </div>
-                  )}
-                  {plan.hasTrial && (
-                    <div className="mt-3 flex flex-col gap-1.5">
-                      <div className="inline-flex items-center gap-1 text-[11px] font-bold text-primary uppercase tracking-wider bg-primary/10 px-2 py-0.5 rounded w-fit">
-                        14-day free trial
-                      </div>
-                      <div className="text-[10px] text-muted-foreground font-medium">
-                        $0 today. First payment on {trialEndDate}.
-                      </div>
-                    </div>
-                  )}
-                </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-                <ul className="space-y-4 mb-10">
-                  {plan.highlights.map((feature, j) => (
-                    <li key={j} className="flex items-start gap-3 text-sm">
-                      <Check className={`w-4 h-4 mt-0.5 shrink-0 ${plan.featured ? 'text-primary' : 'text-muted-foreground'}`} />
-                      <span className="text-muted-foreground group-hover:text-foreground transition-colors">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
 
-                <Button 
-                  className={`w-full h-12 rounded-xl text-base font-semibold transition-all duration-300 ${
-                    plan.featured 
-                      ? 'bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20' 
-                      : 'bg-secondary hover:bg-secondary/80'
-                  }`}
-                  onClick={() => handlePlanClick(plan.tier)}
-                  disabled={loadingTier === plan.tier || !!isCurrentPlan}
-                >
-                  {loadingTier === plan.tier ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : isCurrentPlan ? (
-                    "Current Plan"
-                  ) : (
+
+        {/* ═══ Feature Comparison Table ═══ */}
+        <section className="py-20 border-t border-border/30">
+          <div className="container-wide">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4">Compare every feature</h2>
+              <p className="text-muted-foreground text-lg">See exactly what you get on each plan</p>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[700px]">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-4 px-4 text-sm font-medium text-muted-foreground w-[35%]">Feature</th>
+                    <th className="text-center py-4 px-4 text-sm font-bold w-[16%]">Free</th>
+                    <th className="text-center py-4 px-4 text-sm font-bold text-accent w-[16%]">
+                      Pro
+                      <span className="block text-xs font-normal text-muted-foreground">Most popular</span>
+                    </th>
+                    <th className="text-center py-4 px-4 text-sm font-bold w-[16%]">Team</th>
+                    <th className="text-center py-4 px-4 text-sm font-bold w-[16%]">Enterprise</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {FEATURE_CATEGORIES.map((cat) => (
                     <>
-                      {plan.cta}
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                      <tr key={cat.category}>
+                        <td colSpan={4} className="pt-8 pb-3 px-4">
+                          <span className="text-xs font-bold uppercase tracking-wider text-accent">{cat.category}</span>
+                        </td>
+                      </tr>
+                      {cat.features.map((f) => (
+                        <tr key={f.name} className="border-b border-border/30 hover:bg-accent/[0.02] transition-colors">
+                          <td className="py-3 px-4 text-sm text-foreground">{f.name}</td>
+                          <td className="py-3 px-4 text-center">{renderFeatureValue(f.free)}</td>
+                          <td className="py-3 px-4 text-center bg-accent/[0.02]">{renderFeatureValue(f.pro)}</td>
+                          <td className="py-3 px-4 text-center">{renderFeatureValue(f.team)}</td>
+                          <td className="py-3 px-4 text-center">{renderFeatureValue((f as any).enterprise)}</td>
+                        </tr>
+                      ))}
                     </>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* CTA under table */}
+            <div className="text-center mt-12">
+              <Button variant="hero" size="xl" onClick={() => handlePlanClick("pro")} className="group">
+                {user ? "Start Pro Free Trial" : "Get Started Free"}
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Button>
+              <p className="text-xs text-muted-foreground mt-3">No credit card required to start your trial</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══ FAQ ═══ */}
+        <section className="py-20 border-t border-border/30">
+          <div className="container-narrow">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4">Frequently asked questions</h2>
+            </div>
+
+            <div className="max-w-2xl mx-auto space-y-3">
+              {FAQ_ITEMS.map((item, i) => (
+                <button
+                  key={i}
+                  onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
+                  className="w-full text-left rounded-xl border border-border/50 bg-card/30 hover:bg-card/60 transition-colors"
+                >
+                  <div className="px-6 py-4 flex items-center justify-between gap-4">
+                    <span className="font-medium text-foreground">{item.q}</span>
+                    <span className="text-muted-foreground text-lg shrink-0">{expandedFaq === i ? "−" : "+"}</span>
+                  </div>
+                  {expandedFaq === i && (
+                    <div className="px-6 pb-4">
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.a}</p>
+                    </div>
                   )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══ Final CTA ═══ */}
+        <section className="py-20 border-t border-border/30">
+          <div className="container-narrow">
+            <div className="text-center glass-card p-12 md:p-16">
+              <Shield className="h-10 w-10 text-accent mx-auto mb-6" />
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+                Risk-free. Cancel anytime.
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8">
+                14-day free trial on all paid plans. Full refund guarantee within the first 14 days. Your data is always yours.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Button variant="hero" size="xl" onClick={() => handlePlanClick("pro")} className="group">
+                  Start Building for Free
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ─── Feature Comparison Table ─── */}
-      <section className="px-6 py-32 bg-card/20 border-y border-border/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Compare every feature</h2>
-            <p className="text-muted-foreground">See exactly what you get on each plan</p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="py-6 px-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider w-1/3">Feature</th>
-                  <th className="py-6 px-4 text-center text-sm font-semibold uppercase tracking-wider">Free</th>
-                  <th className="py-6 px-4 text-center text-sm font-bold text-primary uppercase tracking-wider relative">
-                    Pro
-                    <span className="absolute -top-1 left-1/2 -translate-x-1/2 text-[9px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">Most popular</span>
-                  </th>
-                  <th className="py-6 px-4 text-center text-sm font-semibold uppercase tracking-wider">Team</th>
-                  <th className="py-6 px-4 text-center text-sm font-semibold uppercase tracking-wider">Enterprise</th>
-                </tr>
-              </thead>
-              <tbody>
-                {FEATURE_CATEGORIES.map((cat) => (
-                  <React.Fragment key={cat.category}>
-                    <tr className="bg-muted/30">
-                      <td colSpan={5} className="py-3 px-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">{cat.category}</td>
-                    </tr>
-                    {cat.features.map((f) => (
-                      <tr key={f.name} className="border-b border-border/50 hover:bg-card/40 transition-colors">
-                        <td className="py-4 px-4 text-sm font-medium">{f.name}</td>
-                        <td className="py-4 px-4 text-center">{renderFeatureValue(f.free)}</td>
-                        <td className="py-4 px-4 text-center bg-primary/5">{renderFeatureValue(f.pro)}</td>
-                        <td className="py-4 px-4 text-center">{renderFeatureValue(f.team)}</td>
-                        <td className="py-4 px-4 text-center">{renderFeatureValue((f as any).enterprise)}</td>
-                      </tr>
-                    ))}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* CTA under table */}
-          <div className="mt-16 text-center">
-            <Button 
-              size="lg" 
-              onClick={() => handlePlanClick("pro")}
-              className="group"
-            >
-              {user ? "Start Pro Free Trial" : "Get Started Free"}
-              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <p className="mt-4 text-xs text-muted-foreground">No credit card required to start your trial</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── FAQ ─── */}
-      <section className="px-6 py-32 max-w-4xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold mb-4">Frequently asked questions</h2>
-        </div>
-        <div className="space-y-4">
-          {FAQ_ITEMS.map((item, i) => (
-            <div key={i} className="group">
-              <button 
-                onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
-                className="w-full text-left p-6 rounded-xl border border-border/50 bg-card/30 hover:bg-card/60 transition-colors flex items-center justify-between"
-              >
-                <span className="font-semibold">{item.q}</span>
-                <span className="text-primary text-xl font-bold leading-none">{expandedFaq === i ? "−" : "+"}</span>
-              </button>
-              {expandedFaq === i && (
-                <div className="p-6 pt-0 text-muted-foreground leading-relaxed animate-in fade-in slide-in-from-top-1 duration-200">
-                  {item.a}
-                </div>
-              )}
+              <p className="text-sm text-muted-foreground mt-6">
+                Questions?{" "}
+                <a href="mailto:jagawins@gmail.com" className="text-accent hover:underline">jagawins@gmail.com</a>
+              </p>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── Final CTA ─── */}
-      <section className="px-6 pb-32">
-        <div className="max-w-5xl mx-auto rounded-3xl p-12 md:p-24 bg-primary text-primary-foreground relative overflow-hidden text-center shadow-2xl shadow-primary/20">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent)]" />
-          
-          <div className="relative z-10">
-            <h2 className="text-4xl md:text-6xl font-bold mb-6">Risk-free. Cancel anytime.</h2>
-            <p className="text-xl opacity-90 mb-10 max-w-2xl mx-auto leading-relaxed">
-              14-day free trial on all paid plans. Full refund guarantee within the first 14 days. Your data is always yours.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button 
-                size="lg" 
-                variant="secondary"
-                className="h-14 px-8 text-lg font-bold group"
-                onClick={() => handlePlanClick("pro")}
-              >
-                Start Building for Free
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
-            <p className="mt-8 text-sm opacity-70">
-              Questions?{" "}
-              <a href="mailto:jagawins@gmail.com" className="underline underline-offset-4 hover:opacity-100 transition-opacity">
-                jagawins@gmail.com
-              </a>
-            </p>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
+
       <Footer />
     </div>
   );
