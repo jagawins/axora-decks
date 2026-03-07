@@ -12,8 +12,8 @@ interface TemplatePreviewProps {
 // Design size for the slide (16:9 aspect ratio)
 const DESIGN_WIDTH = 1280;
 const DESIGN_HEIGHT = 720;
-const MIN_SCALE = 0.25;  // Increased from 0.2 for better visibility
-const MAX_SCALE = 0.6;   // Cap max scale to prevent overflow
+const MIN_SCALE = 0.05;
+const MAX_SCALE = 1;
 
 // Fixed decision block render order
 const DECISION_BLOCK_ORDER = ['decision_summary', 'evidence_map', 'scenario_set', 'recommendation_panel'];
