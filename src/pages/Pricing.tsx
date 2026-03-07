@@ -20,9 +20,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { SUBSCRIPTION_TIERS } from "@/lib/subscription";
 import { useToast } from "@/hooks/use-toast";
+import React from "react";
 
 /* ── Feature comparison data ────────────────────── */
-
 const FEATURE_CATEGORIES = [
   {
     category: "AI Generation",
@@ -131,10 +131,15 @@ const Pricing = () => {
   const [isAnnual, setIsAnnual] = useState(true);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
+  const trialEndDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { 
+    month: 'long', 
+    day: 'numeric' 
+  });
+
   const plans = [
     {
       name: "Free",
-      description: "Explore the platform",
+      description: "Explore the platform and build your first executive deck with AI structure.",
       monthlyPrice: "$0",
       yearlyPrice: "$0",
       period: "forever",
@@ -153,7 +158,7 @@ const Pricing = () => {
     },
     {
       name: "Pro",
-      description: "For operators, leaders & consultants",
+      description: "Build executive-ready decks with AI architecture, custom branding, and interactive components.",
       monthlyPrice: "$28",
       yearlyPrice: "$269",
       yearlySavings: "Save $67",
@@ -166,6 +171,7 @@ const Pricing = () => {
         "Presenter view & slide analytics",
         "PDF & PowerPoint export",
         "Passcode-protected sharing",
+        "Governed narrative structure",
       ],
       cta: "Start 14-Day Free Trial",
       featured: true,
@@ -176,7 +182,7 @@ const Pricing = () => {
     },
     {
       name: "Team",
-      description: "For companies & departments",
+      description: "For companies and departments that need a shared workspace and centralized governance.",
       monthlyPrice: "$78",
       yearlyPrice: "$749",
       yearlySavings: "Save $187",
@@ -186,6 +192,7 @@ const Pricing = () => {
         "Centralized billing",
         "Admin dashboard & governance",
         "Priority support",
+        "Template governance with no drift",
       ],
       cta: "Start 14-Day Free Trial",
       featured: false,
@@ -196,11 +203,13 @@ const Pricing = () => {
     },
     {
       name: "Enterprise",
-      description: "Custom solutions at scale",
+      description: "Custom solutions for large organizations that need role-based narrative locking and document lineage tracking.",
       monthlyPrice: "Custom",
       yearlyPrice: "Custom",
       highlights: [
         "Everything in Team",
+        "Role-based narrative locking",
+        "Document lineage tracking",
         "SSO & SAML authentication",
         "Dedicated account manager",
         "Custom integrations & API",
@@ -220,20 +229,17 @@ const Pricing = () => {
       window.location.href = "mailto:jagawins@gmail.com?subject=AXIVA Enterprise Inquiry";
       return;
     }
-
     if (!user) {
       navigate("/auth");
       return;
     }
-
     if (tier === "free" || subscription.tier === tier) {
       navigate("/dashboard");
       return;
     }
 
-    const tierConfig = SUBSCRIPTION_TIERS[tier];
+    const tierConfig = SUBSCRIPTION_TIERS[tier as keyof typeof SUBSCRIPTION_TIERS];
     const priceId = isAnnual ? tierConfig.yearlyPriceId : tierConfig.monthlyPriceId;
-
     if (!priceId) return;
 
     setLoadingTier(tier);
@@ -262,7 +268,7 @@ const Pricing = () => {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <MarketingHeader />
-
+      
       {/* ─── Hero ─── */}
       <section className="pt-32 pb-16 px-6 relative">
         <div className="max-w-4xl mx-auto text-center">
@@ -340,7 +346,6 @@ const Pricing = () => {
                     Your Plan
                   </div>
                 )}
-
                 <div className="mb-8">
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-colors ${
                     plan.featured ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary'
@@ -355,7 +360,7 @@ const Pricing = () => {
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-bold">{isAnnual ? plan.yearlyPrice : plan.monthlyPrice}</span>
                     {plan.tier !== "enterprise" && (
-                      <span className="text-muted-foreground">/{isAnnual ? 'year' : 'month'}{plan.perUser && '/user'}</span>
+                      <span className="text-muted-foreground text-sm">/{isAnnual ? 'year' : 'month'}{plan.perUser && '/user'}</span>
                     )}
                   </div>
                   {isAnnual && plan.yearlySavings && (
@@ -364,8 +369,13 @@ const Pricing = () => {
                     </div>
                   )}
                   {plan.hasTrial && (
-                    <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-primary uppercase tracking-wider bg-primary/10 px-2 py-0.5 rounded">
-                      14-day free trial
+                    <div className="mt-3 flex flex-col gap-1.5">
+                      <div className="inline-flex items-center gap-1 text-[11px] font-bold text-primary uppercase tracking-wider bg-primary/10 px-2 py-0.5 rounded w-fit">
+                        14-day free trial
+                      </div>
+                      <div className="text-[10px] text-muted-foreground font-medium">
+                        $0 today. First payment on {trialEndDate}.
+                      </div>
                     </div>
                   )}
                 </div>
@@ -468,7 +478,6 @@ const Pricing = () => {
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold mb-4">Frequently asked questions</h2>
         </div>
-
         <div className="space-y-4">
           {FAQ_ITEMS.map((item, i) => (
             <div key={i} className="group">
@@ -519,7 +528,6 @@ const Pricing = () => {
           </div>
         </div>
       </section>
-
       <Footer />
     </div>
   );
