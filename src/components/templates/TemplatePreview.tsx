@@ -82,18 +82,19 @@ export function TemplatePreview({ blocks, themeId = 'classic', className = '' }:
             transformOrigin: 'top center',
           }}
         >
-          <div className="w-full h-full flex flex-col gap-4 p-8 bg-background">
+          <div className="w-full h-full flex flex-col justify-center gap-4 p-8 bg-background">
             {previewBlocks.length === 0 ? (
               <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
                 Empty template
               </div>
             ) : (
               previewBlocks.map((block, index) => (
-              <TemplateBlockRenderer
-                key={index}
-                block={block}
-                readOnly
-              />
+              <div key={index} className={previewBlocks.length === 1 ? 'flex-1 flex flex-col justify-center min-h-0' : ''}>
+                <TemplateBlockRenderer
+                  block={block}
+                  readOnly
+                />
+              </div>
               ))
             )}
           </div>
