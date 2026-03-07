@@ -54,7 +54,7 @@ serve(async (req) => {
       logStep("No existing customer, will create during checkout");
     }
 
-    const origin = "https://axiva.ai";
+    const origin = req.headers.get("origin") || "https://axiva.ai";
     
     // Define trial-eligible price IDs (Pro and Team plans)
     const trialEligiblePriceIds = [
