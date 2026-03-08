@@ -58,7 +58,7 @@ export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }:
   const { subscription } = useSubscription();
 
   return (
-    <aside className="w-64 border-r border-border bg-card/30 flex flex-col h-full">
+    <aside className="w-64 border-r border-border bg-card/30 flex flex-col h-screen overflow-y-auto">
       {/* Workspace Dropdown */}
       <div className="p-4 border-b border-border">
         <DropdownMenu>
