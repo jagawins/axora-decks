@@ -4,6 +4,8 @@ import { Helmet } from "react-helmet-async";
 import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileGenerationOverlay } from "@/components/MobileGenerationOverlay";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
@@ -152,6 +154,7 @@ export default function Create() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   // State
   const [activeEntry, setActiveEntry] = useState<string | null>(null);
@@ -165,6 +168,7 @@ export default function Create() {
   const [generating, setGenerating] = useState(false);
   const [useBrandKit, setUseBrandKit] = useState(false);
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
+  const [mobileOverlayVisible, setMobileOverlayVisible] = useState(false);
 
   // Load brand kit
   useEffect(() => {
@@ -261,6 +265,7 @@ export default function Create() {
     }
 
     setGenerating(true);
+    if (isMobile) setMobileOverlayVisible(true);
 
     try {
       // Build generation spec
@@ -355,7 +360,7 @@ Create exactly ${cardsCount} slides/cards.`;
       }
 
       toast({ title: "Deck created!", description: "Your AI-generated deck is ready." });
-      navigate(`/preview/${newProject.id}`);
+      navigate(`/preview/${newProject.id}?new=1`);
     } catch (error) {
       console.error("Generation error:", error);
       toast({
@@ -365,6 +370,7 @@ Create exactly ${cardsCount} slides/cards.`;
       });
     } finally {
       setGenerating(false);
+      setMobileOverlayVisible(false);
     }
   };
 
@@ -644,6 +650,9 @@ Create exactly ${cardsCount} slides/cards.`;
           )}
         </div>
       </main>
+
+      {/* Mobile generation overlay */}
+      <MobileGenerationOverlay visible={mobileOverlayVisible} promptText={prompt} />
     </>
   );
 }

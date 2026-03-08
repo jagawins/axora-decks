@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Editor from "./pages/Editor";
@@ -63,6 +64,7 @@ const App = () => (
           <BrowserRouter>
             <AuthProvider>
               <SubscriptionProvider>
+              <PWAInstallPrompt />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/demo" element={<Demo />} />

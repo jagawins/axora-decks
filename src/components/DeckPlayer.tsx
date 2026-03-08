@@ -1,6 +1,6 @@
 /**
  * DeckPlayer – Full presentation player with deck/document modes
- * Supports slide-to-slide links, inline editing, and quick AI actions
+ * Mobile: full-screen swipeable carousel with slide indicator + thumbnail strip
  */
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
@@ -21,6 +21,8 @@ import { resolveBrandStyles, type BrandKit } from "@/lib/brand";
 import { VisualBlockRenderer } from "@/components/blocks/VisualBlockRenderer";
 import { DeckPlayerOutline } from "@/components/DeckPlayerOutline";
 import { SlideQuickActions } from "@/components/SlideQuickActions";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useSwipe } from "@/hooks/use-swipe";
 
 interface DeckPlayerProps {
   blocks: SlideBlock[];
@@ -29,13 +31,9 @@ interface DeckPlayerProps {
   brandKit?: BrandKit | null;
   animations?: "off" | "subtle" | "full";
   initialSlide?: number;
-  /** Called when user clicks "Edit this slide" – receives block IDs for focused editing */
   onEditSlide?: (blockIds: string[]) => void;
-  /** Called when a quick AI action fires – receives blockId + instruction */
   onQuickAction?: (blockId: string, instruction: string) => Promise<void>;
-  /** Enable view-tracking beacons (for public preview) */
   trackViews?: boolean;
-  /** Project ID for view tracking */
   projectId?: string;
 }
 
@@ -61,16 +59,17 @@ export default function DeckPlayer({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [outlineOpen, setOutlineOpen] = useState(false);
   const [slideKey, setSlideKey] = useState(0);
+  const [thumbnailStripOpen, setThumbnailStripOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const totalSlides = slides.length;
   const brandStyles = useMemo(() => resolveBrandStyles(brandKit), [brandKit]);
 
-  // View tracking: record time spent per slide
+  // View tracking
   const slideEnteredAt = useRef(Date.now());
   const viewerHash = useRef<string>("");
 
   useEffect(() => {
-    // Generate a simple viewer hash from random ID stored in sessionStorage
     let hash = sessionStorage.getItem("axiva_vh");
     if (!hash) {
       hash = crypto.randomUUID().slice(0, 8);
@@ -85,7 +84,6 @@ export default function DeckPlayer({
       const durationSeconds = Math.round(durationMs / 1000);
       if (durationSeconds < 1) return;
 
-      // Fire and forget via edge function
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/record-view`;
       const body = JSON.stringify({
         project_id: projectId,
@@ -108,11 +106,9 @@ export default function DeckPlayer({
   const goTo = useCallback(
     (idx: number) => {
       const clamped = Math.max(0, Math.min(idx, totalSlides - 1));
-      // Send beacon for the slide being left
       const elapsed = Date.now() - slideEnteredAt.current;
       sendViewBeacon(currentSlide, elapsed);
       slideEnteredAt.current = Date.now();
-
       setCurrentSlide(clamped);
       setSlideKey((k) => k + 1);
     },
@@ -122,7 +118,9 @@ export default function DeckPlayer({
   const next = useCallback(() => goTo(currentSlide + 1), [currentSlide, goTo]);
   const prev = useCallback(() => goTo(currentSlide - 1), [currentSlide, goTo]);
 
-  // Send final beacon on unmount
+  // Swipe handlers for mobile
+  const swipeHandlers = useSwipe(next, prev);
+
   useEffect(() => {
     return () => {
       const elapsed = Date.now() - slideEnteredAt.current;
@@ -163,7 +161,7 @@ export default function DeckPlayer({
     return () => window.removeEventListener("keydown", handler);
   }, [next, prev, isFullscreen, viewMode]);
 
-  // Deep link: read ?slide= param
+  // Deep link
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const s = params.get("slide");
@@ -173,11 +171,8 @@ export default function DeckPlayer({
     }
   }, [goTo]);
 
-  // Slide link handler – intercepts #slide-N links
   const handleSlideLink = useCallback(
-    (targetIndex: number) => {
-      goTo(targetIndex);
-    },
+    (targetIndex: number) => goTo(targetIndex),
     [goTo]
   );
 
@@ -196,6 +191,84 @@ export default function DeckPlayer({
       ? "deck-slide-enter-full"
       : "deck-slide-enter";
 
+  // ── Mobile full-screen carousel ────────────────────────────
+  if (isMobile && viewMode === "deck") {
+    return (
+      <div
+        className={`flex flex-col h-full theme-${theme}`}
+        style={brandStyles}
+        {...swipeHandlers}
+      >
+        {/* Slide canvas — full screen */}
+        <div className="flex-1 flex items-center justify-center p-3 overflow-hidden bg-[var(--deck-bg)]">
+          <div
+            key={slideKey}
+            className={`w-full h-full bg-[var(--deck-bg)] text-[var(--deck-fg)] rounded-xl p-5 flex items-center justify-center overflow-auto ${animClass}`}
+            style={brandKit?.typography?.bodyFont ? { fontFamily: `'${brandKit.typography.bodyFont}', sans-serif` } : undefined}
+          >
+            <div className="w-full">
+              {slides[currentSlide].blocks.map((block) => (
+                <SlideBlockRenderer
+                  key={block.id}
+                  block={block}
+                  onNavigateSlide={handleSlideLink}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Slide indicator at bottom */}
+        <div className="safe-area-bottom bg-[var(--deck-bg)] border-t border-[var(--deck-border)]">
+          <button
+            className="w-full flex items-center justify-center gap-2 py-3 touch-target"
+            onClick={() => setThumbnailStripOpen(!thumbnailStripOpen)}
+          >
+            <span className="text-sm font-medium text-[var(--deck-fg)]">
+              {currentSlide + 1} / {totalSlides}
+            </span>
+            <ChevronLeft className={`h-3.5 w-3.5 text-[var(--deck-muted)] transition-transform ${thumbnailStripOpen ? "rotate-90" : "-rotate-90"}`} />
+          </button>
+
+          {/* Thumbnail strip */}
+          {thumbnailStripOpen && (
+            <div className="overflow-x-auto flex gap-2 px-3 pb-3 snap-x snap-mandatory">
+              {slides.map((slide, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    goTo(i);
+                    setThumbnailStripOpen(false);
+                  }}
+                  className={`flex-shrink-0 w-24 h-14 rounded-lg border-2 transition-colors snap-start flex items-center justify-center text-[10px] overflow-hidden ${
+                    i === currentSlide
+                      ? "border-[var(--deck-accent)] bg-[var(--deck-accent)]/10"
+                      : "border-[var(--deck-border)] bg-[var(--deck-bg)]"
+                  }`}
+                >
+                  <span className="text-[var(--deck-fg)] truncate px-1">
+                    {i + 1}. {slide.title || "Slide"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Progress bar */}
+        {totalSlides > 1 && (
+          <div className="h-0.5 bg-[var(--deck-border)]">
+            <div
+              className="h-full bg-[var(--deck-accent)] transition-all duration-300"
+              style={{ width: `${((currentSlide + 1) / totalSlides) * 100}%` }}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Desktop layout ─────────────────────────────────────────
   return (
     <div
       className={`flex flex-col h-full theme-${theme}`}
@@ -302,7 +375,7 @@ export default function DeckPlayer({
 }
 
 /* ============================================================
-   Deck View – single slide at a time, 16:9 scaled
+   Deck View – single slide at a time, 16:9 scaled (desktop)
    ============================================================ */
 
 function DeckView({
@@ -343,7 +416,6 @@ function DeckView({
           ))}
         </div>
 
-        {/* Edit button */}
         {onEditSlide && hovered && (
           <button
             className="absolute top-4 right-4 p-2 rounded-lg bg-[var(--deck-bg)]/80 border border-[var(--deck-border)] backdrop-blur-sm opacity-70 hover:opacity-100 transition-opacity"
@@ -354,7 +426,6 @@ function DeckView({
           </button>
         )}
 
-        {/* Quick AI actions */}
         {onQuickAction && hovered && slide.blocks.length > 0 && (
           <div className="absolute bottom-4 right-4">
             <SlideQuickActions
@@ -418,7 +489,6 @@ function SlideBlockRenderer({
 }) {
   const isBasic = ["heading", "text", "list", "callout", "two_col", "table", "image"].includes(block.type);
 
-  // Intercept clicks on slide links (#slide-N)
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -435,7 +505,6 @@ function SlideBlockRenderer({
     [onNavigateSlide]
   );
 
-  // Check for slideLink in CTA/hero content and render inline link
   const content = block.content || {};
   const slideLink = content.slideLink as number | undefined;
 
@@ -458,24 +527,23 @@ function SlideBlockRenderer({
     );
   }
 
-  // Legacy basic blocks
   const c = content;
 
   switch (block.type) {
     case "heading": {
       const level = Number(c.level || 2);
       const sizeClass =
-        level === 1 ? "text-5xl md:text-6xl" : level === 2 ? "text-4xl md:text-5xl" : "text-3xl md:text-4xl";
+        level === 1 ? "text-3xl md:text-6xl" : level === 2 ? "text-2xl md:text-5xl" : "text-xl md:text-4xl";
       return <div className={`font-bold text-center ${sizeClass}`}>{String(c.text || "")}</div>;
     }
     case "text":
-      return <p className="text-xl md:text-2xl text-center leading-relaxed">{String(c.text || "")}</p>;
+      return <p className="text-base md:text-2xl text-center leading-relaxed">{String(c.text || "")}</p>;
     case "list": {
       const items = Array.isArray(c.items) ? (c.items as string[]) : [];
       const ordered = !!c.ordered;
       const Tag = ordered ? "ol" : "ul";
       return (
-        <Tag className={`text-xl space-y-3 ${ordered ? "list-decimal" : "list-disc"} list-inside`}>
+        <Tag className={`text-base md:text-xl space-y-2 md:space-y-3 ${ordered ? "list-decimal" : "list-disc"} list-inside`}>
           {items.map((it, i) => (
             <li key={i}>{it}</li>
           ))}
@@ -484,15 +552,15 @@ function SlideBlockRenderer({
     }
     case "callout":
       return (
-        <div className="p-8 rounded-xl border-2 text-center border-[var(--deck-accent)]/50 bg-[var(--deck-accent)]/10">
-          <p className="text-xl md:text-2xl">{String(c.text || "")}</p>
+        <div className="p-4 md:p-8 rounded-xl border-2 text-center border-[var(--deck-accent)]/50 bg-[var(--deck-accent)]/10">
+          <p className="text-base md:text-2xl">{String(c.text || "")}</p>
         </div>
       );
     case "two_col":
       return (
-        <div className="grid grid-cols-2 gap-12 w-full">
-          <div className="text-lg">{String(c.left || "")}</div>
-          <div className="text-lg">{String(c.right || "")}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-12 w-full">
+          <div className="text-sm md:text-lg">{String(c.left || "")}</div>
+          <div className="text-sm md:text-lg">{String(c.right || "")}</div>
         </div>
       );
     case "table": {
@@ -500,11 +568,11 @@ function SlideBlockRenderer({
       const rows = Array.isArray(c.rows) ? (c.rows as string[][]) : [];
       return (
         <div className="w-full overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="w-full border-collapse text-sm md:text-base">
             <thead>
               <tr>
                 {headers.map((h, i) => (
-                  <th key={i} className="border border-[var(--deck-border)] p-3 bg-[var(--deck-muted)]/20 text-left font-semibold">
+                  <th key={i} className="border border-[var(--deck-border)] p-2 md:p-3 bg-[var(--deck-muted)]/20 text-left font-semibold">
                     {h}
                   </th>
                 ))}
@@ -514,7 +582,7 @@ function SlideBlockRenderer({
               {rows.map((row, ri) => (
                 <tr key={ri}>
                   {(Array.isArray(row) ? row : []).map((cell, ci) => (
-                    <td key={ci} className="border border-[var(--deck-border)] p-3">
+                    <td key={ci} className="border border-[var(--deck-border)] p-2 md:p-3">
                       {cell}
                     </td>
                   ))}
@@ -531,9 +599,9 @@ function SlideBlockRenderer({
       return (
         <div className="text-center">
           {src ? (
-            <img src={src} alt={alt} className="max-h-[60vh] mx-auto rounded-lg" />
+            <img src={src} alt={alt} className="max-h-[50vh] md:max-h-[60vh] mx-auto rounded-lg" />
           ) : (
-            <div className="w-full h-48 bg-[var(--deck-muted)]/20 rounded-lg flex items-center justify-center text-[var(--deck-muted)]">
+            <div className="w-full h-32 md:h-48 bg-[var(--deck-muted)]/20 rounded-lg flex items-center justify-center text-[var(--deck-muted)]">
               No image
             </div>
           )}

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DeckPlayer from "@/components/DeckPlayer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, X } from "lucide-react";
+import { ArrowLeft, Loader2, X, Share2 } from "lucide-react";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
 import { BrandKit } from "@/lib/brand";
 import type { BlockType } from "@/lib/blocks";
@@ -14,6 +14,8 @@ import { aiEngine } from "@/lib/ai-engine";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileShareSheet } from "@/components/MobileShareSheet";
 
 interface Block {
   id: string;
@@ -28,12 +30,15 @@ export default function Preview() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("Untitled");
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME);
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
+  const [showMobileShare, setShowMobileShare] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
 
   // Inline edit state
   const [editingBlockIds, setEditingBlockIds] = useState<string[] | null>(null);
@@ -52,7 +57,7 @@ export default function Preview() {
     try {
       const { data: p, error: pe } = await supabase
         .from("projects")
-        .select("id, title, description, theme, brand_kit")
+        .select("id, title, description, theme, brand_kit, share_token")
         .eq("id", projectId)
         .maybeSingle();
 
@@ -62,6 +67,12 @@ export default function Preview() {
       setTitle(p.title || "Untitled");
       setTheme((p.theme as ThemeId) || DEFAULT_THEME);
       setBrandKit((p.brand_kit as BrandKit) || null);
+      setShareToken(p.share_token ? String(p.share_token) : null);
+
+      // Show mobile share sheet on first load (from generate flow)
+      if (isMobile && searchParams.get("new") === "1") {
+        setShowMobileShare(true);
+      }
 
       const { data: blocksData, error: be } = await supabase
         .from("blocks")
@@ -142,15 +153,23 @@ export default function Preview() {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 min-w-0">
             <Button variant="ghost" size="icon" onClick={() => navigate(`/editor/${projectId}`)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="font-semibold truncate max-w-[300px]">{title}</h1>
+            <h1 className="font-semibold truncate text-sm md:text-base">{title}</h1>
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigate(`/editor/${projectId}`)}>
-            Back to editor
-          </Button>
+          <div className="flex items-center gap-2">
+            {isMobile && shareToken && (
+              <Button variant="hero" size="sm" onClick={() => setShowMobileShare(true)}>
+                <Share2 className="h-4 w-4 mr-1" />
+                Share
+              </Button>
+            )}
+            <Button variant="outline" size="sm" className="hidden md:inline-flex" onClick={() => navigate(`/editor/${projectId}`)}>
+              Back to editor
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -165,8 +184,8 @@ export default function Preview() {
           onQuickAction={handleQuickAction}
         />
 
-        {/* Inline edit slide-over panel */}
-        {editingBlockIds && editBlocks.length > 0 && (
+        {/* Inline edit slide-over panel — desktop only */}
+        {!isMobile && editingBlockIds && editBlocks.length > 0 && (
           <div className="absolute inset-y-0 right-0 w-96 bg-card border-l border-border shadow-xl z-50 flex flex-col">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
               <h3 className="font-semibold text-sm">Edit Slide</h3>
@@ -197,6 +216,16 @@ export default function Preview() {
           </div>
         )}
       </main>
+
+      {/* Mobile share sheet */}
+      {isMobile && (
+        <MobileShareSheet
+          visible={showMobileShare}
+          shareUrl={shareToken ? `${window.location.origin}/p/${shareToken}` : window.location.href}
+          title={title}
+          onDismiss={() => setShowMobileShare(false)}
+        />
+      )}
     </div>
   );
 }
