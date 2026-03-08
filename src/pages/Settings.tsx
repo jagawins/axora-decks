@@ -359,29 +359,214 @@ function BrandTab({
 
 // ─── Billing Tab ──────────────────────────────────────────
 function BillingTab({ tier }: { tier: string }) {
+  const { subscription, createCheckout, openCustomerPortal } = useSubscription();
+  const { toast } = useToast();
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  // Import usage data
+  const [usage, setUsage] = useState<any>(null);
+  useEffect(() => {
+    import("@/lib/usage-gates").then(({ getUsageSummary }) => {
+      setUsage(getUsageSummary(subscription.tier));
+    });
+  }, [subscription.tier]);
+
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const url = await openCustomerPortal();
+      if (url) {
+        window.open(url, "_blank");
+      } else {
+        toast({ title: "Unable to open billing portal", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Something went wrong", variant: "destructive" });
+    } finally {
+      setPortalLoading(false);
+    }
+  };
+
+  const handleCheckout = async (priceId: string) => {
+    const url = await createCheckout(priceId);
+    if (url) window.open(url, "_blank");
+  };
+
+  const isPaid = subscription.subscribed;
+  const tierConfig = SUBSCRIPTION_TIERS[subscription.tier] || SUBSCRIPTION_TIERS.free;
+
+  // Calculate next reset date (first of next month)
+  const now = new Date();
+  const nextReset = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const nextResetLabel = nextReset.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
   return (
-    <div className="space-y-6 max-w-lg">
+    <div className="space-y-8 max-w-xl">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Billing</h2>
-        <p className="text-sm text-muted-foreground">Manage your subscription</p>
+        <h2 className="text-lg font-semibold text-foreground">Billing & Usage</h2>
+        <p className="text-sm text-muted-foreground">Manage your plan and track usage</p>
         <Separator className="my-4" />
       </div>
 
-      <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-card">
-        <div>
-          <p className="font-medium text-foreground">Current Plan</p>
-          <p className="text-sm text-muted-foreground">
-            {tier === "free" ? "Free plan with basic features" : `${tier} plan with full features`}
-          </p>
+      {/* Current plan card */}
+      <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Current Plan</p>
+            <p className="text-xl font-bold text-foreground mt-1 capitalize">{tierConfig.name}</p>
+          </div>
+          <Badge
+            variant={isPaid ? "default" : "secondary"}
+            className="capitalize text-sm px-3 py-1"
+          >
+            {isPaid ? "Active" : "Free"}
+          </Badge>
         </div>
-        <Badge variant={tier === "free" ? "secondary" : "default"} className="capitalize text-sm">
-          {tier}
-        </Badge>
+
+        {isPaid && subscription.subscriptionEnd && (
+          <p className="text-xs text-muted-foreground">
+            Renews {new Date(subscription.subscriptionEnd).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+          </p>
+        )}
+
+        {/* Usage meters */}
+        {usage && (
+          <div className="space-y-3 pt-2">
+            <UsageMeterRow
+              label="Decks created"
+              used={usage.decks.used}
+              limit={usage.decks.limit}
+              unlimited={usage.decks.unlimited}
+            />
+            <UsageMeterRow
+              label="AI actions"
+              used={usage.aiGens.used}
+              limit={usage.aiGens.limit}
+              unlimited={usage.aiGens.unlimited}
+            />
+            {!isPaid && (
+              <p className="text-[11px] text-muted-foreground pt-1">
+                Usage resets <span className="font-medium text-foreground">{nextResetLabel}</span>
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="pt-2">
+          {isPaid ? (
+            <Button
+              variant="outline"
+              onClick={handleManageSubscription}
+              disabled={portalLoading}
+              className="gap-2"
+            >
+              {portalLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+              Manage Subscription
+            </Button>
+          ) : (
+            <Button variant="hero" onClick={handleManageSubscription} disabled={portalLoading} className="gap-2">
+              {portalLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crown className="h-4 w-4" />}
+              Upgrade Plan
+            </Button>
+          )}
+        </div>
       </div>
 
-      <Button variant="outline" asChild>
-        <a href="/pricing">View Plans & Upgrade</a>
-      </Button>
+      {/* Upgrade cards for free users */}
+      {!isPaid && (
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-foreground">Available Plans</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Pro */}
+            <div className="rounded-xl border-2 border-accent/30 bg-accent/5 p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold text-foreground">Pro</h4>
+                <Badge className="bg-accent text-accent-foreground text-[10px]">Popular</Badge>
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                $28<span className="text-sm font-normal text-muted-foreground">/mo</span>
+              </p>
+              <ul className="text-xs text-muted-foreground space-y-1.5">
+                <li className="flex items-center gap-1.5">✓ Unlimited decks</li>
+                <li className="flex items-center gap-1.5">✓ Unlimited AI actions</li>
+                <li className="flex items-center gap-1.5">✓ PDF + PPTX export</li>
+                <li className="flex items-center gap-1.5">✓ Custom themes</li>
+              </ul>
+              <Button
+                variant="hero"
+                size="sm"
+                className="w-full"
+                onClick={() => handleCheckout(SUBSCRIPTION_TIERS.pro.monthlyPriceId!)}
+              >
+                Start 14-Day Trial
+              </Button>
+              <button
+                onClick={() => handleCheckout(SUBSCRIPTION_TIERS.pro.yearlyPriceId!)}
+                className="w-full text-center text-[11px] text-accent hover:underline"
+              >
+                or $269/year (save 20%)
+              </button>
+            </div>
+
+            {/* Team */}
+            <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+              <h4 className="font-bold text-foreground">Team</h4>
+              <p className="text-2xl font-bold text-foreground">
+                $78<span className="text-sm font-normal text-muted-foreground">/user/mo</span>
+              </p>
+              <ul className="text-xs text-muted-foreground space-y-1.5">
+                <li className="flex items-center gap-1.5">✓ Everything in Pro</li>
+                <li className="flex items-center gap-1.5">✓ Team collaboration</li>
+                <li className="flex items-center gap-1.5">✓ DOCX export</li>
+                <li className="flex items-center gap-1.5">✓ Priority support</li>
+              </ul>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => handleCheckout(SUBSCRIPTION_TIERS.team.monthlyPriceId!)}
+              >
+                Start 14-Day Trial
+              </Button>
+              <button
+                onClick={() => handleCheckout(SUBSCRIPTION_TIERS.team.yearlyPriceId!)}
+                className="w-full text-center text-[11px] text-muted-foreground hover:underline"
+              >
+                or $749/year (save 20%)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Usage Meter Row ─────────────────────────────────────
+function UsageMeterRow({ label, used, limit, unlimited }: { label: string; used: number; limit: number; unlimited: boolean }) {
+  const pct = unlimited ? 0 : Math.min(100, (used / limit) * 100);
+  const isMaxed = !unlimited && used >= limit;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-sm text-muted-foreground">{label}</span>
+        <span className={cn("text-sm font-semibold", isMaxed ? "text-destructive" : "text-foreground")}>
+          {unlimited ? "Unlimited" : `${used} / ${limit}`}
+        </span>
+      </div>
+      {!unlimited && (
+        <div className="h-2 rounded-full bg-muted/30 overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{
+              width: `${pct}%`,
+              backgroundColor: isMaxed ? "hsl(var(--destructive))" : pct >= 70 ? "hsl(35, 90%, 55%)" : "hsl(var(--accent))",
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
