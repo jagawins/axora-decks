@@ -447,6 +447,10 @@ const Dashboard = () => {
       handleUpgrade();
       return;
     }
+    if (tab === 'settings') {
+      navigate('/settings');
+      return;
+    }
     setSidebarTab(tab);
     
     // Load templates when switching to templates tab
