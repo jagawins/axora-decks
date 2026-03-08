@@ -44,7 +44,10 @@ function addBlockToSlide(
   pres: pptxgen,
   block: SlideBlock,
   brand: BrandKit,
-  showWatermark: boolean
+  showWatermark: boolean,
+  slideIndex: number,
+  totalSlides: number,
+  deckTitle: string
 ) {
   const slide = pres.addSlide();
   const bg = safeColor(brand.colors?.background, "FFFFFF");
@@ -54,6 +57,18 @@ function addBlockToSlide(
   const bodyFont = fontName(brand.typography?.bodyFont, "Calibri");
 
   slide.background = { color: bg };
+
+  // Slide number — bottom-right
+  slide.addText(`${slideIndex + 1}`, {
+    x: sx(9.2), y: sy(5.15), w: sx(0.6), h: sy(0.35),
+    fontSize: 9, fontFace: bodyFont, color: "999999", align: "right",
+  });
+
+  // Branded footer bar — bottom
+  slide.addText(deckTitle, {
+    x: sx(0.5), y: sy(5.15), w: sx(6), h: sy(0.35),
+    fontSize: 8, fontFace: bodyFont, color: "AAAAAA",
+  });
 
   if (showWatermark) {
     slide.addText("Made with AXIVA", {
