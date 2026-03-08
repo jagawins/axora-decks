@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import DeckPlayer from "@/components/DeckPlayer";
+const DeckPlayer = lazy(() => import("@/components/DeckPlayer"));
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, X, Share2 } from "lucide-react";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
