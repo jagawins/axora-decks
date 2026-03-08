@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -69,6 +69,25 @@ const plans = [
     tier: "team" as const,
     perUser: true,
     hasTrial: true,
+  },
+  {
+    name: "Enterprise",
+    monthlyPrice: "Custom",
+    yearlyPrice: "Custom",
+    description: "SSO, SAML & dedicated support",
+    features: [
+      "Everything in Team",
+      "SSO & SAML authentication",
+      "Audit logs & compliance",
+      "Dedicated account manager",
+      "Custom integrations & API",
+      "SLA & uptime guarantee"
+    ],
+    cta: "Contact Sales",
+    variant: "outline" as const,
+    popular: false,
+    tier: "enterprise" as const,
+    perUser: false,
   }
 ];
 
@@ -80,7 +99,11 @@ const Pricing = () => {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const [isAnnual, setIsAnnual] = useState(true);
 
-  const handlePlanClick = async (tier: "free" | "pro" | "team") => {
+  const handlePlanClick = async (tier: "free" | "pro" | "team" | "enterprise") => {
+    if (tier === "enterprise") {
+      navigate("/enterprise");
+      return;
+    }
     // If not logged in, redirect to auth
     if (!user) {
       navigate('/auth');
@@ -170,7 +193,7 @@ const Pricing = () => {
         </div>
 
         {/* Pricing cards */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 max-w-6xl mx-auto">
           {plans.map((plan) => (
             <div
               key={plan.name}
@@ -201,10 +224,12 @@ const Pricing = () => {
                   <span className="text-4xl font-bold">
                     {isAnnual ? plan.yearlyPrice : plan.monthlyPrice}
                   </span>
-                  <span className="text-muted-foreground">
-                    /{isAnnual ? 'year' : 'month'}
-                    {plan.perUser && '/user'}
-                  </span>
+                  {plan.tier !== "enterprise" && (
+                    <span className="text-muted-foreground">
+                      /{isAnnual ? 'year' : 'month'}
+                      {plan.perUser && '/user'}
+                    </span>
+                  )}
                 </div>
                 {isAnnual && plan.yearlySavings && (
                   <p className="text-xs text-accent font-medium">{plan.yearlySavings}</p>
