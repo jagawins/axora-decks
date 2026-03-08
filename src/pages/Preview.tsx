@@ -153,15 +153,23 @@ export default function Preview() {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 min-w-0">
             <Button variant="ghost" size="icon" onClick={() => navigate(`/editor/${projectId}`)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="font-semibold truncate max-w-[300px]">{title}</h1>
+            <h1 className="font-semibold truncate text-sm md:text-base">{title}</h1>
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigate(`/editor/${projectId}`)}>
-            Back to editor
-          </Button>
+          <div className="flex items-center gap-2">
+            {isMobile && shareToken && (
+              <Button variant="hero" size="sm" onClick={() => setShowMobileShare(true)}>
+                <Share2 className="h-4 w-4 mr-1" />
+                Share
+              </Button>
+            )}
+            <Button variant="outline" size="sm" className="hidden md:inline-flex" onClick={() => navigate(`/editor/${projectId}`)}>
+              Back to editor
+            </Button>
+          </div>
         </div>
       </header>
 
