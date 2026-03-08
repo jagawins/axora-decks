@@ -1118,13 +1118,6 @@ ${visualDensity === "visual" ? "- Every content slide must have a visual block" 
 ` : '';
 
 
-   - Dates, phases, steps, quarters, years
-   - Example: Q1 2024, Phase 1, Step 1, January 2024
-
-4. COMPARISONS/VS → comparison_table
-   - Pros vs cons, before vs after, option A vs B
-   - Example: "compared to", "versus", "advantages and disadvantages"
-
 5. 3-4 DISTINCT ITEMS → card_grid
    - Features, benefits, services, products
    - NOT for bullet lists (use list block for those)
