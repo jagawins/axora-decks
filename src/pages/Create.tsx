@@ -370,6 +370,7 @@ Create exactly ${cardsCount} slides/cards.`;
       });
     } finally {
       setGenerating(false);
+      setMobileOverlayVisible(false);
     }
   };
 
