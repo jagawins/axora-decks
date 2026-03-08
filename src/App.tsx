@@ -49,6 +49,7 @@ import HealthcareAIPresentations from "./pages/HealthcareAIPresentations";
 import NHSBoardPresentationGenerator from "./pages/NHSBoardPresentationGenerator";
 import APACEnterprisePresentations from "./pages/APACEnterprisePresentations";
 import ConversionDashboard from "./pages/ConversionDashboard";
+import Enterprise from "./pages/Enterprise";
 
 const queryClient = new QueryClient();
 
@@ -104,6 +105,7 @@ const App = () => (
                 <Route path="/nhs-board-presentation-generator" element={<NHSBoardPresentationGenerator />} />
                 <Route path="/asia-pacific-enterprise-presentations" element={<APACEnterprisePresentations />} />
                 <Route path="/conversion" element={<ConversionDashboard />} />
+                <Route path="/enterprise" element={<Enterprise />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
