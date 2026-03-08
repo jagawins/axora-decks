@@ -345,6 +345,60 @@ export default function ThemesLibrary() {
   const [filter, setFilter] = useState<ThemeFilter>('standard');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeThemeId, setActiveThemeId] = useState<string>('pearl');
+  const [importOpen, setImportOpen] = useState(false);
+  const [importJson, setImportJson] = useState('');
+  const [importError, setImportError] = useState('');
+  const [customThemes, setCustomThemes] = useState<ThemeDefinition[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const allThemes = useMemo(() => [
+    ...THEME_LIBRARY,
+    ...customThemes,
+  ], [customThemes]);
+
+  const validateTheme = (obj: any): obj is Omit<ThemeDefinition, 'id' | 'category'> => {
+    const required = ['label', 'bg', 'fg', 'accent', 'surface', 'muted', 'gradient', 'headingFont', 'bodyFont'];
+    return required.every((k) => typeof obj[k] === 'string' && obj[k].trim());
+  };
+
+  const handleImport = () => {
+    setImportError('');
+    try {
+      const parsed = JSON.parse(importJson.trim());
+      const themes = Array.isArray(parsed) ? parsed : [parsed];
+      const imported: ThemeDefinition[] = [];
+      for (const t of themes) {
+        if (!validateTheme(t)) {
+          setImportError(`Theme "${t.label || 'unknown'}" is missing required fields (label, bg, fg, accent, surface, muted, gradient, headingFont, bodyFont).`);
+          return;
+        }
+        imported.push({
+          ...t,
+          id: t.id || `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          category: 'custom' as const,
+        });
+      }
+      setCustomThemes((prev) => [...prev, ...imported]);
+      setImportJson('');
+      setImportOpen(false);
+      setFilter('custom');
+      toast({ title: `${imported.length} theme${imported.length > 1 ? 's' : ''} imported`, description: 'Themes added to your custom collection.' });
+    } catch {
+      setImportError('Invalid JSON. Please paste valid theme JSON.');
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setImportJson(ev.target?.result as string || '');
+      setImportError('');
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
   const filteredThemes = useMemo(() => {
     let themes = THEME_LIBRARY.filter((t) => t.category === filter);
