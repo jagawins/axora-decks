@@ -1,52 +1,39 @@
 project_id = "isxdedybwhlxzeuymxcq"
 
-[functions.generate-outline]
-verify_jwt = false
-
-[functions.generate-blocks]
-verify_jwt = false
-
-[functions.refine-block]
-verify_jwt = false
-
-[functions.generate-block-content]
-verify_jwt = false
-
-[functions.get-shared-project]
-verify_jwt = false
-
-[functions.create-checkout]
-verify_jwt = false
-
-[functions.check-subscription]
-verify_jwt = false
-
-[functions.customer-portal]
-verify_jwt = false
-
-[functions.seed-templates]
-verify_jwt = false
-
-[functions.resolve-images]
-verify_jwt = false
-
-[functions.analyze-document]
-verify_jwt = false
-
-[functions.parse-file]
-verify_jwt = false
-
-[functions.image-search]
-verify_jwt = false
-
-[functions.image-generate]
-verify_jwt = false
-
-[functions.upgrade-templates]
-verify_jwt = false
-
-[functions.generate-pptx]
-verify_jwt = false
-
-[functions.seed-example-decks]
-verify_jwt = false
+[functions]
+  [functions.analyze-document]
+    verify_jwt = false
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.check-subscription]
+    verify_jwt = false
+  [functions.create-checkout]
+    verify_jwt = false
+  [functions.customer-portal]
+    verify_jwt = false
+  [functions.generate-block-content]
+    verify_jwt = false
+  [functions.generate-blocks]
+    verify_jwt = false
+  [functions.generate-outline]
+    verify_jwt = false
+  [functions.generate-pptx]
+    verify_jwt = false
+  [functions.get-shared-project]
+    verify_jwt = false
+  [functions.image-generate]
+    verify_jwt = false
+  [functions.image-search]
+    verify_jwt = false
+  [functions.parse-file]
+    verify_jwt = false
+  [functions.refine-block]
+    verify_jwt = false
+  [functions.resolve-images]
+    verify_jwt = false
+  [functions.seed-example-decks]
+    verify_jwt = false
+  [functions.seed-templates]
+    verify_jwt = false
+  [functions.upgrade-templates]
+    verify_jwt = false
