@@ -97,7 +97,7 @@ const Pricing = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
-  const [isAnnual, setIsAnnual] = useState(true);
+  const [isAnnual, setIsAnnual] = useState(false);
 
   const handlePlanClick = async (tier: "free" | "pro" | "team" | "enterprise") => {
     if (tier === "enterprise") {
