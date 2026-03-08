@@ -439,7 +439,7 @@ export default function ThemesLibrary() {
           <Plus className="h-4 w-4" />
           New theme
         </Button>
-        <Button variant="outline" className="gap-2 rounded-lg">
+        <Button variant="outline" className="gap-2 rounded-lg" onClick={() => { setImportOpen(true); setImportJson(''); setImportError(''); }}>
           <Download className="h-4 w-4" />
           Import theme
         </Button>
