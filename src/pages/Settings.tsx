@@ -4,6 +4,7 @@ import SeoHead from "@/components/SeoHead";
 import Navbar from "@/components/landing/Navbar";
 import MarketingFooter from "@/components/MarketingFooter";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
