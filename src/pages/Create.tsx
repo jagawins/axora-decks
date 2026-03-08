@@ -360,7 +360,7 @@ Create exactly ${cardsCount} slides/cards.`;
       }
 
       toast({ title: "Deck created!", description: "Your AI-generated deck is ready." });
-      navigate(`/preview/${newProject.id}`);
+      navigate(`/preview/${newProject.id}?new=1`);
     } catch (error) {
       console.error("Generation error:", error);
       toast({
