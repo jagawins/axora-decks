@@ -77,10 +77,13 @@ export function TemplateCard({
     >
       {/* Preview Image — dominant area, YouExec style */}
       <div className="relative w-full aspect-[16/10] overflow-hidden bg-muted/20">
-        {isVisible && previewBlocks ? (
+        {isVisible ? (
           <TemplatePreviewImage
             templateId={id}
-            blocks={previewBlocks}
+            blocks={previewBlocks || []}
+            title={title}
+            category={category}
+            tags={tags}
             className="w-full h-full rounded-none border-0"
           />
         ) : (
