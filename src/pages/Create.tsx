@@ -4,6 +4,8 @@ import { Helmet } from "react-helmet-async";
 import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileGenerationOverlay } from "@/components/MobileGenerationOverlay";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
