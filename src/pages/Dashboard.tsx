@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 
 import { LibrarySidebar } from '@/components/library/LibrarySidebar';
 import { LibraryHeader } from '@/components/library/LibraryHeader';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { LibraryActionBar } from '@/components/library/LibraryActionBar';
 import { LibraryTabs, LibraryFilter } from '@/components/library/LibraryTabs';
 import { ProjectCard } from '@/components/library/ProjectCard';
