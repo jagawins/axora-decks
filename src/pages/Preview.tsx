@@ -184,8 +184,8 @@ export default function Preview() {
           onQuickAction={handleQuickAction}
         />
 
-        {/* Inline edit slide-over panel */}
-        {editingBlockIds && editBlocks.length > 0 && (
+        {/* Inline edit slide-over panel — desktop only */}
+        {!isMobile && editingBlockIds && editBlocks.length > 0 && (
           <div className="absolute inset-y-0 right-0 w-96 bg-card border-l border-border shadow-xl z-50 flex flex-col">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
               <h3 className="font-semibold text-sm">Edit Slide</h3>
