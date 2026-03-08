@@ -481,12 +481,14 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <LibrarySidebar 
-        activeTab={sidebarTab}
-        onTabChange={handleSidebarTabChange}
-        onManageSubscription={handleManageSubscription}
-      />
+      {/* Sidebar — hidden on mobile */}
+      <div className="hidden md:block">
+        <LibrarySidebar 
+          activeTab={sidebarTab}
+          onTabChange={handleSidebarTabChange}
+          onManageSubscription={handleManageSubscription}
+        />
+      </div>
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
