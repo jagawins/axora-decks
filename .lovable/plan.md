@@ -1,70 +1,80 @@
 
 
-## Plan: Full Mobile Responsiveness
+## Plan: Competitive Demo Strategy — Homepage Live Input + Full Deck Gallery + Enhanced How-It-Works
 
-### Scope
-Make the entire app render correctly at 390px (iPhone 14) and 360px (Android). Focus areas: Dashboard (sidebar → bottom tab bar), Editor, Create page, Settings, landing/marketing pages, and global CSS fixes.
+This is a significant conversion optimization effort across 3 pages. Here's what we'll build:
 
-### 1. New Component: `MobileBottomNav`
-Create `src/components/MobileBottomNav.tsx` — a fixed bottom navigation bar visible only below `md:` breakpoint with 4 tabs: **Home** (dashboard home), **Generate** (links to /create), **My Decks** (library tab), **Account** (settings). Icons: Home, Sparkles, Layers, User. Min tap target 44×44px.
+---
 
-### 2. Dashboard (`src/pages/Dashboard.tsx`)
-- Hide `<LibrarySidebar>` below `md:` with `hidden md:block`
-- Show `<MobileBottomNav>` below `md:` — wire tab changes to `sidebarTab` state or navigation
-- Add `pb-20 md:pb-0` to main content to avoid bottom nav overlap
-- Main content padding: `p-4 md:p-6`
+### 1. Homepage Hero — Live "Outline to Deck" Preview (Gamma-style)
 
-### 3. Library Header (`src/components/library/LibraryHeader.tsx`)
-- Search bar: `w-full md:w-80` (full width on mobile)
-- Reduce horizontal padding: `px-4 md:px-6`
-- Stack search above actions on mobile or hide view toggle on small screens
+**File: `src/components/landing/Hero.tsx`**
 
-### 4. Library Action Bar (`src/components/library/LibraryActionBar.tsx`)
-- On mobile, stack vertically or show only primary CTA + icon buttons
-- Wrap in `flex-wrap gap-2` so buttons don't overflow
+Add a collapsible "Try it now" section below the CTA buttons:
+- A textarea with placeholder: "Paste your outline, meeting notes, or just describe your deck..."
+- A "Generate Preview" button
+- On click: calls the `generate-outline` edge function (no auth required) and renders a 3-slide preview card inline
+- No sign-up gate — the preview is visible immediately
+- After preview renders, show a "Create Full Deck →" CTA that links to `/create` (pre-filling the prompt)
+- Includes a set of 3 quick-start chips ("Board update for Q4", "Series A pitch", "GTM strategy") so visitors don't need to think of input
 
-### 5. Editor (`src/pages/Editor.tsx`)
-- Already has mobile handling with `MobileEditorTabs` — good
-- Touch-friendly spacing: increase block gap from `space-y-2` to `space-y-3` on mobile in the block list
-- Canvas padding already has `p-4 md:p-8` — good
-- Ensure editor sidebar actions have min 44px tap targets
-- Add `min-h-[44px]` to block action buttons in `MobileBlocksPanel`
+**New component: `src/components/landing/HeroLiveDemo.tsx`**
+- Manages the textarea, loading state, and preview rendering
+- Calls `supabase.functions.invoke('generate-outline', { body: { topic, tone: 'executive', slideCount: 3 } })`
+- Renders the outline as styled slide cards (title + bullets) with theme colors — not actual block rendering, just a clean preview
+- Stores the prompt in URL params or sessionStorage so `/create` can pick it up
 
-### 6. Create Page (`src/pages/Create.tsx`)
-- Entry cards grid: change `grid-cols-2 lg:grid-cols-4` to `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`
-- Options row: change `grid-cols-2 sm:grid-cols-5` to `grid-cols-1 sm:grid-cols-2 lg:grid-cols-5`
-- Prompt textarea and generate button: full width, larger tap target on mobile
+---
 
-### 7. Settings Page (`src/pages/Settings.tsx`)
-- Already has `flex-col md:flex-row` — good
-- Settings tab nav on mobile: convert to horizontal scrollable row instead of vertical list
-- Ensure buttons have adequate padding
+### 2. Templates Page — Full Deck Gallery (Beautiful.ai-style)
 
-### 8. Landing/Marketing Pages
-- Navbar already handles mobile with hamburger — good
-- Hero: ensure heading text doesn't overflow at 360px (already uses `clamp()` — verify)
-- Pricing cards: ensure horizontal scroll or stack at small widths
+**File: `src/components/landing/ExampleDecks.tsx`**
 
-### 9. Global CSS (`src/index.css`)
-- Add `overflow-x: hidden` to `html, body` to kill horizontal scroll
-- Add utility class `.safe-area-bottom` with `padding-bottom: env(safe-area-inset-bottom)` if not already present
-- Add global touch target utility: `.touch-target { min-width: 44px; min-height: 44px; }`
+Enhance the existing ExampleDecks component:
+- Add a "Browse All Slides" button on each card that opens the existing `TemplatePreviewModal` (already wired up)
+- Add a dedicated section header: "See What AXIVA Creates" with a subtitle about no sign-up needed
+- This is already mostly working — the main fix is making sure the modal opens reliably and the slide previews are populated
 
-### 10. Button Component (`src/components/ui/button.tsx`)
-- Add mobile-first padding increase: default size gets `px-4 py-2.5 md:px-4 md:py-2` (slightly larger on mobile)
-- Ensure `size="icon"` is at least 44×44px: `h-11 w-11 md:h-10 md:w-10`
+**File: `src/pages/Templates.tsx`**
+- Move the ExampleDecks section to the top with a more prominent heading: "Complete Example Decks — Browse Without Signing Up"
 
-### Files to Create
-- `src/components/MobileBottomNav.tsx`
+---
 
-### Files to Modify
-- `src/pages/Dashboard.tsx` — hide sidebar on mobile, add bottom nav, adjust padding
-- `src/components/library/LibraryHeader.tsx` — responsive search width, padding
-- `src/components/library/LibraryActionBar.tsx` — flex-wrap for mobile
-- `src/pages/Create.tsx` — fix grid breakpoints
-- `src/pages/Settings.tsx` — horizontal tab nav on mobile
-- `src/pages/Editor.tsx` — touch spacing in block list
-- `src/components/editor/MobileBlocksPanel.tsx` — 44px tap targets
-- `src/components/ui/button.tsx` — mobile padding/size adjustments
-- `src/index.css` — overflow-x hidden, safe-area, touch utilities
+### 3. How It Works — Interactive Step-by-Step Tour (Pitch-style)
+
+**File: `src/pages/HowItWorks.tsx`**
+
+Replace the current static 4-card grid with an interactive scrolling walkthrough:
+- Each step becomes a full-width section with a left description panel and a right "mock UI" panel
+- The mock UI shows a stylized representation of each step:
+  - Step 1: Animated textarea with typing effect
+  - Step 2: Outline cards appearing one by one
+  - Step 3: A slide preview with AI editing cursor
+  - Step 4: Export format icons with a download animation
+- Steps highlight as user scrolls (IntersectionObserver)
+- Add a sticky "Try It Free" CTA bar at bottom
+
+---
+
+### 4. Homepage Trust Section Enhancement
+
+**File: `src/components/landing/Hero.tsx`**
+
+Replace the generic company names with a real-feeling customer quote:
+- Add a testimonial-style quote above the trust logos: *"I had the board deck done in under 10 minutes — our CFO thought it was made by McKinsey."*
+- Keep the company logos but make them feel earned
+
+---
+
+### Summary of Files
+
+| File | Action |
+|------|--------|
+| `src/components/landing/HeroLiveDemo.tsx` | **New** — live outline preview widget |
+| `src/components/landing/Hero.tsx` | Add HeroLiveDemo below CTAs, add testimonial quote |
+| `src/pages/HowItWorks.tsx` | Rewrite with interactive scrolling walkthrough |
+| `src/components/landing/ExampleDecks.tsx` | Add section header, improve gallery presentation |
+| `src/pages/Templates.tsx` | Reorder — example decks first with prominent heading |
+
+No database changes. No new edge functions (uses existing `generate-outline`). No new dependencies.
 

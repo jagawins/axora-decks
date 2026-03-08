@@ -22,11 +22,11 @@ const buttonVariants = cva(
         premium: "bg-gradient-to-r from-accent to-accent/80 text-accent-foreground font-semibold shadow-lg shadow-accent/25 hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
+        default: "h-11 px-4 py-2.5 md:h-10 md:py-2",
+        sm: "h-10 rounded-md px-3 md:h-9",
         lg: "h-12 rounded-lg px-8 text-base",
         xl: "h-14 rounded-xl px-10 text-lg",
-        icon: "h-10 w-10",
+        icon: "h-11 w-11 md:h-10 md:w-10",
       },
     },
     defaultVariants: {

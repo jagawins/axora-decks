@@ -46,7 +46,7 @@ const MobileBlocksPanel = ({
             </Button>
           </div>
         </DrawerHeader>
-        <div className="overflow-y-auto p-4 space-y-2 pb-safe">
+        <div className="overflow-y-auto p-4 space-y-3 pb-safe">
           {blocks.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">
               No blocks yet. Create with AI or add manually.
@@ -67,14 +67,14 @@ const MobileBlocksPanel = ({
                 >
                   <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   <span className="text-sm truncate flex-1">{getBlockPreview(block)}</span>
-                  <div className="flex gap-1">
+                    <div className="flex gap-1">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         onMoveBlock(block.id, "up");
                       }}
                       disabled={index === 0}
-                      className="p-1.5 hover:bg-muted rounded disabled:opacity-30"
+                      className="p-2 hover:bg-muted rounded disabled:opacity-30 touch-target flex items-center justify-center"
                     >
                       <ChevronUp className="h-4 w-4" />
                     </button>
@@ -84,7 +84,7 @@ const MobileBlocksPanel = ({
                         onMoveBlock(block.id, "down");
                       }}
                       disabled={index === blocks.length - 1}
-                      className="p-1.5 hover:bg-muted rounded disabled:opacity-30"
+                      className="p-2 hover:bg-muted rounded disabled:opacity-30 touch-target flex items-center justify-center"
                     >
                       <ChevronDown className="h-4 w-4" />
                     </button>
@@ -93,7 +93,7 @@ const MobileBlocksPanel = ({
                         e.stopPropagation();
                         onDeleteBlock(block.id);
                       }}
-                      className="p-1.5 hover:bg-destructive/20 rounded text-destructive"
+                      className="p-2 hover:bg-destructive/20 rounded text-destructive touch-target flex items-center justify-center"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

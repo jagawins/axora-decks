@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 
 import { LibrarySidebar } from '@/components/library/LibrarySidebar';
 import { LibraryHeader } from '@/components/library/LibraryHeader';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { LibraryActionBar } from '@/components/library/LibraryActionBar';
 import { LibraryTabs, LibraryFilter } from '@/components/library/LibraryTabs';
 import { ProjectCard } from '@/components/library/ProjectCard';
@@ -480,12 +481,14 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <LibrarySidebar 
-        activeTab={sidebarTab}
-        onTabChange={handleSidebarTabChange}
-        onManageSubscription={handleManageSubscription}
-      />
+      {/* Sidebar — hidden on mobile */}
+      <div className="hidden md:block">
+        <LibrarySidebar 
+          activeTab={sidebarTab}
+          onTabChange={handleSidebarTabChange}
+          onManageSubscription={handleManageSubscription}
+        />
+      </div>
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
@@ -500,7 +503,7 @@ const Dashboard = () => {
         />
 
         {/* Content area */}
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-4 md:p-6 pb-24 md:pb-6">
           {sidebarTab === 'library' && (
             <>
               {/* Brand Kit Card - top of library */}
@@ -509,7 +512,7 @@ const Dashboard = () => {
               </div>
 
               {/* Action bar */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <h1 className="text-2xl font-bold">Library</h1>
                 <LibraryActionBar
                   onCreateNew={() => setIsCreateOpen(true)}
@@ -715,6 +718,18 @@ const Dashboard = () => {
       <FirstDeckModal
         open={firstDeckOpen}
         onOpenChange={setFirstDeckOpen}
+      />
+
+      {/* Mobile bottom nav */}
+      <MobileBottomNav
+        activeTab={sidebarTab}
+        onTabChange={(tab) => {
+          if (tab === 'generate') {
+            navigate('/create');
+          } else {
+            handleSidebarTabChange(tab);
+          }
+        }}
       />
     </div>
   );

@@ -400,7 +400,7 @@ Create exactly ${cardsCount} slides/cards.`;
 
           {/* Entry Cards */}
           {!activeEntry && (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
               {ENTRY_CARDS.map((card) => (
                 <button
                   key={card.id}
@@ -458,7 +458,7 @@ Create exactly ${cardsCount} slides/cards.`;
               </div>
 
               {/* Options Row */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 {/* Cards Count */}
                 <div className="space-y-2">
                   <Label htmlFor="cards-count" className="text-sm font-medium">Cards</Label>

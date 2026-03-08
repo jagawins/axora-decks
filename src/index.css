@@ -229,6 +229,13 @@
     background: var(--gradient-hero);
     min-height: 100dvh;
     overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Global touch target utility */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
   }
 
   /* Safe area utilities for iOS notch/home indicator */

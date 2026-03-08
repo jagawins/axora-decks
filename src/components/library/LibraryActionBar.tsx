@@ -9,16 +9,23 @@ interface LibraryActionBarProps {
 
 export const LibraryActionBar = ({ onCreateNew, onNewWithAI, onImport }: LibraryActionBarProps) => {
   return (
-    <div className="flex items-center gap-3">
-      <Button variant="outline" onClick={onCreateNew}>
+    <div className="flex flex-wrap items-center gap-2">
+      <Button variant="outline" size="sm" className="hidden sm:inline-flex" onClick={onCreateNew}>
         <Plus className="h-4 w-4 mr-2" />
         Create new
       </Button>
       <Button variant="hero" onClick={onNewWithAI}>
         <Sparkles className="h-4 w-4 mr-2" />
-        New with AI
+        <span className="hidden sm:inline">New with AI</span>
+        <span className="sm:hidden">AI</span>
       </Button>
-      <Button variant="outline" onClick={onImport}>
+      <Button variant="outline" size="icon" className="sm:hidden" onClick={onCreateNew}>
+        <Plus className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="icon" className="sm:hidden" onClick={onImport}>
+        <Upload className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="sm" className="hidden sm:inline-flex" onClick={onImport}>
         <Upload className="h-4 w-4 mr-2" />
         Import
       </Button>
