@@ -154,6 +154,7 @@ export default function Create() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   // State
   const [activeEntry, setActiveEntry] = useState<string | null>(null);
@@ -167,6 +168,7 @@ export default function Create() {
   const [generating, setGenerating] = useState(false);
   const [useBrandKit, setUseBrandKit] = useState(false);
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
+  const [mobileOverlayVisible, setMobileOverlayVisible] = useState(false);
 
   // Load brand kit
   useEffect(() => {
