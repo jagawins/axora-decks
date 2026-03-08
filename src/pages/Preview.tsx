@@ -57,7 +57,7 @@ export default function Preview() {
     try {
       const { data: p, error: pe } = await supabase
         .from("projects")
-        .select("id, title, description, theme, brand_kit")
+        .select("id, title, description, theme, brand_kit, share_token")
         .eq("id", projectId)
         .maybeSingle();
 
