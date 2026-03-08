@@ -531,6 +531,13 @@ function NotificationsTab() {
           </div>
         ))}
       </div>
+
+      <div className="rounded-lg border border-border/50 bg-muted/20 p-3 flex items-start gap-2">
+        <Bell className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+        <p className="text-xs text-muted-foreground">
+          Preferences are saved on this device only. They'll sync across devices once collaboration features launch.
+        </p>
+      </div>
     </div>
   );
 }
@@ -568,21 +575,35 @@ function ReferralTab({ userId }: { userId: string }) {
         <Separator className="my-4" />
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-xl border border-border bg-card/50 p-4 text-center">
-          <p className="text-2xl font-bold text-accent">{referralCount}</p>
-          <p className="text-[11px] text-muted-foreground mt-1">Referrals</p>
+      {/* Stats — show empty state or live stats */}
+      {referralCount === 0 && referralCredits === 0 ? (
+        <div className="rounded-xl border-2 border-dashed border-border p-6 text-center space-y-3">
+          <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
+            <Gift className="h-6 w-6 text-accent" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">No referrals yet</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Share your link below — when someone signs up and creates their first deck, you'll both earn a bonus credit. Your stats will appear here.
+            </p>
+          </div>
         </div>
-        <div className="rounded-xl border border-border bg-card/50 p-4 text-center">
-          <p className="text-2xl font-bold text-accent">{referralCredits}</p>
-          <p className="text-[11px] text-muted-foreground mt-1">Credits Earned</p>
+      ) : (
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-xl border border-border bg-card/50 p-4 text-center">
+            <p className="text-2xl font-bold text-accent">{referralCount}</p>
+            <p className="text-[11px] text-muted-foreground mt-1">Referrals</p>
+          </div>
+          <div className="rounded-xl border border-border bg-card/50 p-4 text-center">
+            <p className="text-2xl font-bold text-accent">{referralCredits}</p>
+            <p className="text-[11px] text-muted-foreground mt-1">Credits Earned</p>
+          </div>
+          <div className="rounded-xl border border-border bg-card/50 p-4 text-center">
+            <p className="text-2xl font-bold text-foreground">+1</p>
+            <p className="text-[11px] text-muted-foreground mt-1">Per Referral</p>
+          </div>
         </div>
-        <div className="rounded-xl border border-border bg-card/50 p-4 text-center">
-          <p className="text-2xl font-bold text-foreground">+1</p>
-          <p className="text-[11px] text-muted-foreground mt-1">Per Referral</p>
-        </div>
-      </div>
+      )}
 
       {/* Referral link */}
       <div className="space-y-2">
@@ -590,7 +611,7 @@ function ReferralTab({ userId }: { userId: string }) {
         <div className="flex gap-2">
           <Input value={referralLink} readOnly className="font-mono text-xs" />
           <Button variant="outline" size="icon" onClick={copyLink} className="shrink-0">
-            {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+            {copied ? <Check className="h-4 w-4 text-accent" /> : <Copy className="h-4 w-4" />}
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
