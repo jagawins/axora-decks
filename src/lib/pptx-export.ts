@@ -702,9 +702,10 @@ export async function generatePptxBlob(opts: ExportPptxOptions): Promise<Blob> {
   pres.title = opts.title;
 
   const brand: BrandKit = opts.brandKit || {};
+  const totalSlides = opts.blocks.length;
 
-  for (const block of opts.blocks) {
-    addBlockToSlide(pres, block, brand, !!opts.showWatermark);
+  for (let i = 0; i < opts.blocks.length; i++) {
+    addBlockToSlide(pres, opts.blocks[i], brand, !!opts.showWatermark, i, totalSlides, opts.title);
   }
 
   const blob = await pres.write({ outputType: "blob" }) as Blob;
