@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -69,6 +69,25 @@ const plans = [
     tier: "team" as const,
     perUser: true,
     hasTrial: true,
+  },
+  {
+    name: "Enterprise",
+    monthlyPrice: "Custom",
+    yearlyPrice: "Custom",
+    description: "SSO, SAML & dedicated support",
+    features: [
+      "Everything in Team",
+      "SSO & SAML authentication",
+      "Audit logs & compliance",
+      "Dedicated account manager",
+      "Custom integrations & API",
+      "SLA & uptime guarantee"
+    ],
+    cta: "Contact Sales",
+    variant: "outline" as const,
+    popular: false,
+    tier: "enterprise" as const,
+    perUser: false,
   }
 ];
 
