@@ -35,8 +35,8 @@ export const LibraryHeader = ({
 
       {/* Right side */}
       <div className="flex items-center gap-4">
-        {/* View toggle */}
-        <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/50">
+        {/* View toggle — hidden on mobile */}
+        <div className="hidden sm:flex items-center gap-1 p-1 rounded-lg bg-muted/50">
           <Button
             variant="ghost"
             size="icon"

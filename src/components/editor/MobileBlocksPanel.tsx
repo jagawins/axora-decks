@@ -46,7 +46,7 @@ const MobileBlocksPanel = ({
             </Button>
           </div>
         </DrawerHeader>
-        <div className="overflow-y-auto p-4 space-y-2 pb-safe">
+        <div className="overflow-y-auto p-4 space-y-3 pb-safe">
           {blocks.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">
               No blocks yet. Create with AI or add manually.

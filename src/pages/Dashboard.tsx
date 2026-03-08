@@ -719,6 +719,18 @@ const Dashboard = () => {
         open={firstDeckOpen}
         onOpenChange={setFirstDeckOpen}
       />
+
+      {/* Mobile bottom nav */}
+      <MobileBottomNav
+        activeTab={sidebarTab}
+        onTabChange={(tab) => {
+          if (tab === 'generate') {
+            navigate('/create');
+          } else {
+            handleSidebarTabChange(tab);
+          }
+        }}
+      />
     </div>
   );
 };

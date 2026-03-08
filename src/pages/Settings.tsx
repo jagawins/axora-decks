@@ -117,8 +117,8 @@ export default function SettingsPage() {
           </h1>
 
           <div className="flex flex-col md:flex-row gap-8">
-            {/* Sidebar */}
-            <nav className="md:w-56 shrink-0 space-y-1">
+            {/* Tab nav — horizontal scrollable on mobile, vertical on md+ */}
+            <nav className="md:w-56 shrink-0 flex md:flex-col gap-1 overflow-x-auto pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
               {TABS.map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -126,7 +126,8 @@ export default function SettingsPage() {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={cn(
-                      "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                      "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left whitespace-nowrap touch-target",
+                      "md:w-full",
                       activeTab === tab.id
                         ? "bg-accent/10 text-accent"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
