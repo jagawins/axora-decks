@@ -31,6 +31,7 @@ import {
   Key,
   Save,
   Loader2,
+  Crown,
 } from "lucide-react";
 
 type SettingsTab = "overview" | "brand" | "billing";
