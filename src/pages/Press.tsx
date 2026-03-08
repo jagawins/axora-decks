@@ -33,7 +33,7 @@ const SHOW_COVERAGE = false; // flip to true when real coverage exists
 const companyFacts = [
   { label: "Founded", value: "2024" },
   { label: "Category", value: "AI Productivity / Executive Tools" },
-  { label: "Headquarters", value: "London, UK" },
+  { label: "Headquarters", value: "San Francisco, CA" },
   { label: "What we do", value: "Build board-ready decks from a single prompt in under 2 minutes" },
   { label: "Founder", value: "Jag Mariappan" },
   { label: "Website", value: "axiva.ai" },
