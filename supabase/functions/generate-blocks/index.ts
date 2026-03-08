@@ -1116,12 +1116,8 @@ ${visualDensity === "minimal" ? "- ≥20% visual blocks" : ""}
 ${visualDensity === "balanced" ? "- ≥50% visual blocks, every data slide must have chart/stat" : ""}
 ${visualDensity === "visual" ? "- Every content slide must have a visual block" : ""}
 ` : '';
-   
-2. QUOTES/TESTIMONIALS → quote_block
-   - When content contains quoted text or attribution
-   - Example: "Our customers love it" - CEO
 
-3. CHRONOLOGICAL/SEQUENTIAL → timeline_block
+
    - Dates, phases, steps, quarters, years
    - Example: Q1 2024, Phase 1, Step 1, January 2024
 
