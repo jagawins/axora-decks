@@ -35,7 +35,7 @@
   </text>
 
   <rect x="145" y="445" width="370" height="56" rx="16" fill="#1E5AFF"/>
-  <text x="330" y="481" text-anchor="middle" font-family="Inter, system-ui, -apple-system, Segoe UI, Arial" font-size="22" font-weight="700" fill="#FFFFFF">Try AXORA</text>
+  <text x="330" y="481" text-anchor="middle" font-family="Inter, system-ui, -apple-system, Segoe UI, Arial" font-size="22" font-weight="700" fill="#FFFFFF">Try AXIVA</text>
 
   <rect x="533" y="445" width="330" height="56" rx="16" fill="none" stroke="#1E5AFF" stroke-opacity="0.75" stroke-width="2"/>
   <text x="698" y="481" text-anchor="middle" font-family="Inter, system-ui, -apple-system, Segoe UI, Arial" font-size="22" font-weight="700" fill="#143A78">Watch demo</text>
