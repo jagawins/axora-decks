@@ -673,18 +673,9 @@ const Dashboard = () => {
           )}
 
           {sidebarTab === 'settings' && (
-            <div className="max-w-2xl">
-              <h1 className="text-2xl font-bold mb-6">Settings</h1>
-              <div className="space-y-6">
-                <div className="glass-card p-6">
-                  <h2 className="font-semibold mb-2">Account</h2>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {user?.email}
-                  </p>
-                  <Button variant="destructive" size="sm" onClick={handleSignOut}>
-                    Sign out
-                  </Button>
-                </div>
+            <div className="flex items-center justify-center py-16">
+              <div className="text-center space-y-3">
+                <p className="text-muted-foreground">Redirecting to Settings…</p>
               </div>
             </div>
           )}
