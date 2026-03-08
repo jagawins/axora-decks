@@ -897,25 +897,27 @@ function validateBlocks(
     };
   }
 
-  // Per-slide intent enforcement (soft gate — returns violations for retry)
+  // Per-slide intent enforcement (soft — logged as warnings, not retry triggers)
   const intentViolations = outline
     ? checkPerSlideIntentViolations(validBlocks, outline, enableVisualBlocks)
     : [];
 
-  // Slide count enforcement
+  // Slide count enforcement (soft — logged, not retry trigger)
   const slideCountResult = enforceSlideCount(validBlocks, targetSlideCount);
   if (!slideCountResult.ok) {
     errors.push(slideCountResult.error!);
   }
 
-  // Visual density enforcement
+  // Visual density enforcement (soft — logged, not retry trigger)
   const densityResult = enforceVisualDensity(validBlocks, visualDensity);
   if (!densityResult.ok) {
     errors.push(densityResult.error!);
   }
 
+  // SPEED OPTIMIZATION: Only invalidCount > 0 triggers retry.
+  // Intent violations, density failures, and slide count mismatches are quality nudges — log them but accept the response.
   return {
-    valid: invalidCount === 0 && validBlocks.length > 0 && intentViolations.length === 0 && slideCountResult.ok && densityResult.ok,
+    valid: invalidCount === 0 && validBlocks.length > 0,
     invalidCount,
     errors: [
       ...errors,
@@ -1021,156 +1023,76 @@ function buildSystemPrompt(
   
   const preserveWordingRule = preserveWording ? `
 PRESERVE ORIGINAL WORDING (CRITICAL):
-- For text, list, callout, and two_col blocks: Keep the user's exact phrasing verbatim. Do NOT paraphrase, rewrite, or summarize.
-- Only adjust text if absolutely required to fit schema constraints (e.g., minimum length).
-- For visual blocks (stat_block, timeline_block, etc.): You may restructure, but ONLY quote user text directly. Do not rewrite.
-- Treat the user's content as sacred. Your job is to structure, not rewrite.
+- Keep user's exact phrasing verbatim for text/list/callout/two_col blocks.
+- For visual blocks: restructure but quote user text directly.
 ` : '';
 
-  // Decision Mode prompt segment - only appended when decisionMode is true
   const decisionModePrompt = decisionMode ? `
-DECISION MODE (ACTIVE) - EXECUTIVE DECISION SUPPORT:
-
-Generate a DECISION DECK using these block types in this FIXED ORDER:
-
-1. decision_summary (REQUIRED FIRST)
-   Format: {"summary": "Brief executive summary", "key_points": ["Point 1", "Point 2"], "risks": ["Risk 1"] (optional)}
-
-2. evidence_map (REQUIRED SECOND)
-   Format: {"claims": [{"claim": "Claim text", "evidence": ["Evidence 1", "Evidence 2"], "confidence": "high|medium|low"}]}
-   - NEVER invent numbers. Use "Not provided" if data is missing.
-
-3. scenario_set (OPTIONAL - only if meaningful scenarios exist)
-   Format: {"scenarios": [{"name": "best_case|base_case|worst_case", "assumptions": ["..."], "outcomes": ["..."], "risks": ["..."]}]}
-   - Only include if the content has distinct scenario variations
-
-4. recommendation_panel (REQUIRED LAST)
-   Format: {"recommendation": "Clear action", "rationale": ["Why 1", "Why 2"], "alternatives": ["Alt 1"], "next_steps": ["Step 1", "Step 2"]}
-
-CRITICAL DECISION MODE RULES:
-- Generate 3-4 blocks: decision_summary → evidence_map → scenario_set (if present) → recommendation_panel
-- NEVER invent numbers, percentages, or metrics not in the source content
-- If data is missing, explicitly state "Not provided" - do not guess
-- All arrays (key_points, evidence, rationale, etc.) must have at least 1 item
-- Do NOT output empty content {} - every block must have real content
+DECISION MODE (ACTIVE):
+Generate 3-4 blocks in FIXED ORDER:
+1. decision_summary: {summary, key_points:[], risks?:[]}
+2. evidence_map: {claims:[{claim, evidence:[], confidence:"high"|"medium"|"low"}]}
+3. scenario_set (optional): {scenarios:[{name:"best_case"|"base_case"|"worst_case", assumptions:[], outcomes:[], risks:[]}]}
+4. recommendation_panel: {recommendation, rationale:[], alternatives:[], next_steps:[]}
+NEVER invent numbers. Use "Not provided" if data is missing.
 ` : '';
 
   const visualBlockRules = enableVisualBlocks && !decisionMode ? `
-VISUAL BLOCK SELECTION RULES (use these to choose the right block type):
+VISUAL BLOCK TYPE SELECTION (match content → type):
+| Content Pattern | Block Type |
+|---|---|
+| 2-6 numeric values | stat_block |
+| Quoted text/testimonial | quote_block |
+| Dates/phases/steps | timeline_block |
+| Comparisons/vs/pros-cons | comparison_table |
+| 3-4 distinct features | card_grid |
+| Presentation title | hero_header |
+| Summary + key points | exec_summary |
+| Call to action | cta_section |
+| Topic transition | section_divider |
+| Items with icons | icon_text_block |
+| Key insight/tip | framed_insight |
+| 3+ numeric data points (time-series→line, categorical→bar) | chart_block |
+| Exactly 3 strategic themes | three_pillars |
+| 2-axis positioning | two_by_two_matrix |
+| Recommendation + next steps | decision_next_steps |
 
-1. NUMBERS/METRICS → stat_block
-   - When content has 2-6 numeric values (percentages, money, counts)
-   - Example: "50% increase", "$1.2M ARR", "3x faster"
-   
-2. QUOTES/TESTIMONIALS → quote_block
-   - When content contains quoted text or attribution
-   - Example: "Our customers love it" - CEO
+BLOCK SCHEMAS (required fields):
+- stat_block: {stats:[{value,label,trend?}]}
+- quote_block: {quote,author?,role?}
+- timeline_block: {events:[{date,title,status?}]}
+- comparison_table: {headers:[],rows:[{label,values:[]}]}
+- card_grid: {cards:[{title,description?,icon?}],columns?}
+- hero_header: {heading,subheading?,cta?:{text,href}}
+- exec_summary: {summary,keyPoints:[],bottomLine?}
+- cta_section: {heading,primaryCta?:{text,href}}
+- section_divider: {style?,label?}
+- icon_text_block: {items:[{icon,title,description?}]}
+- framed_insight: {insight,type?,source?}
+- chart_block: {chartType:"bar"|"line",data:[{label,value(number)}],title?}
+- three_pillars: {pillars:[{title,description?,icon?}](exactly 3)}
+- two_by_two_matrix: {xAxisLabel,yAxisLabel,quadrants:[{title,description?}](exactly 4)}
+- decision_next_steps: {recommendation,rationale:[],nextSteps:[{action,owner?,due?}],risks?:[]}
 
-3. CHRONOLOGICAL/SEQUENTIAL → timeline_block
-   - Dates, phases, steps, quarters, years
-   - Example: Q1 2024, Phase 1, Step 1, January 2024
+WORD LIMITS: text body max 60 words, list items max 12 words/6 items, card descriptions max 25 words, exec_summary max 80 words, pillars max 30 words each.
 
-4. COMPARISONS/VS → comparison_table
-   - Pros vs cons, before vs after, option A vs B
-   - Example: "compared to", "versus", "advantages and disadvantages"
-
-5. 3-4 DISTINCT ITEMS → card_grid
-   - Features, benefits, services, products
-   - NOT for bullet lists (use list block for those)
-
-6. LONG TEXT (>200 words) → two_col
-   - Split for readability
-
-7. KEY INSIGHT/TIP → framed_insight
-   - Important callouts that need emphasis
-   - Types: tip, warning, insight, note
-
-8. PRESENTATION TITLE → hero_header
-   - For the main title slide with optional CTA
-
-9. SUMMARY WITH KEY POINTS → exec_summary
-   - Executive summary with bullet points
-
-10. CALL TO ACTION → cta_section
-    - Final slide with next steps
-
-11. TOPIC TRANSITIONS → section_divider
-    - Between major sections
-
-VISUAL BLOCK FORMATS:
-- stat_block: {"stats": [{"value": "50%", "label": "Growth Rate", "trend": "up"}]}
-- quote_block: {"quote": "The quote text", "author": "Name", "role": "Title"}
-- timeline_block: {"events": [{"date": "Q1 2024", "title": "Launch", "status": "completed"}]}
-- comparison_table: {"headers": ["Feature", "Option A", "Option B"], "rows": [{"label": "Price", "values": ["$10", "$20"]}]}
-- card_grid: {"cards": [{"title": "Card 1", "description": "Details", "icon": "Star"}], "columns": 3}
-- hero_header: {"heading": "Main Title", "subheading": "Subtitle", "cta": {"text": "Get Started"}}
-- exec_summary: {"summary": "Overview text", "keyPoints": ["Point 1", "Point 2"], "bottomLine": "Conclusion"}
-- cta_section: {"heading": "Ready to Start?", "primaryCta": {"text": "Sign Up"}}
-- section_divider: {"style": "gradient", "label": "Next Section"}
-- icon_text_block: {"items": [{"icon": "Star", "title": "Feature", "description": "Details"}]}
-- framed_insight: {"insight": "Key insight here", "type": "tip", "source": "Research"}
-- chart_block: {"chartType": "bar", "data": [{"label": "Category A", "value": 100}, {"label": "Category B", "value": 200}], "title": "Chart Title"}
-- three_pillars: {"title": "Our Strategy", "pillars": [{"title": "Pillar 1", "description": "Details", "icon": "Target"}, {"title": "Pillar 2", "description": "Details", "icon": "Zap"}, {"title": "Pillar 3", "description": "Details", "icon": "Star"}]}
-- two_by_two_matrix: {"title": "Priority Matrix", "xAxisLabel": "Effort", "yAxisLabel": "Impact", "quadrants": [{"title": "Quick Wins", "description": "Low effort, high impact"}, {"title": "Major Projects", "description": "High effort, high impact"}, {"title": "Fill-ins", "description": "Low effort, low impact"}, {"title": "Hard Slogs", "description": "High effort, low impact"}]}
-- decision_next_steps: {"title": "Next Steps", "recommendation": "Proceed with Option A", "rationale": ["Reason 1", "Reason 2"], "nextSteps": [{"action": "Define scope", "owner": "PM", "due": "Q1"}], "risks": ["Risk 1"]}
-
-12. NUMERIC DATA WITH 3+ POINTS → chart_block
-    - When content has time-series data (Q1, Q2, 2024, Jan, etc.) use chartType "line"
-    - When content has categorical comparisons use chartType "bar"
-    - Data values must be numbers, labels must be strings
-
-13. EXACTLY 3 STRATEGIC THEMES/PILLARS → three_pillars
-    - When content describes exactly 3 key principles, pillars, or strategic focus areas
-    - Example: "three core values", "three strategic priorities", "three pillars of success"
-
-14. STRATEGIC POSITIONING/QUADRANT → two_by_two_matrix
-    - When content maps options across two dimensions (risk/reward, effort/impact, etc.)
-    - Provide exactly 4 quadrant objects
-
-15. RECOMMENDATION WITH NEXT STEPS → decision_next_steps
-    - When content has a clear recommendation plus actionable next steps
-    - Must have: recommendation, rationale array, nextSteps array
-
-MANDATORY VISUAL REQUIREMENTS (HARD RULES - NON-NEGOTIABLE):
-- At least 40% of all blocks MUST be visual types (not text, list, heading, or callout)
-- If content contains 3+ numeric data points → MUST use chart_block (never use list for numeric data)
-- If content describes exactly 3 key themes/pillars → MUST use three_pillars (never use list)
-- If content has a recommendation with next steps → MUST use decision_next_steps
-- If content maps options on two axes → MUST use two_by_two_matrix
-- Generating an all-text deck is a FAILURE. Always mix in visual blocks.
-
-PER-SLIDE VISUAL ENFORCEMENT (MANDATORY):
-- DATA slides (heading contains: revenue, metrics, performance, growth, results, stats, KPI, figures, cost, profit, forecast, trend, rate, percent, ROI, Q1/Q2/Q3/Q4): MUST include chart_block, stat_block, or comparison_table
-- STRATEGY slides (heading contains: pillar, framework, vision, approach, model, roadmap, strategy, priorities, principles, themes, focus, initiative): MUST include three_pillars or two_by_two_matrix
-- DECISION slides (heading contains: recommend, decision, next steps, action, conclusion, proposal, options, select): MUST include decision_next_steps
-
-SECTION INDEX (CRITICAL):
-- Every block MUST include a "sectionIndex" integer in its content object.
-- sectionIndex maps to the outline section (0-indexed) this block belongs to.
-- This is required for per-slide visual enforcement. Blocks without sectionIndex will not count toward slide intent validation.
+HARD RULES:
+- ≥40% visual blocks (not text/list/heading/callout)
+- Data slides → chart_block or stat_block
+- Strategy slides → three_pillars or two_by_two_matrix
+- Decision slides → decision_next_steps
+- Every block MUST include "sectionIndex" (0-based integer)
 ` : '';
 
-  // Visual density rules
   const visualDensityRules = enableVisualBlocks && !decisionMode && visualDensity ? `
 VISUAL DENSITY: ${visualDensity.toUpperCase()}
-${visualDensity === "minimal" ? `- At least 20% of content slides must have an image or chart visual block
-- Prioritize chart_block only for slides with clearly numeric content
-- Keep text concise, use stat_block for 1-3 key metrics` : ""}
-${visualDensity === "balanced" ? `- At least 50% of content slides must include a visual block (chart_block, stat_block, three_pillars, two_by_two_matrix, card_grid, or comparison_table)
-- Every slide with numeric data MUST have chart_block or stat_block
-- Every strategy slide MUST have three_pillars or two_by_two_matrix` : ""}
-${visualDensity === "visual" ? `- EVERY content slide must include at least one visual block
-- Data slides: chart_block or stat_block is mandatory
-- Strategy slides: three_pillars or two_by_two_matrix is mandatory
-- Decision slides: decision_next_steps is mandatory
-- All other slides: use card_grid, timeline_block, framed_insight, or icon_text_block` : ""}
+${visualDensity === "minimal" ? "- ≥20% visual blocks" : ""}
+${visualDensity === "balanced" ? "- ≥50% visual blocks, every data slide must have chart/stat" : ""}
+${visualDensity === "visual" ? "- Every content slide must have a visual block" : ""}
 ` : '';
 
-  // Slide count rule
   const slideCountRule = targetSlideCount ? `
-SLIDE COUNT REQUIREMENT (MANDATORY):
-- Generate EXACTLY ${targetSlideCount} content blocks (count excludes section_divider and heading blocks)
-- No more, no fewer. This is a hard constraint.
+SLIDE COUNT: Generate EXACTLY ${targetSlideCount} content blocks (excludes section_divider and heading).
 ` : '';
 
   let prompt = decisionMode 
@@ -1190,20 +1112,15 @@ ${slideCountRule}
 ${enableVisualBlocks ? visualBlockRules : ''}
 ${enableVisualBlocks ? visualDensityRules : ''}
 
-BASIC BLOCK FORMATS (always available):
-- heading: {"level": 1, "text": "Your Heading Text Here"}
-- text: {"text": "Your paragraph text here, at least 10 characters"}
-- list: {"items": ["First item", "Second item", "Third item"], "ordered": false}
-- callout: {"text": "Important message here", "icon": "info"}
-- two_col: {"left": "Left column content", "right": "Right column content"}
-- table: {"headers": ["Column 1", "Column 2"], "rows": [["Row 1 Data", "More Data"]]}
+BASIC BLOCK FORMATS:
+- heading: {level:1|2|3, text}
+- text: {text (min 10 chars)}
+- list: {items:[], ordered:boolean}
+- callout: {text, icon:"info"|"warning"|"success"}
+- two_col: {left, right}
+- table: {headers:[], rows:[[]]}
 
-STRUCTURE:
-1. Start with hero_header for the title (or H1 heading if visual blocks disabled)
-2. Use section_divider between major topics
-3. Apply visual block rules to select the best block type for each piece of content
-4. End with cta_section or exec_summary for conclusion
-5. Create ${targetSlideCount ? `exactly ${targetSlideCount} content blocks` : "8-15 blocks total"}
+STRUCTURE: hero_header first, section_dividers between topics, cta_section/exec_summary to close. ${targetSlideCount ? `Exactly ${targetSlideCount} content blocks.` : "8-15 blocks total."}
 
 NEVER return {"type": "heading", "content": {}} - this will fail validation.`;
 
@@ -1992,6 +1909,7 @@ serve(async (req) => {
       );
     }
 
+    const generationStart = Date.now();
     console.log(`[${requestId}] Generating blocks for: "${outline.title}" density: ${density || "default"}, visualDensity: ${visualDensity}, visualBlocks: ${enableVisualBlocks}, decisionMode: ${decisionMode}, targetSlideCount: ${targetSlideCount}`);
 
     const userPrompt = decisionMode 
@@ -2068,17 +1986,20 @@ ${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideC
       const blockValidation1 = validateBlocks(parsed1.blocks, enableVisualBlocks, outline, targetSlideCount, decisionMode, visualDensity);
 
       if (blockValidation1.valid) {
-        console.log(`[${requestId}] Generated ${blockValidation1.blocks.length} valid blocks`);
+        const latencyMs = Date.now() - generationStart;
+        const intentWarnings = blockValidation1.intentViolations?.length ?? 0;
+        const densityWarnings = blockValidation1.errors.filter(e => e.includes("Visual density")).length;
+        console.log(`[${requestId}] TELEMETRY: retried=false, blocks=${blockValidation1.blocks.length}, latencyMs=${latencyMs}, intentWarnings=${intentWarnings}, densityWarnings=${densityWarnings}`);
         return new Response(
           JSON.stringify({ blocks: blockValidation1.blocks, requestId }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Log and retry — includes both schema errors and per-slide intent violations
+      // Only retry on schema failures (invalidCount > 0)
       const intentViolationMessages = blockValidation1.intentViolations?.map(v => v.message) ?? [];
       const allErrors = blockValidation1.errors;
-      console.warn(`[${requestId}] Validation failed (attempt 1): invalidBlocksCount=${blockValidation1.invalidCount}, intentViolations=${intentViolationMessages.length}, errors=${allErrors.slice(0, 3).join("; ")}`);
+      console.warn(`[${requestId}] TELEMETRY: retried=true, reason=schema_invalid, invalidBlocksCount=${blockValidation1.invalidCount}, intentViolations=${intentViolationMessages.length}, errors=${allErrors.slice(0, 3).join("; ")}`);
       console.log(`[${requestId}] Retrying with correction prompt...`);
 
       // Build correction with intent violations prominently listed

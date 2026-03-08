@@ -119,6 +119,11 @@ export default function Print() {
                 />
               </div>
             </div>
+            {/* Print-only footer */}
+            <div className="print-footer hidden print:flex items-center justify-between px-6 pb-3 text-[9px] text-[var(--deck-muted)]">
+              <span>{title}</span>
+              <span>{i + 1} / {blocks.length}</span>
+            </div>
           </div>
         ))}
       </div>
@@ -137,11 +142,14 @@ export default function Print() {
         }
         @media print {
           .screen-only { display: none !important; }
+          .print-footer { display: flex !important; }
           body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .print-slides { padding: 0 !important; }
           .slide-page {
             page-break-after: always;
             break-after: page;
+            page-break-inside: avoid;
+            break-inside: avoid;
             border: none !important;
             box-shadow: none !important;
             border-radius: 0 !important;
@@ -160,19 +168,20 @@ export default function Print() {
             max-height: 100%;
             overflow: hidden;
           }
-          /* Scale down content that overflows the slide */
           .slide-content-wrapper > * {
             max-width: 100%;
             overflow-wrap: break-word;
             word-wrap: break-word;
           }
-          /* Tables should shrink to fit */
+          /* Font size floor — never below 11px */
+          .slide-content-wrapper * {
+            font-size: max(var(--original-size, 1em), 11px);
+          }
           table {
             font-size: 0.85em;
             width: 100% !important;
             table-layout: fixed;
           }
-          /* Prevent large text from overflowing */
           h1, h2, h3, h4 {
             overflow-wrap: break-word;
             word-wrap: break-word;
@@ -180,7 +189,7 @@ export default function Print() {
           }
           @page {
             size: letter landscape;
-            margin: 0.35in;
+            margin: 0.5in 0.75in;
           }
         }
       `}</style>
