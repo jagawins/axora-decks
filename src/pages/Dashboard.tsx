@@ -503,7 +503,7 @@ const Dashboard = () => {
         />
 
         {/* Content area */}
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-4 md:p-6 pb-24 md:pb-6">
           {sidebarTab === 'library' && (
             <>
               {/* Brand Kit Card - top of library */}
