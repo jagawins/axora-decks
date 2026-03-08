@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DeckPlayer from "@/components/DeckPlayer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, X } from "lucide-react";
+import { ArrowLeft, Loader2, X, Share2 } from "lucide-react";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
 import { BrandKit } from "@/lib/brand";
 import type { BlockType } from "@/lib/blocks";
@@ -14,6 +14,8 @@ import { aiEngine } from "@/lib/ai-engine";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileShareSheet } from "@/components/MobileShareSheet";
 
 interface Block {
   id: string;
