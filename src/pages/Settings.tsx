@@ -531,6 +531,13 @@ function NotificationsTab() {
           </div>
         ))}
       </div>
+
+      <div className="rounded-lg border border-border/50 bg-muted/20 p-3 flex items-start gap-2">
+        <Bell className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+        <p className="text-xs text-muted-foreground">
+          Preferences are saved on this device only. They'll sync across devices once collaboration features launch.
+        </p>
+      </div>
     </div>
   );
 }
