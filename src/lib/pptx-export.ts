@@ -474,8 +474,9 @@ function addBlockToSlide(
       if (title) {
         slide.addText(title, { x: sx(0.8), y: sy(0.3), w: sx(8.4), h: sy(0.7), fontSize: 24, fontFace: headFont, color: fg, bold: true });
       }
-      }
       if (!data.length) break;
+      // Standardized 6-color exec palette
+      const EXEC_PALETTE = ["0F766E", "0369A1", "4338CA", "7C3AED", "BE185D", "B45309"];
       if (chartType === "donut") {
         const chartData = [{ name: "Data", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
         slide.addChart((pres as any).charts.DOUGHNUT, chartData, { x: sx(2), y: sy(1.3), w: sx(6), h: sy(4.5), showLegend: true, legendPos: "b", legendFontSize: 10, dataLabelPosition: "outEnd", dataLabelFontSize: 11, dataLabelColor: fg, chartColors: ["14B8A6", "06B6D4", "0EA5E9", "6366F1", "8B5CF6"] });
