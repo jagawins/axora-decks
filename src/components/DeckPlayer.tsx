@@ -232,7 +232,11 @@ export default function DeckPlayer({
 
           {/* Thumbnail strip */}
           {thumbnailStripOpen && (
-            <div className="overflow-x-auto flex gap-2 px-3 pb-3 snap-x snap-mandatory">
+            <div
+              className="overflow-x-auto flex gap-2 px-3 pb-3 snap-x snap-mandatory"
+              onTouchStart={e => e.stopPropagation()}
+              onTouchEnd={e => e.stopPropagation()}
+            >
               {slides.map((slide, i) => (
                 <button
                   key={i}
