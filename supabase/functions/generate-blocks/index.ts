@@ -1058,11 +1058,64 @@ CRITICAL DECISION MODE RULES:
 ` : '';
 
   const visualBlockRules = enableVisualBlocks && !decisionMode ? `
-VISUAL BLOCK SELECTION RULES (use these to choose the right block type):
+VISUAL BLOCK TYPE SELECTION (match content → type):
+| Content Pattern | Block Type |
+|---|---|
+| 2-6 numeric values | stat_block |
+| Quoted text/testimonial | quote_block |
+| Dates/phases/steps | timeline_block |
+| Comparisons/vs/pros-cons | comparison_table |
+| 3-4 distinct features | card_grid |
+| Presentation title | hero_header |
+| Summary + key points | exec_summary |
+| Call to action | cta_section |
+| Topic transition | section_divider |
+| Items with icons | icon_text_block |
+| Key insight/tip | framed_insight |
+| 3+ numeric data points (time-series→line, categorical→bar) | chart_block |
+| Exactly 3 strategic themes | three_pillars |
+| 2-axis positioning | two_by_two_matrix |
+| Recommendation + next steps | decision_next_steps |
 
-1. NUMBERS/METRICS → stat_block
-   - When content has 2-6 numeric values (percentages, money, counts)
-   - Example: "50% increase", "$1.2M ARR", "3x faster"
+BLOCK CONTENT SCHEMAS (required fields):
+- stat_block: {stats:[{value,label,trend?}]}
+- quote_block: {quote,author?,role?}
+- timeline_block: {events:[{date,title,status?}]}
+- comparison_table: {headers:[],rows:[{label,values:[]}]}
+- card_grid: {cards:[{title,description?,icon?}],columns?}
+- hero_header: {heading,subheading?,cta?:{text,href}}
+- exec_summary: {summary,keyPoints:[],bottomLine?}
+- cta_section: {heading,primaryCta?:{text,href}}
+- section_divider: {style?,label?}
+- icon_text_block: {items:[{icon,title,description?}]}
+- framed_insight: {insight,type?,source?}
+- chart_block: {chartType:"bar"|"line",data:[{label,value(number)}],title?}
+- three_pillars: {pillars:[{title,description?,icon?}](exactly 3)}
+- two_by_two_matrix: {xAxisLabel,yAxisLabel,quadrants:[{title,description?}](exactly 4)}
+- decision_next_steps: {recommendation,rationale:[],nextSteps:[{action,owner?,due?}],risks?:[]}
+
+WORD LIMITS PER BLOCK (hard constraints):
+- text body: max 60 words
+- list items: max 12 words each, max 6 items
+- card_grid description: max 25 words each
+- exec_summary summary: max 80 words
+- three_pillars description: max 30 words each
+
+HARD RULES:
+- ≥40% of blocks must be visual types (not text/list/heading/callout)
+- Data slides (revenue/metrics/KPI headings) → must include chart_block or stat_block
+- Strategy slides (pillar/framework/vision headings) → must include three_pillars or two_by_two_matrix
+- Decision slides (recommend/next steps headings) → must include decision_next_steps
+- Every block MUST include "sectionIndex" (0-based integer) in content
+` : '';
+
+  // Visual density rules
+  const visualDensityRules = enableVisualBlocks && !decisionMode && visualDensity ? `
+VISUAL DENSITY: ${visualDensity.toUpperCase()}
+${visualDensity === "minimal" ? "- ≥20% visual blocks" : ""}
+${visualDensity === "balanced" ? "- ≥50% visual blocks, every data slide must have chart/stat" : ""}
+${visualDensity === "visual" ? "- Every content slide must have a visual block" : ""}
+` : '';
    
 2. QUOTES/TESTIMONIALS → quote_block
    - When content contains quoted text or attribution
