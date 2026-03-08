@@ -265,6 +265,7 @@ export default function Create() {
     }
 
     setGenerating(true);
+    if (isMobile) setMobileOverlayVisible(true);
 
     try {
       // Build generation spec
