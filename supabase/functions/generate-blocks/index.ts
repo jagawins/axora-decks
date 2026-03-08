@@ -897,25 +897,27 @@ function validateBlocks(
     };
   }
 
-  // Per-slide intent enforcement (soft gate — returns violations for retry)
+  // Per-slide intent enforcement (soft — logged as warnings, not retry triggers)
   const intentViolations = outline
     ? checkPerSlideIntentViolations(validBlocks, outline, enableVisualBlocks)
     : [];
 
-  // Slide count enforcement
+  // Slide count enforcement (soft — logged, not retry trigger)
   const slideCountResult = enforceSlideCount(validBlocks, targetSlideCount);
   if (!slideCountResult.ok) {
     errors.push(slideCountResult.error!);
   }
 
-  // Visual density enforcement
+  // Visual density enforcement (soft — logged, not retry trigger)
   const densityResult = enforceVisualDensity(validBlocks, visualDensity);
   if (!densityResult.ok) {
     errors.push(densityResult.error!);
   }
 
+  // SPEED OPTIMIZATION: Only invalidCount > 0 triggers retry.
+  // Intent violations, density failures, and slide count mismatches are quality nudges — log them but accept the response.
   return {
-    valid: invalidCount === 0 && validBlocks.length > 0 && intentViolations.length === 0 && slideCountResult.ok && densityResult.ok,
+    valid: invalidCount === 0 && validBlocks.length > 0,
     invalidCount,
     errors: [
       ...errors,
