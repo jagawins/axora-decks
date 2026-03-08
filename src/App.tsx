@@ -64,6 +64,7 @@ const App = () => (
           <BrowserRouter>
             <AuthProvider>
               <SubscriptionProvider>
+              <PWAInstallPrompt />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/demo" element={<Demo />} />

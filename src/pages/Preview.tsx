@@ -216,6 +216,16 @@ export default function Preview() {
           </div>
         )}
       </main>
+
+      {/* Mobile share sheet */}
+      {isMobile && (
+        <MobileShareSheet
+          visible={showMobileShare}
+          shareUrl={shareToken ? `${window.location.origin}/p/${shareToken}` : window.location.href}
+          title={title}
+          onDismiss={() => setShowMobileShare(false)}
+        />
+      )}
     </div>
   );
 }

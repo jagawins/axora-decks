@@ -650,6 +650,9 @@ Create exactly ${cardsCount} slides/cards.`;
           )}
         </div>
       </main>
+
+      {/* Mobile generation overlay */}
+      <MobileGenerationOverlay visible={mobileOverlayVisible} promptText={prompt} />
     </>
   );
 }
