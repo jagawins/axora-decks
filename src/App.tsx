@@ -49,6 +49,7 @@ import HealthcareAIPresentations from "./pages/HealthcareAIPresentations";
 import NHSBoardPresentationGenerator from "./pages/NHSBoardPresentationGenerator";
 import APACEnterprisePresentations from "./pages/APACEnterprisePresentations";
 import ConversionDashboard from "./pages/ConversionDashboard";
+import Enterprise from "./pages/Enterprise";
 
 const queryClient = new QueryClient();
 
