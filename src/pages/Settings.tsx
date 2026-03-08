@@ -611,7 +611,7 @@ function ReferralTab({ userId }: { userId: string }) {
         <div className="flex gap-2">
           <Input value={referralLink} readOnly className="font-mono text-xs" />
           <Button variant="outline" size="icon" onClick={copyLink} className="shrink-0">
-            {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+            {copied ? <Check className="h-4 w-4 text-accent" /> : <Copy className="h-4 w-4" />}
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
