@@ -534,11 +534,13 @@ serve(async (req) => {
   if (!authHeader?.startsWith("Bearer ")) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
+  const token = authHeader.replace("Bearer ", "");
   const _authClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!);
-  const { error: _authError } = await _authClient.auth.getClaims(authHeader.replace("Bearer ", ""));
-  if (_authError) {
+  const { data: claimsData, error: _authError } = await _authClient.auth.getClaims(token);
+  if (_authError || !claimsData?.claims) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
+  const authenticatedUserId = claimsData.claims.sub;
 
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
@@ -554,9 +556,9 @@ serve(async (req) => {
       return json(400, { error: "project_id is required" });
     }
 
-    // Fetch project
+    // Fetch project (including user_id for ownership check)
     const projRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/projects?id=eq.${project_id}&select=title,brand_kit,theme`,
+      `${SUPABASE_URL}/rest/v1/projects?id=eq.${project_id}&select=title,brand_kit,theme,user_id`,
       {
         headers: {
           apikey: SERVICE_ROLE_KEY,
@@ -569,6 +571,11 @@ serve(async (req) => {
       return json(404, { error: "Project not found" });
     }
     const project = projects[0];
+
+    // Verify the authenticated user owns this project
+    if (project.user_id !== authenticatedUserId) {
+      return json(403, { error: "Forbidden" });
+    }
 
     // Fetch blocks ordered
     const blocksRes = await fetch(
