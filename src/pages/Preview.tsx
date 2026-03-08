@@ -30,12 +30,15 @@ export default function Preview() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("Untitled");
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME);
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
+  const [showMobileShare, setShowMobileShare] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
 
   // Inline edit state
   const [editingBlockIds, setEditingBlockIds] = useState<string[] | null>(null);
