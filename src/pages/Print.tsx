@@ -119,6 +119,11 @@ export default function Print() {
                 />
               </div>
             </div>
+            {/* Print-only footer */}
+            <div className="print-footer hidden print:flex items-center justify-between px-6 pb-3 text-[9px] text-[var(--deck-muted)]">
+              <span>{title}</span>
+              <span>{i + 1} / {blocks.length}</span>
+            </div>
           </div>
         ))}
       </div>
