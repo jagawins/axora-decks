@@ -103,7 +103,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return { error: error as Error | null };
   };
 
-  const signOut = async () => { await supabase.auth.signOut(); };
+  const signOut = async () => { await supabase.auth.signOut({ scope: 'global' }); };
 
   const value = {
     user, session, loading,
