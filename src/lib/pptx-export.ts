@@ -479,19 +479,18 @@ function addBlockToSlide(
       const EXEC_PALETTE = ["0F766E", "0369A1", "4338CA", "7C3AED", "BE185D", "B45309"];
       if (chartType === "donut") {
         const chartData = [{ name: "Data", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
-        slide.addChart((pres as any).charts.DOUGHNUT, chartData, { x: sx(2), y: sy(1.3), w: sx(6), h: sy(4.5), showLegend: true, legendPos: "b", legendFontSize: 10, dataLabelPosition: "outEnd", dataLabelFontSize: 11, dataLabelColor: fg, chartColors: ["14B8A6", "06B6D4", "0EA5E9", "6366F1", "8B5CF6"] });
+        slide.addChart((pres as any).charts.DOUGHNUT, chartData, { x: sx(2), y: sy(1.3), w: sx(6), h: sy(4), showLegend: true, legendPos: "b", legendFontSize: 10, dataLabelPosition: "outEnd", dataLabelFontSize: 11, dataLabelColor: fg, chartColors: EXEC_PALETTE });
       } else if (chartType === "area") {
         const chartData = [{ name: "Value", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
-        slide.addChart((pres as any).charts.AREA, chartData, { x: sx(0.8), y: sy(1.3), w: sx(8.4), h: sy(4.5), showLegend: false, chartColors: ["14B8A6"], lineSize: 2 });
+        slide.addChart((pres as any).charts.AREA, chartData, { x: sx(0.8), y: sy(1.3), w: sx(8.4), h: sy(3.7), showLegend: false, chartColors: [EXEC_PALETTE[0]], lineSize: 2, catAxisOrientation: "minMax", valAxisOrientation: "minMax", showValAxisTitle: !!yAxisLabel, valAxisTitle: yAxisLabel, showCatAxisTitle: !!xAxisLabel, catAxisTitle: xAxisLabel, valGridLine: { color: "DDDDDD", size: 0.5 } });
       } else if (chartType === "stacked_bar") {
         const total = data.reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
-        const colors = ["14B8A6", "06B6D4", "0EA5E9", "6366F1", "8B5CF6", "A855F7"];
         let xOff = sx(0.8);
         const barW = sx(8.4);
         data.forEach((d: any, i: number) => {
           const pct = total > 0 ? (Number(d.value) || 0) / total : 0;
           const w = barW * pct;
-          slide.addShape(pres.ShapeType.rect, { x: xOff, y: sy(1.8), w, h: sy(0.6), fill: { color: colors[i % colors.length] } });
+          slide.addShape(pres.ShapeType.rect, { x: xOff, y: sy(1.8), w, h: sy(0.6), fill: { color: EXEC_PALETTE[i % EXEC_PALETTE.length] } });
           if (pct > 0.06) slide.addText(`${Math.round(pct * 100)}%`, { x: xOff, y: sy(1.8), w, h: sy(0.6), fontSize: 10, fontFace: bodyFont, color: "FFFFFF", bold: true, align: "center", valign: "middle" });
           xOff += w;
         });
@@ -502,15 +501,15 @@ function addBlockToSlide(
           const col = i % cols; const row = Math.floor(i / cols);
           const x = sx(0.8) + col * legendColW; const y = legendY + row * sy(0.5);
           const pct = total > 0 ? Math.round(((Number(d.value) || 0) / total) * 100) : 0;
-          slide.addShape(pres.ShapeType.rect, { x, y: y + 0.05, w: 0.15, h: 0.15, fill: { color: colors[i % colors.length] }, rectRadius: 0.02 });
+          slide.addShape(pres.ShapeType.rect, { x, y: y + 0.05, w: 0.15, h: 0.15, fill: { color: EXEC_PALETTE[i % EXEC_PALETTE.length] }, rectRadius: 0.02 });
           slide.addText(`${String(d.label || "")} (${pct}%)`, { x: x + 0.25, y, w: legendColW - 0.3, h: sy(0.3), fontSize: 10, fontFace: bodyFont, color: fg });
         });
       } else if (chartType === "line") {
         const chartData = [{ name: "Value", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
-        slide.addChart((pres as any).charts.LINE, chartData, { x: sx(0.8), y: sy(1.3), w: sx(8.4), h: sy(4.5), showLegend: false, chartColors: [accent], lineSize: 2, lineDataSymbol: "circle", lineDataSymbolSize: 6 });
+        slide.addChart((pres as any).charts.LINE, chartData, { x: sx(0.8), y: sy(1.3), w: sx(8.4), h: sy(3.7), showLegend: false, chartColors: [accent], lineSize: 2, lineDataSymbol: "circle", lineDataSymbolSize: 6, catAxisOrientation: "minMax", valAxisOrientation: "minMax", showValAxisTitle: !!yAxisLabel, valAxisTitle: yAxisLabel, showCatAxisTitle: !!xAxisLabel, catAxisTitle: xAxisLabel, valGridLine: { color: "DDDDDD", size: 0.5 } });
       } else {
         const chartData = [{ name: "Value", labels: data.map((d: any) => String(d.label || "")), values: data.map((d: any) => Number(d.value) || 0) }];
-        slide.addChart((pres as any).charts.BAR, chartData, { x: sx(0.8), y: sy(1.3), w: sx(8.4), h: sy(4.5), showLegend: false, barDir: "col", chartColors: [accent] });
+        slide.addChart((pres as any).charts.BAR, chartData, { x: sx(0.8), y: sy(1.3), w: sx(8.4), h: sy(3.7), showLegend: false, barDir: "col", chartColors: [accent], catAxisOrientation: "minMax", valAxisOrientation: "minMax", showValAxisTitle: !!yAxisLabel, valAxisTitle: yAxisLabel, showCatAxisTitle: !!xAxisLabel, catAxisTitle: xAxisLabel, valGridLine: { color: "DDDDDD", size: 0.5 } });
       }
       break;
     }

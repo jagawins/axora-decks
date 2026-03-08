@@ -15,6 +15,7 @@ const Onboarding = () => {
   const { toast } = useToast();
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [genStage, setGenStage] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) {
