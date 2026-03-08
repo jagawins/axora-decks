@@ -1,12 +1,20 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import {
   Search, Plus, Download, MoreHorizontal, Palette, Scissors, Archive,
-  Check,
+  Check, Upload, FileJson,
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -337,9 +345,63 @@ export default function ThemesLibrary() {
   const [filter, setFilter] = useState<ThemeFilter>('standard');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeThemeId, setActiveThemeId] = useState<string>('pearl');
+  const [importOpen, setImportOpen] = useState(false);
+  const [importJson, setImportJson] = useState('');
+  const [importError, setImportError] = useState('');
+  const [customThemes, setCustomThemes] = useState<ThemeDefinition[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const allThemes = useMemo(() => [
+    ...THEME_LIBRARY,
+    ...customThemes,
+  ], [customThemes]);
+
+  const validateTheme = (obj: any): obj is Omit<ThemeDefinition, 'id' | 'category'> => {
+    const required = ['label', 'bg', 'fg', 'accent', 'surface', 'muted', 'gradient', 'headingFont', 'bodyFont'];
+    return required.every((k) => typeof obj[k] === 'string' && obj[k].trim());
+  };
+
+  const handleImport = () => {
+    setImportError('');
+    try {
+      const parsed = JSON.parse(importJson.trim());
+      const themes = Array.isArray(parsed) ? parsed : [parsed];
+      const imported: ThemeDefinition[] = [];
+      for (const t of themes) {
+        if (!validateTheme(t)) {
+          setImportError(`Theme "${t.label || 'unknown'}" is missing required fields (label, bg, fg, accent, surface, muted, gradient, headingFont, bodyFont).`);
+          return;
+        }
+        imported.push({
+          ...t,
+          id: (t as any).id || `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          category: 'custom' as const,
+        });
+      }
+      setCustomThemes((prev) => [...prev, ...imported]);
+      setImportJson('');
+      setImportOpen(false);
+      setFilter('custom');
+      toast({ title: `${imported.length} theme${imported.length > 1 ? 's' : ''} imported`, description: 'Themes added to your custom collection.' });
+    } catch {
+      setImportError('Invalid JSON. Please paste valid theme JSON.');
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setImportJson(ev.target?.result as string || '');
+      setImportError('');
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
   const filteredThemes = useMemo(() => {
-    let themes = THEME_LIBRARY.filter((t) => t.category === filter);
+    let themes = allThemes.filter((t) => t.category === filter);
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       themes = themes.filter(
@@ -350,7 +412,7 @@ export default function ThemesLibrary() {
       );
     }
     return themes;
-  }, [filter, searchQuery]);
+  }, [filter, searchQuery, allThemes]);
 
   const FILTERS: { id: ThemeFilter; label: string; icon: React.ReactNode }[] = [
     { id: 'custom', label: 'Custom', icon: <Scissors className="h-4 w-4" /> },
@@ -377,7 +439,7 @@ export default function ThemesLibrary() {
           <Plus className="h-4 w-4" />
           New theme
         </Button>
-        <Button variant="outline" className="gap-2 rounded-lg">
+        <Button variant="outline" className="gap-2 rounded-lg" onClick={() => { setImportOpen(true); setImportJson(''); setImportError(''); }}>
           <Download className="h-4 w-4" />
           Import theme
         </Button>
@@ -450,6 +512,62 @@ export default function ThemesLibrary() {
           )}
         </div>
       )}
+
+      {/* Import Theme Dialog */}
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileJson className="h-5 w-5 text-accent" />
+              Import Theme
+            </DialogTitle>
+            <DialogDescription>
+              Paste theme JSON or upload a <code>.json</code> file. Each theme needs: label, bg, fg, accent, surface, muted, gradient, headingFont, bodyFont.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* File upload */}
+            <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleFileUpload} />
+            <Button variant="outline" className="w-full gap-2" onClick={() => fileInputRef.current?.click()}>
+              <Upload className="h-4 w-4" />
+              Upload .json file
+            </Button>
+
+            <div className="text-center text-xs text-muted-foreground">or paste JSON below</div>
+
+            <Textarea
+              value={importJson}
+              onChange={(e) => { setImportJson(e.target.value); setImportError(''); }}
+              placeholder={`{
+  "label": "My Theme",
+  "bg": "#0A0A0A",
+  "fg": "#FAFAFA",
+  "accent": "#38BDF8",
+  "surface": "#1A1A1A",
+  "muted": "#9CA3AF",
+  "gradient": "linear-gradient(135deg, #0f172a, #1e1b4b)",
+  "headingFont": "Inter",
+  "bodyFont": "Inter"
+}`}
+              rows={10}
+              className="font-mono text-xs"
+            />
+
+            {importError && (
+              <p className="text-sm text-destructive">{importError}</p>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" onClick={() => setImportOpen(false)}>Cancel</Button>
+              <Button onClick={handleImport} disabled={!importJson.trim()} className="gap-2">
+                <Download className="h-4 w-4" />
+                Import
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
