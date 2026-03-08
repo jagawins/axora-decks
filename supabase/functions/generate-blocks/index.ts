@@ -1118,12 +1118,6 @@ ${visualDensity === "visual" ? "- Every content slide must have a visual block" 
 ` : '';
 
 
-5. 3-4 DISTINCT ITEMS → card_grid
-   - Features, benefits, services, products
-   - NOT for bullet lists (use list block for those)
-
-6. LONG TEXT (>200 words) → two_col
-   - Split for readability
 
 7. KEY INSIGHT/TIP → framed_insight
    - Important callouts that need emphasis
