@@ -174,15 +174,17 @@ export default function Preview() {
       </header>
 
       <main className="flex-1 relative">
-        <DeckPlayer
-          blocks={blocks}
-          title={title}
-          theme={theme}
-          brandKit={brandKit}
-          initialSlide={Math.max(0, initialSlide)}
-          onEditSlide={(blockIds) => setEditingBlockIds(blockIds)}
-          onQuickAction={handleQuickAction}
-        />
+        <Suspense fallback={<div className="flex-1 flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-accent" /></div>}>
+          <DeckPlayer
+            blocks={blocks}
+            title={title}
+            theme={theme}
+            brandKit={brandKit}
+            initialSlide={Math.max(0, initialSlide)}
+            onEditSlide={(blockIds) => setEditingBlockIds(blockIds)}
+            onQuickAction={handleQuickAction}
+          />
+        </Suspense>
 
         {/* Inline edit slide-over panel — desktop only */}
         {!isMobile && editingBlockIds && editBlocks.length > 0 && (
