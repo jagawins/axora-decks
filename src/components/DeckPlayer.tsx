@@ -91,7 +91,8 @@ export default function DeckPlayer({
         duration_seconds: durationSeconds,
         viewer_hash: viewerHash.current,
       });
-      navigator.sendBeacon?.(url, body) ||
+      const blob = new Blob([body], { type: "application/json" });
+      navigator.sendBeacon?.(url, blob) ||
         fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
