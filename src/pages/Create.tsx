@@ -606,7 +606,7 @@ Create exactly ${cardsCount} slides/cards.`;
                 </div>
               )}
 
-              <div className="space-y-3">
+              <div className="space-y-3" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + var(--keyboard-height, 0px))', transition: 'padding-bottom 0.1s ease' }}>
                 <Label htmlFor="prompt" className="text-sm font-medium">
                   What would you like to create?
                 </Label>
