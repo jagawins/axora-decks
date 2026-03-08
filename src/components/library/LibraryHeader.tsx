@@ -21,9 +21,9 @@ export const LibraryHeader = ({
   onSignOut,
 }: LibraryHeaderProps) => {
   return (
-    <header className="h-16 border-b border-border bg-card/50 backdrop-blur-xl flex items-center justify-between px-6">
+    <header className="h-16 border-b border-border bg-card/50 backdrop-blur-xl flex items-center justify-between px-4 md:px-6 gap-3">
       {/* Search */}
-      <div className="relative w-80">
+      <div className="relative w-full md:w-80">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search decks... (⌘K)"
