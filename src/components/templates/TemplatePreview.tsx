@@ -10,8 +10,8 @@ interface TemplatePreviewProps {
 }
 
 // Design size for the slide (16:9 aspect ratio)
-const DESIGN_WIDTH = 1280;
-const DESIGN_HEIGHT = 720;
+const DESIGN_WIDTH = 1920;
+const DESIGN_HEIGHT = 1080;
 const MIN_SCALE = 0.05;
 const MAX_SCALE = 1;
 
