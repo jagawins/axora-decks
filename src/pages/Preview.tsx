@@ -67,6 +67,12 @@ export default function Preview() {
       setTitle(p.title || "Untitled");
       setTheme((p.theme as ThemeId) || DEFAULT_THEME);
       setBrandKit((p.brand_kit as BrandKit) || null);
+      setShareToken(p.share_token ? String(p.share_token) : null);
+
+      // Show mobile share sheet on first load (from generate flow)
+      if (isMobile && searchParams.get("new") === "1") {
+        setShowMobileShare(true);
+      }
 
       const { data: blocksData, error: be } = await supabase
         .from("blocks")
