@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { HEADING_FONTS, BODY_FONTS, type HeadingFont, type BodyFont, type BrandKit } from "@/lib/brand";
 import { THEMES, type ThemeId } from "@/lib/themes";
+import { SUBSCRIPTION_TIERS } from "@/lib/subscription";
 import { cn } from "@/lib/utils";
 import {
   Settings as SettingsIcon,
