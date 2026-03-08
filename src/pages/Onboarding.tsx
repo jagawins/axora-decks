@@ -40,6 +40,7 @@ const Onboarding = () => {
     if (!prompt.trim() || !user) return;
 
     setGenerating(true);
+    setGenStage("Creating project…");
     try {
       const { data: newProject, error: projectError } = await supabase
         .from("projects")
@@ -49,11 +50,13 @@ const Onboarding = () => {
 
       if (projectError || !newProject) throw new Error("Failed to create project");
 
+      setGenStage("Building outline…");
       const result = await aiEngine.generateFromPrompt({
         topic: prompt.trim(),
         tone: "executive",
       });
 
+      setGenStage("Assembling slides…");
       if (result.blocks.length > 0) {
         const blocksToInsert = result.blocks.map((block, index) => ({
           project_id: newProject.id,
@@ -64,6 +67,7 @@ const Onboarding = () => {
         await supabase.from("blocks").insert(blocksToInsert as any);
       }
 
+      setGenStage("Finalising…");
       toast({
         title: "Your first deck is ready!",
         description: "AI generated a complete draft for you.",
