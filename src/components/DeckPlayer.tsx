@@ -201,7 +201,7 @@ export default function DeckPlayer({
         {...swipeHandlers}
       >
         {/* Slide canvas — full screen */}
-        <div className="flex-1 flex items-center justify-center p-3 overflow-hidden bg-[var(--deck-bg)]">
+        <div className="flex-1 flex items-center justify-center p-3 overflow-hidden bg-[var(--deck-bg)]" style={{ touchAction: 'pan-y pinch-zoom' }}>
           <div
             key={slideKey}
             className={`w-full h-full bg-[var(--deck-bg)] text-[var(--deck-fg)] rounded-xl p-5 flex items-center justify-center overflow-auto ${animClass}`}
