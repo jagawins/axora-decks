@@ -401,7 +401,7 @@ export default function ThemesLibrary() {
   };
 
   const filteredThemes = useMemo(() => {
-    let themes = THEME_LIBRARY.filter((t) => t.category === filter);
+    let themes = allThemes.filter((t) => t.category === filter);
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       themes = themes.filter(
@@ -412,7 +412,7 @@ export default function ThemesLibrary() {
       );
     }
     return themes;
-  }, [filter, searchQuery]);
+  }, [filter, searchQuery, allThemes]);
 
   const FILTERS: { id: ThemeFilter; label: string; icon: React.ReactNode }[] = [
     { id: 'custom', label: 'Custom', icon: <Scissors className="h-4 w-4" /> },
