@@ -1994,6 +1994,7 @@ serve(async (req) => {
       );
     }
 
+    const generationStart = Date.now();
     console.log(`[${requestId}] Generating blocks for: "${outline.title}" density: ${density || "default"}, visualDensity: ${visualDensity}, visualBlocks: ${enableVisualBlocks}, decisionMode: ${decisionMode}, targetSlideCount: ${targetSlideCount}`);
 
     const userPrompt = decisionMode 
