@@ -482,7 +482,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Sidebar — hidden on mobile */}
-      <div className="hidden md:block">
+      <div className="hidden md:flex md:flex-col md:h-screen md:sticky md:top-0">
         <LibrarySidebar 
           activeTab={sidebarTab}
           onTabChange={handleSidebarTabChange}
