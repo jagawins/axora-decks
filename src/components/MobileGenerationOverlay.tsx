@@ -35,7 +35,7 @@ export function MobileGenerationOverlay({ visible, promptText }: MobileGeneratio
       setStageIndex((prev) => Math.min(prev + 1, STAGES.length - 1));
     }, 3000);
     return () => clearInterval(interval);
-  }, [visible]);
+  }, [visible, instanceKey]);
 
   if (!visible) return null;
 

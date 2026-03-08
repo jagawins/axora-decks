@@ -219,7 +219,7 @@ export default function DeckPlayer({
         </div>
 
         {/* Slide indicator at bottom */}
-        <div className="safe-area-bottom bg-[var(--deck-bg)] border-t border-[var(--deck-border)]">
+        <div className="bg-[var(--deck-bg)] border-t border-[var(--deck-border)]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <button
             className="w-full flex items-center justify-center gap-2 py-3 touch-target"
             onClick={() => setThumbnailStripOpen(!thumbnailStripOpen)}

@@ -42,8 +42,8 @@ export function MobileShareSheet({ visible, shareUrl, title, onDismiss }: Mobile
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[90] animate-slide-up safe-area-bottom">
-      <div className="mx-4 mb-4 p-5 rounded-2xl bg-card border border-border shadow-2xl space-y-3">
+    <div className="fixed inset-x-0 bottom-0 z-[90] animate-slide-up">
+      <div className="mx-4 p-5 rounded-2xl bg-card border border-border shadow-2xl space-y-3" style={{ marginBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
         <p className="text-sm font-semibold text-foreground text-center">Your deck is ready! 🎉</p>
 
         <Button

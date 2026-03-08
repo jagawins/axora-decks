@@ -170,6 +170,23 @@ export default function Create() {
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
   const [mobileOverlayVisible, setMobileOverlayVisible] = useState(false);
 
+  // iOS keyboard height detection via visualViewport
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const handler = () => {
+      document.documentElement.style.setProperty(
+        '--keyboard-height',
+        `${window.innerHeight - vv.height}px`
+      );
+    };
+    vv.addEventListener('resize', handler);
+    return () => {
+      vv.removeEventListener('resize', handler);
+      document.documentElement.style.setProperty('--keyboard-height', '0px');
+    };
+  }, []);
+
   // Load brand kit
   useEffect(() => {
     if (!user) return;
