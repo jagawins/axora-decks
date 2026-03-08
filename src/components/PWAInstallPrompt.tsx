@@ -16,6 +16,11 @@ export function PWAInstallPrompt() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
+    // Already running as installed PWA — skip entirely
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || (window.navigator as any).standalone === true;
+    if (isStandalone) return;
+
     // Check visit count
     const visits = parseInt(localStorage.getItem("axiva_visits") || "0", 10);
     localStorage.setItem("axiva_visits", String(visits + 1));

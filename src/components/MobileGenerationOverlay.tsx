@@ -20,17 +20,22 @@ interface MobileGenerationOverlayProps {
 
 export function MobileGenerationOverlay({ visible, promptText }: MobileGenerationOverlayProps) {
   const [stageIndex, setStageIndex] = useState(0);
+  const [instanceKey, setInstanceKey] = useState(0);
 
   useEffect(() => {
-    if (!visible) {
-      setStageIndex(0);
-      return;
-    }
+    if (!visible) return;
+    // Reset on each new show (handles re-generation in same session)
+    setStageIndex(0);
+    setInstanceKey(k => k + 1);
+  }, [visible]);
+
+  useEffect(() => {
+    if (!visible) return;
     const interval = setInterval(() => {
       setStageIndex((prev) => Math.min(prev + 1, STAGES.length - 1));
     }, 3000);
     return () => clearInterval(interval);
-  }, [visible]);
+  }, [visible, instanceKey]);
 
   if (!visible) return null;
 

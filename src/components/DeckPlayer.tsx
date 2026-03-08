@@ -91,7 +91,8 @@ export default function DeckPlayer({
         duration_seconds: durationSeconds,
         viewer_hash: viewerHash.current,
       });
-      navigator.sendBeacon?.(url, body) ||
+      const blob = new Blob([body], { type: "application/json" });
+      navigator.sendBeacon?.(url, blob) ||
         fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
@@ -219,7 +220,7 @@ export default function DeckPlayer({
         </div>
 
         {/* Slide indicator at bottom */}
-        <div className="safe-area-bottom bg-[var(--deck-bg)] border-t border-[var(--deck-border)]">
+        <div className="bg-[var(--deck-bg)] border-t border-[var(--deck-border)]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <button
             className="w-full flex items-center justify-center gap-2 py-3 touch-target"
             onClick={() => setThumbnailStripOpen(!thumbnailStripOpen)}
@@ -232,7 +233,11 @@ export default function DeckPlayer({
 
           {/* Thumbnail strip */}
           {thumbnailStripOpen && (
-            <div className="overflow-x-auto flex gap-2 px-3 pb-3 snap-x snap-mandatory">
+            <div
+              className="overflow-x-auto flex gap-2 px-3 pb-3 snap-x snap-mandatory"
+              onTouchStart={e => e.stopPropagation()}
+              onTouchEnd={e => e.stopPropagation()}
+            >
               {slides.map((slide, i) => (
                 <button
                   key={i}
