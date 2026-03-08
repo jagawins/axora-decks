@@ -99,7 +99,11 @@ const Pricing = () => {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const [isAnnual, setIsAnnual] = useState(true);
 
-  const handlePlanClick = async (tier: "free" | "pro" | "team") => {
+  const handlePlanClick = async (tier: "free" | "pro" | "team" | "enterprise") => {
+    if (tier === "enterprise") {
+      navigate("/enterprise");
+      return;
+    }
     // If not logged in, redirect to auth
     if (!user) {
       navigate('/auth');
