@@ -145,7 +145,7 @@ const Onboarding = () => {
             {generating ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                Generating your deck…
+                {genStage || "Generating your deck…"}
               </>
             ) : (
               <>
