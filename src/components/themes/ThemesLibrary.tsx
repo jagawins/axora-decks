@@ -374,7 +374,7 @@ export default function ThemesLibrary() {
         }
         imported.push({
           ...t,
-          id: t.id || `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          id: (t as any).id || `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           category: 'custom' as const,
         });
       }
