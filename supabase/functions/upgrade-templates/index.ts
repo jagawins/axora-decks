@@ -1110,8 +1110,8 @@ serve(async (req) => {
 
     // Verify JWT
     const _authClient = createClient(supabaseUrl, supabaseAnonKey);
-    const { error: _authError } = await _authClient.auth.getClaims(authHeader.replace("Bearer ", ""));
-    if (_authError) {
+    const { data: { user: _authUser }, error: _authError } = await _authClient.auth.getUser(authHeader.replace("Bearer ", ""));
+    if (_authError || !_authUser) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 

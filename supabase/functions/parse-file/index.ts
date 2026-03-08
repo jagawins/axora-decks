@@ -115,8 +115,8 @@ serve(async (req) => {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
   const _parseAuthClient = createSupabaseClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!);
-  const { error: _parseAuthError } = await _parseAuthClient.auth.getClaims(authHeader.replace("Bearer ", ""));
-  if (_parseAuthError) {
+  const { data: { user: _parseAuthUser }, error: _parseAuthError } = await _parseAuthClient.auth.getUser(authHeader.replace("Bearer ", ""));
+  if (_parseAuthError || !_parseAuthUser) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
