@@ -400,7 +400,7 @@ Create exactly ${cardsCount} slides/cards.`;
 
           {/* Entry Cards */}
           {!activeEntry && (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
               {ENTRY_CARDS.map((card) => (
                 <button
                   key={card.id}
