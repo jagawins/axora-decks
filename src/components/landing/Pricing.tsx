@@ -224,10 +224,12 @@ const Pricing = () => {
                   <span className="text-4xl font-bold">
                     {isAnnual ? plan.yearlyPrice : plan.monthlyPrice}
                   </span>
-                  <span className="text-muted-foreground">
-                    /{isAnnual ? 'year' : 'month'}
-                    {plan.perUser && '/user'}
-                  </span>
+                  {plan.tier !== "enterprise" && (
+                    <span className="text-muted-foreground">
+                      /{isAnnual ? 'year' : 'month'}
+                      {plan.perUser && '/user'}
+                    </span>
+                  )}
                 </div>
                 {isAnnual && plan.yearlySavings && (
                   <p className="text-xs text-accent font-medium">{plan.yearlySavings}</p>
