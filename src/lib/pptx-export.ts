@@ -469,8 +469,11 @@ function addBlockToSlide(
       const title = String(c.title || "");
       const chartType = String(c.chartType || "bar");
       const data = Array.isArray(c.data) ? c.data : [];
+      const xAxisLabel = String(c.xAxisLabel || "");
+      const yAxisLabel = String(c.yAxisLabel || "");
       if (title) {
         slide.addText(title, { x: sx(0.8), y: sy(0.3), w: sx(8.4), h: sy(0.7), fontSize: 24, fontFace: headFont, color: fg, bold: true });
+      }
       }
       if (!data.length) break;
       if (chartType === "donut") {
