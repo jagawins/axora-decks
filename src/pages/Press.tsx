@@ -33,13 +33,13 @@ const SHOW_COVERAGE = false; // flip to true when real coverage exists
 const companyFacts = [
   { label: "Founded", value: "2024" },
   { label: "Category", value: "AI Productivity / Executive Tools" },
-  { label: "Headquarters", value: "London, UK" },
+  { label: "Headquarters", value: "San Francisco, CA" },
   { label: "What we do", value: "Build board-ready decks from a single prompt in under 2 minutes" },
   { label: "Founder", value: "Jag Mariappan" },
   { label: "Website", value: "axiva.ai" },
 ];
 
-const boilerplate = `Axiva.ai is an AI executive deck generator that enables CFOs, founders, and executive teams to build board-ready presentations in under 2 minutes. The company is headquartered in London, UK and serves growth-stage companies, VC-backed startups, and enterprise executive teams. For more information, visit axiva.ai.`;
+const boilerplate = `Axiva.ai is an AI executive deck generator that enables CFOs, founders, and executive teams to build board-ready presentations in under 2 minutes. The company is headquartered in San Francisco, CA and serves growth-stage companies, VC-backed startups, and enterprise executive teams. For more information, visit axiva.ai.`;
 
 export default function Press() {
   const [copied, setCopied] = useState(false);
