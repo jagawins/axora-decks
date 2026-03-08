@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import DeckPlayer from "@/components/DeckPlayer";
+const DeckPlayer = lazy(() => import("@/components/DeckPlayer"));
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, X, Share2 } from "lucide-react";
 import { ThemeId, DEFAULT_THEME } from "@/lib/themes";
@@ -174,15 +174,17 @@ export default function Preview() {
       </header>
 
       <main className="flex-1 relative">
-        <DeckPlayer
-          blocks={blocks}
-          title={title}
-          theme={theme}
-          brandKit={brandKit}
-          initialSlide={Math.max(0, initialSlide)}
-          onEditSlide={(blockIds) => setEditingBlockIds(blockIds)}
-          onQuickAction={handleQuickAction}
-        />
+        <Suspense fallback={<div className="flex-1 flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-accent" /></div>}>
+          <DeckPlayer
+            blocks={blocks}
+            title={title}
+            theme={theme}
+            brandKit={brandKit}
+            initialSlide={Math.max(0, initialSlide)}
+            onEditSlide={(blockIds) => setEditingBlockIds(blockIds)}
+            onQuickAction={handleQuickAction}
+          />
+        </Suspense>
 
         {/* Inline edit slide-over panel — desktop only */}
         {!isMobile && editingBlockIds && editBlocks.length > 0 && (
