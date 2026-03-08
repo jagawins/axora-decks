@@ -2071,17 +2071,20 @@ ${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideC
       const blockValidation1 = validateBlocks(parsed1.blocks, enableVisualBlocks, outline, targetSlideCount, decisionMode, visualDensity);
 
       if (blockValidation1.valid) {
-        console.log(`[${requestId}] Generated ${blockValidation1.blocks.length} valid blocks`);
+        const latencyMs = Date.now() - generationStart;
+        const intentWarnings = blockValidation1.intentViolations?.length ?? 0;
+        const densityWarnings = blockValidation1.errors.filter(e => e.includes("Visual density")).length;
+        console.log(`[${requestId}] TELEMETRY: retried=false, blocks=${blockValidation1.blocks.length}, latencyMs=${latencyMs}, intentWarnings=${intentWarnings}, densityWarnings=${densityWarnings}`);
         return new Response(
           JSON.stringify({ blocks: blockValidation1.blocks, requestId }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Log and retry — includes both schema errors and per-slide intent violations
+      // Only retry on schema failures (invalidCount > 0)
       const intentViolationMessages = blockValidation1.intentViolations?.map(v => v.message) ?? [];
       const allErrors = blockValidation1.errors;
-      console.warn(`[${requestId}] Validation failed (attempt 1): invalidBlocksCount=${blockValidation1.invalidCount}, intentViolations=${intentViolationMessages.length}, errors=${allErrors.slice(0, 3).join("; ")}`);
+      console.warn(`[${requestId}] TELEMETRY: retried=true, reason=schema_invalid, invalidBlocksCount=${blockValidation1.invalidCount}, intentViolations=${intentViolationMessages.length}, errors=${allErrors.slice(0, 3).join("; ")}`);
       console.log(`[${requestId}] Retrying with correction prompt...`);
 
       // Build correction with intent violations prominently listed
