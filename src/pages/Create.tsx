@@ -423,6 +423,36 @@ Create exactly ${cardsCount} slides/cards.`;
             </p>
           </div>
 
+          {/* Mode Toggle — shown before entry cards or when scratch is active */}
+          {(!activeEntry || activeEntry === "scratch") && (
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <button
+                onClick={() => setResearchMode(false)}
+                className={cn(
+                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                  !researchMode
+                    ? "bg-accent text-accent-foreground shadow-md"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Sparkles className="h-4 w-4 inline mr-1.5" />
+                Quick
+              </button>
+              <button
+                onClick={() => { setResearchMode(true); setActiveEntry("scratch"); }}
+                className={cn(
+                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                  researchMode
+                    ? "bg-accent text-accent-foreground shadow-md"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <FlaskConical className="h-4 w-4 inline mr-1.5" />
+                Research Mode
+              </button>
+            </div>
+          )}
+
           {/* Entry Cards */}
           {!activeEntry && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
