@@ -1,80 +1,120 @@
 
 
-## Plan: Competitive Demo Strategy — Homepage Live Input + Full Deck Gallery + Enhanced How-It-Works
+# Deep Research Mode — Final Implementation Plan
 
-This is a significant conversion optimization effort across 3 pages. Here's what we'll build:
+All reviewer feedback incorporated. This is the build-ready spec.
 
----
+## Build Order
 
-### 1. Homepage Hero — Live "Outline to Deck" Preview (Gamma-style)
+1. **`deep-research` edge function** — highest risk, validate Gemini tool-calling output before any UI
+2. **`AlignmentStep` + `FileUploadPills`** — pure UI, no dependencies
+3. **`ResearchStep`** — wires to edge function, handles 8-15s latency
+4. **`OutlineStep`** — dnd-kit + inline editing via reducer
+5. **`GenerateStep`** — wiring existing pipeline with explicit failure states
+6. **Wire into `Create.tsx`** — mode toggle + conditional render
 
-**File: `src/components/landing/Hero.tsx`**
+## Database Migration
 
-Add a collapsible "Try it now" section below the CTA buttons:
-- A textarea with placeholder: "Paste your outline, meeting notes, or just describe your deck..."
-- A "Generate Preview" button
-- On click: calls the `generate-outline` edge function (no auth required) and renders a 3-slide preview card inline
-- No sign-up gate — the preview is visible immediately
-- After preview renders, show a "Create Full Deck →" CTA that links to `/create` (pre-filling the prompt)
-- Includes a set of 3 quick-start chips ("Board update for Q4", "Series A pitch", "GTM strategy") so visitors don't need to think of input
+```sql
+CREATE TABLE public.analytics_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid,              -- nullable for future anonymous tracking
+  session_id text,           -- client-generated UUID from sessionStorage
+  event text NOT NULL,
+  properties jsonb DEFAULT '{}',
+  created_at timestamptz DEFAULT now()
+);
 
-**New component: `src/components/landing/HeroLiveDemo.tsx`**
-- Manages the textarea, loading state, and preview rendering
-- Calls `supabase.functions.invoke('generate-outline', { body: { topic, tone: 'executive', slideCount: 3 } })`
-- Renders the outline as styled slide cards (title + bullets) with theme colors — not actual block rendering, just a clean preview
-- Stores the prompt in URL params or sessionStorage so `/create` can pick it up
+ALTER TABLE public.analytics_events ENABLE ROW LEVEL SECURITY;
 
----
+CREATE POLICY "Authenticated users can insert own events"
+  ON public.analytics_events FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = user_id);
 
-### 2. Templates Page — Full Deck Gallery (Beautiful.ai-style)
+CREATE POLICY "Anonymous can insert events"
+  ON public.analytics_events FOR INSERT TO anon
+  WITH CHECK (user_id IS NULL);
+```
 
-**File: `src/components/landing/ExampleDecks.tsx`**
+## Files to Create
 
-Enhance the existing ExampleDecks component:
-- Add a "Browse All Slides" button on each card that opens the existing `TemplatePreviewModal` (already wired up)
-- Add a dedicated section header: "See What AXIVA Creates" with a subtitle about no sign-up needed
-- This is already mostly working — the main fix is making sure the modal opens reliably and the slide previews are populated
+### 1. `supabase/functions/deep-research/index.ts`
+- Auth via `getUser()` pattern (consistent with all existing functions)
+- Model: `google/gemini-2.5-flash` via Lovable AI gateway
+- Tool-calling for structured output: `{ findings[], conflicts[], summary }`
+- **Hallucination guardrail in system prompt**: instruct model to set `source_url: null` when uncertain, add `verify_required: true` on uncertain stats, never invent URLs
+- Handle 429/402 errors and surface to client
 
-**File: `src/pages/Templates.tsx`**
-- Move the ExampleDecks section to the top with a more prominent heading: "Complete Example Decks — Browse Without Signing Up"
+### 2. `src/types/research-mode.ts`
+Shared types:
+- `AlignmentData` — goal, audience, outcome, mustIncludeFacts, fileExtracts
+- `ResearchFinding` — title, detail, source_url (nullable), source_label, data_points[], verify_required
+- `ResearchBrief` — findings[], conflicts[], summary
+- `OutlineSlide` — id (stable UUID), title, keyPoints (max 3), dataPoint?
+- `OutlineAction` — union type for reducer (reorder, edit_title, edit_points, add, delete)
+- Extended `BlockMeta` — schema_version, source_url?, source_label?, research_mode?, research_session_id?
 
----
+### 3. `src/components/create/ResearchModeWizard.tsx`
+- 4-step container with progress bar (Step 1 of 4)
+- Generates `research_session_id` (UUID) at mount
+- Manages all transient state: alignment, research brief, outline, file extracts
+- Step navigation preserves all state — going back never loses data
 
-### 3. How It Works — Interactive Step-by-Step Tour (Pitch-style)
+### 4. `src/components/create/AlignmentStep.tsx`
+- Goal textarea (required), audience dropdown (Board/Investors/C-Suite/Sales/Team/Other), outcome textarea (required), must-include facts (optional)
+- `FileUploadPills` component for context files
+- "Start Research →" button fires step tracking event
 
-**File: `src/pages/HowItWorks.tsx`**
+### 5. `src/components/create/FileUploadPills.tsx`
+- Up to 3 files (PDF/DOCX/TXT/MD), shown as pills with remove X
+- Calls existing `parse-file` edge function for text extraction
+- Stores extracted text in parent state
 
-Replace the current static 4-card grid with an interactive scrolling walkthrough:
-- Each step becomes a full-width section with a left description panel and a right "mock UI" panel
-- The mock UI shows a stylized representation of each step:
-  - Step 1: Animated textarea with typing effect
-  - Step 2: Outline cards appearing one by one
-  - Step 3: A slide preview with AI editing cursor
-  - Step 4: Export format icons with a download animation
-- Steps highlight as user scrolls (IntersectionObserver)
-- Add a sticky "Try It Free" CTA bar at bottom
+### 6. `src/components/create/ResearchStep.tsx`
+- Calls `deep-research` edge function with alignment + file text
+- Loading state shows: *"Synthesising research from AI knowledge (training data current to early 2025). Live web search coming soon."*
+- Every finding displays: *"AI-synthesised — verify key statistics before presenting"*
+- Findings with `verify_required: true` get an amber highlight
+- User can add notes/edits inline
+- "Build Outline →" button
 
----
+### 7. `src/components/create/outlineReducer.ts`
+Pure function reducer handling all outline mutations:
+- `REORDER` — swap by stable `id`
+- `EDIT_TITLE` / `EDIT_POINTS` — update by `id`
+- `ADD` — insert with new `crypto.randomUUID()` id
+- `DELETE` — remove by `id`
+- Unit-testable independently
 
-### 4. Homepage Trust Section Enhancement
+### 8. `src/components/create/OutlineStep.tsx`
+- Calls existing `generate-outline` with research brief + alignment as enhanced prompt
+- Maps outline sections → `OutlineSlide[]` with stable UUIDs
+- `@dnd-kit/sortable` for drag reorder
+- Inline editing of title/points, add/delete slides
+- "Generate Full Deck →" button
 
-**File: `src/components/landing/Hero.tsx`**
+### 9. `src/components/create/GenerateStep.tsx`
+- Passes approved outline + research + alignment into existing `generate-blocks` pipeline as structured system context
+- Writes to `block_meta`: `{ schema_version: 1, research_mode: true, research_session_id, source_url, source_label }`
+- **Explicit failure states**:
+  - Shows which step failed (context injection, block generation, image resolution)
+  - "Try Again" button (retry with same context)
+  - "Generate Without Research" button (falls back to Quick mode with prompt)
+  - Outline is never lost — user can navigate back to Step 3
 
-Replace the generic company names with a real-feeling customer quote:
-- Add a testimonial-style quote above the trust logos: *"I had the board deck done in under 10 minutes — our CFO thought it was made by McKinsey."*
-- Keep the company logos but make them feel earned
+## Files to Modify
 
----
+### `src/pages/Create.tsx`
+- Add Quick/Research mode toggle above entry cards (only shown when no `activeEntry` yet or when `scratch` is selected)
+- When Research Mode + "Start from scratch": render `ResearchModeWizard` instead of studio controls
+- Quick mode completely untouched
 
-### Summary of Files
+### `supabase/config.toml`
+- Add `[functions.deep-research]` with `verify_jwt = false`
 
-| File | Action |
-|------|--------|
-| `src/components/landing/HeroLiveDemo.tsx` | **New** — live outline preview widget |
-| `src/components/landing/Hero.tsx` | Add HeroLiveDemo below CTAs, add testimonial quote |
-| `src/pages/HowItWorks.tsx` | Rewrite with interactive scrolling walkthrough |
-| `src/components/landing/ExampleDecks.tsx` | Add section header, improve gallery presentation |
-| `src/pages/Templates.tsx` | Reorder — example decks first with prominent heading |
-
-No database changes. No new edge functions (uses existing `generate-outline`). No new dependencies.
+## No Other Changes
+- No modifications to existing edge functions
+- No changes to existing database tables
+- Template/import flows unaffected
+- Quick mode generation path untouched
 
