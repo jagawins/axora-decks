@@ -159,6 +159,7 @@ export default function Create() {
   
   // State
   const [activeEntry, setActiveEntry] = useState<string | null>(null);
+  const [researchMode, setResearchMode] = useState(false);
   const [outputType, setOutputType] = useState<OutputType>("presentation");
   const [cardsCount, setCardsCount] = useState(10);
   const [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME);
