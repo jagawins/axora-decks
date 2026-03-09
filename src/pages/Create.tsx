@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool, Palette } from "lucide-react";
+import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool, Palette, FlaskConical } from "lucide-react";
+import ResearchModeWizard from "@/components/create/ResearchModeWizard";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -158,6 +159,7 @@ export default function Create() {
   
   // State
   const [activeEntry, setActiveEntry] = useState<string | null>(null);
+  const [researchMode, setResearchMode] = useState(false);
   const [outputType, setOutputType] = useState<OutputType>("presentation");
   const [cardsCount, setCardsCount] = useState(10);
   const [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME);
@@ -421,6 +423,36 @@ Create exactly ${cardsCount} slides/cards.`;
             </p>
           </div>
 
+          {/* Mode Toggle — shown before entry cards or when scratch is active */}
+          {(!activeEntry || activeEntry === "scratch") && (
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <button
+                onClick={() => setResearchMode(false)}
+                className={cn(
+                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                  !researchMode
+                    ? "bg-accent text-accent-foreground shadow-md"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Sparkles className="h-4 w-4 inline mr-1.5" />
+                Quick
+              </button>
+              <button
+                onClick={() => { setResearchMode(true); setActiveEntry("scratch"); }}
+                className={cn(
+                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                  researchMode
+                    ? "bg-accent text-accent-foreground shadow-md"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <FlaskConical className="h-4 w-4 inline mr-1.5" />
+                Research Mode
+              </button>
+            </div>
+          )}
+
           {/* Entry Cards */}
           {!activeEntry && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
@@ -449,15 +481,20 @@ Create exactly ${cardsCount} slides/cards.`;
           {/* Back button when in a flow */}
           {activeEntry && (
             <button
-              onClick={() => setActiveEntry(null)}
+              onClick={() => { setActiveEntry(null); setResearchMode(false); }}
               className="mb-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               ← Back to options
             </button>
           )}
 
-          {/* Studio Controls - shown when "scratch" is selected or directly */}
-          {(activeEntry === "scratch" || activeEntry === "quick" || activeEntry === "import") && (
+          {/* Research Mode Wizard */}
+          {activeEntry === "scratch" && researchMode && (
+            <ResearchModeWizard />
+          )}
+
+          {/* Studio Controls - shown when NOT in research mode */}
+          {(activeEntry === "scratch" || activeEntry === "quick" || activeEntry === "import") && !researchMode && (
             <div className="space-y-8 bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 sm:p-8">
               
               {/* Output Type Toggle */}

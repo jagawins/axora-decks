@@ -39,3 +39,5 @@ project_id = "isxdedybwhlxzeuymxcq"
     verify_jwt = false
   [functions.record-view]
     verify_jwt = false
+  [functions.deep-research]
+    verify_jwt = false
