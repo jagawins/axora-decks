@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool, Palette } from "lucide-react";
+import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool, Palette, FlaskConical } from "lucide-react";
+import ResearchModeWizard from "@/components/create/ResearchModeWizard";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
