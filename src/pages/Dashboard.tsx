@@ -629,10 +629,14 @@ const Dashboard = () => {
               <p className="text-muted-foreground mb-8">
                 Start creating or browse your library
               </p>
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center justify-center gap-3 flex-wrap">
                 <Button variant="hero" onClick={() => setIsCreateAIOpen(true)}>
                   <Sparkles className="h-4 w-4 mr-2" />
                   New with AI
+                </Button>
+                <Button variant="outline" onClick={() => navigate('/create?mode=research')}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Create with Research
                 </Button>
                 <Button variant="outline" onClick={() => setSidebarTab('library')}>
                   Browse Library

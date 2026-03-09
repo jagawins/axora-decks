@@ -56,8 +56,8 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) {
       return new Response(
         JSON.stringify({ error: "AI service not configured", requestId }),
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -93,96 +93,79 @@ Provide a comprehensive research brief with findings, data points, and any confl
 
     console.log(`[${requestId}] Deep research for user ${user.id}: "${alignment.goal.substring(0, 80)}"`);
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const toolSchema = {
+      name: "deliver_research_brief",
+      description: "Return a structured research brief with findings, conflicts, and summary.",
+      input_schema: {
+        type: "object",
+        properties: {
+          findings: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                title: { type: "string", description: "Finding headline" },
+                detail: { type: "string", description: "2-3 sentence explanation" },
+                source_url: {
+                  type: ["string", "null"],
+                  description: "Real URL if known, null otherwise",
+                },
+                source_label: {
+                  type: "string",
+                  enum: ["AI-knowledge", "User document"],
+                  description: "Source type",
+                },
+                data_points: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "Key statistics or data points",
+                },
+                verify_required: {
+                  type: "boolean",
+                  description: "True if the finding needs independent verification",
+                },
+              },
+              required: ["title", "detail", "source_label", "data_points", "verify_required"],
+            },
+          },
+          conflicts: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                topic: { type: "string" },
+                positions: {
+                  type: "array",
+                  items: { type: "string" },
+                },
+              },
+              required: ["topic", "positions"],
+            },
+            description: "Conflicting viewpoints or data",
+          },
+          summary: {
+            type: "string",
+            description: "3-5 sentence executive summary of research findings",
+          },
+        },
+        required: ["findings", "conflicts", "summary"],
+      },
+    };
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "deliver_research_brief",
-              description:
-                "Return a structured research brief with findings, conflicts, and summary.",
-              parameters: {
-                type: "object",
-                properties: {
-                  findings: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        title: { type: "string", description: "Finding headline" },
-                        detail: { type: "string", description: "2-3 sentence explanation" },
-                        source_url: {
-                          type: "string",
-                          nullable: true,
-                          description: "Real URL if known, null otherwise",
-                        },
-                        source_label: {
-                          type: "string",
-                          enum: ["AI-knowledge", "User document"],
-                          description: "Source type",
-                        },
-                        data_points: {
-                          type: "array",
-                          items: { type: "string" },
-                          description: "Key statistics or data points",
-                        },
-                        verify_required: {
-                          type: "boolean",
-                          description: "True if the finding needs independent verification",
-                        },
-                      },
-                      required: [
-                        "title",
-                        "detail",
-                        "source_label",
-                        "data_points",
-                        "verify_required",
-                      ],
-                      additionalProperties: false,
-                    },
-                  },
-                  conflicts: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        topic: { type: "string" },
-                        positions: {
-                          type: "array",
-                          items: { type: "string" },
-                        },
-                      },
-                      required: ["topic", "positions"],
-                      additionalProperties: false,
-                    },
-                    description: "Conflicting viewpoints or data",
-                  },
-                  summary: {
-                    type: "string",
-                    description: "3-5 sentence executive summary of research findings",
-                  },
-                },
-                required: ["findings", "conflicts", "summary"],
-                additionalProperties: false,
-              },
-            },
-          },
-        ],
-        tool_choice: {
-          type: "function",
-          function: { name: "deliver_research_brief" },
-        },
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4096,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userPrompt }],
+        tools: [toolSchema],
+        tool_choice: { type: "tool", name: "deliver_research_brief" },
       }),
     });
 
@@ -201,7 +184,7 @@ Provide a comprehensive research brief with findings, data points, and any confl
         );
       }
       const errorText = await response.text();
-      console.error(`[${requestId}] AI gateway error: ${status}`, errorText);
+      console.error(`[${requestId}] Anthropic API error: ${status}`, errorText);
       return new Response(
         JSON.stringify({ error: "AI service temporarily unavailable", requestId }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -209,31 +192,21 @@ Provide a comprehensive research brief with findings, data points, and any confl
     }
 
     const aiData = await response.json();
-    console.log(`[${requestId}] AI response received`);
+    console.log(`[${requestId}] Claude response received`);
 
-    // Extract tool call result
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall?.function?.arguments) {
-      console.error(`[${requestId}] No tool call in response`);
+    // Extract tool_use result from Anthropic format
+    const toolUseBlock = (aiData.content as Array<{ type: string; name?: string; input?: unknown }>)
+      ?.find((block) => block.type === "tool_use" && block.name === "deliver_research_brief");
+
+    if (!toolUseBlock?.input) {
+      console.error(`[${requestId}] No tool_use in response`);
       return new Response(
         JSON.stringify({ error: "Failed to parse research results", requestId }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    let brief;
-    try {
-      brief =
-        typeof toolCall.function.arguments === "string"
-          ? JSON.parse(toolCall.function.arguments)
-          : toolCall.function.arguments;
-    } catch (e) {
-      console.error(`[${requestId}] JSON parse error:`, e);
-      return new Response(
-        JSON.stringify({ error: "Failed to parse research results", requestId }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    const brief = toolUseBlock.input as Record<string, unknown>;
 
     // Validate structure
     if (!Array.isArray(brief.findings) || !brief.summary) {
