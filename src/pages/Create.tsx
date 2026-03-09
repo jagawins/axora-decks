@@ -481,11 +481,16 @@ Create exactly ${cardsCount} slides/cards.`;
           {/* Back button when in a flow */}
           {activeEntry && (
             <button
-              onClick={() => setActiveEntry(null)}
+              onClick={() => { setActiveEntry(null); setResearchMode(false); }}
               className="mb-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               ← Back to options
             </button>
+          )}
+
+          {/* Research Mode Wizard */}
+          {activeEntry === "scratch" && researchMode && (
+            <ResearchModeWizard />
           )}
 
           {/* Studio Controls - shown when "scratch" is selected or directly */}
