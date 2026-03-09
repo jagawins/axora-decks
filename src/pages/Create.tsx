@@ -493,8 +493,8 @@ Create exactly ${cardsCount} slides/cards.`;
             <ResearchModeWizard />
           )}
 
-          {/* Studio Controls - shown when "scratch" is selected or directly */}
-          {(activeEntry === "scratch" || activeEntry === "quick" || activeEntry === "import") && (
+          {/* Studio Controls - shown when NOT in research mode */}
+          {(activeEntry === "scratch" || activeEntry === "quick" || activeEntry === "import") && !researchMode && (
             <div className="space-y-8 bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 sm:p-8">
               
               {/* Output Type Toggle */}
