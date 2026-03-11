@@ -27,6 +27,7 @@ import Press from "./pages/Press";
 import Founder from "./pages/Founder";
 import Roadmap from "./pages/Roadmap";
 import GammaAlternative from "./pages/GammaAlternative";
+import GensparkAlternative from "./pages/GensparkAlternative";
 import PowerPointAI from "./pages/PowerPointAI";
 import PPTGenerator from "./pages/PPTGenerator";
 import ExecutiveDeckGenerator from "./pages/ExecutiveDeckGenerator";
@@ -87,6 +88,7 @@ const App = () => (
                 <Route path="/p/:token" element={<PublicPreview />} />
                 <Route path="/present/:id" element={<Present />} />
                 <Route path="/gamma-alternative" element={<GammaAlternative />} />
+                <Route path="/genspark-alternative" element={<GensparkAlternative />} />
                 <Route path="/powerpoint-ai" element={<PowerPointAI />} />
                 <Route path="/ppt-generator" element={<PPTGenerator />} />
                 <Route path="/executive-deck-generator" element={<ExecutiveDeckGenerator />} />

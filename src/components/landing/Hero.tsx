@@ -166,7 +166,7 @@ const Hero = () => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-xs sm:text-sm font-medium mb-8 backdrop-blur-sm animate-fade-in-up">
             <Zap className="h-3.5 w-3.5" />
-            <span>AI presentations that think like executives</span>
+            <span>Built for executives. Not another generic AI tool.</span>
           </div>
 
           {/* Headline */}
@@ -182,7 +182,7 @@ const Hero = () => {
           {/* Subheadline */}
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
             Describe your goal. AI builds the structure, narrative, and visuals.
-            Export to PowerPoint, PDF, or present live.
+            No credits to count. No complex setup. Just executive-grade decks in under 2 minutes.
           </p>
 
           {/* ── Gamma-style prompt box ──────────────── */}
@@ -232,7 +232,7 @@ const Hero = () => {
             </div>
 
             <p className="text-xs text-muted-foreground mt-3">
-              Free to try · No sign-up needed · Generates in under 2 minutes
+              Free to try · 3 free decks · No credit card · No credits to track
             </p>
           </div>
 
