@@ -78,11 +78,6 @@ const MarketingFooter = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/genspark-alternative" className="text-sm text-muted-foreground hover:text-accent transition-colors">
-                  AXIVA vs GenSpark
-                </Link>
-              </li>
-              <li>
                 <Link to="/investor-pitch-deck" className="text-sm text-muted-foreground hover:text-accent transition-colors">
                   Investor Pitch Deck
                 </Link>
