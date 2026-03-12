@@ -10,6 +10,240 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "10-board-deck-templates-that-work",
+    title: "10 Board Deck Templates That Actually Work in 2026",
+    excerpt: "Most board deck templates are generic slides with placeholder text. These 10 are structured around what boards actually want to see — and you can generate any of them with AI in under 2 minutes.",
+    category: "Templates",
+    publishedAt: "2026-03-10",
+    author: "Jag Mariappan",
+    content: `
+## Why Most Board Deck Templates Fail
+
+The internet is full of board deck templates. Google "board update template" and you will find thousands. The problem is that most of them are empty slide layouts — a title here, some bullet points there, maybe a placeholder chart. They solve the formatting problem but leave you with the hardest part: figuring out what to actually say.
+
+A good board deck template does three things. It gives you the right structure (what sections to include and in what order). It gives you the right prompts (what information each section needs). And it looks professional enough that you do not have to spend time on design.
+
+Here are 10 templates that do all three — and each one can be generated automatically with AXIVA's AI in under 2 minutes.
+
+## 1. The Standard Quarterly Board Update
+
+This is the workhorse. Used by most Series A through Series C companies. It includes an executive summary, key metrics with year-over-year and quarter-over-quarter comparisons, product milestones, financial performance, hiring update, and strategic priorities for the next quarter. AXIVA generates this from a single prompt with KPI dashboard blocks and timeline visualizations.
+
+## 2. The Investor Update (Monthly or Quarterly)
+
+Lighter than a full board deck. Covers top-line metrics, one or two highlights, one challenge, and the ask (if any). Investors want this to be scannable in under 3 minutes. AXIVA's stat blocks and executive summary layouts are built for this.
+
+## 3. The Fundraising Pitch Deck
+
+The classic 10-slide structure: problem, solution, market, product, traction, team, financials, the ask. AXIVA generates comparison tables for competitive positioning and chart blocks for financial projections — the two slides that take founders the most time.
+
+## 4. The Annual General Meeting (AGM) Deck
+
+More formal than a quarterly update. Includes year-in-review, audited financials summary, governance updates, and forward-looking strategy. The decision matrix and scenario analysis blocks in AXIVA are particularly useful here.
+
+## 5. The Board Committee Report
+
+Audit committee, compensation committee, governance committee — each has a specific structure. These are typically 5 to 8 slides focused on compliance, risk, and recommendations. AXIVA's evidence map and recommendation panel blocks fit this perfectly.
+
+## 6. The Crisis Communication Board Briefing
+
+When something goes wrong — security breach, regulatory issue, PR crisis — the board needs a structured briefing fast. This template covers the incident summary, impact assessment, response actions taken, and recommendations. Speed matters here, and generating it with AI saves critical hours.
+
+## 7. The M&A or Strategic Initiative Proposal
+
+Used when presenting an acquisition target, partnership, or major strategic initiative. Includes market rationale, target overview, financial model summary, risk assessment, and recommended next steps. AXIVA's two-by-two matrix and three pillars blocks are designed for this.
+
+## 8. The Product or Technology Review
+
+CTOs and CPOs use this to update the board on technical progress. Covers product roadmap, technical debt status, infrastructure investments, and engineering headcount. Timeline blocks and card grids work well here.
+
+## 9. The Customer and Market Update
+
+For companies where customer health is a board-level concern. Includes NPS trends, churn analysis, cohort retention, and market positioning. AXIVA's chart blocks (bar, donut, area) visualize this data effectively.
+
+## 10. The Budget and Planning Deck
+
+Used during annual planning season. Covers proposed budget by department, revenue projections, hiring plan, and capital expenditure. The KPI dashboard block can show department-level budget cards in a 2x2 grid.
+
+## Generate Any of These in 2 Minutes
+
+Every template above can be generated with a single prompt in AXIVA. Describe your company, paste your metrics, and let the AI build the structure, narrative, and visualizations. Export to PowerPoint when you are ready. Try it free at axiva.ai — 3 decks, no credit card.
+`,
+  },
+  {
+    slug: "how-to-build-investor-pitch-deck-2026",
+    title: "How to Build an Investor Pitch Deck in 2026: The Complete Guide",
+    excerpt: "The definitive guide to building a pitch deck that gets meetings. Covers the 10-slide structure, what VCs actually look for, common mistakes, and how AI tools like AXIVA can generate a professional draft in minutes.",
+    category: "Guide",
+    publishedAt: "2026-03-09",
+    author: "Jag Mariappan",
+    content: `
+## What VCs Actually Look For in 2026
+
+The pitch deck landscape has changed. In 2024, you could get away with a slick Gamma deck and some optimistic projections. In 2026, investors have seen thousands of AI-generated decks and their bar is higher. They want substance, not polish. They want metrics that are verifiable, markets that are defensible, and teams that have done it before.
+
+But here is the thing: the structure of a great pitch deck has not changed in 20 years. It is still 10 slides, still the same sections, still the same narrative arc. What has changed is how fast you can produce a professional version of it.
+
+## The 10-Slide Structure
+
+Every successful pitch deck follows this structure with minor variations.
+
+Slide 1 is the title slide. Your company name, one-line description, and your name. Nothing else. Do not put a paragraph of text here.
+
+Slide 2 is the problem. What specific pain does your target customer experience? Use data or a story, not generic statements about market inefficiency.
+
+Slide 3 is the solution. What you built and how it solves the problem. Keep it concrete. Screenshots or product demos are more convincing than feature lists.
+
+Slide 4 is the market opportunity. Total Addressable Market, Serviceable Addressable Market, and your initial beachhead. Investors want to see that you understand the difference between these numbers.
+
+Slide 5 is the product. A deeper look at what you have built. This is where comparison tables work well — show how your product differs from alternatives.
+
+Slide 6 is traction. Revenue, users, growth rate, retention. The more specific and recent, the better. Charts are better than bullet points.
+
+Slide 7 is the business model. How you make money. Pricing, unit economics, customer acquisition cost, lifetime value.
+
+Slide 8 is the go-to-market strategy. How you plan to acquire customers. Be specific about channels, not vague about "leveraging partnerships."
+
+Slide 9 is the team. Why this team is uniquely positioned to win. Prior exits, domain expertise, and relevant experience.
+
+Slide 10 is the ask. How much you are raising, what you will use it for, and what milestones it will fund.
+
+## Common Mistakes
+
+The number one mistake is too much text. Each slide should have one idea, communicated visually. If you need a paragraph to explain a slide, the slide is too complex.
+
+The number two mistake is unverifiable claims. "We are disrupting a $50B market" means nothing without showing where that number comes from and what slice you can realistically capture.
+
+The number three mistake is spending 40 hours on design instead of 4 hours on content. A clean, structured deck with strong content beats a beautiful deck with weak content every time.
+
+## How AI Changes the Process
+
+Tools like AXIVA can generate a complete pitch deck from a single paragraph of input. You describe your company, your metrics, and your ask — and the AI builds 10 slides with the right structure, data visualizations, and narrative flow.
+
+This is not about replacing your thinking. It is about eliminating the 80% of the process that is formatting, layout, and design. You spend your time on the 20% that matters: your actual story, your real numbers, and your unique insight.
+
+AXIVA generates pitch decks with native stat blocks, comparison tables, chart blocks, and timeline visualizations — the exact slide types that make investor decks compelling. Export to PowerPoint, hand it to your designer for final polish, or present it directly.
+
+Try it free at axiva.ai — generate your first pitch deck in under 2 minutes.
+`,
+  },
+  {
+    slug: "axiva-vs-gamma-vs-genspark-vs-beautiful-ai-2026",
+    title: "AXIVA vs Gamma vs GenSpark vs Beautiful.ai: 2026 Comparison",
+    excerpt: "An honest comparison of the top AI presentation tools in 2026. We break down features, pricing, output quality, and which tool is best for which use case. Yes, we are one of the tools — and we will tell you where the others are better.",
+    category: "Comparison",
+    publishedAt: "2026-03-08",
+    author: "Jag Mariappan",
+    content: `
+## The AI Presentation Landscape in 2026
+
+The market has consolidated. Tome shut down its presentation product in April 2025 and pivoted to a CRM called Lightfield. NotebookLM added free presentation generation. Microsoft Copilot works inside PowerPoint. And the four main standalone tools — Gamma, GenSpark, Beautiful.ai, and AXIVA — each serve different audiences.
+
+This is our honest comparison. We built AXIVA, so we are obviously biased — but we will tell you exactly where each competitor is stronger.
+
+## Gamma — The Market Leader
+
+Gamma has over 70 million users and more than 100 million dollars in annual recurring revenue. It is the default choice for most people who want AI presentations. The product is fast, the design is polished, and the credit-based pricing is consumer-friendly at 8 dollars a month for Plus.
+
+Where Gamma wins: Speed of generation (under 30 seconds), breadth of content types (presentations, websites, documents, social media), massive template library, and a strong collaboration system. 80 percent of their growth is organic via watermarks and word-of-mouth.
+
+Where Gamma falls short: The output is designed for everyone, which means it is not designed for anyone specific. Board members and investors expect a different level of structure than what Gamma typically produces. PowerPoint exports can lose formatting. The credit system means you are always counting what things cost.
+
+Best for: Students, marketers, content creators, and anyone who needs a quick, attractive presentation for general purposes.
+
+## GenSpark — The All-in-One Workspace
+
+GenSpark raised over 460 million dollars and hit 200 million in revenue by early 2026. It is not just a presentation tool — it is an AI workspace that handles slides, documents, spreadsheets, video, websites, and research.
+
+Where GenSpark wins: Multi-format workflows (research to slides to docs in one prompt), built-in fact-checking, 30-plus AI model orchestration, and deep web research that automatically cites sources.
+
+Where GenSpark falls short: The credit model frustrates users — Trustpilot ratings hover around 2 out of 5, largely due to unexpected credit consumption. Complex elements export as images in PowerPoint, not as editable objects. The tool tries to do everything, which means presentations are not its core focus.
+
+Best for: Knowledge workers who need multiple output formats from a single research workflow.
+
+## Beautiful.ai — The Design Purist
+
+Beautiful.ai has no free tier — just a 14-day trial. This self-selects for serious users willing to pay for quality. Their "Smart Slides" automatically adjust layout as you add content, making it nearly impossible to create an ugly slide.
+
+Where Beautiful.ai wins: Design consistency is unmatched. Brand Kit enforcement is the strongest in the market. Enterprise admin controls and SSO are mature. PowerPoint export fidelity is very high.
+
+Where Beautiful.ai falls short: No free plan means a smaller top-of-funnel. The opinionated layout system can feel restrictive for custom designs. AI generation is less capable than Gamma or GenSpark for creating slides from scratch.
+
+Best for: Corporate marketing teams and organizations that need brand-consistent presentations at scale.
+
+## AXIVA — The Executive Specialist
+
+This is us. AXIVA is built for one specific use case: executive-grade presentations. Board decks, investor pitches, quarterly reviews, strategy presentations. We do not try to be a general-purpose tool.
+
+Where AXIVA wins: Specialized block types that executives actually need — KPI dashboards, decision matrices, evidence maps, scenario analysis, comparison tables, timeline blocks. Native editable PowerPoint export (not images). Simple pricing with 3 free decks and no credit system. Fastest path from prompt to structured executive deck.
+
+Where AXIVA falls short: No website generation, no document creation, no spreadsheet tools. Smaller template library than Gamma. No built-in fact-checking or web research. Newer and smaller user base.
+
+Best for: Executives, founders, consultants, and board members who need polished, structured presentations for high-stakes meetings.
+
+## The Honest Recommendation
+
+If you make presentations occasionally for various purposes, use Gamma. If you need an all-in-one AI workspace, use GenSpark. If you need brand-locked design consistency at scale, use Beautiful.ai. If you need board decks, investor pitches, and executive reviews that look like they came from a consulting firm, try AXIVA.
+
+The best way to decide is to try them. AXIVA gives you 3 free decks with no credit card. Gamma gives you 400 free credits. GenSpark has daily free credits. Beautiful.ai has a 14-day trial. Test each one with your actual use case and see which output you would be comfortable presenting to your board.
+`,
+  },
+  {
+    slug: "executives-guide-ai-presentations",
+    title: "The Executive's Guide to AI Presentations: What Works and What Doesn't",
+    excerpt: "A practical guide for executives who want to use AI to build presentations without sacrificing quality. Covers what AI does well, where it fails, and how to get the best output in the least time.",
+    category: "Guide",
+    publishedAt: "2026-03-07",
+    author: "Jag Mariappan",
+    content: `
+## AI Presentations Are Not What You Think
+
+Most executives have one of two reactions to AI presentation tools. Either they assume the output will be terrible — generic bullet points with stock photos — or they assume it will be perfect and they can skip all the work. Both are wrong.
+
+The reality is that AI presentation tools in 2026 produce a strong first draft in minutes that would take a human hours. That draft needs editing — typically 10 to 15 minutes of review and customization. The total time savings is roughly 80 percent. You go from 4 hours to 45 minutes, not from 4 hours to zero.
+
+This guide covers what works, what does not, and how to get the best results from AI presentation tools.
+
+## What AI Does Well
+
+Structure. AI is exceptionally good at organizing information into a logical presentation flow. Tell it you need a board update and it knows that the executive summary comes first, metrics come second, and strategic outlook comes last. This structural intelligence saves the most time because deciding what goes where is the hardest part of building a deck.
+
+Data visualization. Describe your metrics and AI can generate KPI dashboards, bar charts, comparison tables, and timeline visualizations automatically. You do not need to manually build charts in PowerPoint.
+
+Consistency. Every deck follows the same structure, the same visual system, and the same level of quality. This is particularly valuable for recurring presentations like quarterly reviews where boards expect a consistent format.
+
+Speed. A complete 10 to 15 slide deck in under 2 minutes. This is not an exaggeration — it is what modern AI tools actually deliver.
+
+## What AI Does Not Do Well
+
+Proprietary data. AI cannot pull numbers from your internal BI tools or CRM. You need to provide the actual metrics. The AI will structure and visualize them, but the data has to come from you.
+
+Political nuance. Every board deck has slides where the tone matters as much as the content. "We missed our revenue target by 12 percent" needs to be framed differently depending on context. AI will present the facts; you need to add the judgment.
+
+Design taste at the highest level. AI-generated presentations look professional and clean. They do not look like a McKinsey deck with custom illustrations and hand-crafted diagrams. If your board expects Fortune 500-level design, you will still need a designer for the final 10 percent.
+
+## The Optimal Workflow
+
+After working with hundreds of executives using AXIVA, the workflow that produces the best results is a three-step process.
+
+First, spend 5 minutes writing a detailed prompt. Include your company context, the specific metrics you want to highlight, the audience, and any particular points you want to emphasize. The more specific your input, the better the output. "Q4 board update" gives you a generic deck. "Q4 board update for a 200-person fintech company, ARR $14M, grew 28 percent YoY, launched new fraud detection product, hiring 15 engineers in Q1" gives you a deck you can almost present as-is.
+
+Second, let the AI generate the deck. This takes under 2 minutes.
+
+Third, spend 10 to 15 minutes reviewing and customizing. Update any placeholder numbers with actuals. Adjust the tone of sensitive slides. Add any proprietary charts or screenshots. Remove any section that does not apply.
+
+Total time: 20 minutes for a complete board deck that would have taken 4 to 8 hours manually.
+
+## Choosing the Right Tool
+
+If you are an executive reading this, you likely care about three things: output quality, PowerPoint compatibility, and speed. You do not care about website generation, social media templates, or podcast creation.
+
+This is why we built AXIVA as a focused executive tool rather than a general-purpose platform. The block types — KPI dashboards, decision matrices, evidence maps, comparison tables — are the specific layouts that board meetings and investor presentations require. The PowerPoint export produces native, editable elements, not images.
+
+Try it at axiva.ai — 3 free decks, no credit card, no credits to count.
+`,
+  },
+  {
     slug: "board-deck-10-minutes",
     title: "How to Prepare a Board Deck in 10 Minutes with AI",
     excerpt:
