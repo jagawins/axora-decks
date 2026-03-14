@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import axivaWordmarkDark from "@/assets/axiva-wordmark-dark.svg";
 import axivaWordmarkLight from "@/assets/axiva-wordmark.svg";
 import { useTheme } from "@/contexts/ThemeContext";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 const MarketingFooter = () => {
   const { theme } = useTheme();
@@ -166,6 +167,14 @@ const MarketingFooter = () => {
                 </Link>
               </li>
             </ul>
+          </div>
+        </div>
+
+        {/* Newsletter signup */}
+        <div className="border-t border-border/50 pt-8 mb-8">
+          <div className="max-w-md mx-auto">
+            <NewsletterSignup source="footer" variant="inline" />
+            <p className="text-[10px] text-muted-foreground text-center mt-2">Weekly tips on executive presentations. No spam.</p>
           </div>
         </div>
 

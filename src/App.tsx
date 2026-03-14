@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import NewsletterAdmin from "./pages/NewsletterAdmin";
 import Editor from "./pages/Editor";
 import Preview from "./pages/Preview";
 import PublicPreview from "./pages/PublicPreview";
@@ -82,6 +83,7 @@ const App = () => (
                 <Route path="/roadmap" element={<Roadmap />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/admin/newsletter" element={<NewsletterAdmin />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/editor/:id" element={<Editor />} />
                 <Route path="/preview/:id" element={<Preview />} />
