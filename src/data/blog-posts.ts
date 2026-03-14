@@ -10,6 +10,71 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "ai-governance-framework-executives-2026",
+    title: "AI Governance for Executives: The Framework Your Board Needs in 2026",
+    excerpt: "AI governance is no longer optional — regulators, investors, and customers demand it. This guide covers the 6 pillars of an executive AI governance framework and how to present it to your board.",
+    category: "Guide",
+    publishedAt: "2026-03-14",
+    author: "Jag Mariappan",
+    content: `
+## Why AI Governance Is Now a Board-Level Issue
+
+In 2025, the EU AI Act became enforceable. The NIST AI Risk Management Framework became the de facto US standard. And every Fortune 500 board started asking the same question: "What is our AI governance posture?"
+
+If you are an executive or board member, you need to present a clear AI governance framework — not a 50-page policy document, but a structured deck that covers risks, principles, compliance, and next steps in 15 minutes.
+
+This guide covers the 6 pillars your framework needs and how to build the presentation.
+
+## Pillar 1: AI System Inventory & Classification
+
+Before you can govern AI, you need to know what AI you have. Most organizations have more AI systems than they realize — from marketing automation to customer service chatbots to internal analytics tools.
+
+The first slide in any governance deck should be a system inventory: what AI systems exist, who owns them, what data they use, what decisions they influence, and what risk tier they fall into (following EU AI Act classification: minimal, limited, high, unacceptable).
+
+AXIVA generates this as a comparison table block with risk-tier color coding.
+
+## Pillar 2: Risk Assessment Framework
+
+Each AI system needs a risk assessment across 7 dimensions: bias and fairness, data privacy, security, reliability, regulatory compliance, reputational risk, and operational dependency.
+
+The most effective way to present this to a board is a 2x2 matrix — likelihood vs impact — with each AI system plotted as a data point. Board members instantly see which systems need attention.
+
+AXIVA's two-by-two matrix block is built for exactly this.
+
+## Pillar 3: Ethical Principles & Guidelines
+
+Every organization needs a clear set of AI principles. The most common framework is three pillars: Fairness (no discriminatory outcomes), Transparency (explainable decisions), and Accountability (clear ownership of AI decisions).
+
+Present these as a three-pillars slide — not buried in a policy document. The board needs to see the principles visually, not read them in paragraph form.
+
+## Pillar 4: Regulatory Compliance Mapping
+
+Map your AI systems to applicable regulations: EU AI Act, CCPA/GDPR for data, industry-specific rules (HIPAA for healthcare, SEC for financial services), and emerging state-level AI laws.
+
+A compliance checklist table works best here — system name, applicable regulation, compliance status (green/amber/red), and owner. AXIVA generates this as a comparison table with status indicators.
+
+## Pillar 5: Implementation Roadmap
+
+Governance is not a one-time exercise. The board needs to see a phased implementation plan: Phase 1 (inventory and classification), Phase 2 (risk assessment), Phase 3 (policy implementation), Phase 4 (monitoring and audit).
+
+A timeline block with milestones and owners makes this concrete and actionable.
+
+## Pillar 6: Monitoring, Audit & Escalation
+
+Ongoing governance requires monitoring dashboards, regular audits, and clear escalation paths. Present this as a KPI dashboard showing key metrics: number of AI systems audited, bias incidents detected, compliance score trend, and audit cadence.
+
+## Building the Deck with AXIVA
+
+You can generate all 6 pillars as a complete governance deck in AXIVA with a single prompt. Try:
+
+"AI governance framework presentation for a 500-person technology company. Cover system inventory, risk assessment, ethical principles, EU AI Act compliance, implementation roadmap, and monitoring framework."
+
+AXIVA generates 10-15 slides with the exact block types boards expect: risk matrices, three-pillar frameworks, compliance tables, timeline blocks, and KPI dashboards.
+
+Try it free at axiva.ai — 3 decks, no credit card.
+`,
+  },
+  {
     slug: "10-board-deck-templates-that-work",
     title: "10 Board Deck Templates That Actually Work in 2026",
     excerpt: "Most board deck templates are generic slides with placeholder text. These 10 are structured around what boards actually want to see — and you can generate any of them with AI in under 2 minutes.",
