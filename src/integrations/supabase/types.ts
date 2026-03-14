@@ -244,6 +244,63 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_broadcasts: {
+        Row: {
+          body_html: string
+          id: string
+          recipient_count: number | null
+          sent_at: string
+          sent_by: string | null
+          subject: string
+        }
+        Insert: {
+          body_html: string
+          id?: string
+          recipient_count?: number | null
+          sent_at?: string
+          sent_by?: string | null
+          subject: string
+        }
+        Update: {
+          body_html?: string
+          id?: string
+          recipient_count?: number | null
+          sent_at?: string
+          sent_by?: string | null
+          subject?: string
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          source: string | null
+          subscribed: boolean
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          source?: string | null
+          subscribed?: boolean
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          source?: string | null
+          subscribed?: boolean
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           brand_kit: Json | null

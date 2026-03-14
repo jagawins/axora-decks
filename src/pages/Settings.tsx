@@ -472,7 +472,6 @@ function SecurityTab({ user }: { user: any }) {
 // ─── Notifications Tab ────────────────────────────────────
 function NotificationsTab() {
   const { toast } = useToast();
-  const { user } = useAuth();
   const [prefs, setPrefs] = useState({
     deckShared: true,
     comments: true,
@@ -480,59 +479,21 @@ function NotificationsTab() {
     productUpdates: true,
     tipsAndTricks: false,
   });
-  const [saving, setSaving] = useState(false);
 
-  const toggle = async (key: keyof typeof prefs) => {
+  const toggle = (key: keyof typeof prefs) => {
     const updated = { ...prefs, [key]: !prefs[key] };
     setPrefs(updated);
-
-    // Save to localStorage as fallback
+    // Store locally for now — will sync to DB when collaboration ships
     try { localStorage.setItem("axiva_notification_prefs", JSON.stringify(updated)); } catch {}
-
-    // Save to Supabase profile if user is logged in
-    if (user) {
-      setSaving(true);
-      try {
-        await supabase
-          .from("profiles")
-          .update({ notification_prefs: updated } as any)
-          .eq("id", user.id);
-        toast({ title: "Preference saved" });
-      } catch {
-        toast({ title: "Preference saved locally", description: "Will sync when connection is restored." });
-      } finally {
-        setSaving(false);
-      }
-    } else {
-      toast({ title: "Preference updated" });
-    }
+    toast({ title: "Preference updated" });
   };
 
   useEffect(() => {
-    const loadPrefs = async () => {
-      // Try loading from Supabase first
-      if (user) {
-        try {
-          const { data } = await supabase
-            .from("profiles")
-            .select("notification_prefs")
-            .eq("id", user.id)
-            .maybeSingle();
-          if (data?.notification_prefs) {
-            const dbPrefs = data.notification_prefs as typeof prefs;
-            setPrefs(prev => ({ ...prev, ...dbPrefs }));
-            return;
-          }
-        } catch {}
-      }
-      // Fallback to localStorage
-      try {
-        const stored = localStorage.getItem("axiva_notification_prefs");
-        if (stored) setPrefs(JSON.parse(stored));
-      } catch {}
-    };
-    loadPrefs();
-  }, [user]);
+    try {
+      const stored = localStorage.getItem("axiva_notification_prefs");
+      if (stored) setPrefs(JSON.parse(stored));
+    } catch {}
+  }, []);
 
   const items: { key: keyof typeof prefs; label: string; desc: string; comingSoon?: boolean }[] = [
     { key: "deckShared", label: "Deck shared with me", desc: "Get notified when someone shares a deck with you", comingSoon: true },
@@ -574,7 +535,7 @@ function NotificationsTab() {
       <div className="rounded-lg border border-border/50 bg-muted/20 p-3 flex items-start gap-2">
         <Bell className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
         <p className="text-xs text-muted-foreground">
-          {saving ? "Saving..." : "Preferences are synced to your account and apply to all email notifications."}
+          Preferences are saved on this device only. They'll sync across devices once collaboration features launch.
         </p>
       </div>
     </div>
