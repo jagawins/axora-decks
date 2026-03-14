@@ -34,7 +34,12 @@ export default function NewsletterAdmin() {
 
   // Auth guard
   useEffect(() => {
-    if (!authLoading && (!user || !ADMIN_EMAILS.includes(user.email || ""))) {
+    if (authLoading) return;
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    if (!ADMIN_EMAILS.includes(user.email || "")) {
       navigate("/dashboard");
     }
   }, [authLoading, user, navigate]);
