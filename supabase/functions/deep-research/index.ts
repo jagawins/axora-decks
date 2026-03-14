@@ -217,8 +217,10 @@ Provide a comprehensive research brief with findings, data points, and any confl
       );
     }
 
+    const findings = (brief as any).findings;
+    const conflicts = (brief as any).conflicts;
     console.log(
-      `[${requestId}] Research complete: ${brief.findings.length} findings, ${brief.conflicts?.length || 0} conflicts`
+      `[${requestId}] Research complete: ${Array.isArray(findings) ? findings.length : 0} findings, ${Array.isArray(conflicts) ? conflicts.length : 0} conflicts`
     );
 
     return new Response(JSON.stringify({ brief, requestId }), {
