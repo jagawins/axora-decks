@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, ChevronLeft, ChevronRight, ArrowRight, X, Palette } from 'lucide-react';
 import { fetchTemplateBlocks, type Template, type TemplateBlock } from '@/lib/templates';
 import { TemplatePreview } from './TemplatePreview';
-import { TemplatePreviewImage } from './TemplatePreviewImage';
 import { inferVisualCategory, getCategoryStyle } from './TemplateThumbnail';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -18,22 +17,20 @@ interface TemplatePreviewModalProps {
 }
 
 function chunkBlocks(blocks: TemplateBlock[]): TemplateBlock[][] {
-  // Group blocks into slides: heading/hero starts a new slide, others attach
+  // Group blocks into slides: heading/hero starts a new slide, following blocks attach
   const slides: TemplateBlock[][] = [];
   for (const b of blocks) {
     const startsSlide = ['heading', 'hero_header', 'section_divider', 'exec_summary'].includes(b.type);
-    if (startsSlide || slides.length === 0) {
+
+    if (slides.length === 0) {
+      slides.push([b]);
+    } else if (startsSlide) {
       slides.push([b]);
     } else {
-      // Add to current slide, max 3 blocks per slide
-      const current = slides[slides.length - 1];
-      if (current.length < 3) {
-        current.push(b);
-      } else {
-        slides.push([b]);
-      }
+      slides[slides.length - 1].push(b);
     }
   }
+
   return slides;
 }
 
@@ -259,21 +256,10 @@ export function TemplatePreviewModal({
                     slideTransformClass
                   )}
                 >
-                  {currentSlide === 0 ? (
-                    <TemplatePreviewImage
-                      templateId={template.id}
-                      blocks={allBlocks}
-                      title={template.title}
-                      category={template.category}
-                      tags={template.tags || []}
-                      className="rounded-lg shadow-lg"
-                    />
-                  ) : (
-                    <TemplatePreview
-                      blocks={slides[currentSlide]}
-                      className="shadow-lg"
-                    />
-                  )}
+                  <TemplatePreview
+                    blocks={slides[currentSlide]}
+                    className="shadow-lg"
+                  />
                 </div>
 
                 {/* Next arrow */}
