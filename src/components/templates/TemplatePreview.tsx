@@ -46,14 +46,14 @@ export function TemplatePreview({ blocks, themeId = 'classic', className = '' }:
       style={{ aspectRatio: '16 / 9' }}
       data-theme={themeId}
     >
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden">
         <div
-          className="origin-top-center shrink-0"
+          className="shrink-0"
           style={{
             transform: `scale(${scale})`,
             width: `${DESIGN_WIDTH}px`,
             height: `${DESIGN_HEIGHT}px`,
-            transformOrigin: 'top center',
+            transformOrigin: 'top left',
           }}
         >
           <div className="w-full h-full flex flex-col gap-5 px-12 py-10 bg-background overflow-hidden">
