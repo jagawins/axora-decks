@@ -121,7 +121,12 @@ export function TemplatesGrid({ templates, loading, onRefresh }: TemplatesGridPr
   }, [templates, activeType, activeIndustry, activeAudience, searchQuery, activeSort]);
 
   const handleSelectTemplate = async (templateId: string) => {
-    if (!user) { navigate('/auth'); return; }
+    if (!user) {
+      navigate('/auth?redirect=/templates');
+      return;
+    }
+    // Close preview modal first (if open) without triggering search param navigation race
+    setPreviewTemplate(null);
     setCreatingFromTemplate(templateId);
     try {
       const { projectId } = await createDeckFromTemplate(templateId, user.id);
