@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, ChevronLeft, ChevronRight, ArrowRight, X, Palette } from 'lucide-react';
 import { fetchTemplateBlocks, type Template, type TemplateBlock } from '@/lib/templates';
 import { TemplatePreview } from './TemplatePreview';
+import { TemplatePreviewImage } from './TemplatePreviewImage';
 import { inferVisualCategory, getCategoryStyle } from './TemplateThumbnail';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
