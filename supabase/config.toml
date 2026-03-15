@@ -41,3 +41,11 @@ project_id = "isxdedybwhlxzeuymxcq"
     verify_jwt = false
   [functions.deep-research]
     verify_jwt = false
+  [functions.generate-data-visual]
+    verify_jwt = false
+  [functions.newsletter-broadcast]
+    verify_jwt = false
+  [functions.trial-emails]
+    verify_jwt = false
+  [functions.weekly-analytics]
+    verify_jwt = false
