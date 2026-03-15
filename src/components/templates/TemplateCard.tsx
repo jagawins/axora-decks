@@ -63,6 +63,10 @@ export function TemplateCard({
   const cardRef = useRef<HTMLDivElement>(null);
 
   const hasRealBlocks = previewBlocks && previewBlocks.length > 0;
+  const previewSlideBlocks = useMemo(() => {
+    const slides = chunkTemplateBlocks(previewBlocks || []);
+    return slides[0] || [];
+  }, [previewBlocks]);
   const contentHints = useMemo(() => getContentHints(previewBlocks || []), [previewBlocks]);
 
   // Lazy loading via IntersectionObserver
