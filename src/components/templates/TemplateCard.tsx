@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Eye, Sparkles, Layers, BarChart3, Clock, GitCompare, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { chunkTemplateBlocks } from '@/lib/template-slides';
 import { inferVisualCategory, getCategoryStyle } from './TemplateThumbnail';
 import { TemplatePreview } from './TemplatePreview';
 import { TemplatePreviewImage } from './TemplatePreviewImage';
@@ -62,6 +63,10 @@ export function TemplateCard({
   const cardRef = useRef<HTMLDivElement>(null);
 
   const hasRealBlocks = previewBlocks && previewBlocks.length > 0;
+  const previewSlideBlocks = useMemo(() => {
+    const slides = chunkTemplateBlocks(previewBlocks || []);
+    return slides[0] || [];
+  }, [previewBlocks]);
   const contentHints = useMemo(() => getContentHints(previewBlocks || []), [previewBlocks]);
 
   // Lazy loading via IntersectionObserver
@@ -107,7 +112,7 @@ export function TemplateCard({
           hasRealBlocks ? (
             <div className="w-full h-full">
               <TemplatePreview
-                blocks={previewBlocks!.slice(0, 3)}
+                blocks={previewSlideBlocks}
                 className="shadow-none border-0 rounded-none w-full h-full"
               />
             </div>

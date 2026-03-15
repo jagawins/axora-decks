@@ -9,6 +9,7 @@ import {
   FileText, LayoutGrid, Target, Quote, Lightbulb, Keyboard,
 } from 'lucide-react';
 import { fetchTemplateBlocks, type Template, type TemplateBlock } from '@/lib/templates';
+import { chunkTemplateBlocks } from '@/lib/template-slides';
 import { TemplatePreview } from './TemplatePreview';
 import { inferVisualCategory, getCategoryStyle } from './TemplateThumbnail';
 import { cn } from '@/lib/utils';
@@ -19,21 +20,6 @@ interface TemplatePreviewModalProps {
   open: boolean;
   onClose: () => void;
   onUseTemplate: (id: string) => void;
-}
-
-function chunkBlocks(blocks: TemplateBlock[]): TemplateBlock[][] {
-  const slides: TemplateBlock[][] = [];
-  for (const b of blocks) {
-    const startsSlide = ['heading', 'hero_header', 'section_divider', 'exec_summary'].includes(b.type);
-    if (slides.length === 0) {
-      slides.push([b]);
-    } else if (startsSlide) {
-      slides.push([b]);
-    } else {
-      slides[slides.length - 1].push(b);
-    }
-  }
-  return slides;
 }
 
 // Block type display info
@@ -110,7 +96,7 @@ export function TemplatePreviewModal({
     if (currentSlide > 0) setShowKeyHint(false);
   }, [currentSlide]);
 
-  const slides = useMemo(() => chunkBlocks(allBlocks), [allBlocks]);
+  const slides = useMemo(() => chunkTemplateBlocks(allBlocks), [allBlocks]);
   const totalSlides = slides.length;
   const blockBreakdown = useMemo(() => getBlockBreakdown(allBlocks), [allBlocks]);
   const progressPercent = totalSlides > 0 ? ((currentSlide + 1) / totalSlides) * 100 : 0;

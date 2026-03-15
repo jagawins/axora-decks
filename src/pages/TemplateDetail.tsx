@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TemplatePreview } from "@/components/templates/TemplatePreview";
 import { fetchTemplates, fetchTemplateBlocks, createDeckFromTemplate, type Template, type TemplateBlock } from "@/lib/templates";
+import { chunkTemplateBlocks } from "@/lib/template-slides";
 import { inferVisualCategory, getCategoryStyle } from "@/components/templates/TemplateThumbnail";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -33,17 +34,6 @@ const BLOCK_DISPLAY: Record<string, { icon: typeof BarChart3; label: string }> =
   recommendation_panel: { icon: Target, label: 'Recommendations' },
   scenario_set: { icon: LayoutGrid, label: 'Scenarios' },
 };
-
-function chunkBlocks(blocks: TemplateBlock[]): TemplateBlock[][] {
-  const slides: TemplateBlock[][] = [];
-  for (const b of blocks) {
-    const startsSlide = ['heading', 'hero_header', 'section_divider', 'exec_summary'].includes(b.type);
-    if (slides.length === 0) slides.push([b]);
-    else if (startsSlide) slides.push([b]);
-    else slides[slides.length - 1].push(b);
-  }
-  return slides;
-}
 
 export default function TemplateDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -82,7 +72,7 @@ export default function TemplateDetail() {
     }
   };
 
-  const slides = useMemo(() => chunkBlocks(allBlocks), [allBlocks]);
+  const slides = useMemo(() => chunkTemplateBlocks(allBlocks), [allBlocks]);
 
   const blockBreakdown = useMemo(() => {
     const counts = new Map<string, number>();
