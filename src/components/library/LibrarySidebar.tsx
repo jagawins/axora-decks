@@ -33,6 +33,12 @@ const LinkedInIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const SubstackIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z" />
+  </svg>
+);
+
 interface LibrarySidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
@@ -52,6 +58,7 @@ const socialLinks = [
   { label: "X", href: "https://x.com/inaxiva", icon: XIcon },
   { label: "Instagram", href: "https://www.instagram.com/axivaexec/", icon: InstagramIcon },
   { label: "LinkedIn", href: "https://www.linkedin.com/company/111021149/", icon: LinkedInIcon },
+  { label: "Substack", href: "https://axiva.substack.com", icon: SubstackIcon },
 ];
 
 export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }: LibrarySidebarProps) => {
