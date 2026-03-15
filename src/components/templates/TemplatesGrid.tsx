@@ -341,7 +341,6 @@ export function TemplatesGrid({ templates, loading, onRefresh }: TemplatesGridPr
         open={!!previewTemplate}
         onClose={closePreview}
         onUseTemplate={(id) => {
-          closePreview();
           handleSelectTemplate(id);
         }}
       />
