@@ -1,80 +1,93 @@
 
 
-## Plan: Competitive Demo Strategy — Homepage Live Input + Full Deck Gallery + Enhanced How-It-Works
+## World-Class Template System — Upgrade Plan
 
-This is a significant conversion optimization effort across 3 pages. Here's what we'll build:
-
----
-
-### 1. Homepage Hero — Live "Outline to Deck" Preview (Gamma-style)
-
-**File: `src/components/landing/Hero.tsx`**
-
-Add a collapsible "Try it now" section below the CTA buttons:
-- A textarea with placeholder: "Paste your outline, meeting notes, or just describe your deck..."
-- A "Generate Preview" button
-- On click: calls the `generate-outline` edge function (no auth required) and renders a 3-slide preview card inline
-- No sign-up gate — the preview is visible immediately
-- After preview renders, show a "Create Full Deck →" CTA that links to `/create` (pre-filling the prompt)
-- Includes a set of 3 quick-start chips ("Board update for Q4", "Series A pitch", "GTM strategy") so visitors don't need to think of input
-
-**New component: `src/components/landing/HeroLiveDemo.tsx`**
-- Manages the textarea, loading state, and preview rendering
-- Calls `supabase.functions.invoke('generate-outline', { body: { topic, tone: 'executive', slideCount: 3 } })`
-- Renders the outline as styled slide cards (title + bullets) with theme colors — not actual block rendering, just a clean preview
-- Stores the prompt in URL params or sessionStorage so `/create` can pick it up
+The current template experience has solid foundations (filtering, categories, preview modal) but lacks the polish and conversion-optimized design of top-tier template marketplaces like YouExec, Slidebean, and Canva. Here's a focused plan to elevate it.
 
 ---
 
-### 2. Templates Page — Full Deck Gallery (Beautiful.ai-style)
+### 1. Template Grid Cards — Show Real Slide Content
 
-**File: `src/components/landing/ExampleDecks.tsx`**
+**Problem**: Cards currently show abstract geometric shapes (bars, circles) that all look similar and don't communicate what's actually inside the template.
 
-Enhance the existing ExampleDecks component:
-- Add a "Browse All Slides" button on each card that opens the existing `TemplatePreviewModal` (already wired up)
-- Add a dedicated section header: "See What AXIVA Creates" with a subtitle about no sign-up needed
-- This is already mostly working — the main fix is making sure the modal opens reliably and the slide previews are populated
+**Fix**: Replace `TemplatePreviewImage` cover cards with a mini real-slide renderer that shows the first 2-3 blocks at tiny scale inside the card thumbnail — similar to how YouExec shows actual slide screenshots. Fall back to the current styled cover only when blocks aren't available.
 
-**File: `src/pages/Templates.tsx`**
-- Move the ExampleDecks section to the top with a more prominent heading: "Complete Example Decks — Browse Without Signing Up"
+- Render first slide's blocks inside a 1280x720 canvas scaled down to card size using CSS `transform: scale()`
+- Add a subtle gradient overlay at the bottom for the title text
+- Keep the category badge and hover actions overlay
 
 ---
 
-### 3. How It Works — Interactive Step-by-Step Tour (Pitch-style)
+### 2. Template Preview Modal — Cinematic Slide Viewer
 
-**File: `src/pages/HowItWorks.tsx`**
+**Problem**: The modal works but feels utilitarian. Slide content is sometimes poorly scaled or clipped.
 
-Replace the current static 4-card grid with an interactive scrolling walkthrough:
-- Each step becomes a full-width section with a left description panel and a right "mock UI" panel
-- The mock UI shows a stylized representation of each step:
-  - Step 1: Animated textarea with typing effect
-  - Step 2: Outline cards appearing one by one
-  - Step 3: A slide preview with AI editing cursor
-  - Step 4: Export format icons with a download animation
-- Steps highlight as user scrolls (IntersectionObserver)
-- Add a sticky "Try It Free" CTA bar at bottom
+**Fix**:
+- Add a dark immersive backdrop (like Keynote's light table)
+- Show slide count prominently: "12 Slides" with a progress bar
+- Add a "What's Inside" section below the slide viewer showing block type breakdown (e.g., "3 Charts · 2 Data Tables · 1 Timeline · Executive Summary")
+- Improve thumbnail strip: render actual mini-slides instead of full `TemplatePreview` components (too heavy)
+- Add template metadata: estimated reading time, export formats (PPTX, PDF), category tags
 
 ---
 
-### 4. Homepage Trust Section Enhancement
+### 3. Template Detail Page — Full Sales Page
 
-**File: `src/components/landing/Hero.tsx`**
+**Problem**: `/template/:slug` is a bare two-column layout with minimal information. Not conversion-optimized.
 
-Replace the generic company names with a real-feeling customer quote:
-- Add a testimonial-style quote above the trust logos: *"I had the board deck done in under 10 minutes — our CFO thought it was made by McKinsey."*
-- Keep the company logos but make them feel earned
+**Fix**:
+- Hero section with the template title, description, and a large 16:9 preview
+- Slide gallery strip below the hero (horizontally scrollable thumbnails)
+- "What's Included" section: list of all slide types with icons
+- Trust signals: "Used by 500+ executives", "Export to PowerPoint", "Fully customizable with AI"
+- Related templates section at the bottom
+- Sticky CTA bar on mobile
 
 ---
 
-### Summary of Files
+### 4. Templates Page — Premium Gallery Hero
 
-| File | Action |
-|------|--------|
-| `src/components/landing/HeroLiveDemo.tsx` | **New** — live outline preview widget |
-| `src/components/landing/Hero.tsx` | Add HeroLiveDemo below CTAs, add testimonial quote |
-| `src/pages/HowItWorks.tsx` | Rewrite with interactive scrolling walkthrough |
-| `src/components/landing/ExampleDecks.tsx` | Add section header, improve gallery presentation |
-| `src/pages/Templates.tsx` | Reorder — example decks first with prominent heading |
+**Problem**: The page jumps straight into Example Decks + grid with no context or visual impact.
 
-No database changes. No new edge functions (uses existing `generate-outline`). No new dependencies.
+**Fix**:
+- Add a compact hero section with headline: "60+ Executive Templates" and subline about quality
+- Feature 3 "Staff Pick" templates in a larger showcase row before the grid
+- Add a "New This Week" badge system for recently added templates
+- Social proof bar: "Trusted by 2,000+ strategists" with category icons
+
+---
+
+### 5. Template Card Metadata & Quality Signals
+
+**Problem**: Cards show category + "X Slides" + "PPTX" but lack the signals that drive clicks and conversions.
+
+**Fix**:
+- Show actual slide count from the database (not just preview_blocks length)
+- Add "Popular" badge based on usage count
+- Add a subtle "AI Customizable" indicator
+- Show 1-2 block type icons (chart, timeline, etc.) to hint at content richness
+
+---
+
+### 6. Smooth Slide Transitions in Preview
+
+**Problem**: Slide transitions use a basic opacity+translate that feels janky.
+
+**Fix**:
+- Use `framer-motion` (already likely in deps) or CSS keyframes for a smooth crossfade with slight scale
+- Add a keyboard shortcut hint overlay on first open ("← → to navigate")
+
+---
+
+### Technical Approach
+
+**Files to modify:**
+- `src/components/templates/TemplateCard.tsx` — real slide thumbnail, metadata
+- `src/components/templates/TemplatePreviewModal.tsx` — immersive viewer, "what's inside" section
+- `src/components/templates/TemplatePreviewImage.tsx` — fallback only when no blocks
+- `src/pages/TemplateDetail.tsx` — full sales page redesign
+- `src/pages/Templates.tsx` — hero section, staff picks row
+- `src/components/templates/TemplatesGrid.tsx` — quality signals, badges
+
+**No database changes required.** All enhancements are UI/UX improvements using existing data.
 
