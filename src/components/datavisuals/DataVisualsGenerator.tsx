@@ -127,43 +127,46 @@ export default function DataVisualsGenerator() {
   const downloadAsImage = useCallback(async (index: number) => {
     setDownloading(index);
     try {
-      // Find the rendered visual card DOM node
       const cardEl = document.getElementById(`visual-card-${index}`);
       if (!cardEl) throw new Error("Visual card not found");
 
-      // Use html2canvas
       const { default: html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(cardEl, {
+      const sourceCanvas = await html2canvas(cardEl, {
         backgroundColor: "#ffffff",
         scale: 2,
         useCORS: true,
         logging: false,
       });
 
-      // Add watermark for free users
+      let finalCanvas: HTMLCanvasElement;
+
       if (!isPro) {
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.save();
-          // Watermark bar at bottom
-          const barH = 40;
-          ctx.fillStyle = "#111827";
-          ctx.fillRect(0, canvas.height - barH, canvas.width, barH);
-          ctx.fillStyle = "#ffffff";
-          ctx.font = "bold 16px Arial, sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText("Generated with AXIVA — axiva.ai", canvas.width / 2, canvas.height - 14);
-          ctx.restore();
-        }
+        // Create a taller canvas with watermark bar appended below
+        const barH = 80; // at 2x scale
+        finalCanvas = document.createElement("canvas");
+        finalCanvas.width = sourceCanvas.width;
+        finalCanvas.height = sourceCanvas.height + barH;
+
+        const ctx = finalCanvas.getContext("2d")!;
+        // Draw the visual
+        ctx.drawImage(sourceCanvas, 0, 0);
+        // Draw watermark bar
+        ctx.fillStyle = "#111827";
+        ctx.fillRect(0, sourceCanvas.height, finalCanvas.width, barH);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 28px Arial, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Generated with AXIVA — axiva.ai", finalCanvas.width / 2, sourceCanvas.height + barH / 2);
+      } else {
+        finalCanvas = sourceCanvas;
       }
 
-      // Download
       const link = document.createElement("a");
       link.download = `axiva-visual-${Date.now()}.png`;
-      link.href = canvas.toDataURL("image/png");
+      link.href = finalCanvas.toDataURL("image/png");
       link.click();
 
-      // Show Pro upsell for free users
       if (!isPro) {
         toast({
           title: "Visual downloaded with watermark",
@@ -268,9 +271,47 @@ export default function DataVisualsGenerator() {
       const r = await callAI(p, selectedType);
       if (!r.length) throw new Error("No visuals generated. Be more specific about the data.");
       setVisuals(r);
+
+      // Auto-save each visual to library as a project
+      for (const visual of r) {
+        try {
+          const title = String((visual.content as any).title || "Data Visual");
+          const { data: proj } = await supabase
+            .from("projects")
+            .insert({
+              title: `[Visual] ${title}`,
+              user_id: user.id,
+              theme: "executive",
+              description: "Generated from Data & Visuals",
+            } as any)
+            .select("id")
+            .single();
+
+          if (proj) {
+            await supabase.from("blocks").insert({
+              project_id: proj.id,
+              type: visual.type,
+              content: visual.content as any,
+              order_index: 0,
+            } as any);
+          }
+        } catch (saveErr) {
+          console.warn("Auto-save to library failed:", saveErr);
+        }
+      }
+
+      // Refresh existing decks list
+      const { data: refreshed } = await supabase
+        .from("projects")
+        .select("id, title")
+        .order("updated_at", { ascending: false })
+        .limit(20);
+      if (refreshed) setExistingDecks(refreshed as { id: string; title: string }[]);
+
+      toast({ title: "Visual generated & saved", description: "Find it in your library dashboard." });
     } catch (e: any) { setError(e.message || "Failed"); }
     finally { setGenerating(false); }
-  }, [prompt, selectedType, user, navigate]);
+  }, [prompt, selectedType, user, navigate, toast]);
 
   const quickGen = (qp: typeof QUICK_PROMPTS[0]) => {
     setPrompt(qp.prompt); setSelectedType(qp.type);
