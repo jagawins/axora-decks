@@ -58,6 +58,7 @@ const socialLinks = [
   { label: "X", href: "https://x.com/inaxiva", icon: XIcon },
   { label: "Instagram", href: "https://www.instagram.com/axivaexec/", icon: InstagramIcon },
   { label: "LinkedIn", href: "https://www.linkedin.com/company/111021149/", icon: LinkedInIcon },
+  { label: "Substack", href: "https://axiva.substack.com", icon: SubstackIcon },
 ];
 
 export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }: LibrarySidebarProps) => {
