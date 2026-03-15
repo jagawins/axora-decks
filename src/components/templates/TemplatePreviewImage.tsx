@@ -39,124 +39,60 @@ function hashString(str: string): number {
   return Math.abs(hash);
 }
 
-// ── Category-specific visual illustrations ──────────────────────────────────
+// ── Category-specific abstract visuals (scale-friendly, no text) ────────────
 
 function StrategyVisual({ accent }: { accent: string }) {
   return (
-    <div className="w-full h-full flex flex-col gap-2.5 justify-center px-3">
-      {[
-        { w: 88, label: 'Vision' },
-        { w: 72, label: 'Strategy' },
-        { w: 56, label: 'Execution' },
-      ].map((bar, i) => (
-        <div key={i} className="flex items-center gap-2">
-          <div
-            className="h-5 rounded-md flex items-center px-2 shrink-0"
-            style={{
-              width: `${bar.w}%`,
-              backgroundColor: accent,
-              opacity: 0.8 - i * 0.15,
-            }}
-          >
-            <span className="text-[7px] font-bold text-white/90 uppercase tracking-wider whitespace-nowrap">
-              {bar.label}
-            </span>
-          </div>
-        </div>
+    <div className="w-full h-full flex flex-col gap-[8%] justify-center px-[12%]">
+      {[90, 70, 50, 32].map((w, i) => (
+        <div
+          key={i}
+          className="rounded-sm"
+          style={{ width: `${w}%`, height: '14%', backgroundColor: accent, opacity: 0.75 - i * 0.12 }}
+        />
       ))}
-      <div className="flex gap-1.5 mt-1">
-        {[1, 2, 3, 4].map((i) => (
-          <div
-            key={i}
-            className="flex-1 h-1 rounded-full"
-            style={{ backgroundColor: accent, opacity: 0.2 + i * 0.1 }}
-          />
-        ))}
-      </div>
     </div>
   );
 }
 
 function FinancialVisual({ accent }: { accent: string }) {
-  const bars = [35, 52, 44, 68, 58, 78, 72, 90];
+  const bars = [38, 55, 45, 72, 60, 82];
   return (
-    <div className="w-full h-full flex flex-col justify-end px-3 pb-3 pt-2">
-      <div className="flex items-end gap-[3px] flex-1">
-        {bars.map((h, i) => (
-          <div
-            key={i}
-            className="flex-1 rounded-t-sm transition-all"
-            style={{
-              height: `${h}%`,
-              backgroundColor: accent,
-              opacity: 0.35 + (i / bars.length) * 0.55,
-            }}
-          />
-        ))}
-      </div>
-      <div className="flex justify-between mt-2">
-        <div className="rounded-md px-2 py-1" style={{ backgroundColor: accent + '20' }}>
-          <div className="text-[9px] font-bold" style={{ color: accent }}>$4.2M</div>
-        </div>
-        <div className="rounded-md px-2 py-1" style={{ backgroundColor: accent + '20' }}>
-          <div className="text-[9px] font-bold" style={{ color: accent }}>↑ 24%</div>
-        </div>
-      </div>
+    <div className="w-full h-full flex items-end gap-[4%] px-[10%] pb-[12%]">
+      {bars.map((h, i) => (
+        <div
+          key={i}
+          className="flex-1 rounded-t-sm"
+          style={{ height: `${h}%`, backgroundColor: accent, opacity: 0.3 + (i / bars.length) * 0.6 }}
+        />
+      ))}
     </div>
   );
 }
 
 function BoardVisual({ accent }: { accent: string }) {
   return (
-    <div className="w-full h-full flex flex-col gap-2 justify-center px-3">
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 gap-1.5">
-        {[
-          { val: '94%', lbl: 'On Track' },
-          { val: '3/5', lbl: 'Resolved' },
-          { val: '↑12%', lbl: 'Revenue' },
-          { val: '4.8', lbl: 'NPS' },
-        ].map((kpi, i) => (
-          <div
-            key={i}
-            className="rounded-md p-1.5 text-center"
-            style={{ backgroundColor: accent + '15', border: `1px solid ${accent}25` }}
-          >
-            <div className="text-[9px] font-bold" style={{ color: accent }}>{kpi.val}</div>
-            <div className="text-[6px] text-white/40 uppercase tracking-wide">{kpi.lbl}</div>
-          </div>
-        ))}
-      </div>
-      <div className="flex items-center gap-1.5 mt-1">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center gap-1">
-            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: accent, opacity: 0.5 + i * 0.15 }} />
-            <div className="h-1 rounded bg-white/10" style={{ width: `${20 + i * 8}px` }} />
-          </div>
-        ))}
-      </div>
+    <div className="w-full h-full grid grid-cols-2 gap-[8%] p-[12%]">
+      {[0.7, 0.55, 0.45, 0.65].map((op, i) => (
+        <div
+          key={i}
+          className="rounded-md"
+          style={{ backgroundColor: accent, opacity: op, border: `1px solid ${accent}30` }}
+        />
+      ))}
     </div>
   );
 }
 
 function SalesVisual({ accent }: { accent: string }) {
   return (
-    <div className="w-full h-full flex flex-col justify-center px-3 gap-2">
-      {/* Funnel shape */}
-      {[
-        { w: '100%', label: 'Leads', opacity: 0.3 },
-        { w: '78%', label: 'Qualified', opacity: 0.5 },
-        { w: '52%', label: 'Pipeline', opacity: 0.7 },
-        { w: '30%', label: 'Closed', opacity: 0.9 },
-      ].map((stage, i) => (
-        <div key={i} className="flex items-center gap-2 mx-auto" style={{ width: stage.w }}>
-          <div
-            className="w-full h-4 rounded-sm flex items-center justify-center"
-            style={{ backgroundColor: accent, opacity: stage.opacity }}
-          >
-            <span className="text-[6px] font-bold text-white/90 uppercase tracking-wider">{stage.label}</span>
-          </div>
-        </div>
+    <div className="w-full h-full flex flex-col gap-[6%] justify-center items-center px-[8%]">
+      {[100, 76, 52, 30].map((w, i) => (
+        <div
+          key={i}
+          className="rounded-sm mx-auto"
+          style={{ width: `${w}%`, height: '15%', backgroundColor: accent, opacity: 0.25 + i * 0.18 }}
+        />
       ))}
     </div>
   );
@@ -164,53 +100,24 @@ function SalesVisual({ accent }: { accent: string }) {
 
 function MarketingVisual({ accent }: { accent: string }) {
   return (
-    <div className="w-full h-full flex items-center justify-center px-3">
-      <div className="relative w-full aspect-square max-w-[90%]">
-        {/* Concentric circles */}
-        {[100, 72, 44].map((size, i) => (
+    <div className="w-full h-full flex items-center justify-center p-[10%]">
+      <div className="relative w-full" style={{ paddingBottom: '100%' }}>
+        {[90, 62, 34].map((size, i) => (
           <div
             key={i}
             className="absolute rounded-full"
             style={{
-              width: `${size}%`,
-              height: `${size}%`,
-              top: `${(100 - size) / 2}%`,
-              left: `${(100 - size) / 2}%`,
-              border: `1.5px solid ${accent}`,
-              opacity: 0.2 + i * 0.2,
+              width: `${size}%`, height: `${size}%`,
+              top: `${(100 - size) / 2}%`, left: `${(100 - size) / 2}%`,
+              border: `2px solid ${accent}`,
+              opacity: 0.15 + i * 0.2,
             }}
           />
         ))}
         <div
           className="absolute rounded-full"
-          style={{
-            width: '20%',
-            height: '20%',
-            top: '40%',
-            left: '40%',
-            backgroundColor: accent,
-            opacity: 0.7,
-          }}
+          style={{ width: '18%', height: '18%', top: '41%', left: '41%', backgroundColor: accent, opacity: 0.7 }}
         />
-        {/* Orbit dots */}
-        {[0, 60, 120, 200, 290].map((deg, i) => {
-          const rad = (deg * Math.PI) / 180;
-          const x = 50 + 40 * Math.cos(rad);
-          const y = 50 + 40 * Math.sin(rad);
-          return (
-            <div
-              key={i}
-              className="absolute w-1.5 h-1.5 rounded-full"
-              style={{
-                left: `${x}%`,
-                top: `${y}%`,
-                backgroundColor: accent,
-                opacity: 0.5 + i * 0.1,
-                transform: 'translate(-50%, -50%)',
-              }}
-            />
-          );
-        })}
       </div>
     </div>
   );
@@ -218,55 +125,28 @@ function MarketingVisual({ accent }: { accent: string }) {
 
 function OperationsVisual({ accent }: { accent: string }) {
   return (
-    <div className="w-full h-full flex flex-col gap-2 justify-center px-3">
-      {/* Process flow */}
-      <div className="flex items-center gap-1">
-        {['Plan', 'Build', 'Ship', 'Learn'].map((step, i) => (
-          <div key={i} className="flex items-center gap-1">
-            <div
-              className="rounded-md px-1.5 py-1 text-center"
-              style={{ backgroundColor: accent, opacity: 0.4 + i * 0.15 }}
-            >
-              <span className="text-[6px] font-bold text-white/90 uppercase">{step}</span>
-            </div>
-            {i < 3 && (
-              <div className="text-[8px]" style={{ color: accent, opacity: 0.5 }}>→</div>
-            )}
-          </div>
-        ))}
-      </div>
-      {/* Status bars */}
-      <div className="space-y-1.5 mt-1">
-        {[85, 62, 94].map((pct, i) => (
-          <div key={i} className="flex items-center gap-1.5">
-            <div className="h-2 rounded-full bg-white/5 flex-1">
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${pct}%`, backgroundColor: accent, opacity: 0.6 }}
-              />
-            </div>
-            <span className="text-[7px] font-medium" style={{ color: accent, opacity: 0.8 }}>{pct}%</span>
-          </div>
-        ))}
-      </div>
+    <div className="w-full h-full flex flex-col gap-[10%] justify-center px-[12%]">
+      {[85, 60, 92].map((w, i) => (
+        <div key={i} className="h-[12%] rounded-full bg-white/5 overflow-hidden">
+          <div className="h-full rounded-full" style={{ width: `${w}%`, backgroundColor: accent, opacity: 0.55 + i * 0.1 }} />
+        </div>
+      ))}
     </div>
   );
 }
 
 function ComparisonVisual({ accent }: { accent: string }) {
   return (
-    <div className="w-full h-full flex gap-2 px-3 py-3">
-      <div className="flex-1 flex flex-col gap-1.5 justify-center">
-        <div className="text-[7px] font-bold uppercase tracking-wider text-center" style={{ color: accent }}>Option A</div>
-        {[70, 55, 85, 60].map((w, i) => (
-          <div key={i} className="h-2 rounded-sm mx-auto" style={{ width: `${w}%`, backgroundColor: accent, opacity: 0.5 }} />
+    <div className="w-full h-full flex gap-[4%] px-[8%] py-[10%]">
+      <div className="flex-1 flex flex-col gap-[8%] justify-center">
+        {[70, 55, 85].map((h, i) => (
+          <div key={i} className="rounded-sm" style={{ height: `${h / 4}%`, backgroundColor: accent, opacity: 0.6 }} />
         ))}
       </div>
       <div className="w-px self-stretch" style={{ backgroundColor: accent, opacity: 0.2 }} />
-      <div className="flex-1 flex flex-col gap-1.5 justify-center">
-        <div className="text-[7px] font-bold uppercase tracking-wider text-center" style={{ color: accent, opacity: 0.6 }}>Option B</div>
-        {[60, 80, 45, 75].map((w, i) => (
-          <div key={i} className="h-2 rounded-sm mx-auto" style={{ width: `${w}%`, backgroundColor: accent, opacity: 0.3 }} />
+      <div className="flex-1 flex flex-col gap-[8%] justify-center">
+        {[55, 80, 45].map((h, i) => (
+          <div key={i} className="rounded-sm" style={{ height: `${h / 4}%`, backgroundColor: accent, opacity: 0.35 }} />
         ))}
       </div>
     </div>
@@ -275,18 +155,13 @@ function ComparisonVisual({ accent }: { accent: string }) {
 
 function GeneralVisual({ accent }: { accent: string }) {
   return (
-    <div className="w-full h-full grid grid-cols-2 gap-1.5 p-3">
-      {[1, 2, 3, 4].map((i) => (
+    <div className="w-full h-full grid grid-cols-2 gap-[8%] p-[12%]">
+      {[0.2, 0.35, 0.3, 0.15].map((op, i) => (
         <div
           key={i}
-          className="rounded-lg flex items-center justify-center"
-          style={{ backgroundColor: accent + '12', border: `1px solid ${accent}18` }}
-        >
-          <div
-            className="w-6 h-6 rounded-md"
-            style={{ backgroundColor: accent, opacity: 0.15 + i * 0.08 }}
-          />
-        </div>
+          className="rounded-lg"
+          style={{ backgroundColor: accent, opacity: op, border: `1px solid ${accent}20` }}
+        />
       ))}
     </div>
   );
