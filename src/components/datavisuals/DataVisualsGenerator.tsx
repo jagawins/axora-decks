@@ -90,6 +90,7 @@ export default function DataVisualsGenerator() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const [prompt, setPrompt] = useState("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -98,6 +99,37 @@ export default function DataVisualsGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<number | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [addingToDeck, setAddingToDeck] = useState<number | null>(null);
+
+  const addToDeck = useCallback(async (visual: { type: BlockType; content: Record<string, unknown> }, index: number) => {
+    if (!user) { navigate("/auth"); return; }
+    setAddingToDeck(index);
+    try {
+      const title = String((visual.content as any).title || "Data Visual");
+      const { data: newProject, error: projErr } = await supabase
+        .from("projects")
+        .insert({ title, user_id: user.id, theme: "executive" })
+        .select("id")
+        .single();
+      if (projErr || !newProject) throw projErr || new Error("Failed to create project");
+
+      const { error: blockErr } = await supabase.from("blocks").insert({
+        project_id: newProject.id,
+        type: visual.type,
+        content: visual.content as any,
+        order_index: 0,
+      } as any);
+      if (blockErr) throw blockErr;
+
+      toast({ title: "Deck created", description: "Opening editor…" });
+      navigate(`/editor/${newProject.id}`);
+    } catch (e: any) {
+      console.error("Add to deck error:", e);
+      toast({ title: "Failed to create deck", variant: "destructive" });
+    } finally {
+      setAddingToDeck(null);
+    }
+  }, [user, navigate, toast]);
 
   const handleFile = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]; if (!f) return;
