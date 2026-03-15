@@ -698,6 +698,12 @@ const Dashboard = () => {
             </div>
           )}
 
+          {sidebarTab === 'data-visuals' && (
+            <div className="py-4">
+              <DataVisualsGenerator />
+            </div>
+          )}
+
           {sidebarTab === 'themes' && (
             <ThemesLibrary />
           )}
