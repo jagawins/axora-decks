@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText, Plus, Sparkles, Upload } from 'lucide-react';
+import { Loader2, FileText, Plus, Sparkles, Upload, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import { LibrarySidebar } from '@/components/library/LibrarySidebar';

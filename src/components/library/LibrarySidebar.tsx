@@ -49,6 +49,7 @@ const navItems = [
   { id: "home", label: "Home", icon: Home },
   { id: "library", label: "Library", icon: Library },
   { id: "templates", label: "Templates", icon: LayoutTemplate },
+  { id: "data-visuals", label: "Data & Visuals", icon: BarChart3 },
   { id: "themes", label: "Themes", icon: SwatchBook },
   { id: "brand-kit", label: "Brand Kit", icon: Paintbrush, href: "/brand-kit" },
   { id: "settings", label: "Settings", icon: Settings },
