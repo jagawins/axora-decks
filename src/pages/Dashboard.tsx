@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText, Plus, Sparkles, Upload } from 'lucide-react';
+import { Loader2, FileText, Plus, Sparkles, Upload, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import { LibrarySidebar } from '@/components/library/LibrarySidebar';
@@ -23,6 +23,7 @@ import { fetchTemplates, Template } from '@/lib/templates';
 import { FirstDeckModal } from '@/components/FirstDeckModal';
 import { BrandKitCard } from '@/components/dashboard/BrandKitCard';
 import InfographicGenerator from '@/components/infographics/InfographicGenerator';
+import DataVisualsGenerator from '@/components/datavisuals/DataVisualsGenerator';
 import ThemesLibrary from '@/components/themes/ThemesLibrary';
 
 interface Project {
@@ -51,7 +52,7 @@ function DashboardTemplatesTabs({
   templatesLoading: boolean;
   onRefreshTemplates: () => Promise<void>;
 }) {
-  const [subTab, setSubTab] = useState<'templates' | 'infographics'>('templates');
+  const [subTab, setSubTab] = useState<'templates' | 'infographics' | 'data-visuals'>('templates');
 
   return (
     <>
@@ -83,6 +84,21 @@ function DashboardTemplatesTabs({
             <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent rounded-t-full" />
           )}
         </button>
+        <button
+          onClick={() => setSubTab('data-visuals')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors relative ${
+            subTab === 'data-visuals' ? 'text-accent' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <BarChart3 className="h-4 w-4" />
+          Data & Visuals
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent uppercase">
+            NEW
+          </span>
+          {subTab === 'data-visuals' && (
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent rounded-t-full" />
+          )}
+        </button>
       </div>
 
       {subTab === 'templates' && (
@@ -104,6 +120,12 @@ function DashboardTemplatesTabs({
       {subTab === 'infographics' && (
         <div className="py-4">
           <InfographicGenerator />
+        </div>
+      )}
+
+      {subTab === 'data-visuals' && (
+        <div className="py-4">
+          <DataVisualsGenerator />
         </div>
       )}
     </>
@@ -673,6 +695,12 @@ const Dashboard = () => {
                   }
                 }}
               />
+            </div>
+          )}
+
+          {sidebarTab === 'data-visuals' && (
+            <div className="py-4">
+              <DataVisualsGenerator />
             </div>
           )}
 
