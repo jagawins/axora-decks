@@ -6,13 +6,15 @@ import {
   Sparkles, Loader2, Download, Share2, BarChart3, PieChart,
   TrendingUp, GitBranch, Layers, Grid3x3, Table2, Target,
   ArrowRight, RefreshCw, Copy, Check, Upload, FileSpreadsheet,
-  X
+  X, Plus, FolderOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { VisualBlockRenderer } from "@/components/blocks/VisualBlockRenderer";
 import { invokeFunction } from "@/lib/supabase-function-client";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import type { BlockType } from "@/lib/blocks";
 
 /* ── Visual Types ───────────────────────────────────────────────── */
