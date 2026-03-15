@@ -52,6 +52,11 @@ export function chunkTemplateBlocks(blocks: TemplateBlock[]): TemplateBlock[][] 
 
   const sorted = [...blocks].sort((a, b) => a.order_index - b.order_index);
 
+  console.debug('[chunkTemplateBlocks]', sorted.length, 'blocks. First block_meta:', JSON.stringify(sorted[0]?.block_meta), 'sectionIndex check:', sorted.map(b => {
+    const bm = (b.block_meta || {}) as Record<string, unknown>;
+    return bm.sectionIndex;
+  }));
+
   // 1) Best signal: section index from block metadata/content
   const hasSectionMeta = sorted.some((b) => getSectionIndex(b) !== null);
   if (hasSectionMeta) {
