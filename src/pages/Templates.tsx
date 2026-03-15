@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import SeoHead from "@/components/SeoHead";
 import Navbar from "@/components/landing/Navbar";
 import MarketingFooter from "@/components/MarketingFooter";
@@ -8,7 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 import ExampleDecks from "@/components/landing/ExampleDecks";
 import InfographicGenerator from "@/components/infographics/InfographicGenerator";
 import { cn } from "@/lib/utils";
-import { LayoutTemplate, Sparkles, Image as ImageIcon } from "lucide-react";
+import { LayoutTemplate, Sparkles, Crown, ArrowRight, Layers, Download, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { TemplatePreview } from "@/components/templates/TemplatePreview";
 
 type TabId = "templates" | "infographics";
 
@@ -37,6 +40,12 @@ export default function Templates() {
       setLoading(false);
     }
   };
+
+  // Staff Picks: featured templates
+  const staffPicks = useMemo(
+    () => templates.filter((t) => t.is_featured).slice(0, 3),
+    [templates]
+  );
 
   const TABS: { id: TabId; label: string; icon: React.ReactNode; badge?: string }[] = [
     { id: "templates", label: "Templates", icon: <LayoutTemplate className="h-4 w-4" /> },
@@ -86,12 +95,100 @@ export default function Templates() {
           {/* Templates Tab */}
           {activeTab === "templates" && (
             <>
-              {/* Example Decks */}
+              {/* ── Premium Hero Section ── */}
+              <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-card via-card to-accent/5 mb-12 p-8 sm:p-12">
+                {/* Decorative glow */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                
+                <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                  <div className="max-w-2xl">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Crown className="h-5 w-5 text-accent" />
+                      <span className="text-xs font-bold uppercase tracking-widest text-accent">Premium Collection</span>
+                    </div>
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.1] mb-3">
+                      {templates.length}+ Executive Templates
+                    </h1>
+                    <p className="text-lg text-muted-foreground max-w-xl">
+                      Board-ready decks, investor pitches, and strategy presentations.
+                      Every template is AI-customizable and exports to PowerPoint.
+                    </p>
+                    <div className="flex items-center gap-4 mt-5 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <Zap className="h-4 w-4 text-accent" />
+                        AI Editable
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Download className="h-4 w-4 text-accent" />
+                        PPTX Export
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Layers className="h-4 w-4 text-accent" />
+                        Multi-slide
+                      </span>
+                    </div>
+                  </div>
+                  <Button size="lg" className="gap-2 shrink-0" asChild>
+                    <Link to="/create">
+                      Create from Scratch
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+
+              {/* ── Staff Picks ── */}
+              {staffPicks.length >= 3 && (
+                <div className="mb-14">
+                  <div className="flex items-center gap-2 mb-5">
+                    <Sparkles className="h-5 w-5 text-amber-500" />
+                    <h2 className="text-xl font-bold tracking-tight text-foreground">Staff Picks</h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    {staffPicks.map((t) => (
+                      <Link
+                        key={t.id}
+                        to={`/template/${t.slug}`}
+                        className="group relative rounded-2xl overflow-hidden border border-border/50 bg-card hover:border-accent/30 hover:shadow-xl hover:shadow-accent/5 transition-all duration-300 hover:scale-[1.01]"
+                      >
+                        <div className="aspect-[16/10] overflow-hidden">
+                          {t.preview_blocks && t.preview_blocks.length > 0 ? (
+                            <TemplatePreview
+                              blocks={t.preview_blocks.slice(0, 3)}
+                              className="shadow-none border-0 rounded-none w-full h-full"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-muted/20 flex items-center justify-center">
+                              <LayoutTemplate className="h-8 w-8 text-muted-foreground/30" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="px-5 py-4 border-t border-border/30">
+                          <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors text-[15px] tracking-tight">
+                            {t.title}
+                          </h3>
+                          {t.description && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{t.description}</p>
+                          )}
+                        </div>
+                        <div className="absolute top-3 left-3">
+                          <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/90 text-white text-[10px] font-semibold backdrop-blur-sm shadow-sm">
+                            <Sparkles className="h-3 w-3" />
+                            Staff Pick
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Example Decks ── */}
               <div className="mb-12">
                 <div className="mb-6">
-                  <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+                  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                     Complete Example Decks
-                  </h1>
+                  </h2>
                   <p className="text-muted-foreground mt-1 text-lg">
                     Browse full slide decks — no sign-up required
                   </p>
@@ -99,7 +196,7 @@ export default function Templates() {
                 <ExampleDecks />
               </div>
 
-              {/* Template library */}
+              {/* ── All Templates ── */}
               <div className="mb-6">
                 <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                   All Templates
