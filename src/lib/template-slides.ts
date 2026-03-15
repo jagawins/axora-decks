@@ -59,6 +59,7 @@ export function chunkTemplateBlocks(blocks: TemplateBlock[]): TemplateBlock[][] 
 
   // 1) Best signal: section index from block metadata/content
   const hasSectionMeta = sorted.some((b) => getSectionIndex(b) !== null);
+  console.debug('[chunkTemplateBlocks] hasSectionMeta:', hasSectionMeta);
   if (hasSectionMeta) {
     const grouped = new Map<number, TemplateBlock[]>();
     let lastIndex = 0;
@@ -71,9 +72,11 @@ export function chunkTemplateBlocks(blocks: TemplateBlock[]): TemplateBlock[][] 
       grouped.get(resolvedIndex)!.push(block);
     }
 
-    return Array.from(grouped.entries())
+    const result = Array.from(grouped.entries())
       .sort(([a], [b]) => a - b)
       .map(([, slideBlocks]) => slideBlocks);
+    console.debug('[chunkTemplateBlocks] sectionIndex result:', result.length, 'slides');
+    return result;
   }
 
   // 2) Fallback heuristic for legacy templates
