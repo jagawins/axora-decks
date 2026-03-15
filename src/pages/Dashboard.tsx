@@ -122,6 +122,12 @@ function DashboardTemplatesTabs({
           <InfographicGenerator />
         </div>
       )}
+
+      {subTab === 'data-visuals' && (
+        <div className="py-4">
+          <DataVisualsGenerator />
+        </div>
+      )}
     </>
   );
 }
