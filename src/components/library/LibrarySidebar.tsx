@@ -1,4 +1,4 @@
-import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown, Palette, Paintbrush, SwatchBook } from "lucide-react";
+import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown, Palette, Paintbrush, SwatchBook, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
