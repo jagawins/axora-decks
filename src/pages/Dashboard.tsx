@@ -52,7 +52,7 @@ function DashboardTemplatesTabs({
   templatesLoading: boolean;
   onRefreshTemplates: () => Promise<void>;
 }) {
-  const [subTab, setSubTab] = useState<'templates' | 'infographics'>('templates');
+  const [subTab, setSubTab] = useState<'templates' | 'infographics' | 'data-visuals'>('templates');
 
   return (
     <>
