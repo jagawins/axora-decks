@@ -39,6 +39,8 @@ const plans = [
       "Brand kit & custom themes",
       "Interactive blocks (tabs, toggles)",
       "AI image generation",
+      "AI Infographics",
+      "Data & Visuals Generator",
       "Advanced AI actions",
       "Priority support"
     ],
