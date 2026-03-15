@@ -7,7 +7,6 @@ import { fetchTemplateBlocks, type Template, type TemplateBlock } from '@/lib/te
 import { TemplatePreview } from './TemplatePreview';
 import { inferVisualCategory, getCategoryStyle } from './TemplateThumbnail';
 import { cn } from '@/lib/utils';
-import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TemplatePreviewModalProps {
