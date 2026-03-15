@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Eye, Sparkles, Layers, BarChart3, Clock, GitCompare, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { chunkTemplateBlocks } from '@/lib/template-slides';
 import { inferVisualCategory, getCategoryStyle } from './TemplateThumbnail';
 import { TemplatePreview } from './TemplatePreview';
 import { TemplatePreviewImage } from './TemplatePreviewImage';
