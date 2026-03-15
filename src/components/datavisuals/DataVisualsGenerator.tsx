@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { VisualBlockRenderer } from "@/components/blocks/VisualBlockRenderer";
+import { invokeFunction } from "@/lib/supabase-function-client";
 import type { BlockType } from "@/lib/blocks";
 
 /* ── Visual Types ───────────────────────────────────────────────── */
@@ -65,38 +66,20 @@ async function callAI(prompt: string, typeId: string | null): Promise<{ type: Bl
   const vt = VISUAL_TYPES.find(v => v.id === typeId);
   const chartSub = typeId ? CHART_SUBTYPE[typeId] || "" : "";
 
-  const sys = `You are an HBR-quality data visualization expert. Return ONLY a valid JSON array of visual block objects. No markdown, no backticks, no explanation.
+  const { data, error } = await invokeFunction<{ blocks: { type: string; content: Record<string, unknown> }[] }>(
+    "generate-data-visual",
+    {
+      prompt,
+      blockType: vt?.blockType || null,
+      chartSubtype: chartSub || null,
+    }
+  );
 
-Each object: { "type": "block_type", "content": { ... } }
-
-Block schemas:
-- chart_block: { "title":"str", "chartType":"bar"|"donut"|"area"|"line"|"stacked_bar", "data":[{"label":"str","value":number},...] }
-- stat_block: { "title":"str", "stats":[{"value":"str","label":"str"},...]  } (2-4 stats)
-- kpi_dashboard: { "title":"str", "cards":[{"title":"str","value":"str","change":"str","trend":"up"|"down","chartType":"bar","chartData":[{"value":number},...]},...] } (2-4 cards)
-- comparison_table: { "title":"str", "headers":["str",...], "rows":[{"label":"str","values":["str",...]},...] }
-- two_by_two_matrix: { "title":"str", "xAxis":"str", "yAxis":"str", "quadrants":[{"position":"top-left"|"top-right"|"bottom-left"|"bottom-right","label":"str","items":["str",...]},...] }
-- three_pillars: { "title":"str", "pillars":[{"heading":"str","description":"str"},...] } (exactly 3)
-- timeline_block: { "title":"str", "events":[{"date":"str","title":"str","description":"str"},...] }
-- flow_diagram: { "title":"str", "columns":[{"title":"str","color":"hex","items":[{"title":"str","subtitle":"str"},...]},...] }
-
-${vt ? `REQUIRED type: "${vt.blockType}"${chartSub ? `, chartType: "${chartSub}"` : ""}` : "Pick the best visual type."}
-Generate 1-2 blocks. Use real numbers. Executive quality.`;
-
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 2000, system: sys, messages: [{ role: "user", content: prompt }] }),
-  });
-  if (!res.ok) throw new Error(`API ${res.status}`);
-  const d = await res.json();
-  const txt = (d.content?.[0]?.text || "").replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-
-  let blocks: any[];
-  try { const p = JSON.parse(txt); blocks = Array.isArray(p) ? p : [p]; }
-  catch { const m = txt.match(/\[[\s\S]*\]/); if (m) blocks = JSON.parse(m[0]); else throw new Error("Parse failed"); }
+  if (error) throw new Error(error);
+  if (!data?.blocks?.length) throw new Error("No visual blocks generated. Try being more specific.");
 
   const ok = new Set(["chart_block","stat_block","kpi_dashboard","comparison_table","two_by_two_matrix","three_pillars","timeline_block","flow_diagram"]);
-  return blocks.filter(b => ok.has(b.type)).map(b => ({ type: b.type as BlockType, content: b.content }));
+  return data.blocks.filter(b => ok.has(b.type)).map(b => ({ type: b.type as BlockType, content: b.content }));
 }
 
 /* ── Component ──────────────────────────────────────────────────── */
