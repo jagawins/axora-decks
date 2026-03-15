@@ -18,22 +18,20 @@ interface TemplatePreviewModalProps {
 }
 
 function chunkBlocks(blocks: TemplateBlock[]): TemplateBlock[][] {
-  // Group blocks into slides: heading/hero starts a new slide, others attach
+  // Group blocks into slides: heading/hero starts a new slide, following blocks attach
   const slides: TemplateBlock[][] = [];
   for (const b of blocks) {
     const startsSlide = ['heading', 'hero_header', 'section_divider', 'exec_summary'].includes(b.type);
-    if (startsSlide || slides.length === 0) {
+
+    if (slides.length === 0) {
+      slides.push([b]);
+    } else if (startsSlide) {
       slides.push([b]);
     } else {
-      // Add to current slide, max 3 blocks per slide
-      const current = slides[slides.length - 1];
-      if (current.length < 3) {
-        current.push(b);
-      } else {
-        slides.push([b]);
-      }
+      slides[slides.length - 1].push(b);
     }
   }
+
   return slides;
 }
 
