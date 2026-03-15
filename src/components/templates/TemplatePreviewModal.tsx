@@ -257,21 +257,10 @@ export function TemplatePreviewModal({
                     slideTransformClass
                   )}
                 >
-                  {currentSlide === 0 ? (
-                    <TemplatePreviewImage
-                      templateId={template.id}
-                      blocks={allBlocks}
-                      title={template.title}
-                      category={template.category}
-                      tags={template.tags || []}
-                      className="rounded-lg shadow-lg"
-                    />
-                  ) : (
-                    <TemplatePreview
-                      blocks={slides[currentSlide]}
-                      className="shadow-lg"
-                    />
-                  )}
+                  <TemplatePreview
+                    blocks={slides[currentSlide]}
+                    className="shadow-lg"
+                  />
                 </div>
 
                 {/* Next arrow */}
