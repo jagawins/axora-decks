@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -6,10 +6,11 @@ import {
   Sparkles, Loader2, Download, Share2, BarChart3, PieChart,
   TrendingUp, GitBranch, Layers, Grid3x3, Table2, Target,
   ArrowRight, RefreshCw, Copy, Check, Upload, FileSpreadsheet,
-  X, Plus, FolderOpen
+  X, Plus, FolderOpen, Image, Crown, ChevronDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useNavigate } from "react-router-dom";
 import { VisualBlockRenderer } from "@/components/blocks/VisualBlockRenderer";
 import { invokeFunction } from "@/lib/supabase-function-client";
@@ -88,9 +89,11 @@ async function callAI(prompt: string, typeId: string | null): Promise<{ type: Bl
 
 export default function DataVisualsGenerator() {
   const { user } = useAuth();
+  const { subscription } = useSubscription();
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const isPro = subscription.tier !== "free";
 
   const [prompt, setPrompt] = useState("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -100,8 +103,90 @@ export default function DataVisualsGenerator() {
   const [copied, setCopied] = useState<number | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [addingToDeck, setAddingToDeck] = useState<number | null>(null);
+  const [downloading, setDownloading] = useState<number | null>(null);
 
-  const addToDeck = useCallback(async (visual: { type: BlockType; content: Record<string, unknown> }, index: number) => {
+  // Existing decks for "insert into existing deck"
+  const [existingDecks, setExistingDecks] = useState<{ id: string; title: string }[]>([]);
+  const [showDeckPicker, setShowDeckPicker] = useState<number | null>(null);
+  const [insertingIntoDeck, setInsertingIntoDeck] = useState<string | null>(null);
+
+  // Load existing decks when user logs in
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("projects")
+      .select("id, title")
+      .order("updated_at", { ascending: false })
+      .limit(20)
+      .then(({ data }) => {
+        if (data) setExistingDecks(data as { id: string; title: string }[]);
+      });
+  }, [user]);
+
+  // ── Download as image with watermark ──────────────────────────
+  const downloadAsImage = useCallback(async (index: number) => {
+    setDownloading(index);
+    try {
+      // Find the rendered visual card DOM node
+      const cardEl = document.getElementById(`visual-card-${index}`);
+      if (!cardEl) throw new Error("Visual card not found");
+
+      // Use html2canvas
+      const { default: html2canvas } = await import("html2canvas");
+      const canvas = await html2canvas(cardEl, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+
+      // Add watermark for free users
+      if (!isPro) {
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.save();
+          // Watermark bar at bottom
+          const barH = 40;
+          ctx.fillStyle = "#111827";
+          ctx.fillRect(0, canvas.height - barH, canvas.width, barH);
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 16px Arial, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("Generated with AXIVA — axiva.ai", canvas.width / 2, canvas.height - 14);
+          ctx.restore();
+        }
+      }
+
+      // Download
+      const link = document.createElement("a");
+      link.download = `axiva-visual-${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+
+      // Show Pro upsell for free users
+      if (!isPro) {
+        toast({
+          title: "Visual downloaded with watermark",
+          description: "Upgrade to Pro for watermark-free exports.",
+          action: (
+            <Button size="sm" variant="hero" className="gap-1" onClick={() => navigate("/pricing")}>
+              <Crown className="h-3 w-3" /> Go Pro
+            </Button>
+          ),
+        });
+      } else {
+        toast({ title: "Visual downloaded" });
+      }
+    } catch (e) {
+      console.error("Download error:", e);
+      toast({ title: "Download failed", variant: "destructive" });
+    } finally {
+      setDownloading(null);
+    }
+  }, [isPro, navigate, toast]);
+
+  // ── Add to NEW deck ───────────────────────────────────────────
+  const addToNewDeck = useCallback(async (visual: { type: BlockType; content: Record<string, unknown> }, index: number) => {
     if (!user) { navigate("/auth"); return; }
     setAddingToDeck(index);
     try {
@@ -128,6 +213,43 @@ export default function DataVisualsGenerator() {
       toast({ title: "Failed to create deck", variant: "destructive" });
     } finally {
       setAddingToDeck(null);
+    }
+  }, [user, navigate, toast]);
+
+  // ── Insert into EXISTING deck ─────────────────────────────────
+  const insertIntoDeck = useCallback(async (visual: { type: BlockType; content: Record<string, unknown> }, deckId: string) => {
+    if (!user) { navigate("/auth"); return; }
+    setInsertingIntoDeck(deckId);
+    try {
+      // Get the current max order_index
+      const { data: existing } = await supabase
+        .from("blocks")
+        .select("order_index")
+        .eq("project_id", deckId)
+        .order("order_index", { ascending: false })
+        .limit(1);
+
+      const nextIndex = existing && existing.length > 0 ? (existing[0] as any).order_index + 1 : 0;
+
+      const { error: blockErr } = await supabase.from("blocks").insert({
+        project_id: deckId,
+        type: visual.type,
+        content: visual.content as any,
+        order_index: nextIndex,
+      } as any);
+      if (blockErr) throw blockErr;
+
+      // Update project updated_at
+      await supabase.from("projects").update({ updated_at: new Date().toISOString() }).eq("id", deckId);
+
+      toast({ title: "Visual added to deck", description: "Opening editor…" });
+      setShowDeckPicker(null);
+      navigate(`/editor/${deckId}`);
+    } catch (e: any) {
+      console.error("Insert into deck error:", e);
+      toast({ title: "Failed to add to deck", variant: "destructive" });
+    } finally {
+      setInsertingIntoDeck(null);
     }
   }, [user, navigate, toast]);
 
@@ -231,38 +353,115 @@ export default function DataVisualsGenerator() {
         </div>
       )}
 
+      {/* ── Generated Visuals ────────────────────────────────────── */}
       {visuals.length > 0 && !generating && (
         <div className="space-y-6">
           <h3 className="text-lg font-semibold text-center">{visuals.length === 1 ? "Generated Visual" : `${visuals.length} Visuals Generated`}</h3>
           <div className={cn("grid gap-6 max-w-5xl mx-auto", visuals.length === 1 ? "grid-cols-1 max-w-3xl" : "grid-cols-1 md:grid-cols-2")}>
             {visuals.map((v, i) => (
               <div key={i} className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-lg">
+                {/* Title bar */}
                 <div className="flex items-center justify-between px-5 py-3 border-b border-border/40">
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary" className="text-[10px]">{v.type.replace(/_/g, " ")}</Badge>
                     <span className="text-sm font-medium truncate">{String((v.content as any).title || "Visual")}</span>
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => { navigator.clipboard.writeText(JSON.stringify(v.content, null, 2)); setCopied(i); setTimeout(() => setCopied(null), 2000); }}>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => { navigator.clipboard.writeText(JSON.stringify(v.content, null, 2)); setCopied(i); setTimeout(() => setCopied(null), 2000); }}
+                      title="Copy data">
                       {copied === i ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
                     </Button>
                   </div>
                 </div>
-                <div className="p-6 bg-background min-h-[240px]">
+
+                {/* Visual content — this gets captured for image download */}
+                <div id={`visual-card-${i}`} className="p-6 bg-white dark:bg-gray-950 min-h-[240px]">
                   <VisualBlockRenderer block={{ type: v.type, content: v.content } as any} readOnly />
                 </div>
-                <div className="px-4 py-2 bg-muted/20 border-t border-border/30 flex items-center justify-between">
-                  <p className="text-[9px] text-muted-foreground">Generated with <a href="https://axiva.ai/?ref=datavisual" className="text-accent hover:underline font-medium">AXIVA</a></p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 px-2 text-[10px] gap-1"
-                    disabled={addingToDeck === i}
-                    onClick={() => addToDeck(v, i)}
-                  >
-                    {addingToDeck === i ? <Loader2 className="h-2.5 w-2.5 animate-spin" /> : <Plus className="h-2.5 w-2.5" />}
-                    {addingToDeck === i ? "Creating…" : "Add to deck"}
-                  </Button>
+
+                {/* Actions bar */}
+                <div className="px-4 py-3 bg-muted/20 border-t border-border/30 space-y-2">
+                  {/* Row 1: Download + Copy */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs gap-1.5 flex-1"
+                      disabled={downloading === i}
+                      onClick={() => downloadAsImage(i)}
+                    >
+                      {downloading === i ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
+                      {downloading === i ? "Exporting…" : isPro ? "Download PNG" : "Download with watermark"}
+                    </Button>
+                    {!isPro && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 text-xs gap-1 text-accent"
+                        onClick={() => navigate("/pricing")}
+                      >
+                        <Crown className="h-3 w-3" /> Remove watermark
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Row 2: Add to deck actions */}
+                  <div className="flex items-center gap-2 relative">
+                    <Button
+                      variant="hero"
+                      size="sm"
+                      className="h-8 text-xs gap-1.5 flex-1"
+                      disabled={addingToDeck === i}
+                      onClick={() => addToNewDeck(v, i)}
+                    >
+                      {addingToDeck === i ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                      {addingToDeck === i ? "Creating…" : "New deck from this"}
+                    </Button>
+
+                    {existingDecks.length > 0 && (
+                      <div className="relative">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs gap-1.5"
+                          onClick={() => setShowDeckPicker(showDeckPicker === i ? null : i)}
+                        >
+                          <FolderOpen className="h-3 w-3" />
+                          Add to existing
+                          <ChevronDown className={cn("h-3 w-3 transition-transform", showDeckPicker === i && "rotate-180")} />
+                        </Button>
+
+                        {/* Deck picker dropdown */}
+                        {showDeckPicker === i && (
+                          <div className="absolute bottom-full mb-1 right-0 w-64 max-h-60 overflow-y-auto rounded-xl border border-border bg-card shadow-xl z-50">
+                            <div className="px-3 py-2 border-b border-border/50">
+                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Insert into deck</p>
+                            </div>
+                            {existingDecks.map((deck) => (
+                              <button
+                                key={deck.id}
+                                className="w-full text-left px-3 py-2.5 text-xs hover:bg-accent/5 border-b border-border/30 last:border-0 flex items-center justify-between gap-2 transition-colors"
+                                disabled={insertingIntoDeck === deck.id}
+                                onClick={() => insertIntoDeck(v, deck.id)}
+                              >
+                                <span className="truncate font-medium">{deck.title || "Untitled deck"}</span>
+                                {insertingIntoDeck === deck.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin shrink-0 text-accent" />
+                                ) : (
+                                  <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Watermark */}
+                  <p className="text-[9px] text-muted-foreground text-center pt-1">
+                    Generated with <a href="https://axiva.ai/?ref=datavisual" className="text-accent hover:underline font-medium">AXIVA</a>
+                  </p>
                 </div>
               </div>
             ))}
