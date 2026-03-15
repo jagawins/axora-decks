@@ -7,13 +7,14 @@ import { fetchTemplates, type Template } from "@/lib/templates";
 import { useToast } from "@/hooks/use-toast";
 import ExampleDecks from "@/components/landing/ExampleDecks";
 import InfographicGenerator from "@/components/infographics/InfographicGenerator";
+import DataVisualsGenerator from "@/components/datavisuals/DataVisualsGenerator";
 import { cn } from "@/lib/utils";
-import { LayoutTemplate, Sparkles, Crown, ArrowRight, Layers, Download, Zap } from "lucide-react";
+import { LayoutTemplate, Sparkles, Crown, ArrowRight, Layers, Download, Zap, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { TemplatePreview } from "@/components/templates/TemplatePreview";
 
-type TabId = "templates" | "infographics";
+type TabId = "templates" | "infographics" | "data-visuals";
 
 export default function Templates() {
   const { toast } = useToast();
@@ -50,6 +51,7 @@ export default function Templates() {
   const TABS: { id: TabId; label: string; icon: React.ReactNode; badge?: string }[] = [
     { id: "templates", label: "Templates", icon: <LayoutTemplate className="h-4 w-4" /> },
     { id: "infographics", label: "AI Infographics", icon: <Sparkles className="h-4 w-4" />, badge: "BETA" },
+    { id: "data-visuals", label: "Data & Visuals", icon: <BarChart3 className="h-4 w-4" />, badge: "NEW" },
   ];
 
   return (
@@ -218,6 +220,13 @@ export default function Templates() {
           {activeTab === "infographics" && (
             <div className="py-4">
               <InfographicGenerator />
+            </div>
+          )}
+
+          {/* Data & Visuals Tab */}
+          {activeTab === "data-visuals" && (
+            <div className="py-4">
+              <DataVisualsGenerator />
             </div>
           )}
         </div>
