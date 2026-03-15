@@ -253,8 +253,17 @@ export default function DataVisualsGenerator() {
                 </div>
                 <div className="px-4 py-2 bg-muted/20 border-t border-border/30 flex items-center justify-between">
                   <p className="text-[9px] text-muted-foreground">Generated with <a href="https://axiva.ai/?ref=datavisual" className="text-accent hover:underline font-medium">AXIVA</a></p>
-                  <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={() => navigate("/auth")}>
-                    <Sparkles className="h-2.5 w-2.5" /> Add to deck
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-[10px] gap-1"
+                    disabled={addingToDeck === i}
+                    onClick={() => addToDeck(v, i)}
+                  >
+                    {addingToDeck === i ? <Loader2 className="h-2.5 w-2.5 animate-spin" /> : <Plus className="h-2.5 w-2.5" />}
+                    {addingToDeck === i ? "Creating…" : "Add to deck"}
+                  </Button>
+                </div>
                   </Button>
                 </div>
               </div>
