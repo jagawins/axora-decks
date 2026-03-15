@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, ChevronLeft, ChevronRight, ArrowRight, X, Palette } from 'lucide-react';
 import { fetchTemplateBlocks, type Template, type TemplateBlock } from '@/lib/templates';
 import { TemplatePreview } from './TemplatePreview';
+import { TemplatePreviewImage } from './TemplatePreviewImage';
 import { inferVisualCategory, getCategoryStyle } from './TemplateThumbnail';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -258,10 +259,21 @@ export function TemplatePreviewModal({
                     slideTransformClass
                   )}
                 >
-                  <TemplatePreview
-                    blocks={slides[currentSlide]}
-                    className="shadow-lg"
-                  />
+                  {currentSlide === 0 ? (
+                    <TemplatePreviewImage
+                      templateId={template.id}
+                      blocks={allBlocks}
+                      title={template.title}
+                      category={template.category}
+                      tags={template.tags || []}
+                      className="rounded-lg shadow-lg"
+                    />
+                  ) : (
+                    <TemplatePreview
+                      blocks={slides[currentSlide]}
+                      className="shadow-lg"
+                    />
+                  )}
                 </div>
 
                 {/* Next arrow */}
