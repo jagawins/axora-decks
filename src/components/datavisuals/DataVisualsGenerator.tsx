@@ -264,8 +264,6 @@ export default function DataVisualsGenerator() {
                     {addingToDeck === i ? "Creating…" : "Add to deck"}
                   </Button>
                 </div>
-                  </Button>
-                </div>
               </div>
             ))}
           </div>
