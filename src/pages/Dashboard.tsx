@@ -84,6 +84,21 @@ function DashboardTemplatesTabs({
             <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent rounded-t-full" />
           )}
         </button>
+        <button
+          onClick={() => setSubTab('data-visuals')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors relative ${
+            subTab === 'data-visuals' ? 'text-accent' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <BarChart3 className="h-4 w-4" />
+          Data & Visuals
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent uppercase">
+            NEW
+          </span>
+          {subTab === 'data-visuals' && (
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent rounded-t-full" />
+          )}
+        </button>
       </div>
 
       {subTab === 'templates' && (
