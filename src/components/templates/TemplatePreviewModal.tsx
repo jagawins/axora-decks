@@ -96,7 +96,7 @@ export function TemplatePreviewModal({
     if (currentSlide > 0) setShowKeyHint(false);
   }, [currentSlide]);
 
-  const slides = useMemo(() => chunkBlocks(allBlocks), [allBlocks]);
+  const slides = useMemo(() => chunkTemplateBlocks(allBlocks), [allBlocks]);
   const totalSlides = slides.length;
   const blockBreakdown = useMemo(() => getBlockBreakdown(allBlocks), [allBlocks]);
   const progressPercent = totalSlides > 0 ? ((currentSlide + 1) / totalSlides) * 100 : 0;

@@ -72,7 +72,7 @@ export default function TemplateDetail() {
     }
   };
 
-  const slides = useMemo(() => chunkBlocks(allBlocks), [allBlocks]);
+  const slides = useMemo(() => chunkTemplateBlocks(allBlocks), [allBlocks]);
 
   const blockBreakdown = useMemo(() => {
     const counts = new Map<string, number>();

@@ -112,7 +112,7 @@ export function TemplateCard({
           hasRealBlocks ? (
             <div className="w-full h-full">
               <TemplatePreview
-                blocks={previewBlocks!.slice(0, 3)}
+                blocks={previewSlideBlocks}
                 className="shadow-none border-0 rounded-none w-full h-full"
               />
             </div>
