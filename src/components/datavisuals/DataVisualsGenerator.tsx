@@ -6,13 +6,15 @@ import {
   Sparkles, Loader2, Download, Share2, BarChart3, PieChart,
   TrendingUp, GitBranch, Layers, Grid3x3, Table2, Target,
   ArrowRight, RefreshCw, Copy, Check, Upload, FileSpreadsheet,
-  X
+  X, Plus, FolderOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { VisualBlockRenderer } from "@/components/blocks/VisualBlockRenderer";
 import { invokeFunction } from "@/lib/supabase-function-client";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import type { BlockType } from "@/lib/blocks";
 
 /* ── Visual Types ───────────────────────────────────────────────── */
@@ -88,6 +90,7 @@ export default function DataVisualsGenerator() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const [prompt, setPrompt] = useState("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -96,6 +99,37 @@ export default function DataVisualsGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<number | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [addingToDeck, setAddingToDeck] = useState<number | null>(null);
+
+  const addToDeck = useCallback(async (visual: { type: BlockType; content: Record<string, unknown> }, index: number) => {
+    if (!user) { navigate("/auth"); return; }
+    setAddingToDeck(index);
+    try {
+      const title = String((visual.content as any).title || "Data Visual");
+      const { data: newProject, error: projErr } = await supabase
+        .from("projects")
+        .insert({ title, user_id: user.id, theme: "executive" })
+        .select("id")
+        .single();
+      if (projErr || !newProject) throw projErr || new Error("Failed to create project");
+
+      const { error: blockErr } = await supabase.from("blocks").insert({
+        project_id: newProject.id,
+        type: visual.type,
+        content: visual.content as any,
+        order_index: 0,
+      } as any);
+      if (blockErr) throw blockErr;
+
+      toast({ title: "Deck created", description: "Opening editor…" });
+      navigate(`/editor/${newProject.id}`);
+    } catch (e: any) {
+      console.error("Add to deck error:", e);
+      toast({ title: "Failed to create deck", variant: "destructive" });
+    } finally {
+      setAddingToDeck(null);
+    }
+  }, [user, navigate, toast]);
 
   const handleFile = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]; if (!f) return;
@@ -219,8 +253,15 @@ export default function DataVisualsGenerator() {
                 </div>
                 <div className="px-4 py-2 bg-muted/20 border-t border-border/30 flex items-center justify-between">
                   <p className="text-[9px] text-muted-foreground">Generated with <a href="https://axiva.ai/?ref=datavisual" className="text-accent hover:underline font-medium">AXIVA</a></p>
-                  <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={() => navigate("/auth")}>
-                    <Sparkles className="h-2.5 w-2.5" /> Add to deck
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-[10px] gap-1"
+                    disabled={addingToDeck === i}
+                    onClick={() => addToDeck(v, i)}
+                  >
+                    {addingToDeck === i ? <Loader2 className="h-2.5 w-2.5 animate-spin" /> : <Plus className="h-2.5 w-2.5" />}
+                    {addingToDeck === i ? "Creating…" : "Add to deck"}
                   </Button>
                 </div>
               </div>
