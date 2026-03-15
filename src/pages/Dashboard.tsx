@@ -23,6 +23,7 @@ import { fetchTemplates, Template } from '@/lib/templates';
 import { FirstDeckModal } from '@/components/FirstDeckModal';
 import { BrandKitCard } from '@/components/dashboard/BrandKitCard';
 import InfographicGenerator from '@/components/infographics/InfographicGenerator';
+import DataVisualsGenerator from '@/components/datavisuals/DataVisualsGenerator';
 import ThemesLibrary from '@/components/themes/ThemesLibrary';
 
 interface Project {
