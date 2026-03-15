@@ -81,12 +81,19 @@ export function TemplatePreviewModal({
   }, []);
 
   useEffect(() => {
-    if (!template || !open) return;
+    if (!template || !open) {
+      setAllBlocks([]);
+      return;
+    }
     setLoading(true);
     setCurrentSlide(0);
     setShowKeyHint(true);
+    setAllBlocks([]);
     fetchTemplateBlocks(template.id)
-      .then(setAllBlocks)
+      .then((blocks) => {
+        console.debug('[TemplatePreviewModal] Fetched blocks:', blocks.length, 'block_meta sample:', blocks[0]?.block_meta);
+        setAllBlocks(blocks);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [template?.id, open]);
