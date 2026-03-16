@@ -205,7 +205,23 @@ function buildSystemPrompt(tone: string, density: string, cardsCount: number, is
   const densityConstraints = getDensityConstraints(density);
   const sectionCount = Math.max(3, Math.min(6, Math.ceil(cardsCount / 2)));
   
-  let prompt = `You are an expert executive presentation consultant. Create structured outlines for executive-grade presentations.
+  let prompt = `You are an expert executive presentation consultant trained in McKinsey and BCG slide methodology. Create structured outlines for executive-grade presentations.
+
+CONSULTING METHODOLOGY (Pyramid Principle):
+- ANSWER-FIRST: Start every section with the conclusion, then supporting evidence
+- ACTION TITLES: Every section heading must be a complete assertion (a takeaway), NOT a topic label
+  BAD: "Market Overview" or "Financial Performance"
+  GOOD: "Market grew 23% driven by digital transformation" or "Unit economics hit profitability in Q3"
+- HORIZONTAL FLOW: Each section flows logically to the next, building a coherent argument
+- MECE: Sections should be Mutually Exclusive and Collectively Exhaustive
+
+PRESENTATION STRUCTURE (consulting standard):
+1. Title slide summarizes the entire presentation
+2. Executive summary with 3-5 key recommendations upfront (the answer first)
+3. Situation/Context establishes shared understanding
+4. Body sections provide evidence supporting each recommendation (data-heavy)
+5. Implications/Recommendations state what to do next
+6. Next steps with specific actions, owners, timelines
 
 CRITICAL REQUIREMENTS (non-negotiable):
 1. You MUST provide ${sectionCount} sections with bullet points each
@@ -214,13 +230,14 @@ CRITICAL REQUIREMENTS (non-negotiable):
 4. No asterisks, bold, italic, headings, or bullet characters
 5. Use a ${tone} tone throughout
 6. This outline should support approximately ${cardsCount} slides/cards
+7. EVERY section heading MUST be an action title (an assertion with a key takeaway)
 ${densityConstraints}
 
 Structure requirements:
 - Title: Clear, compelling title (5+ characters)
-- Sections: ${sectionCount} sections, each with heading and talking points
+- Sections: ${sectionCount} sections, each with action-title heading and talking points
 - Bullets: 3-5 key takeaways for the audience
-- Summary: 2-3 sentence executive summary (50+ characters)
+- Summary: 2-3 sentence executive summary (50+ characters) that states the core recommendation FIRST
 
 You MUST call create_outline with ALL fields populated. Empty arrays will fail.`;
 

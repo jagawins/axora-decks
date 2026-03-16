@@ -10,6 +10,64 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "consulting-slide-methodology-ai-2026",
+    title: "How AXIVA Uses BCG & McKinsey Slide Methodology to Generate Consulting-Grade Decks",
+    excerpt: "Generic AI presentation tools produce topic-label headings and text walls. AXIVA is trained on the Pyramid Principle, action titles, and consulting-standard visual density. Here's how it works.",
+    category: "Product",
+    publishedAt: "2026-03-15",
+    author: "Jag Mariappan",
+    content: `
+## The Problem With AI Presentation Tools
+
+Every AI presentation maker — Gamma, Beautiful.ai, Canva — generates the same output: topic-label headings ("Market Overview"), paragraph-heavy slides, and generic layouts. This is fine for a college presentation. It is not fine for a client deliverable.
+
+Consultants know the difference immediately. When a McKinsey or BCG partner opens a deck, they look for three things: Does the title tell me the answer? Is the evidence visual? Does the storyline flow horizontally?
+
+If the answer is no, the deck gets sent back.
+
+## What Makes Consulting Slides Different
+
+The methodology is well-documented but rarely implemented in AI tools:
+
+**Action Titles (not topic labels).** Every slide title should be a complete assertion — the key takeaway for that slide. "Revenue grew 23% YoY driven by APAC expansion" not "Revenue Performance." The audience should be able to read just the titles and understand the entire argument.
+
+**Pyramid Principle structure.** Start with the answer. The executive summary comes on slide 2-3 and states the recommendations upfront. Everything that follows is supporting evidence. Most people (and most AI tools) do the opposite — they build up to the conclusion.
+
+**Three-layer slide anatomy.** Every body slide has: (1) an action title stating the takeaway, (2) a brief sub-context, and (3) a visual — chart, table, framework, or diagram. Not a wall of text.
+
+**Visual density.** BCG and McKinsey decks are 70%+ visual. Charts, comparison tables, 2x2 matrices, timeline blocks, KPI dashboards. Text is minimized. Data is prominent.
+
+**Horizontal and vertical flow.** Horizontal flow means the logical progression from slide to slide tells a story. Vertical flow means information within each slide is organized top-to-bottom with clear hierarchy.
+
+## How AXIVA Implements This
+
+We have embedded consulting methodology directly into AXIVA's AI generation system:
+
+**Outline generation** uses the Pyramid Principle. When you describe your presentation, the AI structures it answer-first: executive summary with recommendations, then evidence sections, then next steps. Every section heading is generated as an action title.
+
+**Block generation** enforces consulting-standard visual density. The AI is instructed to generate 70%+ visual blocks — stat_blocks, chart_blocks, comparison_tables, two_by_two_matrices, three_pillars, and timeline_blocks. Text blocks are minimized.
+
+**Framework selection** is automatic. When the AI encounters strategic content, it generates a 2x2 matrix. When it sees metrics, it generates a KPI dashboard or chart. When it sees recommendations, it generates a decision panel with next steps, owners, and timelines.
+
+## The Consulting Deck Structure AXIVA Generates
+
+1. Hero header with the core assertion
+2. Executive summary (answer-first: 3-5 key recommendations)
+3. Section divider + action-title heading for each topic
+4. Visual evidence block for each section (chart, framework, table)
+5. Decision/next steps with specific actions and owners
+6. CTA or closing recommendation
+
+This is exactly the structure BCG and McKinsey use. No other AI tool enforces it.
+
+## Who This Is For
+
+Independent consultants who need to produce client deliverables that look like they came from a top-3 firm. Strategy teams that present to boards. Executives who need to communicate complex analysis clearly.
+
+Try it free: axiva.ai — 3 decks, no credit card.
+`,
+  },
+  {
     slug: "ai-governance-framework-executives-2026",
     title: "AI Governance for Executives: The Framework Your Board Needs in 2026",
     excerpt: "AI governance is no longer optional — regulators, investors, and customers demand it. This guide covers the 6 pillars of an executive AI governance framework and how to present it to your board.",
