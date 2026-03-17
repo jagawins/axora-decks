@@ -435,6 +435,16 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
           {/* ── STEP 1: SETUP ── */}
           {step === "setup" && (
             <div className="space-y-4">
+              {/* Consulting methodology badge */}
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-accent/5 border border-accent/10">
+                <div className="w-5 h-5 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
+                  <Sparkles className="h-3 w-3 text-accent" />
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  <span className="font-semibold text-accent">Consulting-grade AI</span> — Pyramid Principle structure, action titles, 70%+ visual density
+                </p>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="topic">
                   Topic <span className="text-destructive">*</span>

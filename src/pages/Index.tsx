@@ -9,6 +9,7 @@ import FounderCard from "@/components/landing/FounderCard";
 import BeforeAfter from "@/components/landing/BeforeAfter";
 import ExampleDecks from "@/components/landing/ExampleDecks";
 import SocialProof from "@/components/landing/SocialProof";
+import ConsultingMethodology from "@/components/landing/ConsultingMethodology";
 
 const Index = () => {
   return (
@@ -26,6 +27,9 @@ const Index = () => {
 
         {/* 4. Features — blocks showcase + feature cards */}
         <Features />
+
+        {/* 4.5 Consulting methodology — BCG/McKinsey differentiation */}
+        <ConsultingMethodology />
 
         {/* 5. Example decks — YouExec-style showcase */}
         <ExampleDecks />
