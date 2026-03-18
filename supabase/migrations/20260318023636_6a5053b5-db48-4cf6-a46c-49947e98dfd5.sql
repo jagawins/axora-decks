@@ -1,0 +1,1 @@
+INSERT INTO public.subscriptions (user_id, subscribed, tier) VALUES ('7187ee88-c092-4ee6-ab72-eb2207f5d931', true, 'pro');
