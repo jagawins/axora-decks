@@ -54,7 +54,7 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, blockType, chartSubtype } = await req.json();
+    const { prompt, blockType, chartSubtype, imageBase64 } = await req.json();
 
     if (!prompt || typeof prompt !== "string") {
       return new Response(JSON.stringify({ error: "prompt is required" }), {
@@ -77,7 +77,32 @@ serve(async (req) => {
       typeHint += ".";
     }
 
-    console.log("[DATA-VISUAL] Calling Anthropic API...");
+    // Build messages — with or without image
+    let messages: any[];
+    if (imageBase64 && typeof imageBase64 === "string" && imageBase64.startsWith("data:image")) {
+      // Extract base64 data and media type from data URL
+      const match = imageBase64.match(/^data:(image\/[a-z+]+);base64,(.+)$/);
+      if (match) {
+        const [, mediaType, base64Data] = match;
+        console.log("[DATA-VISUAL] Processing image input:", mediaType);
+        messages = [{
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: { type: "base64", media_type: mediaType, data: base64Data },
+            },
+            { type: "text", text: prompt },
+          ],
+        }];
+      } else {
+        messages = [{ role: "user", content: prompt }];
+      }
+    } else {
+      messages = [{ role: "user", content: prompt }];
+    }
+
+    console.log("[DATA-VISUAL] Calling Anthropic API...", imageBase64 ? "(with image)" : "(text only)");
 
     const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -90,7 +115,7 @@ serve(async (req) => {
         model: "claude-sonnet-4-20250514",
         max_tokens: 2000,
         system: SYSTEM_PROMPT + typeHint,
-        messages: [{ role: "user", content: prompt }],
+        messages,
       }),
     });
 

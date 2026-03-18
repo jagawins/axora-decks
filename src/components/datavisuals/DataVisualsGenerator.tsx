@@ -60,6 +60,31 @@ async function parseFile(file: File): Promise<string> {
   }
   if (ext === "json") { const t = await file.text(); return `JSON data:\n${JSON.stringify(JSON.parse(t), null, 2).slice(0, 3000)}`; }
   if (ext === "txt" || ext === "md") { return await file.text().then(t => t.slice(0, 3000)); }
+  if (["jpg", "jpeg", "png", "webp"].includes(ext || "")) {
+    return `[Image: ${file.name}] Extract all data, numbers, labels, and categories from this image and create a data visualization.`;
+  }
+  if (ext === "pptx" || ext === "ppt") {
+    try {
+      const JSZip = (await import("jszip")).default;
+      const zip = await JSZip.loadAsync(file);
+      const texts: string[] = [];
+      const slides = Object.keys(zip.files).filter(f => f.match(/^ppt\/slides\/slide\d+\.xml$/)).sort();
+      for (const s of slides) {
+        const xml = await zip.files[s].async("text");
+        const t = xml.match(/<a:t>([^<]*)<\/a:t>/g)?.map(x => x.replace(/<\/?a:t>/g, "")) || [];
+        if (t.length) texts.push(`Slide ${s.match(/slide(\d+)/)?.[1]}: ${t.join(" | ")}`);
+      }
+      return texts.length ? `Data from ${file.name}:\n${texts.join("\n")}` : `PPTX: ${file.name}. Describe the data.`;
+    } catch { return `PPTX: ${file.name}. Describe the data.`; }
+  }
+  if (ext === "pdf") {
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const text = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+      const readable = text.match(/[\x20-\x7E]{10,}/g)?.join(" ").slice(0, 3000) || "";
+      return readable.length > 50 ? `Data from PDF ${file.name}:\n${readable}` : `PDF: ${file.name}. Describe the data.`;
+    } catch { return `PDF: ${file.name}. Describe the data.`; }
+  }
   return `File: ${file.name}. Describe which data to visualize.`;
 }
 
@@ -346,7 +371,7 @@ export default function DataVisualsGenerator() {
       {/* Input */}
       <div className="max-w-2xl mx-auto space-y-3">
         <div className="flex items-center gap-2">
-          <input ref={fileRef} type="file" accept=".csv,.tsv,.json,.txt,.md,.xlsx" onChange={handleFile} className="hidden" />
+          <input ref={fileRef} type="file" accept=".csv,.tsv,.json,.txt,.md,.xlsx,.jpg,.jpeg,.png,.pptx,.pdf" onChange={handleFile} className="hidden" />
           <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} className="gap-2">
             <Upload className="h-4 w-4" /> Import Data
           </Button>

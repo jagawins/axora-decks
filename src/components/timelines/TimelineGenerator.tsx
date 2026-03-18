@@ -128,8 +128,10 @@ const QUICK_PROMPTS = [
 
 /* ── File parsing ───────────────────────────────────────────────── */
 
-async function parseFile(file: File): Promise<string> {
+async function parseFile(file: File): Promise<{ text: string; imageBase64?: string }> {
   const ext = file.name.split(".").pop()?.toLowerCase();
+
+  // CSV / TSV
   if (ext === "csv" || ext === "tsv") {
     const text = await file.text();
     const delim = ext === "tsv" ? "\t" : ",";
@@ -138,11 +140,78 @@ async function parseFile(file: File): Promise<string> {
     const rows = lines.slice(1, 30).map(l => l.split(delim).map(c => c.trim().replace(/^"|"$/g, "")));
     let out = `Timeline data:\nColumns: ${headers.join(", ")}\n`;
     rows.forEach(row => { out += headers.map((h, i) => `${h}: ${row[i] || ""}`).join(", ") + "\n"; });
-    return out;
+    return { text: out };
   }
-  if (ext === "json") return `JSON:\n${(await file.text()).slice(0, 3000)}`;
-  if (ext === "txt" || ext === "md") return (await file.text()).slice(0, 3000);
-  return `File: ${file.name}. Describe events.`;
+
+  // JSON
+  if (ext === "json") return { text: `JSON:\n${(await file.text()).slice(0, 3000)}` };
+
+  // Plain text / Markdown
+  if (ext === "txt" || ext === "md") return { text: (await file.text()).slice(0, 3000) };
+
+  // Images (JPG, PNG, WEBP) — convert to base64 for AI vision
+  if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext || "")) {
+    const base64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error("Failed to read image"));
+      reader.readAsDataURL(file);
+    });
+    return {
+      text: `[Image uploaded: ${file.name}] Extract all timeline events, dates, milestones, and phases visible in this image. List each event with its date and description.`,
+      imageBase64: base64,
+    };
+  }
+
+  // PPTX — extract text from slide XML using JSZip
+  if (ext === "pptx" || ext === "ppt") {
+    try {
+      const JSZip = (await import("jszip")).default;
+      const zip = await JSZip.loadAsync(file);
+      const slideTexts: string[] = [];
+
+      // PPTX slides are in ppt/slides/slide1.xml, slide2.xml, etc.
+      const slideFiles = Object.keys(zip.files)
+        .filter(f => f.match(/^ppt\/slides\/slide\d+\.xml$/))
+        .sort();
+
+      for (const slidePath of slideFiles) {
+        const xml = await zip.files[slidePath].async("text");
+        // Extract text from <a:t> tags (PowerPoint text runs)
+        const texts = xml.match(/<a:t>([^<]*)<\/a:t>/g)?.map(t => t.replace(/<\/?a:t>/g, "")) || [];
+        if (texts.length > 0) {
+          const slideNum = slidePath.match(/slide(\d+)/)?.[1];
+          slideTexts.push(`Slide ${slideNum}: ${texts.join(" | ")}`);
+        }
+      }
+
+      if (slideTexts.length === 0) return { text: `PPTX file: ${file.name}. Could not extract text. Describe the timeline events from this presentation.` };
+      return { text: `Timeline data extracted from ${file.name} (${slideTexts.length} slides):\n\n${slideTexts.join("\n")}` };
+    } catch (e) {
+      return { text: `PPTX file: ${file.name}. Extraction failed. Describe the timeline events manually.` };
+    }
+  }
+
+  // PDF — extract text using basic approach
+  if (ext === "pdf") {
+    try {
+      const buffer = await file.arrayBuffer();
+      // Simple PDF text extraction: find text between BT/ET operators or in parentheses
+      const bytes = new Uint8Array(buffer);
+      const text = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+      // Extract readable strings (sequences of printable characters)
+      const readable = text.match(/[\x20-\x7E]{10,}/g)?.join(" ").slice(0, 3000) || "";
+      if (readable.length > 50) {
+        return { text: `Timeline data from PDF ${file.name}:\n\n${readable}` };
+      }
+      // If text extraction fails, try as image (first page)
+      return { text: `PDF file: ${file.name}. Text extraction limited. Describe the timeline events from this document.` };
+    } catch {
+      return { text: `PDF file: ${file.name}. Describe the timeline events manually.` };
+    }
+  }
+
+  return { text: `File: ${file.name}. Describe events.` };
 }
 
 /* ═══ MAIN COMPONENT ════════════════════════════════════════════ */
@@ -186,11 +255,15 @@ export default function TimelineGenerator() {
 
     setGenerating(true); setError(null); setTimeline(null);
     try {
+      // Check if there's an uploaded image for vision processing
+      const imageData = (window as any).__axiva_timeline_image as string | undefined;
+
       const res = await invokeFunction<{ blocks: { type: string; content: any }[] }>(
         "generate-data-visual",
         {
           prompt: `Generate a timeline. Each event: date, title, description, status (completed/current/upcoming), category (optional).\n\nData: ${p}`,
           blockType: "timeline_block",
+          ...(imageData ? { imageBase64: imageData } : {}),
         }
       );
       if (res.error) throw new Error(res.error);
@@ -316,12 +389,21 @@ export default function TimelineGenerator() {
       {/* Input + file */}
       <div className="max-w-2xl mx-auto space-y-3">
         <div className="flex items-center gap-2">
-          <input ref={fileRef} type="file" accept=".csv,.tsv,.json,.txt,.md" onChange={async (e) => {
+          <input ref={fileRef} type="file" accept=".csv,.tsv,.json,.txt,.md,.jpg,.jpeg,.png,.webp,.pptx,.ppt,.pdf" onChange={async (e) => {
             const f = e.target.files?.[0]; if (!f) return; setUploadedFile(f);
-            try { const d = await parseFile(f); setPrompt(p => p ? `${p}\n\n${d}` : `Timeline:\n\n${d}`); } catch { setError(`Parse failed.`); }
+            try {
+              const result = await parseFile(f);
+              setPrompt(p => p ? `${p}\n\n${result.text}` : `Create a timeline from:\n\n${result.text}`);
+              // Store image base64 for vision API if present
+              if (result.imageBase64) {
+                (window as any).__axiva_timeline_image = result.imageBase64;
+              } else {
+                delete (window as any).__axiva_timeline_image;
+              }
+            } catch { setError(`Parse failed.`); }
           }} className="hidden" />
           <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} className="gap-2"><Upload className="h-4 w-4" /> Import</Button>
-          <span className="text-xs text-muted-foreground">CSV, JSON, TXT</span>
+          <span className="text-xs text-muted-foreground">CSV, JPG, PNG, PPTX, PDF, JSON</span>
           {uploadedFile && (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-xs">
               <FileSpreadsheet className="h-3 w-3 text-accent" /><span className="text-accent font-medium">{uploadedFile.name}</span>
