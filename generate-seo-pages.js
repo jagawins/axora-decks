@@ -36,6 +36,7 @@ const PAGES = [
     <h2>Features</h2>
     <ul>
       <li>AI generates executive-grade slides in under 2 minutes</li>
+      <li>23 AI Timeline Styles: Gantt charts, roadmaps, scenario branching, cause-effect, three-horizon models</li>
       <li>25+ specialized block types: KPI dashboards, comparison tables, 2×2 matrices, timeline blocks, three pillars</li>
       <li>Consulting methodology: Pyramid Principle, action titles, answer-first structure</li>
       <li>Native editable PowerPoint (PPTX) and PDF export</li>
@@ -48,6 +49,7 @@ const PAGES = [
       <li><a href="/templates/board-update-template">Board Update Template</a></li>
       <li><a href="/templates/quarterly-review-template">Quarterly Business Review Template</a></li>
       <li><a href="/templates/strategy-deck-template">Strategy Deck Template</a></li>
+      <li><a href="/templates/ai-timeline-generator">AI Timeline Generator (23 Styles)</a></li>
       <li><a href="/templates/consulting-deck-template">Consulting Deck Template (BCG/McKinsey Style)</a></li>
       <li><a href="/templates/ai-governance-framework-template">AI Governance Framework Template</a></li>
       <li><a href="/templates/ai-risk-assessment-template">AI Risk Assessment Template</a></li>
@@ -154,6 +156,7 @@ const TEMPLATE_PAGES = [
   { slug: 'quarterly-review-template', title: 'Quarterly Business Review Template', desc: 'QBR deck generator with revenue analysis, pipeline metrics, and quarterly goals.' },
   { slug: 'strategy-deck-template', title: 'Strategy Deck Template', desc: 'AI strategy presentation generator with market analysis, competitive positioning, and execution roadmaps.' },
   { slug: 'consulting-deck-template', title: 'Consulting Deck Template (BCG/McKinsey Style)', desc: 'Generate consulting-grade decks using Pyramid Principle, action titles, and 70% visual density — the methodology top firms use.' },
+  { slug: 'ai-timeline-generator', title: 'AI Timeline Generator — 23 Professional Styles', desc: '23 timeline styles including Gantt charts, roadmaps, scenario branching, cause-effect chains, and three-horizon models. One dataset, multiple narrative views.' },
   { slug: 'sales-deck-template', title: 'Sales Deck Template', desc: 'AI sales presentation generator with ROI calculators, customer testimonials, and pricing slides.' },
   { slug: 'ai-governance-framework-template', title: 'AI Governance Framework Template', desc: 'AI governance presentation covering risk assessment, ethical guidelines, compliance, and implementation roadmaps.' },
   { slug: 'ai-risk-assessment-template', title: 'AI Risk Assessment Template', desc: 'AI risk assessment deck with risk matrices, bias analysis, mitigation strategies, and monitoring frameworks.' },
@@ -172,6 +175,7 @@ for (const tp of TEMPLATE_PAGES) {
 
 // Blog posts
 const BLOG_POSTS = [
+  { slug: 'ai-timeline-generator-23-styles-2026', title: '23 Timeline Styles That Turn Data Into Executive Narratives' },
   { slug: 'consulting-slide-methodology-ai-2026', title: 'How AXIVA Uses BCG & McKinsey Slide Methodology to Generate Consulting-Grade Decks' },
   { slug: 'ai-governance-framework-executives-2026', title: 'AI Governance for Executives: The Framework Your Board Needs in 2026' },
   { slug: '10-board-deck-templates-that-work', title: '10 Board Deck Templates That Actually Work' },

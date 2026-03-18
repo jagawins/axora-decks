@@ -11,7 +11,7 @@ const blockTypes = [
   { icon: Target, name: "Decision Panel", description: "Recommendations + next steps", color: "#EF4444" },
   { icon: Image, name: "AI Images", description: "Generate or search visuals", color: "#EC4899" },
   { icon: ToggleLeft, name: "Interactive Tabs", description: "Tabbed & toggle content", color: "#F59E0B" },
-  { icon: Timer, name: "Timelines", description: "Process flows & roadmaps", color: "#10B981" },
+  { icon: Timer, name: "23 Timeline Styles", description: "Gantt, roadmap, scenario branching & more", color: "#10B981" },
 ];
 
 /* ── Main feature cards (Beautiful.ai style) ───────────────── */

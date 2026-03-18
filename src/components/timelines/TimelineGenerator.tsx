@@ -26,7 +26,7 @@ interface StyleDef {
   icon: React.ReactNode;
   desc: string;
   pro: boolean;
-  group: "core" | "strategy" | "visualization";
+  group: "core" | "strategy" | "visualization" | "advanced" | "viral";
 }
 
 const STYLES: StyleDef[] = [
@@ -38,8 +38,8 @@ const STYLES: StyleDef[] = [
   { id: "roadmap", label: "Swim Lanes", icon: <Layers className="h-4 w-4" />, desc: "Multi-track", pro: true, group: "core" },
   { id: "alternating", label: "Alternating", icon: <ArrowLeftRight className="h-4 w-4" />, desc: "Zigzag layout", pro: true, group: "core" },
   // Strategy (7-10)
-  { id: "strategic-phase", label: "Strategic Phase", icon: <Target className="h-4 w-4" />, desc: "Phase blocks + gates", pro: true, group: "strategy" },
-  { id: "three-horizon", label: "Three Horizon", icon: <Layers className="h-4 w-4" />, desc: "McKinsey horizons", pro: true, group: "strategy" },
+  { id: "strategic-phase", label: "Strategic Phase", icon: <Target className="h-4 w-4" />, desc: "Phase blocks", pro: true, group: "strategy" },
+  { id: "three-horizon", label: "Three Horizon", icon: <Layers className="h-4 w-4" />, desc: "McKinsey model", pro: true, group: "strategy" },
   { id: "product-evolution", label: "Product Evolution", icon: <TrendingUp className="h-4 w-4" />, desc: "Version progression", pro: true, group: "strategy" },
   { id: "decision-gate", label: "Decision Gate", icon: <Workflow className="h-4 w-4" />, desc: "Stage-gate funnel", pro: true, group: "strategy" },
   // Visualization (11-15)
@@ -48,6 +48,16 @@ const STYLES: StyleDef[] = [
   { id: "step-process", label: "Step Process", icon: <LayoutGrid className="h-4 w-4" />, desc: "Numbered steps", pro: false, group: "visualization" },
   { id: "layered", label: "Layered Theme", icon: <Split className="h-4 w-4" />, desc: "Stacked tracks", pro: true, group: "visualization" },
   { id: "before-after", label: "Before / After", icon: <ArrowLeftRight className="h-4 w-4" />, desc: "Past vs future", pro: true, group: "visualization" },
+  // Advanced Reasoning (16-18)
+  { id: "scenario-branching", label: "Scenario Branching", icon: <GitBranch className="h-4 w-4" />, desc: "Multiple futures", pro: true, group: "advanced" },
+  { id: "impact-magnitude", label: "Impact Magnitude", icon: <Target className="h-4 w-4" />, desc: "Sized by importance", pro: true, group: "advanced" },
+  { id: "cause-effect", label: "Cause & Effect", icon: <ArrowRight className="h-4 w-4" />, desc: "Causal chains", pro: true, group: "advanced" },
+  // Viral / Shareable (19-23)
+  { id: "life-journey", label: "Life Journey", icon: <CalendarDays className="h-4 w-4" />, desc: "Personal story", pro: true, group: "viral" },
+  { id: "company-story", label: "Company Story", icon: <TrendingUp className="h-4 w-4" />, desc: "Brand narrative", pro: true, group: "viral" },
+  { id: "tech-evolution", label: "Tech Evolution", icon: <Layers className="h-4 w-4" />, desc: "Era progression", pro: true, group: "viral" },
+  { id: "then-vs-now", label: "Then vs Now", icon: <ArrowLeftRight className="h-4 w-4" />, desc: "Compare eras", pro: true, group: "viral" },
+  { id: "future-prediction", label: "Future Prediction", icon: <Sparkles className="h-4 w-4" />, desc: "What comes next", pro: true, group: "viral" },
 ];
 
 /* ── Narrative Views (one dataset → multiple views) ─────────────── */
@@ -61,25 +71,36 @@ interface NarrativeView {
 
 function suggestNarrativeViews(events: TimelineEvent[]): NarrativeView[] {
   const views: NarrativeView[] = [
-    { id: "milestone", label: "Milestone View", style: "milestone-cards", description: "Key achievements as highlight cards" },
-    { id: "chronological", label: "Chronological", style: "vertical", description: "Classic timeline progression" },
+    { id: "milestone", label: "Milestone View", style: "milestone-cards", description: "Key achievements as cards" },
+    { id: "chronological", label: "Chronological", style: "vertical", description: "Classic timeline" },
   ];
 
   if (events.length >= 4) {
     views.push({ id: "strategic", label: "Strategy Phases", style: "strategic-phase", description: "Phased strategic blocks" });
   }
   if (events.length >= 6) {
-    views.push({ id: "horizon", label: "Three Horizons", style: "three-horizon", description: "McKinsey horizons model" });
+    views.push({ id: "horizon", label: "Three Horizons", style: "three-horizon", description: "McKinsey horizons" });
   }
   if (events.some(e => e.category || e.phase)) {
-    views.push({ id: "swimlane", label: "Multi-Track", style: "roadmap", description: "Parallel swim lanes by category" });
+    views.push({ id: "swimlane", label: "Multi-Track", style: "roadmap", description: "Parallel swim lanes" });
   }
   if (events.length >= 3) {
-    views.push({ id: "evolution", label: "Evolution", style: "product-evolution", description: "Version-by-version progression" });
-    views.push({ id: "before-after", label: "Before / After", style: "before-after", description: "Past vs future comparison" });
+    views.push({ id: "evolution", label: "Evolution", style: "product-evolution", description: "Version progression" });
+    views.push({ id: "before-after", label: "Before / After", style: "before-after", description: "Past vs future" });
+    // Advanced reasoning views
+    views.push({ id: "scenario", label: "Scenario Branching", style: "scenario-branching", description: "Multiple futures from decision point" });
+    views.push({ id: "cause-effect", label: "Cause & Effect", style: "cause-effect", description: "What caused what" });
+    views.push({ id: "impact", label: "Impact Magnitude", style: "impact-magnitude", description: "Sized by importance" });
   }
   if (events.length >= 5) {
-    views.push({ id: "growth", label: "Growth Curve", style: "s-curve", description: "S-curve with annotations" });
+    views.push({ id: "growth", label: "Growth Curve", style: "s-curve", description: "S-curve visualization" });
+  }
+  // Viral/shareable views
+  views.push({ id: "company-story", label: "Company Story", style: "company-story", description: "Brand narrative" });
+  views.push({ id: "then-vs-now", label: "Then vs Now", style: "then-vs-now", description: "Compare two eras" });
+  if (events.length >= 5) {
+    views.push({ id: "future", label: "Future Prediction", style: "future-prediction", description: "What comes next" });
+    views.push({ id: "life-journey", label: "Life Journey", style: "life-journey", description: "Personal narrative" });
   }
   return views;
 }
@@ -248,7 +269,7 @@ export default function TimelineGenerator() {
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Timeline Generator</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto text-sm">
-          15 professional styles. One dataset, multiple narrative views.
+          23 professional styles. One dataset, multiple narrative views.
           Describe your events or import a CSV — AI builds the visualization.
         </p>
       </div>
@@ -270,7 +291,7 @@ export default function TimelineGenerator() {
         <div className="space-y-3">
           {/* Group tabs */}
           <div className="flex justify-center gap-2">
-            {([["core", "Core Timelines"], ["strategy", "Strategy"], ["visualization", "Visualization"]] as const).map(([g, label]) => (
+            {([["core", "Core"], ["strategy", "Strategy"], ["visualization", "Visual"], ["advanced", "Advanced"], ["viral", "Viral"]] as const).map(([g, label]) => (
               <button key={g} onClick={() => setStyleGroup(g)} className={cn("px-3 py-1.5 rounded-full text-xs font-medium transition-all", styleGroup === g ? "bg-accent/10 text-accent border border-accent/20" : "text-muted-foreground hover:text-foreground")}>
                 {label}
               </button>
@@ -434,7 +455,7 @@ export default function TimelineGenerator() {
 
           {/* Quick style switcher */}
           <div className="text-center">
-            <p className="text-xs text-muted-foreground mb-2">All 15 styles:</p>
+            <p className="text-xs text-muted-foreground mb-2">All 23 styles:</p>
             <div className="flex gap-1.5 justify-center flex-wrap">
               {STYLES.map(s => (
                 <Button key={s.id} variant="ghost" size="sm"

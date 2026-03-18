@@ -479,6 +479,277 @@ export function BeforeAfterTimeline({ data }: { data: TimelineData }) {
   );
 }
 
+/* ═══ 16. SCENARIO BRANCHING ════════════════════════════════════ */
+export function ScenarioBranchingTimeline({ data }: { data: TimelineData }) {
+  // First event is the decision point, rest are branching paths
+  const decision = data.events[0];
+  const branches = data.events.slice(1);
+  const branchColors = [["bg-green-500/10 border-green-500/30", "text-green-400", "bg-green-500"], ["bg-amber-500/10 border-amber-500/30", "text-amber-400", "bg-amber-500"], ["bg-red-500/10 border-red-500/30", "text-red-400", "bg-red-500"], ["bg-blue-500/10 border-blue-500/30", "text-blue-400", "bg-blue-500"]];
+
+  return (
+    <div className="w-full">
+      {data.title && <h3 className="text-lg font-bold mb-6">{data.title}</h3>}
+      {/* Decision node */}
+      <div className="flex justify-center mb-6">
+        <div className="rounded-2xl border-2 border-accent bg-accent/10 px-6 py-4 text-center max-w-xs">
+          <p className="text-[10px] font-bold text-accent uppercase tracking-wider">Decision Point</p>
+          <p className="text-sm font-bold mt-1">{decision?.title || "Today"}</p>
+          <p className="text-[10px] text-muted-foreground">{decision?.date}</p>
+        </div>
+      </div>
+      {/* Branching lines */}
+      <div className="flex justify-center mb-2">
+        <div className="w-0.5 h-6 bg-accent" />
+      </div>
+      {/* Branches */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {branches.slice(0, 3).map((b, i) => {
+          const [bgBorder, textCl, dotCl] = branchColors[i % branchColors.length];
+          return (
+            <div key={i} className={cn("rounded-xl border p-4 relative", bgBorder)}>
+              <div className="flex items-center gap-2 mb-2">
+                <div className={cn("w-3 h-3 rounded-full", dotCl)} />
+                <p className={cn("text-xs font-bold", textCl)}>Path {String.fromCharCode(65 + i)}</p>
+                {b.description?.includes("likely") && <span className="text-[8px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-full">Most likely</span>}
+              </div>
+              <p className="text-sm font-bold">{b.title}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{b.date}</p>
+              {b.description && <p className="text-[10px] text-muted-foreground mt-1">{b.description}</p>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ═══ 17. IMPACT MAGNITUDE ══════════════════════════════════════ */
+export function ImpactMagnitudeTimeline({ data }: { data: TimelineData }) {
+  // Size dots by index position (later events have more impact, or use description length as proxy)
+  return (
+    <div className="w-full">
+      {data.title && <h3 className="text-lg font-bold mb-6">{data.title}</h3>}
+      <div className="relative">
+        {/* Base line */}
+        <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-border -translate-y-0.5" />
+        <div className="flex justify-between items-center relative min-h-[200px]">
+          {data.events.map((ev, i) => {
+            // Impact score: rough heuristic from description length or position
+            const impact = ev.description ? Math.min(ev.description.length / 30, 3) + 1 : (i + 1) / data.events.length * 3 + 1;
+            const size = Math.max(32, Math.min(80, impact * 20));
+            const isAbove = i % 2 === 0;
+            return (
+              <div key={i} className="flex flex-col items-center relative" style={{ width: `${100 / data.events.length}%` }}>
+                {isAbove && (
+                  <div className="mb-2 text-center">
+                    <p className="text-[9px] font-bold">{ev.title}</p>
+                    <p className="text-[8px] text-muted-foreground">{ev.date}</p>
+                  </div>
+                )}
+                <div className={cn("rounded-full flex items-center justify-center z-10 border-2 transition-all", PALETTE[i % PALETTE.length], "border-transparent")}
+                  style={{ width: `${size}px`, height: `${size}px` }}>
+                  <span className="text-[9px] font-bold text-white">{ev.date?.slice(-4) || ""}</span>
+                </div>
+                {!isAbove && (
+                  <div className="mt-2 text-center">
+                    <p className="text-[9px] font-bold">{ev.title}</p>
+                    <p className="text-[8px] text-muted-foreground">{ev.date}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══ 18. CAUSE & EFFECT ════════════════════════════════════════ */
+export function CauseEffectTimeline({ data }: { data: TimelineData }) {
+  return (
+    <div className="w-full">
+      {data.title && <h3 className="text-lg font-bold mb-6">{data.title}</h3>}
+      <div className="space-y-0">
+        {data.events.map((ev, i) => (
+          <div key={i}>
+            <div className="flex items-start gap-4">
+              <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white text-xs font-bold", i === 0 ? "bg-red-500" : i === data.events.length - 1 ? "bg-accent" : PALETTE[i % PALETTE.length])}>
+                {i === 0 ? "RC" : i === data.events.length - 1 ? "→" : String(i)}
+              </div>
+              <div className="flex-1 pb-2">
+                <div className="flex items-baseline gap-2">
+                  {i === 0 && <span className="text-[8px] font-bold bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded-full uppercase">Root Cause</span>}
+                  {i === data.events.length - 1 && <span className="text-[8px] font-bold bg-accent/20 text-accent px-1.5 py-0.5 rounded-full uppercase">Final Effect</span>}
+                </div>
+                <p className="text-sm font-bold mt-1">{ev.title}</p>
+                <p className="text-[10px] text-muted-foreground">{ev.date}</p>
+                {ev.description && <p className="text-[10px] text-muted-foreground mt-0.5">{ev.description}</p>}
+              </div>
+            </div>
+            {i < data.events.length - 1 && (
+              <div className="flex items-center gap-4 py-1">
+                <div className="w-10 flex justify-center"><div className="w-0.5 h-5 bg-border" /></div>
+                <p className="text-[9px] text-accent font-semibold italic">↓ leads to</p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══ 19. LIFE JOURNEY ══════════════════════════════════════════ */
+export function LifeJourneyTimeline({ data }: { data: TimelineData }) {
+  const emojiMap: Record<string, string> = { born: "👶", school: "🎓", job: "💼", married: "💍", travel: "✈️", launch: "🚀", growth: "📈", goal: "⭐" };
+  return (
+    <div className="w-full">
+      {data.title && <h3 className="text-lg font-bold mb-6 text-center">{data.title}</h3>}
+      <div className="relative max-w-md mx-auto">
+        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-violet-500 via-teal-500 to-amber-500" />
+        {data.events.map((ev, i) => {
+          const emoji = Object.entries(emojiMap).find(([k]) => ev.title.toLowerCase().includes(k))?.[1] || "📌";
+          const isFuture = ev.status === "upcoming";
+          return (
+            <div key={i} className={cn("relative flex gap-5 pb-8 last:pb-0", isFuture && "opacity-60")}>
+              <div className="w-12 h-12 rounded-full bg-card border-2 border-accent flex items-center justify-center text-xl z-10 shrink-0">
+                {emoji}
+              </div>
+              <div className={cn("rounded-xl border p-3 flex-1", isFuture ? "border-dashed border-accent/30 bg-accent/5" : "border-border/50 bg-card/50")}>
+                <p className="text-[10px] font-semibold text-accent">{ev.date}</p>
+                <p className="text-sm font-bold">{ev.title}</p>
+                {ev.description && <p className="text-[10px] text-muted-foreground mt-1">{ev.description}</p>}
+                {isFuture && <p className="text-[8px] text-accent mt-1 italic">Future goal</p>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ═══ 20. COMPANY STORY ═════════════════════════════════════════ */
+export function CompanyStoryTimeline({ data }: { data: TimelineData }) {
+  return (
+    <div className="w-full">
+      {data.title && <h3 className="text-lg font-bold mb-6">{data.title}</h3>}
+      <div className="relative overflow-x-auto">
+        <div className="flex gap-0 min-w-[600px]">
+          {data.events.map((ev, i) => (
+            <div key={i} className="flex-1 relative">
+              {/* Top: alternating above/below */}
+              <div className={cn("px-3 text-center", i % 2 === 0 ? "pb-10" : "pt-10")}>
+                <div className={cn("rounded-xl p-3 border inline-block", PALETTE_LIGHT[i % PALETTE_LIGHT.length])}>
+                  <p className={cn("text-xs font-bold", TEXT_COLORS[i % TEXT_COLORS.length])}>{ev.date}</p>
+                  <p className="text-[10px] font-bold mt-1">{ev.title}</p>
+                  {ev.description && <p className="text-[8px] text-muted-foreground mt-0.5">{ev.description}</p>}
+                </div>
+              </div>
+              {/* Center dot on line */}
+              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex justify-center">
+                <div className={cn("w-4 h-4 rounded-full z-10", PALETTE[i % PALETTE.length])} />
+              </div>
+            </div>
+          ))}
+          {/* Horizontal line through center */}
+          <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-border -translate-y-0.5" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══ 21. TECH EVOLUTION ════════════════════════════════════════ */
+export function TechEvolutionTimeline({ data }: { data: TimelineData }) {
+  const eraColors = ["bg-slate-700", "bg-blue-600", "bg-teal-500", "bg-violet-500", "bg-amber-500", "bg-rose-500"];
+  return (
+    <div className="w-full">
+      {data.title && <h3 className="text-lg font-bold mb-6">{data.title}</h3>}
+      <div className="flex gap-0 overflow-x-auto">
+        {data.events.map((ev, i) => (
+          <div key={i} className="flex-1 min-w-[120px]">
+            <div className={cn("h-2 w-full", eraColors[i % eraColors.length])} />
+            <div className="p-3 border-r border-border/30 last:border-0">
+              <p className="text-[10px] font-bold text-muted-foreground">{ev.date}</p>
+              <p className="text-xs font-bold mt-1">{ev.title}</p>
+              {ev.description && <p className="text-[9px] text-muted-foreground mt-1">{ev.description}</p>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══ 22. THEN VS NOW ═══════════════════════════════════════════ */
+export function ThenVsNowTimeline({ data }: { data: TimelineData }) {
+  const mid = Math.ceil(data.events.length / 2);
+  const then = data.events.slice(0, mid);
+  const now = data.events.slice(mid);
+  return (
+    <div className="w-full">
+      {data.title && <h3 className="text-lg font-bold mb-6 text-center">{data.title}</h3>}
+      <div className="space-y-3">
+        {Array.from({ length: Math.max(then.length, now.length) }).map((_, i) => (
+          <div key={i} className="grid grid-cols-2 gap-3">
+            {/* Then */}
+            <div className="rounded-xl border border-border/50 bg-muted/20 p-3 text-right">
+              {then[i] ? (<>
+                <p className="text-[9px] text-muted-foreground">{then[i].date}</p>
+                <p className="text-xs font-bold">{then[i].title}</p>
+              </>) : <div className="h-8" />}
+            </div>
+            {/* Now */}
+            <div className="rounded-xl border border-accent/20 bg-accent/5 p-3">
+              {now[i] ? (<>
+                <p className="text-[9px] text-accent">{now[i].date}</p>
+                <p className="text-xs font-bold">{now[i].title}</p>
+              </>) : <div className="h-8" />}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-3 mt-2">
+        <p className="text-[9px] text-muted-foreground text-right font-bold uppercase">Then</p>
+        <p className="text-[9px] text-accent font-bold uppercase">Now</p>
+      </div>
+    </div>
+  );
+}
+
+/* ═══ 23. FUTURE PREDICTION ═════════════════════════════════════ */
+export function FuturePredictionTimeline({ data }: { data: TimelineData }) {
+  return (
+    <div className="w-full">
+      {data.title && <h3 className="text-lg font-bold mb-6">{data.title}</h3>}
+      <div className="space-y-3">
+        {data.events.map((ev, i) => {
+          const confidence = ev.description?.toLowerCase().includes("likely") ? "high" : ev.description?.toLowerCase().includes("possible") ? "medium" : i < data.events.length / 2 ? "high" : "medium";
+          const confStyles = { high: "border-green-500/30 bg-green-500/5", medium: "border-amber-500/30 bg-amber-500/5", low: "border-red-500/30 bg-red-500/5" };
+          const confText = { high: "text-green-400", medium: "text-amber-400", low: "text-red-400" };
+          return (
+            <div key={i} className={cn("rounded-xl border p-4 flex items-start gap-4", confStyles[confidence])}>
+              <div className="text-2xl shrink-0">{i === 0 ? "📍" : "🔮"}</div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-bold">{ev.title}</p>
+                  <span className={cn("text-[8px] font-bold uppercase px-1.5 py-0.5 rounded-full", confText[confidence], confStyles[confidence])}>
+                    {confidence} confidence
+                  </span>
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{ev.date}</p>
+                {ev.description && <p className="text-[10px] text-muted-foreground mt-1">{ev.description}</p>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ═══ RENDERER MAP ══════════════════════════════════════════════ */
 export const RENDERERS: Record<string, React.FC<{ data: TimelineData }>> = {
   "horizontal": HorizontalTimeline,
@@ -496,4 +767,14 @@ export const RENDERERS: Record<string, React.FC<{ data: TimelineData }>> = {
   "step-process": StepProcessTimeline,
   "layered": LayeredTimeline,
   "before-after": BeforeAfterTimeline,
+  // Advanced reasoning
+  "scenario-branching": ScenarioBranchingTimeline,
+  "impact-magnitude": ImpactMagnitudeTimeline,
+  "cause-effect": CauseEffectTimeline,
+  // Viral / shareable
+  "life-journey": LifeJourneyTimeline,
+  "company-story": CompanyStoryTimeline,
+  "tech-evolution": TechEvolutionTimeline,
+  "then-vs-now": ThenVsNowTimeline,
+  "future-prediction": FuturePredictionTimeline,
 };

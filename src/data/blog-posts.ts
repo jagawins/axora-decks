@@ -10,6 +10,68 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "ai-timeline-generator-23-styles-2026",
+    title: "23 Timeline Styles That Turn Data Into Executive Narratives",
+    excerpt: "Most timeline tools generate one layout. AXIVA generates 23 narrative views from one dataset — from Gantt charts to scenario branching to cause-effect chains. Here's how it works.",
+    category: "Product",
+    publishedAt: "2026-03-17",
+    author: "Jag Mariappan",
+    content: `
+## The Problem With Timeline Tools
+
+Every timeline tool — Preceden, Office Timeline, Canva — generates one layout from one dataset. You describe events, pick a style, and get a single visual. That's fine for a homework assignment.
+
+But executives don't think in single timelines. Strategy requires scenario planning (what might happen). Post-mortems require cause-effect analysis (why things happened). Board presentations require impact visualization (what mattered most).
+
+No timeline tool supports this kind of thinking. Until now.
+
+## 23 Styles Across 5 Categories
+
+AXIVA's Timeline Generator includes 23 professional styles organized into five categories:
+
+Core Timelines: Horizontal, Vertical, Gantt Chart, Milestone Cards, Swim Lane Roadmap, Alternating.
+
+Strategy Timelines: Strategic Phase, Three Horizon (McKinsey model), Product Evolution, Decision Gate (stage-gate with diamonds).
+
+Visualization Timelines: S-Curve (growth curve), Calendar (date grid), Step Process, Layered Theme (stacked tracks), Before/After (past vs future split).
+
+Advanced Reasoning Timelines: Scenario Branching (multiple futures from a decision point), Impact Magnitude (events sized by importance), Cause and Effect (causal chains with root cause highlighting).
+
+Viral and Shareable: Life Journey (personal narrative with emoji nodes), Company Story (brand evolution), Technology Evolution (era progression), Then vs Now (dual-era comparison), Future Prediction (with confidence indicators).
+
+## The Real Differentiator: One Dataset, Multiple Narratives
+
+Most timeline tools add more layouts. The real advantage comes from building new ways to think about time and progress.
+
+Enter your company history once: "2018 founded, 2019 seed round, 2020 product launch, 2022 AI feature, 2024 expansion."
+
+Then instantly switch between these narrative views:
+
+Milestone Timeline — key achievements as highlight cards.
+Investor Timeline — funding rounds with growth metrics.
+Product Evolution — version progression (v1, v2, v3).
+Strategy Horizon — McKinsey three-horizon model.
+Scenario Branching — what might happen next.
+Cause and Effect — why things happened.
+
+Same data. Different executive narratives. That is how a timeline generator becomes a thinking tool, not just a design tool.
+
+## Three Killer Features
+
+Auto Style Generator: AI analyzes your data and automatically selects the best layout. Short event list? Horizontal. Has categories? Swim lanes. Has durations? Gantt chart.
+
+Multi-Narrative Views: After generating, a panel suggests 8-12 different views of the same data. Click to instantly switch between narrative styles.
+
+Pro Gating: 3 free styles (Horizontal, Vertical, Step Process). 20 Pro styles including all strategy, visualization, advanced reasoning, and viral styles.
+
+## Who This Is For
+
+Project managers who need Gantt charts. Consultants who need strategic phase timelines. Executives who need scenario planning. Founders who need investor narratives. Creators who need shareable visual stories.
+
+Try it free: axiva.ai/templates → Timelines tab.
+`,
+  },
+  {
     slug: "consulting-slide-methodology-ai-2026",
     title: "How AXIVA Uses BCG & McKinsey Slide Methodology to Generate Consulting-Grade Decks",
     excerpt: "Generic AI presentation tools produce topic-label headings and text walls. AXIVA is trained on the Pyramid Principle, action titles, and consulting-standard visual density. Here's how it works.",

@@ -37,6 +37,7 @@ const plans = [
       "Unlimited projects",
       "PDF & PowerPoint export",
       "Brand kit & custom themes",
+      "23 Timeline Styles (Gantt, scenarios, S-curve...)",
       "Interactive blocks (tabs, toggles)",
       "AI image generation",
       "AI Infographics",

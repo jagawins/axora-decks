@@ -315,4 +315,18 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Timeline Generator -->
+  <url>
+    <loc>https://axiva.ai/templates/ai-timeline-generator</loc>
+    <lastmod>2026-03-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://axiva.ai/blog/ai-timeline-generator-23-styles-2026</loc>
+    <lastmod>2026-03-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>
