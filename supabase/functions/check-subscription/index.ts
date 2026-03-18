@@ -47,7 +47,27 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
     if (customers.data.length === 0) {
-      logStep("No customer found, returning unsubscribed state");
+      logStep("No Stripe customer found, checking subscriptions table fallback");
+      // Fallback: check the subscriptions table for manually granted access
+      const { data: dbSub } = await supabaseClient
+        .from("subscriptions")
+        .select("subscribed, tier, subscription_end")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (dbSub?.subscribed) {
+        logStep("Found active subscription in DB", { tier: dbSub.tier });
+        return new Response(JSON.stringify({
+          subscribed: true,
+          product_id: null,
+          subscription_end: dbSub.subscription_end,
+          tier: dbSub.tier || "pro"
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+
       return new Response(JSON.stringify({ 
         subscribed: false,
         product_id: null,
