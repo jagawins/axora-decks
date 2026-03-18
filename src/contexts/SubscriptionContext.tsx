@@ -55,12 +55,13 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
       });
 
       if (response.error) {
-        console.error('Error checking subscription:', response.error);
+        console.error('[SUBSCRIPTION] Error:', response.error, 'Status:', response.status);
         setSubscription(defaultSubscription);
         return;
       }
 
       const data = response.data;
+      console.log('[SUBSCRIPTION] Response:', JSON.stringify(data));
       setSubscription({
         subscribed: data?.subscribed || false,
         tier: (data?.tier as SubscriptionTier) || 'free',
@@ -68,7 +69,7 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
         subscriptionEnd: data?.subscription_end || null,
       });
     } catch (error) {
-      console.error('Error checking subscription:', error);
+      console.error('[SUBSCRIPTION] Catch error:', error);
       setSubscription(defaultSubscription);
     } finally {
       setLoading(false);

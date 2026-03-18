@@ -114,11 +114,11 @@ async function callAI(prompt: string, typeId: string | null): Promise<{ type: Bl
 
 export default function DataVisualsGenerator() {
   const { user } = useAuth();
-  const { subscription } = useSubscription();
+  const { subscription, loading: subLoading } = useSubscription();
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const isPro = subscription.tier !== "free";
+  const isPro = subLoading ? true : subscription.tier !== "free";
 
   const [prompt, setPrompt] = useState("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
