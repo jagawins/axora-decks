@@ -107,7 +107,20 @@ serve(async (req) => {
       }
       logStep("Determined subscription tier", { tier });
     } else {
-      logStep("No active subscription found");
+      logStep("No active Stripe subscription, checking DB fallback");
+      const { data: dbSub } = await supabaseClient
+        .from("subscriptions")
+        .select("subscribed, tier, subscription_end")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (dbSub?.subscribed) {
+        logStep("Found active subscription in DB fallback", { tier: dbSub.tier });
+        tier = dbSub.tier || "pro";
+        subscriptionEnd = dbSub.subscription_end;
+      } else {
+        logStep("No active subscription found anywhere");
+      }
     }
 
     return new Response(JSON.stringify({
