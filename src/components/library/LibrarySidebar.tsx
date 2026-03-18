@@ -1,4 +1,4 @@
-import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown, Palette, Paintbrush, SwatchBook, BarChart3 } from "lucide-react";
+import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown, Palette, Paintbrush, SwatchBook, BarChart3, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
@@ -50,6 +50,7 @@ const navItems = [
   { id: "library", label: "Library", icon: Library },
   { id: "templates", label: "Templates", icon: LayoutTemplate },
   { id: "data-visuals", label: "Data & Visuals", icon: BarChart3 },
+  { id: "timelines", label: "Timelines", icon: CalendarDays, pro: true },
   { id: "themes", label: "Themes", icon: SwatchBook },
   { id: "brand-kit", label: "Brand Kit", icon: Paintbrush, href: "/brand-kit" },
   { id: "settings", label: "Settings", icon: Settings },
@@ -100,7 +101,7 @@ export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }:
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => {
-          const navItem = item as typeof item & { href?: string };
+          const navItem = item as typeof item & { href?: string; pro?: boolean };
           return (
             <button
               key={item.id}
@@ -120,6 +121,9 @@ export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }:
             >
               <item.icon className="h-4 w-4" />
               {item.label}
+              {navItem.pro && (
+                <span className="ml-auto text-[10px] font-semibold bg-accent/10 text-accent px-1.5 py-0.5 rounded">PRO</span>
+              )}
             </button>
           );
         })}

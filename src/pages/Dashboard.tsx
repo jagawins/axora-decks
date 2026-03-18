@@ -25,6 +25,7 @@ import { BrandKitCard } from '@/components/dashboard/BrandKitCard';
 import InfographicGenerator from '@/components/infographics/InfographicGenerator';
 import DataVisualsGenerator from '@/components/datavisuals/DataVisualsGenerator';
 import ThemesLibrary from '@/components/themes/ThemesLibrary';
+import TimelineGenerator from '@/components/timelines/TimelineGenerator';
 
 interface Project {
   id: string;
@@ -701,6 +702,12 @@ const Dashboard = () => {
           {sidebarTab === 'data-visuals' && (
             <div className="py-4">
               <DataVisualsGenerator />
+            </div>
+          )}
+
+          {sidebarTab === 'timelines' && (
+            <div className="py-4">
+              <TimelineGenerator />
             </div>
           )}
 

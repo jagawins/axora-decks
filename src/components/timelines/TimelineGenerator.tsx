@@ -167,7 +167,7 @@ export default function TimelineGenerator() {
   const [existingDecks, setExistingDecks] = useState<{ id: string; title: string }[]>([]);
   const [showDeckPicker, setShowDeckPicker] = useState(false);
   const [showNarrativeViews, setShowNarrativeViews] = useState(false);
-  const [styleGroup, setStyleGroup] = useState<"core" | "strategy" | "visualization">("core");
+  const [styleGroup, setStyleGroup] = useState<"core" | "strategy" | "visualization" | "advanced" | "viral">("core");
 
   useEffect(() => {
     if (!user) return;
