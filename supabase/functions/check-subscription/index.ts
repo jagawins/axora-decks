@@ -43,6 +43,21 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Admin override — founder always gets Pro
+    const ADMIN_EMAILS = ["jag@axiva.ai", "jag@verityaxis.com", "jagawins@gmail.com"];
+    if (ADMIN_EMAILS.includes(user.email)) {
+      logStep("Admin override — granting Pro tier", { email: user.email });
+      return new Response(JSON.stringify({
+        subscribed: true,
+        product_id: "admin_override",
+        subscription_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        tier: "pro"
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
