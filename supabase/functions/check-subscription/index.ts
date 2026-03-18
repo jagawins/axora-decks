@@ -123,8 +123,9 @@ serve(async (req) => {
       }
     }
 
+    const isSubscribed = hasActiveSub || tier !== "free";
     return new Response(JSON.stringify({
-      subscribed: hasActiveSub,
+      subscribed: isSubscribed,
       product_id: productId,
       subscription_end: subscriptionEnd,
       tier
