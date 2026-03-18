@@ -705,6 +705,12 @@ const Dashboard = () => {
             </div>
           )}
 
+          {sidebarTab === 'timelines' && (
+            <div className="py-4">
+              <TimelineGenerator />
+            </div>
+          )}
+
           {sidebarTab === 'themes' && (
             <ThemesLibrary />
           )}
