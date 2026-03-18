@@ -101,7 +101,7 @@ export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }:
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => {
-          const navItem = item as typeof item & { href?: string };
+          const navItem = item as typeof item & { href?: string; pro?: boolean };
           return (
             <button
               key={item.id}
@@ -121,6 +121,9 @@ export const LibrarySidebar = ({ activeTab, onTabChange, onManageSubscription }:
             >
               <item.icon className="h-4 w-4" />
               {item.label}
+              {navItem.pro && (
+                <span className="ml-auto text-[10px] font-semibold bg-accent/10 text-accent px-1.5 py-0.5 rounded">PRO</span>
+              )}
             </button>
           );
         })}
