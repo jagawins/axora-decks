@@ -56,12 +56,34 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
 
       if (response.error) {
         console.error('[SUBSCRIPTION] Error:', response.error, 'Status:', response.status);
+        // Admin override even on error
+        const ADMIN_EMAILS_ERR = ["jag@axiva.ai", "jag@verityaxis.com", "jagawins@gmail.com"];
+        if (user?.email && ADMIN_EMAILS_ERR.includes(user.email)) {
+          console.log('[SUBSCRIPTION] Admin override on error for', user.email);
+          setSubscription({ subscribed: true, tier: 'pro', productId: 'admin_override', subscriptionEnd: null });
+          return;
+        }
         setSubscription(defaultSubscription);
         return;
       }
 
       const data = response.data;
       console.log('[SUBSCRIPTION] Response:', JSON.stringify(data));
+
+      // Client-side admin override — safety net if edge function isn't deployed
+      const ADMIN_EMAILS = ["jag@axiva.ai", "jag@verityaxis.com", "jagawins@gmail.com"];
+      const isAdmin = user?.email && ADMIN_EMAILS.includes(user.email);
+      if (isAdmin && data?.tier === 'free') {
+        console.log('[SUBSCRIPTION] Admin override — granting Pro tier for', user.email);
+        setSubscription({
+          subscribed: true,
+          tier: 'pro',
+          productId: 'admin_override',
+          subscriptionEnd: null,
+        });
+        return;
+      }
+
       setSubscription({
         subscribed: data?.subscribed || false,
         tier: (data?.tier as SubscriptionTier) || 'free',
@@ -70,6 +92,13 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
       });
     } catch (error) {
       console.error('[SUBSCRIPTION] Catch error:', error);
+      // Admin override even on exception
+      const ADMIN_EMAILS_CATCH = ["jag@axiva.ai", "jag@verityaxis.com", "jagawins@gmail.com"];
+      if (user?.email && ADMIN_EMAILS_CATCH.includes(user.email)) {
+        console.log('[SUBSCRIPTION] Admin override on catch for', user.email);
+        setSubscription({ subscribed: true, tier: 'pro', productId: 'admin_override', subscriptionEnd: null });
+        return;
+      }
       setSubscription(defaultSubscription);
     } finally {
       setLoading(false);
