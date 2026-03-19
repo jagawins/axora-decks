@@ -37,6 +37,7 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
   const [subscription, setSubscription] = useState<SubscriptionStatus>(defaultSubscription);
   const [loading, setLoading] = useState(false);
 
+  // Admin override: jagawins@gmail.com → Pro (build-trigger-v2)
   const checkSubscription = useCallback(async () => {
     if (!session?.access_token) {
       setSubscription(defaultSubscription);
