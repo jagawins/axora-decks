@@ -879,12 +879,20 @@ const Editor = () => {
     }
   };
 
-  // Share passcode save handler
+  // Share passcode save handler — stores SHA-256 hash, not plaintext
   const handlePasscodeSave = async (value: string) => {
     if (!projectId) return;
     setSharePasscode(value);
     try {
-      await supabase.from("projects").update({ share_passcode: value || null }).eq("id", projectId);
+      let hashedValue: string | null = null;
+      if (value) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(value);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        hashedValue = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+      }
+      await supabase.from("projects").update({ share_passcode: hashedValue }).eq("id", projectId);
       toast({ title: value ? "Passcode set" : "Passcode removed" });
     } catch (e) {
       console.error("Passcode save error:", e);

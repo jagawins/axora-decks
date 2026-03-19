@@ -79,10 +79,21 @@ serve(async (req) => {
       return json(404, { error: "Shared project not found", requestId });
     }
 
-    // Check passcode if project has one set
+    // Check passcode if project has one set (stored as SHA-256 hash)
     if (project.share_passcode && project.share_passcode.trim().length > 0) {
-      if (!body.passcode || body.passcode !== project.share_passcode) {
-        console.log(`[${requestId}] Passcode required or mismatch`);
+      if (!body.passcode) {
+        console.log(`[${requestId}] Passcode required`);
+        return json(403, { requires_passcode: true, error: "Passcode required", requestId });
+      }
+      // Hash the provided passcode and compare
+      const encoder = new TextEncoder();
+      const data = encoder.encode(body.passcode);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashedInput = hashArray.map((b: number) => b.toString(16).padStart(2, "0")).join("");
+
+      if (hashedInput !== project.share_passcode) {
+        console.log(`[${requestId}] Passcode mismatch`);
         return json(403, { requires_passcode: true, error: "Passcode required", requestId });
       }
     }
