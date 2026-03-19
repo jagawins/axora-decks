@@ -97,28 +97,48 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // Check for active OR trialing subscriptions (trial period = 14 days)
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
       limit: 1,
     });
 
-    const hasActiveSub = subscriptions.data.length > 0;
+    // Also check trialing if no active found
+    let trialingSubs = { data: [] as any[] };
+    if (subscriptions.data.length === 0) {
+      trialingSubs = await stripe.subscriptions.list({
+        customer: customerId,
+        status: "trialing",
+        limit: 1,
+      });
+    }
+
+    const allSubs = [...subscriptions.data, ...trialingSubs.data];
+    const hasActiveSub = allSubs.length > 0;
     let productId = null;
     let subscriptionEnd = null;
     let tier = "free";
 
     if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
+      const subscription = allSubs[0];
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       productId = subscription.items.data[0].price.product as string;
       logStep("Active subscription found", { subscriptionId: subscription.id, productId, endDate: subscriptionEnd });
 
       // Determine tier based on product ID
-      if (productId === "prod_Toi3RAGTB6H3C3") {
+      // Product IDs from Stripe dashboard (must match src/lib/subscription.ts)
+      const PRO_PRODUCT_IDS = ["prod_Tom3u0hOZl3W1x", "prod_Tom3PNmumxhLNa", "prod_Toi3RAGTB6H3C3"];
+      const TEAM_PRODUCT_IDS = ["prod_Tom4q2CWLmIvbK", "prod_Tom5ILmCmZ2mAh", "prod_Toi4DgsyndvaAa"];
+
+      if (PRO_PRODUCT_IDS.includes(productId)) {
         tier = "pro";
-      } else if (productId === "prod_Toi4DgsyndvaAa") {
-        tier = "executive";
+      } else if (TEAM_PRODUCT_IDS.includes(productId)) {
+        tier = "team";
+      } else {
+        // Unknown product — still treat as pro if they have an active subscription
+        tier = "pro";
+        logStep("Unknown product ID, defaulting to pro", { productId });
       }
       logStep("Determined subscription tier", { tier });
     } else {
