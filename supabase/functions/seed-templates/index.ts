@@ -55,7 +55,8 @@ serve(async (req) => {
       throw new Error("Missing Supabase environment variables");
     }
 
-    // Verify JWT
+    // Verify JWT and admin access
+    const ADMIN_EMAILS = ['jag@axiva.ai', 'jag@verityaxis.com'];
     const authClient = createClient(supabaseUrl, supabaseAnonKey);
     const token = authHeader.replace("Bearer ", "");
     const { data: { user: authUser }, error: claimsError } = await authClient.auth.getUser(token);
@@ -63,6 +64,13 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ success: false, error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!authUser.email || !ADMIN_EMAILS.includes(authUser.email)) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Forbidden — admin only" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
