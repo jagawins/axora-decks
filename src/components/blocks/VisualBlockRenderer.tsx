@@ -37,6 +37,9 @@ import { ChartBlock } from './ChartBlock';
 import { KpiDashboard } from './KpiDashboard';
 import { RelationshipMatrix } from './RelationshipMatrix';
 import { FlowDiagram } from './FlowDiagram';
+import { EmbedBlock } from './EmbedBlock';
+import { CTAButtonBlock } from './CTAButtonBlock';
+import { SmartLayoutBlock } from './SmartLayoutBlock';
 
 // Interactive block components
 import { TabsBlock } from './TabsBlock';
@@ -155,6 +158,14 @@ export function VisualBlockRenderer({
       return <RelationshipMatrix payload={payload as unknown as RelationshipMatrixPayload} readOnly={readOnly} className={className} />;
     case 'flow_diagram':
       return <FlowDiagram payload={payload as unknown as FlowDiagramPayload} readOnly={readOnly} className={className} />;
+    
+    // Executive feature blocks
+    case 'embed_block':
+      return <EmbedBlock payload={payload as any} readOnly={readOnly} className={className} />;
+    case 'cta_button_block':
+      return <CTAButtonBlock payload={payload as any} readOnly={readOnly} className={className} />;
+    case 'smart_layout':
+      return <SmartLayoutBlock payload={payload as any} readOnly={readOnly} className={className} />;
     
     // Interactive block types
     case 'tabs_block':

@@ -325,7 +325,10 @@ export type VisualBlockType =
   | 'toggle_block'
   | 'kpi_dashboard'
   | 'relationship_matrix'
-  | 'flow_diagram';
+  | 'flow_diagram'
+  | 'embed_block'
+  | 'cta_button_block'
+  | 'smart_layout';
 
 // Decision block type names
 export type DecisionBlockType =
