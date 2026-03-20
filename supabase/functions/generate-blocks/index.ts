@@ -29,7 +29,10 @@ type BlockType =
   | "card_grid" | "hero_header" | "exec_summary" | "cta_section"
   | "section_divider" | "icon_text_block" | "framed_insight"
   | "chart_block" | "three_pillars" | "two_by_two_matrix" | "decision_next_steps"
-  | "decision_summary" | "evidence_map" | "scenario_set" | "recommendation_panel";
+  | "decision_summary" | "evidence_map" | "scenario_set" | "recommendation_panel"
+  | "kpi_dashboard" | "relationship_matrix" | "flow_diagram"
+  | "tabs_block" | "toggle_block"
+  | "embed_block" | "cta_button_block" | "smart_layout";
 
 interface Block {
   type: BlockType;
@@ -65,8 +68,9 @@ function classifySlideIntent(heading: string): SlideIntent {
   return "other";
 }
 
-const DATA_VISUAL_TYPES = ["chart_block", "stat_block", "comparison_table"] as const;
-const STRATEGY_VISUAL_TYPES = ["three_pillars", "two_by_two_matrix"] as const;
+const DATA_VISUAL_TYPES = ["chart_block", "stat_block", "comparison_table", "smart_layout"] as const;
+const STRATEGY_VISUAL_TYPES = ["three_pillars", "two_by_two_matrix", "smart_layout"] as const;
+const EXECUTIVE_BLOCK_TYPES = ["embed_block", "cta_button_block", "smart_layout"] as const;
 const DECISION_VISUAL_TYPES_EXTRA = ["decision_next_steps"] as const;
 
 interface SlideIntentViolation {
@@ -436,6 +440,9 @@ function normalizeBlockContent(type: string, content: BlockContent): BlockConten
     case "three_pillars":
     case "two_by_two_matrix":
     case "decision_next_steps":
+    case "embed_block":
+    case "cta_button_block":
+    case "smart_layout":
       // Pass through - these have strict schemas
       break;
   }
@@ -1056,6 +1063,14 @@ VISUAL BLOCK TYPE SELECTION (match content → type):
 | Exactly 3 strategic themes | three_pillars |
 | 2-axis positioning | two_by_two_matrix |
 | Recommendation + next steps | decision_next_steps |
+| Live dashboard/spreadsheet/video/embed URL | embed_block |
+| Action buttons: schedule/approve/book/download | cta_button_block |
+| Executive summary with metrics | smart_layout (layout:"exec-summary") |
+| KPIs + analysis commentary | smart_layout (layout:"metrics-commentary") |
+| Recommendation + evidence + risks | smart_layout (layout:"recommendation") |
+| Compare 2-3 options side by side | smart_layout (layout:"comparison-columns") |
+| Single key metric + supporting data | smart_layout (layout:"spotlight") |
+| Meeting agenda with owners | smart_layout (layout:"agenda") |
 
 BLOCK SCHEMAS (required fields):
 - stat_block: {stats:[{value,label,trend?}]}
@@ -1073,6 +1088,9 @@ BLOCK SCHEMAS (required fields):
 - three_pillars: {pillars:[{title,description?,icon?}](exactly 3)}
 - two_by_two_matrix: {xAxisLabel,yAxisLabel,quadrants:[{title,description?}](exactly 4)}
 - decision_next_steps: {recommendation,rationale:[],nextSteps:[{action,owner?,due?}],risks?:[]}
+- embed_block: {url:"https://...",title?,height?,caption?} — Use for live dashboards, Google Sheets, PowerBI, Figma, YouTube, Calendly
+- cta_button_block: {buttons:[{label,url,icon?,variant?,description?}],title?,subtitle?,layout?:"horizontal"|"vertical"|"card",alignment?} — icons: calendar,mail,link,document,approve,arrow,download,message,phone,video
+- smart_layout: {layout:"exec-summary"|"metrics-commentary"|"recommendation"|"comparison-columns"|"spotlight"|"agenda",items:[{title,content?,metric?,metricLabel?,status?,owner?,time?}],summary?,recommendation?,riskNote?}
 
 WORD LIMITS: text body max 60 words, list items max 12 words/6 items, card descriptions max 25 words, exec_summary max 80 words, pillars max 30 words each.
 
@@ -1788,13 +1806,101 @@ function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = fals
     };
   }
 
+  // ── Executive block schemas ─────────────────────────────────────────────
+
+  const embedBlockSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "embed_block" },
+      content: {
+        type: "object",
+        required: ["url"],
+        properties: {
+          title: { type: "string", description: "Title shown above the embed" },
+          url: { type: "string", description: "URL to embed (Google Sheets, PowerBI, Tableau, Figma, Miro, Loom, YouTube, Calendly, Airtable, or any webpage)" },
+          height: { type: "number", description: "Height in pixels (default 400)" },
+          caption: { type: "string", description: "Caption below the embed" },
+        }
+      }
+    }
+  };
+
+  const ctaButtonBlockSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "cta_button_block" },
+      content: {
+        type: "object",
+        required: ["buttons"],
+        properties: {
+          title: { type: "string", description: "Heading above buttons" },
+          subtitle: { type: "string", description: "Subtext below heading" },
+          layout: { type: "string", enum: ["horizontal", "vertical", "card"], description: "Button layout style" },
+          alignment: { type: "string", enum: ["left", "center", "right"] },
+          buttons: {
+            type: "array", minItems: 1, maxItems: 4,
+            items: {
+              type: "object",
+              required: ["label", "url"],
+              properties: {
+                label: { type: "string", description: "Button text e.g. 'Schedule Follow-up'" },
+                url: { type: "string", description: "Link URL (https:// or mailto:)" },
+                icon: { type: "string", enum: ["calendar", "mail", "link", "document", "approve", "arrow", "download", "message", "phone", "video"] },
+                variant: { type: "string", enum: ["primary", "secondary", "outline", "ghost"] },
+                description: { type: "string", description: "For card layout, description below button label" },
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  const smartLayoutSchema = {
+    type: "object",
+    required: ["type", "content"],
+    properties: {
+      type: { type: "string", const: "smart_layout" },
+      content: {
+        type: "object",
+        required: ["layout", "items"],
+        properties: {
+          title: { type: "string" },
+          layout: { type: "string", enum: ["exec-summary", "metrics-commentary", "recommendation", "comparison-columns", "spotlight", "agenda"], description: "exec-summary: key message + 4 metrics. metrics-commentary: KPIs grid + analysis. recommendation: recommendation box + evidence + risk. comparison-columns: 3 options side by side. spotlight: featured metric + supporting. agenda: numbered items with owners." },
+          summary: { type: "string", description: "Key message for exec-summary or analysis text for metrics-commentary" },
+          recommendation: { type: "string", description: "For recommendation layout: the main recommendation text" },
+          riskNote: { type: "string", description: "For recommendation layout: risk/caveat note" },
+          items: {
+            type: "array", minItems: 1,
+            items: {
+              type: "object",
+              required: ["title"],
+              properties: {
+                title: { type: "string" },
+                content: { type: "string" },
+                metric: { type: "string", description: "e.g. '$4.2M' or '+23%'" },
+                metricLabel: { type: "string", description: "e.g. 'Revenue' or 'Growth rate'" },
+                status: { type: "string", enum: ["positive", "negative", "neutral", "warning"] },
+                owner: { type: "string", description: "For agenda: person responsible" },
+                time: { type: "string", description: "For agenda: time allocation e.g. '15 min'" },
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
   // Build oneOf array based on enableVisualBlocks and decisionMode flags
   const basicBlockSchemas = [headingSchema, textSchema, listSchema, calloutSchema, twoColSchema, tableSchema, imageSchema].map(addSectionIndex);
   const visualBlockSchemas = [
     statBlockSchema, quoteBlockSchema, timelineBlockSchema, comparisonTableSchema, 
     cardGridSchema, heroHeaderSchema, execSummarySchema, ctaSectionSchema, 
     sectionDividerSchema, iconTextBlockSchema, framedInsightSchema,
-    chartBlockSchema, threePillarsSchema, twoByTwoMatrixSchema, decisionNextStepsSchema
+    chartBlockSchema, threePillarsSchema, twoByTwoMatrixSchema, decisionNextStepsSchema,
+    embedBlockSchema, ctaButtonBlockSchema, smartLayoutSchema
   ].map(addSectionIndex);
   const decisionBlockSchemas = [
     decisionSummarySchema, evidenceMapSchema, scenarioSetSchema, recommendationPanelSchema
