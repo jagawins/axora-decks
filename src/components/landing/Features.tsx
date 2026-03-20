@@ -1,41 +1,66 @@
 import { Link } from "react-router-dom";
 import {
   Wand2, Download, Palette, BarChart3, Columns, Target,
-  Image, ToggleLeft, Timer, Layers, FileText
+  Image, ToggleLeft, Timer, Layers, FileText, ExternalLink,
+  MousePointerClick, LayoutGrid, Calendar, GitBranch, TrendingUp
 } from "lucide-react";
 
 /* ── Visual block showcase (YouExec-inspired grid) ─────────── */
 const blockTypes = [
-  { icon: BarChart3, name: "KPI Cards", description: "Auto-formatted metrics", color: "#3B82F6" },
-  { icon: Columns, name: "Two Column", description: "Side-by-side layouts", color: "#8B5CF6" },
-  { icon: Target, name: "Decision Panel", description: "Recommendations + next steps", color: "#EF4444" },
-  { icon: Image, name: "AI Images", description: "Generate or search visuals", color: "#EC4899" },
-  { icon: ToggleLeft, name: "Interactive Tabs", description: "Tabbed & toggle content", color: "#F59E0B" },
-  { icon: Timer, name: "23 Timeline Styles", description: "Gantt, roadmap, scenario branching & more", color: "#10B981" },
+  { icon: BarChart3, name: "KPI Dashboards", description: "Auto-formatted metrics", color: "#3B82F6" },
+  { icon: LayoutGrid, name: "Smart Layouts", description: "6 executive patterns", color: "#8B5CF6" },
+  { icon: Timer, name: "23 Timelines", description: "Gantt, scenarios, S-curve", color: "#10B981" },
+  { icon: ExternalLink, name: "Live Embeds", description: "PowerBI, Sheets, Figma", color: "#F59E0B" },
+  { icon: MousePointerClick, name: "CTA Buttons", description: "Calendly, approve, book", color: "#EF4444" },
+  { icon: Target, name: "Decision Panels", description: "Recommendations + risks", color: "#EC4899" },
+  { icon: Columns, name: "Comparison Tables", description: "Side-by-side analysis", color: "#06B6D4" },
+  { icon: GitBranch, name: "Scenario Branching", description: "Multiple futures", color: "#7C3AED" },
+  { icon: TrendingUp, name: "Chart Blocks", description: "Line, bar, donut, area", color: "#F97316" },
 ];
 
-/* ── Main feature cards (Beautiful.ai style) ───────────────── */
+/* ── Main feature cards ────────────────────────────────────── */
 const features = [
   {
     icon: Wand2,
     title: "AI-Powered Generation",
-    description: "Generate complete decks from a prompt. Refine any block with contextual AI actions — rewrite, expand, add data, or change tone.",
+    description: "Describe your deck in one sentence. AI builds the full structure, narrative, and visuals using BCG & McKinsey consulting methodology.",
     color: "#3B82F6",
-    highlights: ["One-prompt generation", "Block-level AI editing", "Context-aware refinements"],
+    highlights: ["One-prompt generation", "Pyramid Principle structure", "70% visual density"],
+  },
+  {
+    icon: LayoutGrid,
+    title: "Executive Smart Layouts",
+    description: "Not generic columns — named consulting patterns. Executive Summary, Metrics + Commentary, Recommendation + Evidence, Spotlight, and Agenda layouts.",
+    color: "#8B5CF6",
+    highlights: ["6 executive layout patterns", "Recommendation + risk boxes", "Agenda with owners & time"],
+  },
+  {
+    icon: Timer,
+    title: "23 Timeline Styles",
+    description: "The most advanced timeline generator. Scenario branching, cause-effect chains, three-horizon models, impact magnitude — plus 5 viral styles for shareable content.",
+    color: "#10B981",
+    highlights: ["One dataset → multiple narratives", "Scenario branching (multiple futures)", "Import CSV, JPG, PPTX, PDF"],
+  },
+  {
+    icon: ExternalLink,
+    title: "Live Dashboard Embeds",
+    description: "Embed Google Sheets, PowerBI, Tableau, Figma, Miro, or any URL directly in your deck. Auto-detects provider and transforms URLs.",
+    color: "#F59E0B",
+    highlights: ["Google Sheets → live KPIs", "PowerBI dashboards", "Figma prototypes"],
+  },
+  {
+    icon: MousePointerClick,
+    title: "CTA Action Buttons",
+    description: "Add 'Approve This', 'Schedule Follow-up', or 'Book a Demo' buttons to shared decks. Card layout with descriptions, 10 icons, 4 styles.",
+    color: "#EF4444",
+    highlights: ["Calendly integration", "Approval workflows", "Card layout with descriptions"],
   },
   {
     icon: Download,
     title: "Export Anywhere",
-    description: "PowerPoint, PDF, or shareable web links. Present live with our built-in deck player. Works with your existing workflow.",
-    color: "#10B981",
-    highlights: ["PowerPoint export", "PDF download", "Live presenter mode"],
-  },
-  {
-    icon: Palette,
-    title: "Brand Kit & Themes",
-    description: "Apply your brand colors, fonts, and logo with one click. Choose from 12+ themes or create your own custom theme.",
-    color: "#8B5CF6",
-    highlights: ["Custom color palettes", "Font management", "Logo placement"],
+    description: "Native PowerPoint export with proper scaling. PDF for email. PNG for social. Shareable web links with live presenter mode.",
+    color: "#06B6D4",
+    highlights: ["PowerPoint (.pptx)", "PDF download", "Shareable web links"],
   },
 ];
 
@@ -48,18 +73,19 @@ const Features = () => {
         {/* Section header */}
         <div className="text-center mb-16">
           <p className="text-accent font-medium text-sm uppercase tracking-wider mb-3">
-            Powerful Features
+            Executive-Grade Features
           </p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Built for executive communication
+            Everything executives need, nothing they don't
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Not just slides — structured visual blocks that make complex ideas clear.
+            Live dashboard embeds. Smart consulting layouts. 23 timeline styles.
+            CTA buttons for approvals. Not just slides — a decision-making platform.
           </p>
         </div>
 
-        {/* Visual blocks grid — YouExec-style compact showcase */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-20">
+        {/* Visual blocks grid — 9-item showcase */}
+        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-9 gap-3 mb-20">
           {blockTypes.map((block) => (
             <div
               key={block.name}
@@ -94,8 +120,8 @@ const Features = () => {
           </p>
         </div>
 
-        {/* Feature cards — Beautiful.ai-style with highlights */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+        {/* Feature cards — 2x3 grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {features.map((feature) => (
             <div
               key={feature.title}
