@@ -26,6 +26,7 @@ import InfographicGenerator from '@/components/infographics/InfographicGenerator
 import DataVisualsGenerator from '@/components/datavisuals/DataVisualsGenerator';
 import ThemesLibrary from '@/components/themes/ThemesLibrary';
 import TimelineGenerator from '@/components/timelines/TimelineGenerator';
+import SlideInspiration from '@/components/slides/SlideInspiration';
 
 interface Project {
   id: string;
@@ -713,6 +714,12 @@ const Dashboard = () => {
 
           {sidebarTab === 'themes' && (
             <ThemesLibrary />
+          )}
+
+          {sidebarTab === 'slides' && (
+            <div className="py-4">
+              <SlideInspiration />
+            </div>
           )}
 
           {sidebarTab === 'settings' && (

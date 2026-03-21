@@ -1,4 +1,4 @@
-import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown, Palette, Paintbrush, SwatchBook, BarChart3, CalendarDays } from "lucide-react";
+import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown, Palette, Paintbrush, SwatchBook, BarChart3, CalendarDays, GalleryHorizontalEnd } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
@@ -49,6 +49,7 @@ const navItems = [
   { id: "home", label: "Home", icon: Home },
   { id: "library", label: "Library", icon: Library },
   { id: "templates", label: "Templates", icon: LayoutTemplate },
+  { id: "slides", label: "Slide Library", icon: GalleryHorizontalEnd },
   { id: "data-visuals", label: "Data & Visuals", icon: BarChart3 },
   { id: "timelines", label: "Timelines", icon: CalendarDays, pro: true },
   { id: "themes", label: "Themes", icon: SwatchBook },
