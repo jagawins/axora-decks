@@ -49,6 +49,7 @@ const navItems = [
   { id: "home", label: "Home", icon: Home },
   { id: "library", label: "Library", icon: Library },
   { id: "templates", label: "Templates", icon: LayoutTemplate },
+  { id: "slides", label: "Slide Library", icon: GalleryHorizontalEnd },
   { id: "data-visuals", label: "Data & Visuals", icon: BarChart3 },
   { id: "timelines", label: "Timelines", icon: CalendarDays, pro: true },
   { id: "themes", label: "Themes", icon: SwatchBook },
