@@ -11,7 +11,7 @@ import DataVisualsGenerator from "@/components/datavisuals/DataVisualsGenerator"
 import TimelineGenerator from "@/components/timelines/TimelineGenerator";
 import SlideInspiration from "@/components/slides/SlideInspiration";
 import { cn } from "@/lib/utils";
-import { LayoutTemplate, Sparkles, Crown, ArrowRight, Layers, Download, Zap, BarChart3, CalendarDays, Search } from "lucide-react";
+import { LayoutTemplate, Sparkles, Crown, ArrowRight, Layers, Download, Zap, BarChart3, CalendarDays, Search, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { TemplatePreview } from "@/components/templates/TemplatePreview";
