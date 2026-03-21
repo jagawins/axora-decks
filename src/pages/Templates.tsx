@@ -11,11 +11,16 @@ import DataVisualsGenerator from "@/components/datavisuals/DataVisualsGenerator"
 import TimelineGenerator from "@/components/timelines/TimelineGenerator";
 import SlideInspiration from "@/components/slides/SlideInspiration";
 import { cn } from "@/lib/utils";
-import { LayoutTemplate, Sparkles, Crown, ArrowRight, Layers, Download, Zap, BarChart3, CalendarDays, Search } from "lucide-react";
+import { LayoutTemplate, Sparkles, Crown, ArrowRight, Layers, Download, Zap, BarChart3, CalendarDays, Search, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { TemplatePreview } from "@/components/templates/TemplatePreview";
-
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 type TabId = "templates" | "infographics" | "data-visuals" | "timelines" | "inspiration";
 
 export default function Templates() {
@@ -71,8 +76,48 @@ export default function Templates() {
 
       <main className="min-h-screen pt-24 pb-16">
         <div className="container-wide">
-          {/* Tab Navigation */}
-          <div className="flex items-center gap-1 mb-8 border-b border-border">
+          {/* Mobile: Dropdown menu */}
+          <div className="md:hidden mb-8">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-between gap-2">
+                  <span className="flex items-center gap-2">
+                    {TABS.find((t) => t.id === activeTab)?.icon}
+                    {TABS.find((t) => t.id === activeTab)?.label}
+                    {TABS.find((t) => t.id === activeTab)?.badge && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent uppercase">
+                        {TABS.find((t) => t.id === activeTab)?.badge}
+                      </span>
+                    )}
+                  </span>
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
+                {TABS.map((tab) => (
+                  <DropdownMenuItem
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={cn(
+                      "flex items-center gap-2",
+                      activeTab === tab.id && "bg-accent/10 text-accent"
+                    )}
+                  >
+                    {tab.icon}
+                    {tab.label}
+                    {tab.badge && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent uppercase ml-auto">
+                        {tab.badge}
+                      </span>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Desktop: Tab bar */}
+          <div className="hidden md:flex items-center gap-1 mb-8 border-b border-border">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
