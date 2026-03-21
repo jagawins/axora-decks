@@ -9,13 +9,14 @@ import ExampleDecks from "@/components/landing/ExampleDecks";
 import InfographicGenerator from "@/components/infographics/InfographicGenerator";
 import DataVisualsGenerator from "@/components/datavisuals/DataVisualsGenerator";
 import TimelineGenerator from "@/components/timelines/TimelineGenerator";
+import SlideInspiration from "@/components/slides/SlideInspiration";
 import { cn } from "@/lib/utils";
-import { LayoutTemplate, Sparkles, Crown, ArrowRight, Layers, Download, Zap, BarChart3, CalendarDays } from "lucide-react";
+import { LayoutTemplate, Sparkles, Crown, ArrowRight, Layers, Download, Zap, BarChart3, CalendarDays, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { TemplatePreview } from "@/components/templates/TemplatePreview";
 
-type TabId = "templates" | "infographics" | "data-visuals" | "timelines";
+type TabId = "templates" | "infographics" | "data-visuals" | "timelines" | "inspiration";
 
 export default function Templates() {
   const { toast } = useToast();
@@ -54,6 +55,7 @@ export default function Templates() {
     { id: "infographics", label: "AI Infographics", icon: <Sparkles className="h-4 w-4" />, badge: "BETA" },
     { id: "data-visuals", label: "Data & Visuals", icon: <BarChart3 className="h-4 w-4" />, badge: "NEW" },
     { id: "timelines", label: "Timelines", icon: <CalendarDays className="h-4 w-4" />, badge: "PRO" },
+    { id: "inspiration", label: "Slide Library", icon: <Search className="h-4 w-4" />, badge: "NEW" },
   ];
 
   return (
@@ -236,6 +238,13 @@ export default function Templates() {
           {activeTab === "timelines" && (
             <div className="py-4">
               <TimelineGenerator />
+            </div>
+          )}
+
+          {/* Slide Inspiration Library Tab */}
+          {activeTab === "inspiration" && (
+            <div className="py-4">
+              <SlideInspiration />
             </div>
           )}
         </div>

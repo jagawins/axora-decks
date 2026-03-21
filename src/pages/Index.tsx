@@ -11,6 +11,7 @@ import ExampleDecks from "@/components/landing/ExampleDecks";
 import SocialProof from "@/components/landing/SocialProof";
 import ConsultingMethodology from "@/components/landing/ConsultingMethodology";
 import ExecutiveShowcase from "@/components/landing/ExecutiveShowcase";
+import SlideInspiration from "@/components/landing/SlideInspiration";
 
 const Index = () => {
   return (
@@ -37,6 +38,9 @@ const Index = () => {
 
         {/* 5. Example decks — YouExec-style showcase */}
         <ExampleDecks />
+
+        {/* 5.5 Slide Inspiration — browsable consulting slide patterns */}
+        <SlideInspiration />
 
         {/* 6. Social proof & testimonials */}
         <SocialProof />
