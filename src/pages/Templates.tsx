@@ -15,7 +15,12 @@ import { LayoutTemplate, Sparkles, Crown, ArrowRight, Layers, Download, Zap, Bar
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { TemplatePreview } from "@/components/templates/TemplatePreview";
-
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 type TabId = "templates" | "infographics" | "data-visuals" | "timelines" | "inspiration";
 
 export default function Templates() {
