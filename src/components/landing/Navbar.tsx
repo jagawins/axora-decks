@@ -28,6 +28,9 @@ const Navbar = () => {
             <Link to="/templates" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Templates
             </Link>
+            <Link to="/executive" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Executive Hub
+            </Link>
             <Link to="/features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Features
             </Link>
