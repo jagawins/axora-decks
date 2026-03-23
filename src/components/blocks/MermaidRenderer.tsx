@@ -11,7 +11,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 mermaid.initialize({
   startOnLoad: false,
   theme: 'neutral',
-  securityLevel: 'loose',
+  securityLevel: 'strict',
   fontFamily: 'inherit',
 });
 
