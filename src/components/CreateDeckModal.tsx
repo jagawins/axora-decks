@@ -441,7 +441,7 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
                   <Sparkles className="h-3 w-3 text-accent" />
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  <span className="font-semibold text-accent">Consulting-grade AI</span> — Pyramid Principle structure, action titles, 70%+ visual density
+                  <span className="font-semibold text-accent">Consulting-grade AI</span> — Answer-first structure, action titles, 70%+ visual density
                 </p>
               </div>
 

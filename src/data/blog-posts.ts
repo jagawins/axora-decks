@@ -74,7 +74,7 @@ Try it free: axiva.ai/templates → Timelines tab.
   {
     slug: "consulting-slide-methodology-ai-2026",
     title: "How AXIVA Uses BCG & McKinsey Slide Methodology to Generate Consulting-Grade Decks",
-    excerpt: "Generic AI presentation tools produce topic-label headings and text walls. AXIVA is trained on the Pyramid Principle, action titles, and consulting-standard visual density. Here's how it works.",
+    excerpt: "Generic AI presentation tools produce topic-label headings and text walls. AXIVA is trained on answer-first structure, action titles, and consulting-standard visual density. Here's how it works.",
     category: "Product",
     publishedAt: "2026-03-15",
     author: "Jag Mariappan",
@@ -93,7 +93,7 @@ The methodology is well-documented but rarely implemented in AI tools:
 
 **Action Titles (not topic labels).** Every slide title should be a complete assertion — the key takeaway for that slide. "Revenue grew 23% YoY driven by APAC expansion" not "Revenue Performance." The audience should be able to read just the titles and understand the entire argument.
 
-**Pyramid Principle structure.** Start with the answer. The executive summary comes on slide 2-3 and states the recommendations upfront. Everything that follows is supporting evidence. Most people (and most AI tools) do the opposite — they build up to the conclusion.
+**Answer-first structure.** Start with the answer. The executive summary comes on slide 2-3 and states the recommendations upfront. Everything that follows is supporting evidence. Most people (and most AI tools) do the opposite — they build up to the conclusion.
 
 **Three-layer slide anatomy.** Every body slide has: (1) an action title stating the takeaway, (2) a brief sub-context, and (3) a visual — chart, table, framework, or diagram. Not a wall of text.
 
@@ -105,7 +105,7 @@ The methodology is well-documented but rarely implemented in AI tools:
 
 We have embedded consulting methodology directly into AXIVA's AI generation system:
 
-**Outline generation** uses the Pyramid Principle. When you describe your presentation, the AI structures it answer-first: executive summary with recommendations, then evidence sections, then next steps. Every section heading is generated as an action title.
+**Outline generation** uses answer-first structure. When you describe your presentation, the AI structures it answer-first: executive summary with recommendations, then evidence sections, then next steps. Every section heading is generated as an action title.
 
 **Block generation** enforces consulting-standard visual density. The AI is instructed to generate 70%+ visual blocks — stat_blocks, chart_blocks, comparison_tables, two_by_two_matrices, three_pillars, and timeline_blocks. Text blocks are minimized.
 

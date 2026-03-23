@@ -21,18 +21,18 @@ const blockTypes = [
 /* ── Main feature cards ────────────────────────────────────── */
 const features = [
   {
-    icon: Wand2,
-    title: "AI-Powered Generation",
-    description: "Describe your deck in one sentence. AI builds the full structure, narrative, and visuals using BCG & McKinsey consulting methodology.",
+    icon: Target,
+    title: "Message Architecture Engine",
+    description: "Guided intake enforces decision-first structure. Choose Decision Brief, Change Narrative, or Crisis Statement. Define audience, 3 MECE reasons, and the ask.",
     color: "#3B82F6",
-    highlights: ["One-prompt generation", "Pyramid Principle structure", "70% visual density"],
+    highlights: ["Answer-first structure enforced", "3 architecture types", "MECE contradiction checks"],
   },
   {
-    icon: LayoutGrid,
-    title: "Executive Smart Layouts",
-    description: "Not generic columns — named consulting patterns. Executive Summary, Metrics + Commentary, Recommendation + Evidence, Spotlight, and Agenda layouts.",
+    icon: Wand2,
+    title: "AI-Powered Generation",
+    description: "Describe your deck in one sentence. AI builds the full structure, narrative, and visuals using consulting methodology with answer-first structure and action titles.",
     color: "#8B5CF6",
-    highlights: ["6 executive layout patterns", "Recommendation + risk boxes", "Agenda with owners & time"],
+    highlights: ["One-prompt generation", "25+ block types", "70% visual density"],
   },
   {
     icon: Timer,
@@ -42,25 +42,25 @@ const features = [
     highlights: ["One dataset → multiple narratives", "Scenario branching (multiple futures)", "Import CSV, JPG, PPTX, PDF"],
   },
   {
-    icon: ExternalLink,
-    title: "Live Dashboard Embeds",
-    description: "Embed Google Sheets, PowerBI, Tableau, Figma, Miro, or any URL directly in your deck. Auto-detects provider and transforms URLs.",
-    color: "#F59E0B",
-    highlights: ["Google Sheets → live KPIs", "PowerBI dashboards", "Figma prototypes"],
-  },
-  {
     icon: MousePointerClick,
-    title: "CTA Action Buttons",
-    description: "Add 'Approve This', 'Schedule Follow-up', or 'Book a Demo' buttons to shared decks. Card layout with descriptions, 10 icons, 4 styles.",
+    title: "Q&A Readiness + Crisis",
+    description: "AI generates anticipated questions from your deck. Build 3-message maps for high-stress moments. 4 crisis templates. Timed 30-second drill mode.",
     color: "#EF4444",
-    highlights: ["Calendly integration", "Approval workflows", "Card layout with descriptions"],
+    highlights: ["Q&A bank generator", "Message maps (3×3 structure)", "Crisis templates + timed drill"],
   },
   {
-    icon: Download,
-    title: "Export Anywhere",
-    description: "Native PowerPoint export with proper scaling. PDF for email. PNG for social. Shareable web links with live presenter mode.",
+    icon: Calendar,
+    title: "Rehearsal Planner",
+    description: "14-day rehearsal checklist with readiness score. Log run-throughs, capture coaching notes, track preparation quality before high-stakes moments.",
+    color: "#F59E0B",
+    highlights: ["12-step prep checklist", "Readiness score percentage", "Coaching notes capture"],
+  },
+  {
+    icon: BarChart3,
+    title: "Outcome Analytics",
+    description: "Track whether communication improved understanding and accelerated decisions. Clarity scores, objection coverage, decision latency, and presentation history.",
     color: "#06B6D4",
-    highlights: ["PowerPoint (.pptx)", "PDF download", "Shareable web links"],
+    highlights: ["Decision speed tracking", "Clarity + objection scores", "Presentation history"],
   },
 ];
 
@@ -73,14 +73,14 @@ const Features = () => {
         {/* Section header */}
         <div className="text-center mb-16">
           <p className="text-accent font-medium text-sm uppercase tracking-wider mb-3">
-            Executive-Grade Features
+            Executive Performance System
           </p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Everything executives need, nothing they don't
+            Win the moment, not just the slides
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Live dashboard embeds. Smart consulting layouts. 23 timeline styles.
-            CTA buttons for approvals. Not just slides — a decision-making platform.
+            Message architecture. Q&A readiness. Rehearsal planning. Outcome tracking.
+            Not just a deck builder — a decision-making platform for executives.
           </p>
         </div>
 

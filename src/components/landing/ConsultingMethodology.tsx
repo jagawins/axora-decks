@@ -30,7 +30,7 @@ const BEFORE_AFTER = [
 const PILLARS = [
   {
     icon: <MessageSquareQuote className="h-5 w-5" />,
-    title: "Pyramid Principle",
+    title: "Answer-First Structure",
     desc: "Every deck starts with the answer. Executive summary first, evidence second.",
     color: "text-violet-400",
     bgColor: "bg-violet-500/10",
@@ -82,7 +82,7 @@ export default function ConsultingMethodology() {
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
             Other AI tools generate topic-label headings and text walls.
-            AXIVA is the only tool that enforces the Pyramid Principle, action titles, and consulting-standard visual density by default.
+            AXIVA is the only tool that enforces answer-first structure, action titles, and consulting-standard visual density by default.
           </p>
         </div>
 
