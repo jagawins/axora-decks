@@ -39,7 +39,7 @@ const plans = [
       "Speech Prep + Delivery Coaching (voice, story, presence)",
       "Q&A Readiness + Crisis Templates",
       "Rehearsal Planner + Readiness Score",
-      "Outcome Analytics Dashboard",
+      "Live Audience Polls (QR code, real-time results)",
       "23 Timeline Styles (Gantt, scenarios, S-curve...)",
       "Live Embeds (PowerBI, Sheets, Figma, Miro)",
       "Smart Executive Layouts (6 patterns)",

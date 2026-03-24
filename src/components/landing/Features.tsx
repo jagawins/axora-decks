@@ -15,7 +15,7 @@ const blockTypes = [
   { icon: Calendar, name: "Rehearsal Plan", description: "14-day prep checklist", color: "#EC4899" },
   { icon: Columns, name: "Comparison Tables", description: "Side-by-side analysis", color: "#06B6D4" },
   { icon: GitBranch, name: "Scenario Branching", description: "Multiple futures", color: "#7C3AED" },
-  { icon: TrendingUp, name: "Chart Blocks", description: "Line, bar, donut, area", color: "#F97316" },
+  { icon: TrendingUp, name: "Live Polls", description: "QR code, real-time results", color: "#F97316" },
 ];
 
 /* ── Main feature cards ────────────────────────────────────── */
@@ -57,10 +57,10 @@ const features = [
   },
   {
     icon: BarChart3,
-    title: "Outcome Analytics",
-    description: "Track whether communication improved understanding and accelerated decisions. Clarity scores, objection coverage, decision latency, and presentation history.",
+    title: "Live Audience Polls",
+    description: "Built-in polls, Q&A, word clouds, and surveys — right inside your deck. Audience scans a QR code, votes from their phone, results update live. No separate tool needed.",
     color: "#06B6D4",
-    highlights: ["Decision speed tracking", "Clarity + objection scores", "Presentation history"],
+    highlights: ["QR code + event code to join", "Live results update in real-time", "Replaces Slido — built into the deck"],
   },
 ];
 

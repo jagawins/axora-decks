@@ -166,7 +166,7 @@ const Hero = () => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-xs sm:text-sm font-medium mb-8 backdrop-blur-sm animate-fade-in-up">
             <Zap className="h-3.5 w-3.5" />
-            <span>Executive Performance System · Delivery Coaching · Q&A Readiness · 23 Timelines · PPTX Export</span>
+            <span>Executive Performance System · Delivery Coaching · Live Audience Polls · Q&A Readiness · 23 Timelines</span>
           </div>
 
           {/* Headline */}
