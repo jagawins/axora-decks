@@ -313,14 +313,14 @@ const EditorToolset = ({
                   </a>
                 ))}
 
-                {/* Speaker Notes Generator */}
+                {/* Quick Add Blocks */}
                 <div className="border-t border-border/50 pt-3 mt-3">
-                  <p className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">Quick Actions</p>
+                  <p className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">Quick add blocks</p>
                   {[
-                    { type: "smart_layout" as BlockType, label: "Add Recommendation Slide", desc: "Rec + evidence + risk" },
-                    { type: "smart_layout" as BlockType, label: "Add Agenda Slide", desc: "Items + owners + time" },
-                    { type: "cta_button_block" as BlockType, label: "Add CTA Buttons", desc: "Approve, schedule, book" },
-                    { type: "embed_block" as BlockType, label: "Add Live Embed", desc: "Sheets, PowerBI, Figma" },
+                    { type: "smart_layout" as BlockType, label: "Recommendation Slide", desc: "Rec + evidence + risk" },
+                    { type: "smart_layout" as BlockType, label: "Agenda Slide", desc: "Items + owners + time" },
+                    { type: "cta_button_block" as BlockType, label: "CTA Buttons", desc: "Approve, schedule, book" },
+                    { type: "embed_block" as BlockType, label: "Live Embed", desc: "Sheets, PowerBI, Figma" },
                   ].map(({ type, label, desc }) => (
                     <button
                       key={label}
@@ -331,6 +331,33 @@ const EditorToolset = ({
                       className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-all text-left"
                     >
                       <div className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+                      <div>
+                        <p className="text-xs font-medium">{label}</p>
+                        <p className="text-[9px] text-muted-foreground">{desc}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Audience Interaction */}
+                <div className="border-t border-border/50 pt-3 mt-3">
+                  <p className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">Audience interaction</p>
+                  <p className="text-[9px] text-muted-foreground mb-2">Add live polls, Q&A, and feedback — viewers interact when deck is shared.</p>
+                  {[
+                    { type: "audience_poll" as BlockType, label: "Live Poll", desc: "Multiple choice, rating, or yes/no" },
+                    { type: "audience_qa" as BlockType, label: "Audience Q&A", desc: "Submit and upvote questions" },
+                    { type: "audience_wordcloud" as BlockType, label: "Word Cloud", desc: "One-word submissions, live cloud" },
+                    { type: "audience_survey" as BlockType, label: "Feedback Survey", desc: "Post-presentation survey" },
+                  ].map(({ type, label, desc }) => (
+                    <button
+                      key={label}
+                      onClick={() => {
+                        onAddBlock(type);
+                        setActivePanel(null);
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-all text-left"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-violet-500 shrink-0" />
                       <div>
                         <p className="text-xs font-medium">{label}</p>
                         <p className="text-[9px] text-muted-foreground">{desc}</p>

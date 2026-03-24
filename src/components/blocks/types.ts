@@ -328,7 +328,11 @@ export type VisualBlockType =
   | 'flow_diagram'
   | 'embed_block'
   | 'cta_button_block'
-  | 'smart_layout';
+  | 'smart_layout'
+  | 'audience_poll'
+  | 'audience_qa'
+  | 'audience_wordcloud'
+  | 'audience_survey';
 
 // Decision block type names
 export type DecisionBlockType =

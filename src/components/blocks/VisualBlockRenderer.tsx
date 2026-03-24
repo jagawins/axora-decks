@@ -40,6 +40,7 @@ import { FlowDiagram } from './FlowDiagram';
 import { EmbedBlock } from './EmbedBlock';
 import { CTAButtonBlock } from './CTAButtonBlock';
 import { SmartLayoutBlock } from './SmartLayoutBlock';
+import { AudiencePollBlock, AudienceQABlock, AudienceWordCloudBlock, AudienceSurveyBlock } from './AudienceInteraction';
 
 // Interactive block components
 import { TabsBlock } from './TabsBlock';
@@ -166,6 +167,14 @@ export function VisualBlockRenderer({
       return <CTAButtonBlock payload={payload as any} readOnly={readOnly} className={className} />;
     case 'smart_layout' as any:
       return <SmartLayoutBlock payload={payload as any} readOnly={readOnly} className={className} />;
+    case 'audience_poll' as any:
+      return <AudiencePollBlock payload={payload as any} className={className} />;
+    case 'audience_qa' as any:
+      return <AudienceQABlock payload={payload as any} className={className} />;
+    case 'audience_wordcloud' as any:
+      return <AudienceWordCloudBlock payload={payload as any} className={className} />;
+    case 'audience_survey' as any:
+      return <AudienceSurveyBlock payload={payload as any} className={className} />;
     
     // Interactive block types
     case 'tabs_block':
