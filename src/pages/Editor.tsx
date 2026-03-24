@@ -1450,7 +1450,7 @@ const Editor = () => {
             setSelectedBlockId(newBlock.id);
             setHasUnsavedChanges(true);
           }}
-          deckTitle={title}
+          deckTitle={project?.title}
         />
       </div>
 
