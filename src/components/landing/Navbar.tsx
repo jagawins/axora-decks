@@ -102,6 +102,13 @@ const Navbar = () => {
               Templates
             </Link>
             <Link 
+              to="/executive" 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Executive Hub
+            </Link>
+            <Link 
               to="/features" 
               className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}

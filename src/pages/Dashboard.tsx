@@ -13,6 +13,7 @@ import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { LibraryActionBar } from '@/components/library/LibraryActionBar';
 import { LibraryTabs, LibraryFilter } from '@/components/library/LibraryTabs';
 import { ProjectCard } from '@/components/library/ProjectCard';
+import SpeechPrep from '@/components/executive/SpeechPrep';
 import { CreateProjectModal } from '@/components/library/CreateProjectModal';
 import { RenameModal } from '@/components/library/RenameModal';
 import { CreateDeckModal } from '@/components/CreateDeckModal';
@@ -150,6 +151,7 @@ const Dashboard = () => {
   
   // UI state
   const [sidebarTab, setSidebarTab] = useState('library');
+  const [speechPrepDeckId, setSpeechPrepDeckId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<LibraryFilter>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -473,6 +475,10 @@ const Dashboard = () => {
     }
     if (tab === 'settings') {
       navigate('/settings');
+      return;
+    }
+    if (tab === 'executive') {
+      navigate('/executive');
       return;
     }
     setSidebarTab(tab);

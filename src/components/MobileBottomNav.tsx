@@ -1,13 +1,13 @@
-import { Home, Sparkles, Layers, GalleryHorizontalEnd, User } from "lucide-react";
+import { Home, Sparkles, Layers, Target, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type MobileNavTab = "home" | "generate" | "library" | "slides" | "settings";
+type MobileNavTab = "home" | "generate" | "library" | "executive" | "settings";
 
 const tabs: { id: MobileNavTab; label: string; icon: typeof Home }[] = [
   { id: "home", label: "Home", icon: Home },
   { id: "generate", label: "Generate", icon: Sparkles },
   { id: "library", label: "My Decks", icon: Layers },
-  { id: "slides", label: "Slides", icon: GalleryHorizontalEnd },
+  { id: "executive", label: "Executive", icon: Target },
   { id: "settings", label: "Account", icon: User },
 ];
 

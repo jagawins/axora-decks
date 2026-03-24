@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MoreHorizontal, Pencil, Copy, FolderInput, Star, Trash2, Share2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Copy, FolderInput, Star, Trash2, Share2, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -26,6 +26,7 @@ interface ProjectCardProps {
   onMoveToFolder: (id: string) => void;
   onToggleFavorite: (id: string, isFavorite: boolean) => void;
   onDelete: (id: string, title: string) => void;
+  onPrepSpeech?: (id: string) => void;
 }
 
 const formatRelativeTime = (dateString: string | null) => {
@@ -81,6 +82,7 @@ export const ProjectCard = ({
   onMoveToFolder,
   onToggleFavorite,
   onDelete,
+  onPrepSpeech,
 }: ProjectCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [blocks, setBlocks] = useState<MiniBlock[]>([]);
@@ -184,6 +186,7 @@ export const ProjectCard = ({
             <DropdownMenuItem onClick={() => onRename(id)}><Pencil className="h-4 w-4 mr-2" />Rename</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onDuplicate(id)}><Copy className="h-4 w-4 mr-2" />Duplicate</DropdownMenuItem>
             <DropdownMenuItem onClick={() => window.location.href = `/editor/${id}?share=true`}><Share2 className="h-4 w-4 mr-2" />Share</DropdownMenuItem>
+            {onPrepSpeech && <DropdownMenuItem onClick={() => onPrepSpeech(id)}><Mic className="h-4 w-4 mr-2" />Prepare Speech</DropdownMenuItem>}
             <DropdownMenuItem onClick={() => onMoveToFolder(id)}><FolderInput className="h-4 w-4 mr-2" />Move to folder</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onToggleFavorite(id, !isFavorite)}>
               <Star className={cn("h-4 w-4 mr-2", isFavorite && "fill-current")} />
@@ -238,6 +241,7 @@ export const ProjectCard = ({
             <DropdownMenuItem onClick={() => onDuplicate(id)}><Copy className="h-4 w-4 mr-2" />Duplicate</DropdownMenuItem>
             <DropdownMenuItem onClick={() => window.location.href = `/editor/${id}?share=true`}><Share2 className="h-4 w-4 mr-2" />Share</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onMoveToFolder(id)}><FolderInput className="h-4 w-4 mr-2" />Move to folder</DropdownMenuItem>
+            {onPrepSpeech && <DropdownMenuItem onClick={() => onPrepSpeech(id)}><Mic className="h-4 w-4 mr-2" />Prepare Speech</DropdownMenuItem>}
             <DropdownMenuItem onClick={() => onToggleFavorite(id, !isFavorite)}>
               <Star className={cn("h-4 w-4 mr-2", isFavorite && "fill-current")} />
               {isFavorite ? "Remove from favorites" : "Add to favorites"}

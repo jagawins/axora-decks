@@ -34,14 +34,14 @@ const MarketingHeader = () => {
             <Link to="/templates" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Templates
             </Link>
+            <Link to="/executive" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Executive Hub
+            </Link>
             <Link to="/demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Demo
             </Link>
             <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Pricing
-            </Link>
-            <Link to="/gamma-alternative" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Gamma Alternative
             </Link>
           </div>
 
@@ -96,14 +96,14 @@ const MarketingHeader = () => {
             <Link to="/templates" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
               Templates
             </Link>
+            <Link to="/executive" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
+              Executive Hub
+            </Link>
             <Link to="/demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
               Demo
             </Link>
             <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
               Pricing
-            </Link>
-            <Link to="/gamma-alternative" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
-              Gamma Alternative
             </Link>
             <div className="flex flex-col gap-2 pt-2 border-t border-border">
               <ThemeToggle showLabel />

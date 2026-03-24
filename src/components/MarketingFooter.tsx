@@ -32,6 +32,11 @@ const MarketingFooter = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/executive" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  Executive Hub
+                </Link>
+              </li>
+              <li>
                 <Link to="/pricing" className="text-sm text-muted-foreground hover:text-accent transition-colors">
                   Pricing
                 </Link>
