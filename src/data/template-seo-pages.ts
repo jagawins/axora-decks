@@ -207,9 +207,9 @@ export const TEMPLATE_SEO_PAGES: TemplateSEOPage[] = [
     slug: "consulting-deck-template",
     title: "AI Consulting Deck Generator — BCG & McKinsey Style | AXIVA",
     h1: "Consulting Deck Generator",
-    description: "Generate consulting-grade presentations using BCG and McKinsey slide methodology. AI-powered action titles, answer-first structure, data-heavy frameworks, and executive-ready formatting.",
-    keywords: ["consulting deck template", "McKinsey slide template", "BCG presentation generator", "consulting presentation AI", "answer-first slides", "strategy consulting deck"],
-    heroSubline: "Generate consulting-grade slide decks with AI — action titles, answer-first structure, data-driven frameworks, and the visual density McKinsey and BCG clients expect. In under 2 minutes.",
+    description: "Generate consulting-grade presentations with delivery coaching built in. AI-powered action titles, answer-first structure, vocal tips, story structure, and Q&A readiness. The only tool that helps you deliver, not just create.",
+    keywords: ["consulting deck template", "McKinsey slide template", "BCG presentation generator", "consulting presentation AI", "answer-first slides", "delivery coaching", "speech prep"],
+    heroSubline: "Generate consulting-grade slide decks with AI — plus delivery coaching for how to present them. Vocal tips, story structure, Q&A readiness, and a pre-flight checklist. No other tool does this.",
     category: "Strategy",
     tags: ["consulting", "McKinsey", "BCG", "strategy", "answer-first", "frameworks"],
     useCases: [

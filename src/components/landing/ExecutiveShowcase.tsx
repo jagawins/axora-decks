@@ -247,14 +247,14 @@ export default function ExecutiveShowcase() {
       <div className="container-wide relative">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-semibold mb-4">
-            <Sparkles className="h-3.5 w-3.5" /> Executive-Grade Blocks
+            <Sparkles className="h-3.5 w-3.5" /> Only tool with delivery coaching built in
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
-            Not slides. Decision-making tools.
+            Not just slides. A speaking system.
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Live dashboards. Smart consulting layouts. Action buttons.
-            Every block is designed for how executives actually work.
+            Vocal coaching. Story structure. Q&A readiness. Smart layouts.
+            Prepare what to say AND how to say it — in one workflow.
           </p>
         </div>
 

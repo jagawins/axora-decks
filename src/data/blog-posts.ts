@@ -10,6 +10,59 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "delivery-coaching-built-into-deck-generation-2026",
+    title: "Why No Presentation Tool Teaches You How to Deliver — Until Now",
+    excerpt: "Every AI deck tool helps you create slides. None help you deliver them. AXIVA is the first to integrate delivery coaching — vocal techniques, story structure, and a pre-flight checklist — directly into your deck workflow.",
+    category: "Product",
+    publishedAt: "2026-03-24",
+    author: "Jag Mariappan",
+    content: `# Why no presentation tool teaches you how to deliver — until now
+
+Every AI presentation tool on the market — Gamma, Beautiful.ai, Canva, PowerPoint Copilot — solves the same problem: help you create slides faster. None of them help you deliver those slides.
+
+This is a massive gap. The deck is not the presentation. The presentation is *you* — standing in front of a board, a team, or 500 people — and how you use your voice, your stories, and your presence to move them.
+
+## What the best communicators actually do
+
+Top communication experts like Vinh Giang, Simon Sinek, and Carmine Gallo share common practices that separate a forgettable talk from one that drives decisions:
+
+**They master their voice.** Vinh Giang teaches that your voice is an instrument — most people only use a few notes. The 5 vocal foundations: rate of speech, volume, pitch, melody, and tonality. Varying these keeps audiences engaged. Slowing down signals importance. Going quiet creates intimacy. Strategic pauses of 2-3 seconds let key points land.
+
+**They structure stories, not just data.** Great presenters balance head (facts, data) and heart (stories, emotion). The pattern is: start with a fact, tell a short story that makes it real, close with the data again. Simon Sinek calls this starting with why — but the mechanics are simpler than the philosophy. Open a story loop early. Close it later. Your audience stays hooked.
+
+**They make the audience the hero.** Nancy Duarte's research shows the most effective presentations position the audience as the hero and the speaker as the guide. You are not there to impress. You are there to show them a path.
+
+**They rehearse like performers.** TED speakers do 6-8 full run-throughs before going on stage. Steve Jobs rehearsed for weeks. The difference between a good talk and a great one is almost always preparation, not talent.
+
+## What AXIVA does differently
+
+AXIVA is the first tool that integrates delivery coaching directly into the deck creation workflow:
+
+**Speech Prep** — not just content, but structure. Choose what you need to accomplish (get a decision, drive change, handle a crisis) and the tool guides you through the right framework.
+
+**Vocal Coaching Tips** — pace control, volume variation, strategic pausing, and the smile technique for vocal warmth. These appear contextually as you build your talk.
+
+**Story Structure** — head to heart to head pattern, the looping technique for maintaining attention, and audience-as-hero framing.
+
+**Presence Guidance** — eye contact rotation (pick 3 people), purposeful movement (step forward for emphasis), and opening with a question to make them participants.
+
+**Pre-Flight Checklist** — 5 quick checks before you present: Can you state your point in one sentence? Do you have one story? Have you practiced the opening? Do you know your first and last sentence? Can you answer the 3 hardest questions?
+
+**Q&A Readiness** — AI generates anticipated questions from your deck content. Build 3-message maps for high-stress moments. Practice with 30-second timed drills.
+
+## No competitor has this
+
+We checked. Microsoft PowerPoint has Speaker Coach (self-serve feedback on pace and filler words). Prezent has coaching avatars. But nobody has delivery coaching — vocal technique, story structure, body language, and rehearsal checklists — integrated into the deck creation workflow.
+
+This is not a nice-to-have. McKinsey research shows that executives who align on a coherent "change story" and deliver it consistently see materially higher transformation success rates. The delivery is the strategy.
+
+## Try it
+
+Go to [axiva.ai/executive](/executive) and click Speech Prep. Fill in what you need to accomplish. The coaching appears as you work — not as a separate course, but as part of building your deck.
+
+Because the best deck in the world does not matter if you cannot deliver it.`,
+  },
+  {
     slug: "ai-timeline-generator-23-styles-2026",
     title: "23 Timeline Styles That Turn Data Into Executive Narratives",
     excerpt: "Most timeline tools generate one layout. AXIVA generates 23 narrative views from one dataset — from Gantt charts to scenario branching to cause-effect chains. Here's how it works.",

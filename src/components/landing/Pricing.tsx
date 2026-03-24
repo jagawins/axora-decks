@@ -36,7 +36,7 @@ const plans = [
     features: [
       "Unlimited projects",
       "PDF & PowerPoint export",
-      "Message Architecture Engine (3 types)",
+      "Speech Prep + Delivery Coaching (voice, story, presence)",
       "Q&A Readiness + Crisis Templates",
       "Rehearsal Planner + Readiness Score",
       "Outcome Analytics Dashboard",

@@ -471,7 +471,7 @@ export default function Demo() {
     <>
       <Helmet>
         <title>Interactive Demo | AXIVA — See AI Presentations in Action</title>
-        <meta name="description" content="Try AXIVA's AI presentation generator live. Pick a scenario, watch AI build executive-grade slides in seconds, and explore the results." />
+        <meta name="description" content="Try AXIVA's executive performance system live. Speech prep with delivery coaching, Q&A readiness, 23 timeline styles. The only tool that teaches you how to deliver, not just what to say." />
       </Helmet>
 
       <MarketingHeader />
@@ -749,7 +749,7 @@ export default function Demo() {
               <div className="text-center mt-12 pt-10 border-t border-border/20">
                 <h2 className="text-2xl sm:text-3xl font-bold mb-3">Like what you see?</h2>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Create your own executive deck in minutes. Paste notes, describe your goal, or start from a template.
+                  Create your own executive deck in minutes. Then use Speech Prep for delivery coaching — vocal tips, story structure, and Q&A readiness. The only tool that helps you deliver, not just create.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                   <Button variant="hero" size="lg" onClick={() => navigate("/create")} className="group gap-2">

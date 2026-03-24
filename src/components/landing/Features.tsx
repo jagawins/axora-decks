@@ -7,12 +7,12 @@ import {
 
 /* ── Visual block showcase (YouExec-inspired grid) ─────────── */
 const blockTypes = [
-  { icon: BarChart3, name: "KPI Dashboards", description: "Auto-formatted metrics", color: "#3B82F6" },
-  { icon: LayoutGrid, name: "Smart Layouts", description: "6 executive patterns", color: "#8B5CF6" },
+  { icon: Target, name: "Delivery Coach", description: "Voice, story, presence", color: "#3B82F6" },
+  { icon: BarChart3, name: "KPI Dashboards", description: "Auto-formatted metrics", color: "#8B5CF6" },
   { icon: Timer, name: "23 Timelines", description: "Gantt, scenarios, S-curve", color: "#10B981" },
-  { icon: ExternalLink, name: "Live Embeds", description: "PowerBI, Sheets, Figma", color: "#F59E0B" },
-  { icon: MousePointerClick, name: "CTA Buttons", description: "Calendly, approve, book", color: "#EF4444" },
-  { icon: Target, name: "Decision Panels", description: "Recommendations + risks", color: "#EC4899" },
+  { icon: LayoutGrid, name: "Smart Layouts", description: "6 executive patterns", color: "#F59E0B" },
+  { icon: MousePointerClick, name: "Q&A Readiness", description: "Anticipate questions", color: "#EF4444" },
+  { icon: Calendar, name: "Rehearsal Plan", description: "14-day prep checklist", color: "#EC4899" },
   { icon: Columns, name: "Comparison Tables", description: "Side-by-side analysis", color: "#06B6D4" },
   { icon: GitBranch, name: "Scenario Branching", description: "Multiple futures", color: "#7C3AED" },
   { icon: TrendingUp, name: "Chart Blocks", description: "Line, bar, donut, area", color: "#F97316" },
@@ -22,10 +22,10 @@ const blockTypes = [
 const features = [
   {
     icon: Target,
-    title: "Message Architecture Engine",
-    description: "Guided intake enforces decision-first structure. Choose Decision Brief, Change Narrative, or Crisis Statement. Define audience, 3 MECE reasons, and the ask.",
+    title: "Speech Prep + Delivery Coaching",
+    description: "The only tool that coaches you on how to deliver, not just what to say. Vocal variety, strategic pausing, storytelling structure, and a pre-flight checklist — built right into your deck workflow.",
     color: "#3B82F6",
-    highlights: ["Answer-first structure enforced", "3 architecture types", "MECE contradiction checks"],
+    highlights: ["Vocal coaching (pace, volume, pauses)", "Story structure (head → heart → head)", "Pre-flight checklist before you present"],
   },
   {
     icon: Wand2,
@@ -80,7 +80,8 @@ const Features = () => {
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Message architecture. Q&A readiness. Rehearsal planning. Outcome tracking.
-            Not just a deck builder — a decision-making platform for executives.
+            The only platform with delivery coaching built into deck generation.
+            Vocal tips. Story structure. Q&A readiness. Not just slides — a speaking system.
           </p>
         </div>
 
