@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Loader2, Shield } from "lucide-react";
+import { ArrowRight, Check, Loader2, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -261,13 +261,16 @@ const Pricing = () => {
 
               {/* CTA */}
               <Button 
-                variant={plan.variant} 
-                className="w-full" 
+                variant={plan.hasTrial ? "premium" : plan.variant} 
+                className="w-full group"
                 size="lg"
                 onClick={() => handlePlanClick(plan.tier)}
                 disabled={loadingTier === plan.tier || (user && subscription.tier === plan.tier)}
               >
                 {getButtonText(plan)}
+                {plan.hasTrial && !loadingTier && !(user && subscription.tier === plan.tier) && (
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                )}
               </Button>
             </div>
           ))}
