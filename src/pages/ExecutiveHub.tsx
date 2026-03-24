@@ -15,10 +15,10 @@ export default function ExecutiveHub() {
   const [tab, setTab] = useState<TabId>("architect");
 
   const TABS: { id: TabId; label: string; icon: React.FC<any>; desc: string; badge?: string }[] = [
-    { id: "architect", label: "Message Architecture", icon: Target, desc: "Decision-first structure" },
-    { id: "qa-crisis", label: "Q&A + Crisis", icon: Shield, desc: "Message maps & drills", badge: "PRO" },
-    { id: "rehearsal", label: "Rehearsal Plan", icon: Calendar, desc: "14-day prep schedule", badge: "PRO" },
-    { id: "analytics", label: "Outcome Analytics", icon: BarChart3, desc: "Track decisions", badge: "PRO" },
+    { id: "architect", label: "Speech Prep", icon: Target, desc: "Structure your talk" },
+    { id: "qa-crisis", label: "Q&A + Crisis", icon: Shield, desc: "Anticipate tough questions", badge: "PRO" },
+    { id: "rehearsal", label: "Rehearsal", icon: Calendar, desc: "Practice schedule", badge: "PRO" },
+    { id: "analytics", label: "Track Results", icon: BarChart3, desc: "Did it land?", badge: "PRO" },
   ];
 
   return (
