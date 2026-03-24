@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SeoHead from "@/components/SeoHead";
 import Navbar from "@/components/landing/Navbar";
@@ -140,7 +141,52 @@ export default function SettingsPage() {
 
           <div className="flex flex-col md:flex-row gap-8">
             {/* Tab nav */}
-            <nav className="md:w-56 shrink-0 flex md:flex-col gap-1 overflow-x-auto pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
+            {/* Mobile: dropdown selector */}
+            <div className="md:hidden mb-4">
+              <button
+                onClick={() => {
+                  const el = document.getElementById('settings-mobile-menu');
+                  if (el) el.classList.toggle('hidden');
+                }}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-border bg-card text-sm font-medium text-foreground"
+              >
+                <span className="flex items-center gap-2.5">
+                  {(() => { const Icon = TABS.find(t => t.id === activeTab)?.icon || User; return <Icon className="h-4 w-4" />; })()}
+                  {TABS.find(t => t.id === activeTab)?.label}
+                </span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <div id="settings-mobile-menu" className="hidden mt-1 rounded-xl border border-border bg-card overflow-hidden">
+                {TABS.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id);
+                        const el = document.getElementById('settings-mobile-menu');
+                        if (el) el.classList.add('hidden');
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-2.5 px-4 py-3 text-sm font-medium transition-colors text-left",
+                        activeTab === tab.id
+                          ? "bg-accent/10 text-accent"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {tab.label}
+                      {tab.id === "api" && tier === "free" && (
+                        <Lock className="h-3 w-3 ml-auto text-muted-foreground/50" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Desktop: vertical tab nav */}
+            <nav className="hidden md:flex md:w-56 shrink-0 md:flex-col gap-1">
               {TABS.map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -148,8 +194,7 @@ export default function SettingsPage() {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={cn(
-                      "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left whitespace-nowrap touch-target",
-                      "md:w-full",
+                      "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left w-full",
                       activeTab === tab.id
                         ? "bg-accent/10 text-accent"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"

@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText, Plus, Sparkles, Upload, BarChart3 } from 'lucide-react';
+import { Loader2, FileText, Plus, Sparkles, Upload, BarChart3, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import { LibrarySidebar } from '@/components/library/LibrarySidebar';
@@ -725,6 +725,42 @@ const Dashboard = () => {
           {sidebarTab === 'slides' && (
             <div className="py-4">
               <SlideInspiration />
+            </div>
+          )}
+
+          {sidebarTab === 'speech-prep' && (
+            <div className="py-4 space-y-6">
+              <div>
+                <h1 className="text-2xl font-bold mb-2">Speech Preparation</h1>
+                <p className="text-muted-foreground text-sm">Select a deck from your library to generate speaking notes, Q&A bank, and rehearsal plans.</p>
+              </div>
+              {projects.length === 0 ? (
+                <div className="text-center py-16 glass-card">
+                  <Mic className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No decks yet</h3>
+                  <p className="text-muted-foreground text-sm">Create a deck first, then come back to prepare your speech.</p>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {projects.map((project) => (
+                    <button
+                      key={project.id}
+                      onClick={() => navigate(`/editor/${project.id}?tab=speech`)}
+                      className="text-left p-4 rounded-xl border border-border bg-card hover:border-accent/40 hover:bg-accent/5 transition-colors group"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                          <Mic className="h-5 w-5 text-accent" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground truncate group-hover:text-accent transition-colors">{project.title}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Prepare speech</p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
