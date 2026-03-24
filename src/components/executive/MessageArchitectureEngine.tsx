@@ -150,6 +150,118 @@ Use framed_insight for key messages. Use timeline_block for response timeline.`;
         </div>
       )}
 
+      {/* ── Delivery Coaching (expert techniques) ──────────── */}
+      {(decision.length > 5 || currentReality.length > 5 || empathy.length > 5) && (
+        <div className="rounded-2xl border border-accent/20 bg-accent/[0.03] p-5 space-y-5">
+          <div>
+            <h3 className="text-base font-bold flex items-center gap-2 mb-1">
+              <span className="text-lg">🎤</span> Delivery coaching
+            </h3>
+            <p className="text-xs text-muted-foreground">Techniques from top communication experts to help you land your message.</p>
+          </div>
+
+          {/* Vocal Delivery */}
+          <div className="space-y-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-accent">Voice — your instrument</p>
+            <p className="text-sm text-muted-foreground">Your voice is an instrument with 5 foundations: rate, pitch, volume, pause, and tone. Most people only use 2-3. Use all of them.</p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { tip: "Slow down for key points", detail: "Drop your pace when stating your recommendation. Speed up when building energy." },
+                { tip: "Use strategic pauses", detail: "Pause for 2-3 seconds after your main point. Silence lets it land." },
+                { tip: "Vary your volume", detail: "Normal at 6/10. Go quiet for intimacy ('and here is the truth...'). Loud for urgency." },
+                { tip: "Smile for melody", detail: "Smiling naturally adds warmth and melody to your voice. Use it on your opening line." },
+              ].map((v, i) => (
+                <div key={i} className="rounded-lg bg-background/50 border border-border/30 p-3">
+                  <p className="text-xs font-semibold">{v.tip}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{v.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Vocal Archetypes */}
+          <div className="space-y-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-accent">Switch your mode</p>
+            <p className="text-sm text-muted-foreground">Great speakers switch between 4 modes during a single talk. Match the mode to the moment.</p>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { mode: "Educator", when: "Sharing data or context", voice: "Steady pace, clear" },
+                { mode: "Coach", when: "Giving tough feedback", voice: "Direct, warm, firm" },
+                { mode: "Motivator", when: "Building energy", voice: "Fast, loud, passionate" },
+                { mode: "Friend", when: "Building trust", voice: "Soft, slow, personal" },
+              ].map((a, i) => (
+                <div key={i} className="rounded-lg bg-background/50 border border-border/30 p-2.5 text-center">
+                  <p className="text-[10px] font-bold">{a.mode}</p>
+                  <p className="text-[8px] text-accent mt-0.5">{a.when}</p>
+                  <p className="text-[8px] text-muted-foreground mt-0.5">{a.voice}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Story Structure */}
+          <div className="space-y-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-accent">Story structure</p>
+            <p className="text-sm text-muted-foreground">Balance head (facts, data) and heart (stories, emotion). People decide with emotion and justify with logic.</p>
+            <div className="space-y-1.5">
+              {[
+                { icon: "🧠", tip: "Head → Heart → Head", detail: "Start with a fact. Tell a short story that makes it real. Close with the data again." },
+                { icon: "🔄", tip: "Use the looping technique", detail: "Open a story loop early ('Let me tell you what happened when...'). Close it later. Keeps attention." },
+                { icon: "🦸", tip: "Make them the hero", detail: "Your audience is the hero. You are the guide. Show them the path, don't lecture." },
+              ].map((s, i) => (
+                <div key={i} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-background/50 border border-border/30">
+                  <span className="text-sm shrink-0">{s.icon}</span>
+                  <div>
+                    <p className="text-xs font-semibold">{s.tip}</p>
+                    <p className="text-[10px] text-muted-foreground">{s.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Body Language */}
+          <div className="space-y-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-accent">Presence</p>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { icon: "👁️", tip: "Eye contact", detail: "Pick 3 people in different sections. Speak to them in rotation." },
+                { icon: "🧍", tip: "Stand tall, move with purpose", detail: "Plant your feet. Step forward for emphasis. Never pace aimlessly." },
+                { icon: "🤝", tip: "Open with connection", detail: "Ask a question in your first 10 seconds. Make them participants, not spectators." },
+              ].map((b, i) => (
+                <div key={i} className="rounded-lg bg-background/50 border border-border/30 p-3 text-center">
+                  <span className="text-lg">{b.icon}</span>
+                  <p className="text-[10px] font-semibold mt-1">{b.tip}</p>
+                  <p className="text-[9px] text-muted-foreground mt-0.5">{b.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Checklist — the 3Cs + expert tips */}
+          <div className="space-y-1.5">
+            <p className="text-xs font-bold uppercase tracking-wider text-accent">Before you present — the 3Cs check</p>
+            <p className="text-[10px] text-muted-foreground mb-1">Clarity. Conciseness. Confidence. If you can check all of these, you are ready.</p>
+            {[
+              { c: "Clarity", item: "Can you state your main point in one sentence?" },
+              { c: "Clarity", item: "Does every slide support your one main message?" },
+              { c: "Conciseness", item: "Can you deliver the whole talk in the allotted time?" },
+              { c: "Conciseness", item: "Have you cut anything that does not move the audience closer to yes?" },
+              { c: "Confidence", item: "Do you know your opening and closing by heart?" },
+              { c: "Confidence", item: "Have you practiced out loud at least 3 times?" },
+              { c: "Confidence", item: "Can you answer the 3 hardest questions you might get?" },
+              { c: "Confidence", item: "Do you have one story that makes the data feel real?" },
+            ].map((item, i) => (
+              <label key={i} className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-muted/30 cursor-pointer transition-colors">
+                <input type="checkbox" className="rounded border-border" />
+                <span className="text-[9px] font-bold text-accent w-16 shrink-0">{item.c}</span>
+                <span className="text-xs">{item.item}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Generate */}
       <Button onClick={generateDeck} disabled={generating || !canGenerate()} className="w-full gap-2 py-6 text-base" variant="hero">
         {generating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
