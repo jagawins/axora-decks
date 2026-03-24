@@ -146,7 +146,7 @@ const Footer = () => {
 
           {/* Micro-copy */}
           <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md order-3 md:order-2">
-            AXIVA is an AI deck generator built for executives who need structured, presentation-ready slides — not generic content.
+            AXIVA is an AI deck generator built for executives who need structured, presentation-ready slides.
           </p>
 
           {/* Copyright */}
