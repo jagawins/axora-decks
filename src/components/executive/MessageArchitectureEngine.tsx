@@ -12,8 +12,10 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import {
-  Target, Users, ArrowRight, Sparkles, Loader2, Zap, Shield
+  Target, Users, ArrowRight, Sparkles, Loader2, Zap, Shield,
+  FileText, Presentation, Copy, Check, Download
 } from "lucide-react";
 
 type SpeechType = "decision" | "change" | "crisis";
@@ -35,6 +37,9 @@ export default function MessageArchitectureEngine() {
   const [empathy, setEmpathy] = useState("");
   const [facts, setFacts] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [generatingSpeech, setGeneratingSpeech] = useState(false);
+  const [speechOutput, setSpeechOutput] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const TYPES: { id: SpeechType; label: string; icon: React.FC<any>; example: string }[] = [
     { id: "decision", label: "Get a decision", icon: Target, example: "Board approval, budget sign-off, strategy vote" },
@@ -87,6 +92,102 @@ Use framed_insight for key messages. Use timeline_block for response timeline.`;
 
     navigate(`/create?prompt=${encodeURIComponent(prompt)}`);
   }, [speechType, decision, audience, ask, reason1, reason2, reason3, currentReality, desiredFuture, empathy, facts, user, navigate]);
+
+  const generateSpeech = useCallback(async () => {
+    if (!user) { navigate("/auth"); return; }
+    setGeneratingSpeech(true);
+    setSpeechOutput("");
+
+    let context = "";
+    if (speechType === "decision") {
+      context = `SPEECH TYPE: Executive decision presentation
+WHAT I NEED APPROVED: ${decision}
+AUDIENCE: ${audience}
+MY ASK: ${ask}
+REASON 1: ${reason1}
+REASON 2: ${reason2}
+REASON 3: ${reason3}`;
+    } else if (speechType === "change") {
+      context = `SPEECH TYPE: Change narrative / town hall
+WHERE WE ARE TODAY: ${currentReality}
+WHERE WE NEED TO BE: ${desiredFuture}
+AUDIENCE: ${audience}
+WHAT I NEED THEM TO DO: ${ask}`;
+    } else {
+      context = `SPEECH TYPE: Crisis communication
+EMPATHY OPENING: ${empathy}
+FACTS SO FAR: ${facts}
+AUDIENCE: ${audience}
+NEXT STEPS: ${ask}`;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-outline", {
+        body: {
+          topic: "Executive speech",
+          prompt: `You are an elite executive speech coach. Generate a complete, ready-to-deliver speech based on this context:
+
+${context}
+
+FORMAT YOUR OUTPUT AS A SPEECH WITH THESE SECTIONS:
+
+## Opening (30-60 seconds)
+[Write the actual opening words the speaker should say. Include a hook — a question, surprising fact, or short story. Include a delivery note in brackets like [PAUSE 2 seconds] or [slow down here] or [make eye contact with the room].]
+
+## Core Message (2-3 minutes)  
+[Write the main body. For decision speeches: lead with the recommendation, then each reason with evidence. For change: contrast today vs tomorrow. For crisis: empathy then facts then actions.]
+
+[Include delivery cues throughout: [PAUSE], [lower voice], [step forward], [look at CFO], etc.]
+
+## The Ask (30 seconds)
+[Write the exact closing words and ask. Make it specific — who needs to do what by when.]
+
+## Key Phrases to Memorize
+[List 3-5 short phrases the speaker should know by heart — the sentences that matter most.]
+
+## Delivery Notes
+- Vocal tips for this specific speech
+- Where to pause for effect
+- Where to speed up or slow down
+- Body language reminders
+
+## Anticipated Tough Questions (Top 3)
+Q1: [Most likely hard question]
+A1: [Recommended answer — keep under 30 seconds]
+
+Q2: [Second likely question]
+A2: [Answer]
+
+Q3: [Third likely question]  
+A3: [Answer]
+
+Write in a natural, conversational tone. Not formal. Not scripted-sounding. Write it the way a confident executive would actually talk.`,
+          tone: "executive",
+          cardsCount: 1,
+        },
+      });
+
+      if (error) throw error;
+
+      // The outline response contains the speech text
+      const outline = data?.outline;
+      if (outline?.sections) {
+        const speechText = outline.sections.map((s: any) => `## ${s.heading}\n${s.bullets?.join('\n') || s.description || ''}`).join('\n\n');
+        setSpeechOutput(speechText);
+      } else if (typeof data === 'string') {
+        setSpeechOutput(data);
+      } else {
+        // Try to extract any text from the response
+        setSpeechOutput(JSON.stringify(data, null, 2));
+      }
+      toast({ title: "Speech generated!" });
+    } catch (err: any) {
+      console.error("Speech generation error:", err);
+      toast({ title: "Failed to generate speech", description: err.message, variant: "destructive" });
+    } finally {
+      setGeneratingSpeech(false);
+    }
+  }, [speechType, decision, audience, ask, reason1, reason2, reason3, currentReality, desiredFuture, empathy, facts, user, navigate, toast]);
 
   const canGenerate = () => {
     if (speechType === "decision") return decision.length > 5 && ask.length > 5;
@@ -262,11 +363,58 @@ Use framed_insight for key messages. Use timeline_block for response timeline.`;
         </div>
       )}
 
-      {/* Generate */}
-      <Button onClick={generateDeck} disabled={generating || !canGenerate()} className="w-full gap-2 py-6 text-base" variant="hero">
-        {generating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
-        Generate my speech
-      </Button>
+      {/* Generate buttons */}
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <Button onClick={generateSpeech} disabled={generatingSpeech || !canGenerate()} className="gap-2 py-5" variant="hero">
+            {generatingSpeech ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+            Generate my speech
+          </Button>
+          <Button onClick={generateDeck} disabled={generating || !canGenerate()} className="gap-2 py-5" variant="outline">
+            {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Presentation className="h-4 w-4" />}
+            Generate my deck
+          </Button>
+        </div>
+        <p className="text-[10px] text-muted-foreground text-center">Speech = talking points with delivery cues. Deck = presentation slides.</p>
+      </div>
+
+      {/* Speech Output */}
+      {speechOutput && (
+        <div className="rounded-2xl border border-accent/20 bg-card/50 overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-border/30 bg-accent/5">
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <FileText className="h-4 w-4 text-accent" /> Your speech
+            </h3>
+            <Button variant="ghost" size="sm" className="text-xs gap-1"
+              onClick={() => { navigator.clipboard.writeText(speechOutput); setCopied(true); setTimeout(() => setCopied(false), 2000); }}>
+              {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+              {copied ? "Copied" : "Copy all"}
+            </Button>
+          </div>
+          <div className="p-5 max-h-[600px] overflow-y-auto">
+            {speechOutput.split('\n').map((line, i) => {
+              if (line.startsWith('## ')) return <h3 key={i} className="text-base font-bold text-accent mt-4 mb-2">{line.replace('## ', '')}</h3>;
+              if (line.startsWith('- ')) return <p key={i} className="text-sm pl-4 my-0.5">{line.replace('- ', '• ')}</p>;
+              if (line.match(/\[.*?\]/)) {
+                const parts = line.split(/(\[.*?\])/);
+                return <p key={i} className="text-sm my-1">{parts.map((part, j) =>
+                  part.startsWith('[') ? <span key={j} className="text-[11px] italic text-accent bg-accent/5 px-1 rounded">{part}</span> : part
+                )}</p>;
+              }
+              if (line.startsWith('Q') && line.includes(':')) return <p key={i} className="text-sm font-semibold mt-3">{line}</p>;
+              if (line.startsWith('A') && line.includes(':')) return <p key={i} className="text-sm text-muted-foreground mb-2">{line}</p>;
+              if (line.trim() === '') return <div key={i} className="h-2" />;
+              return <p key={i} className="text-sm my-1">{line}</p>;
+            })}
+          </div>
+          <div className="px-5 py-3 border-t border-border/30 bg-muted/20 flex items-center justify-between">
+            <p className="text-[10px] text-muted-foreground">Delivery cues in <span className="italic text-accent bg-accent/5 px-1 rounded text-[10px]">[brackets]</span>. Memorize Key Phrases.</p>
+            <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={generateDeck}>
+              <Presentation className="h-3 w-3" /> Now generate the deck
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
