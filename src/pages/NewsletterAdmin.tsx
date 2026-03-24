@@ -107,14 +107,8 @@ export default function NewsletterAdmin() {
         setSubject("");
         setBodyHtml("");
         setPreviewData(null);
-        // Refresh broadcasts
-        const { data } = await supabase
-          .from("newsletter_broadcasts" as any)
-          .select("id, subject, recipient_count, sent_at" as any)
-          .order("sent_at", { ascending: false })
-          .limit(10);
-        if (data) setPastBroadcasts(data as any);
-      } else {
+        // Refresh broadcasts via edge function
+        await loadBroadcasts();
         toast({ title: "Send failed", description: res.error || "Unknown error", variant: "destructive" });
       }
     } catch (err) {
