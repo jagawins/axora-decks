@@ -728,6 +728,12 @@ const Dashboard = () => {
             </div>
           )}
 
+          {sidebarTab === 'speech-prep' && (
+            <div className="py-4">
+              <SpeechPrep />
+            </div>
+          )}
+
           {sidebarTab === 'settings' && (
             <div className="flex items-center justify-center py-16">
               <div className="text-center space-y-3">
