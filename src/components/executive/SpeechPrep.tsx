@@ -79,10 +79,10 @@ export default function SpeechPrep({ deckId, onClose }: SpeechPrepProps) {
       if (!deckId) return;
       setLoading(true);
       try {
-        const { data: deck } = await supabase.from("decks").select("title, topic").eq("id", deckId).single();
-        const { data: blocks } = await supabase.from("blocks").select("type, content, order_index").eq("deck_id", deckId).order("order_index");
+        const { data: project } = await supabase.from("projects").select("title, description").eq("id", deckId).single();
+        const { data: blocks } = await supabase.from("blocks").select("type, content, order_index").eq("project_id", deckId).order("order_index");
 
-        if (deck) setDeckTitle(deck.title || deck.topic || "Untitled");
+        if (project) setDeckTitle(project.title || project.description || "Untitled");
 
         if (blocks && blocks.length > 0) {
           const content = blocks.map((b: any) => {
