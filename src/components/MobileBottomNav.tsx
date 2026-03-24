@@ -59,7 +59,7 @@ export const MobileBottomNav = ({ activeTab, onTabChange }: MobileBottomNavProps
                 key={tab.id}
                 onClick={() => handleTabClick(tab.id)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 min-w-[48px] min-h-[40px] rounded-lg transition-colors touch-target",
+                  "flex flex-col items-center justify-center gap-0.5 min-w-[44px] min-h-[40px] rounded-lg transition-colors touch-target",
                   isActive
                     ? "text-accent"
                     : "text-muted-foreground active:text-foreground"
