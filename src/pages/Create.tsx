@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool, Palette, FlaskConical } from "lucide-react";
 import ResearchModeWizard from "@/components/create/ResearchModeWizard";
@@ -168,6 +168,15 @@ export default function Create() {
   const [visualsMode, setVisualsMode] = useState<VisualsMode>("stock");
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  // Auto-fill prompt from URL parameter (from Speech Prep, Timeline, etc.)
+  useEffect(() => {
+    const urlPrompt = searchParams.get("prompt");
+    if (urlPrompt && !prompt) {
+      setPrompt(urlPrompt);
+    }
+  }, [searchParams]);
   const [useBrandKit, setUseBrandKit] = useState(false);
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
   const [mobileOverlayVisible, setMobileOverlayVisible] = useState(false);
