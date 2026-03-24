@@ -8,18 +8,18 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-type MobileNavTab = "home" | "generate" | "library" | "more";
+type MobileNavTab = "home" | "generate" | "library" | "speech-prep" | "more";
 
 const primaryTabs: { id: MobileNavTab; label: string; icon: typeof Home }[] = [
   { id: "home", label: "Home", icon: Home },
   { id: "generate", label: "Generate", icon: Sparkles },
   { id: "library", label: "My Decks", icon: Layers },
+  { id: "speech-prep", label: "Speech", icon: Mic },
   { id: "more", label: "More", icon: MoreHorizontal },
 ];
 
 const moreItems: { id: string; label: string; icon: typeof Home }[] = [
   { id: "executive", label: "Executive Hub", icon: Target },
-  { id: "speech-prep", label: "Speech Preparation", icon: Mic },
   { id: "timelines", label: "Timelines", icon: CalendarDays },
   { id: "slides", label: "Slide Library", icon: GalleryHorizontalEnd },
   { id: "settings", label: "Settings", icon: Settings },
@@ -59,7 +59,7 @@ export const MobileBottomNav = ({ activeTab, onTabChange }: MobileBottomNavProps
                 key={tab.id}
                 onClick={() => handleTabClick(tab.id)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 min-w-[48px] min-h-[40px] rounded-lg transition-colors touch-target",
+                  "flex flex-col items-center justify-center gap-0.5 min-w-[44px] min-h-[40px] rounded-lg transition-colors touch-target",
                   isActive
                     ? "text-accent"
                     : "text-muted-foreground active:text-foreground"
