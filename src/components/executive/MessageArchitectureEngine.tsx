@@ -153,7 +153,7 @@ Use framed_insight for key messages. Use timeline_block for response timeline.`;
       {/* Generate */}
       <Button onClick={generateDeck} disabled={generating || !canGenerate()} className="w-full gap-2 py-6 text-base" variant="hero">
         {generating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
-        Generate my deck
+        Generate my speech
       </Button>
     </div>
   );
