@@ -10,6 +10,7 @@ import {
   Type, List, Table2, Columns2, AlertCircle, ImageIcon,
   TrendingUp, Quote, Clock, Grid3X3, LayoutDashboard,
   Target, Divide, Star, Triangle, Gauge, ToggleLeft, PanelTop,
+  Shield, MessageSquare, Calendar, Play,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { THEMES, ThemeId } from "@/lib/themes";
@@ -18,13 +19,15 @@ import { BLOCK_LABELS } from "@/lib/blocks";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-type ToolPanel = "blocks" | "images" | "themes" | "charts" | null;
+type ToolPanel = "blocks" | "images" | "themes" | "charts" | "executive" | null;
 
 interface EditorToolsetProps {
   onAddBlock: (type: BlockType) => void;
   currentTheme: ThemeId;
   onThemeChange: (theme: ThemeId) => void;
   onInsertImage: (src: string, alt: string) => void;
+  deckTitle?: string;
+  deckContent?: string;
 }
 
 const TOOLS = [
@@ -32,6 +35,7 @@ const TOOLS = [
   { id: "images" as const, icon: Image, label: "Images" },
   { id: "themes" as const, icon: Palette, label: "Theme" },
   { id: "charts" as const, icon: BarChart3, label: "Charts" },
+  { id: "executive" as const, icon: Shield, label: "Exec Prep" },
 ];
 
 const BLOCK_GROUPS = [
@@ -88,6 +92,8 @@ const EditorToolset = ({
   currentTheme,
   onThemeChange,
   onInsertImage,
+  deckTitle,
+  deckContent,
 }: EditorToolsetProps) => {
   const [activePanel, setActivePanel] = useState<ToolPanel>(null);
   const [imageQuery, setImageQuery] = useState("");
@@ -280,6 +286,58 @@ const EditorToolset = ({
                     </div>
                   </button>
                 ))}
+              </div>
+            )}
+
+            {/* Executive Prep Panel */}
+            {activePanel === "executive" && (
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground">Prepare for your presentation — Q&A, message maps, rehearsal, and speaking notes.</p>
+                {[
+                  { icon: MessageSquare, label: "Generate Q&A Bank", desc: "AI predicts likely questions from this deck", href: `/executive?tab=qa-bank&context=${encodeURIComponent(deckTitle || '')}` },
+                  { icon: Target, label: "Build Message Map", desc: "3 key messages × 3 supporting facts", href: "/executive?tab=message-map" },
+                  { icon: Shield, label: "Crisis Templates", desc: "Pre-built for layoffs, incidents, outages", href: "/executive?tab=crisis" },
+                  { icon: Calendar, label: "Rehearsal Plan", desc: "14-day prep checklist with readiness score", href: "/executive?tab=rehearsal" },
+                  { icon: Play, label: "Timed Q&A Drill", desc: "30-second practice rounds", href: "/executive?tab=drill" },
+                ].map(({ icon: Icon, label, desc, href }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-lg border border-border hover:bg-muted/50 hover:border-accent/30 transition-all text-left"
+                  >
+                    <Icon className="h-5 w-5 text-accent flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium">{label}</p>
+                      <p className="text-[10px] text-muted-foreground">{desc}</p>
+                    </div>
+                  </a>
+                ))}
+
+                {/* Speaker Notes Generator */}
+                <div className="border-t border-border/50 pt-3 mt-3">
+                  <p className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">Quick Actions</p>
+                  {[
+                    { type: "smart_layout" as BlockType, label: "Add Recommendation Slide", desc: "Rec + evidence + risk" },
+                    { type: "smart_layout" as BlockType, label: "Add Agenda Slide", desc: "Items + owners + time" },
+                    { type: "cta_button_block" as BlockType, label: "Add CTA Buttons", desc: "Approve, schedule, book" },
+                    { type: "embed_block" as BlockType, label: "Add Live Embed", desc: "Sheets, PowerBI, Figma" },
+                  ].map(({ type, label, desc }) => (
+                    <button
+                      key={label}
+                      onClick={() => {
+                        onAddBlock(type);
+                        setActivePanel(null);
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-all text-left"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+                      <div>
+                        <p className="text-xs font-medium">{label}</p>
+                        <p className="text-[9px] text-muted-foreground">{desc}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
