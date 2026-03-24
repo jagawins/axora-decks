@@ -262,7 +262,7 @@ const Pricing = () => {
               {/* CTA */}
               <Button 
                 variant={plan.hasTrial ? "premium" : plan.variant} 
-                className={`w-full group ${plan.hasTrial ? "animate-pulse-subtle" : ""}`}
+                className="w-full group"
                 size="lg"
                 onClick={() => handlePlanClick(plan.tier)}
                 disabled={loadingTier === plan.tier || (user && subscription.tier === plan.tier)}
