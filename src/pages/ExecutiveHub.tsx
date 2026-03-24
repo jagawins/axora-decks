@@ -26,7 +26,7 @@ export default function ExecutiveHub() {
       <SeoHead
         title="Executive Communication Hub | AXIVA"
         description="Message architecture engine, Q&A readiness, rehearsal planning, and outcome analytics. Build executive-grade presentations that win decisions."
-        canonicalUrl="https://axiva.ai/executive"
+        canonicalPath="/executive"
       />
       <Navbar />
       <main className="min-h-screen bg-background pt-20 pb-16">

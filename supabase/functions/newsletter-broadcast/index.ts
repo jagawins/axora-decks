@@ -52,7 +52,20 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { subject, bodyHtml, preview } = body;
+    const { subject, bodyHtml, preview, action } = body;
+
+    // List past broadcasts (admin only — auth already checked above)
+    if (action === "list") {
+      const { data, error: listErr } = await supabase
+        .from("newsletter_broadcasts")
+        .select("id, subject, recipient_count, sent_at")
+        .order("sent_at", { ascending: false })
+        .limit(10);
+      if (listErr) throw listErr;
+      return new Response(JSON.stringify({ broadcasts: data || [] }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     if (!subject || !bodyHtml) {
       return new Response(JSON.stringify({ error: "subject and bodyHtml are required" }), {

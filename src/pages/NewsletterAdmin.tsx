@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { invokeFunction } from "@/lib/supabase-function-client";
-import { supabase } from "@/integrations/supabase/client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -44,18 +44,22 @@ export default function NewsletterAdmin() {
     }
   }, [authLoading, user, navigate]);
 
-  // Load past broadcasts + subscriber count
+  // Load past broadcasts via edge function (service-role only in DB)
+  const loadBroadcasts = async () => {
+    try {
+      const res = await invokeFunction<{ broadcasts: Broadcast[] }>(
+        "newsletter-broadcast",
+        { action: "list" }
+      );
+      if (res.data?.broadcasts) setPastBroadcasts(res.data.broadcasts);
+    } catch (err) {
+      console.error("Failed to load broadcasts:", err);
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
-    
-    supabase
-      .from("newsletter_broadcasts" as any)
-      .select("id, subject, recipient_count, sent_at" as any)
-      .order("sent_at", { ascending: false })
-      .limit(10)
-      .then(({ data }) => {
-        if (data) setPastBroadcasts(data as any);
-      });
+    loadBroadcasts();
   }, [user]);
 
   const handlePreview = async () => {
@@ -103,13 +107,8 @@ export default function NewsletterAdmin() {
         setSubject("");
         setBodyHtml("");
         setPreviewData(null);
-        // Refresh broadcasts
-        const { data } = await supabase
-          .from("newsletter_broadcasts" as any)
-          .select("id, subject, recipient_count, sent_at" as any)
-          .order("sent_at", { ascending: false })
-          .limit(10);
-        if (data) setPastBroadcasts(data as any);
+        // Refresh broadcasts via edge function
+        await loadBroadcasts();
       } else {
         toast({ title: "Send failed", description: res.error || "Unknown error", variant: "destructive" });
       }
