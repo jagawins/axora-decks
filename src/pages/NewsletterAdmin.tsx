@@ -44,18 +44,22 @@ export default function NewsletterAdmin() {
     }
   }, [authLoading, user, navigate]);
 
-  // Load past broadcasts + subscriber count
+  // Load past broadcasts via edge function (service-role only in DB)
+  const loadBroadcasts = async () => {
+    try {
+      const res = await invokeFunction<{ broadcasts: Broadcast[] }>(
+        "newsletter-broadcast",
+        { action: "list" }
+      );
+      if (res.data?.broadcasts) setPastBroadcasts(res.data.broadcasts);
+    } catch (err) {
+      console.error("Failed to load broadcasts:", err);
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
-    
-    supabase
-      .from("newsletter_broadcasts" as any)
-      .select("id, subject, recipient_count, sent_at" as any)
-      .order("sent_at", { ascending: false })
-      .limit(10)
-      .then(({ data }) => {
-        if (data) setPastBroadcasts(data as any);
-      });
+    loadBroadcasts();
   }, [user]);
 
   const handlePreview = async () => {
