@@ -151,7 +151,7 @@ const Footer = () => {
 
           {/* Copyright */}
           <p className="text-xs sm:text-sm text-muted-foreground order-2 md:order-3">
-            © 2025 AXIVA. All rights reserved.
+            © 2025-26 AXIVA. All rights reserved.
           </p>
         </div>
       </div>
