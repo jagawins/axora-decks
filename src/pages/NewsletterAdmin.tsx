@@ -109,6 +109,7 @@ export default function NewsletterAdmin() {
         setPreviewData(null);
         // Refresh broadcasts via edge function
         await loadBroadcasts();
+      } else {
         toast({ title: "Send failed", description: res.error || "Unknown error", variant: "destructive" });
       }
     } catch (err) {
