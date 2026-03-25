@@ -481,6 +481,10 @@ const Dashboard = () => {
       navigate('/executive');
       return;
     }
+    if (tab === 'live-polls') {
+      navigate('/live-polls');
+      return;
+    }
     setSidebarTab(tab);
     
     // Load templates when switching to templates tab

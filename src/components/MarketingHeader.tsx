@@ -37,6 +37,9 @@ const MarketingHeader = () => {
             <Link to="/executive" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Executive Hub
             </Link>
+            <Link to="/live-polls" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Live Polls
+            </Link>
             <Link to="/demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Demo
             </Link>
@@ -98,6 +101,9 @@ const MarketingHeader = () => {
             </Link>
             <Link to="/executive" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
               Executive Hub
+            </Link>
+            <Link to="/live-polls" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
+              Live Polls
             </Link>
             <Link to="/demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
               Demo

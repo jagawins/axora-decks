@@ -31,6 +31,9 @@ const Navbar = () => {
             <Link to="/executive" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Executive Hub
             </Link>
+            <Link to="/live-polls" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Live Polls
+            </Link>
             <Link to="/features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Features
             </Link>
@@ -107,6 +110,13 @@ const Navbar = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               Executive Hub
+            </Link>
+            <Link 
+              to="/live-polls" 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Live Polls
             </Link>
             <Link 
               to="/features" 

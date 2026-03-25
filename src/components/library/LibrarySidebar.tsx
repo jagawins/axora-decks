@@ -50,6 +50,7 @@ const navItems = [
   { id: "library", label: "Library", icon: Library },
   { id: "templates", label: "Templates", icon: LayoutTemplate },
   { id: "executive", label: "Executive Hub", icon: Target, href: "/executive" },
+  { id: "live-polls", label: "Live Polls", icon: BarChart3, href: "/live-polls" },
   { id: "slides", label: "Slide Library", icon: GalleryHorizontalEnd },
   { id: "data-visuals", label: "Data & Visuals", icon: BarChart3 },
   { id: "timelines", label: "Timelines", icon: CalendarDays, pro: true },
