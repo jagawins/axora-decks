@@ -21,6 +21,7 @@ import Create from "./pages/Create";
 import Templates from "./pages/Templates";
 import ExecutiveHub from "./pages/ExecutiveHub";
 import LivePolls from "./pages/LivePolls";
+import LivePollParticipant from "./pages/LivePollParticipant";
 import TemplateDetail from "./pages/TemplateDetail";
 import TemplateSEOPage from "./pages/TemplateSEOPage";
 import HowItWorks from "./pages/HowItWorks";
@@ -77,6 +78,7 @@ const App = () => (
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/executive" element={<ExecutiveHub />} />
                 <Route path="/live-polls" element={<LivePolls />} />
+                <Route path="/live/:code" element={<LivePollParticipant />} />
                 <Route path="/template/:slug" element={<TemplateDetail />} />
                 <Route path="/templates/:slug" element={<TemplateSEOPage />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />

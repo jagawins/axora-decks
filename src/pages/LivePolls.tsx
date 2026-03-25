@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SeoHead from "@/components/SeoHead";
 import Navbar from "@/components/landing/Navbar";
 import MarketingFooter from "@/components/MarketingFooter";
@@ -121,6 +121,51 @@ const COMPARISON = [
   { feature: "Extra monthly cost", axiva: false, slido: true },
 ];
 
+/* ── Join Bar — functional code entry ───────────────────── */
+function JoinBar() {
+  const navigate = useNavigate();
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+
+  const handleJoin = () => {
+    const cleaned = code.trim().toUpperCase().replace(/\s/g, "");
+    if (cleaned.length < 4) {
+      setError("Enter a valid event code");
+      return;
+    }
+    setError("");
+    // Navigate to live poll page
+    window.location.href = `https://axiva.ai/live/${cleaned}`;
+  };
+
+  return (
+    <div className="mb-8">
+      <div className="inline-flex flex-col sm:flex-row items-center gap-3 px-4 sm:px-5 py-3 sm:py-2.5 rounded-2xl sm:rounded-full bg-accent/10 border border-accent/20">
+        <span className="text-sm font-semibold text-accent">Joining as a participant?</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center bg-background rounded-full border border-border/50 overflow-hidden">
+            <span className="text-sm text-muted-foreground pl-3">#</span>
+            <input
+              type="text"
+              value={code}
+              onChange={e => { setCode(e.target.value.toUpperCase()); setError(""); }}
+              onKeyDown={e => e.key === "Enter" && handleJoin()}
+              placeholder="Enter code"
+              maxLength={8}
+              className="w-28 sm:w-32 px-2 py-1.5 text-sm font-mono font-semibold bg-transparent border-none outline-none placeholder:text-muted-foreground/50 uppercase"
+            />
+          </div>
+          <button onClick={handleJoin}
+            className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center hover:bg-accent/90 active:scale-95 transition-all">
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+      {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
+    </div>
+  );
+}
+
 export default function LivePolls() {
   return (
     <>
@@ -134,15 +179,8 @@ export default function LivePolls() {
         {/* Hero */}
         <section className="pt-24 pb-16 sm:pt-32 sm:pb-20">
           <div className="container-wide text-center">
-            {/* Join bar — Slido-inspired */}
-            <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-full bg-accent/10 border border-accent/20 mb-8">
-              <span className="text-sm font-semibold text-accent">Joining as a participant?</span>
-              <div className="flex items-center gap-1.5 bg-background rounded-full px-3 py-1.5 border border-border/50">
-                <span className="text-xs text-muted-foreground">#</span>
-                <span className="text-sm text-muted-foreground">Enter code here</span>
-                <ArrowRight className="h-3.5 w-3.5 text-accent" />
-              </div>
-            </div>
+            {/* Join bar — functional code entry */}
+            <JoinBar />
 
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-5">
               Make your presentations <span className="text-accent">interactive</span>
