@@ -1171,7 +1171,7 @@ You MUST fill in actual content for every block. Check the required fields for e
 }
 
 // Tool schema with per-type oneOf validated schemas
-function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = false) {
+function getToolSchema(enableVisualBlocks: boolean, decisionMode: boolean = false): Record<string, unknown> {
   // Define strict content schemas per block type
   const headingSchema = { 
     type: "object", 

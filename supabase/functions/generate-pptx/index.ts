@@ -50,7 +50,7 @@ type SlideBlock = {
 };
 
 function addBlockToSlide(
-  pres: InstanceType<typeof pptxgen>,
+  pres: any,
   block: SlideBlock,
   brand: BrandKit,
   showWatermark: boolean = false
@@ -595,7 +595,7 @@ serve(async (req) => {
     const brand: BrandKit = (project.brand_kit as BrandKit) || {};
 
     // Build presentation
-    const pres = new pptxgen();
+    const pres = new (pptxgen as any)();
     pres.layout = "LAYOUT_WIDE"; // 13.33 x 7.5 inches (16:9)
     pres.author = "Axiva";
     pres.title = String(project.title || "Untitled Deck");

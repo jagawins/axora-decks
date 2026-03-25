@@ -1,40 +1,107 @@
 /**
  * Live Poll Participant Page — /live/:code
  *
- * This is what the audience sees after scanning the QR code
- * or entering the event code. Mobile-first, clean, instant voting.
+ * Audience sees this after scanning QR code or entering event code.
+ * Mobile-first, clean, instant voting.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { BarChart3, Check, Star, ChevronUp, Send, Cloud } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { BarChart3, Check, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface PollData {
+  question: string;
+  type: string;
+  options: string[] | null;
+  results: Record<string, number>;
+}
 
 export default function LivePollParticipant() {
   const { code } = useParams<{ code: string }>();
-  const [voted, setVoted] = useState<string | number | null>(null);
-  const [submitted, setSubmitted] = useState(false);
-  const [input, setInput] = useState("");
+  const [poll, setPoll] = useState<PollData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [voted, setVoted] = useState<string | null>(null);
+  const [voting, setVoting] = useState(false);
 
-  // In production, this would fetch the poll data from Supabase using the code
-  // For now, show a demo poll
-  const poll = {
-    type: "multiple-choice" as const,
-    question: "Should we approve the EU expansion proposal?",
-    options: ["Yes — approve now", "Delay to Q3", "Need more data"],
-    results: { "Yes — approve now": 14, "Delay to Q3": 5, "Need more data": 3 },
-    participants: 22,
+  useEffect(() => {
+    if (!code) return;
+    (async () => {
+      const { data, error: err } = await supabase
+        .from("live_polls" as any)
+        .select("question, type, options, results")
+        .eq("code", code)
+        .eq("is_active", true)
+        .single();
+      if (err || !data) {
+        setError("Poll not found or has ended.");
+      } else {
+        const d = data as any;
+        setPoll({
+          question: d.question,
+          type: d.type,
+          options: d.options as string[] | null,
+          results: (d.results || {}) as Record<string, number>,
+        });
+      }
+      setLoading(false);
+    })();
+  }, [code]);
+
+  // Determine voting options based on poll type
+  const getVoteOptions = (): string[] => {
+    if (!poll) return [];
+    if (poll.type === "multiple-choice" && poll.options) return poll.options;
+    if (poll.type === "yes-no") return ["Yes", "No", "Need more info"];
+    if (poll.type === "rating") return ["1", "2", "3", "4", "5"];
+    return Object.keys(poll.results);
   };
 
-  const vote = (choice: string) => {
-    if (voted) return;
-    setVoted(choice);
-    poll.results[choice as keyof typeof poll.results] = (poll.results[choice as keyof typeof poll.results] || 0) + 1;
+  const vote = async (choice: string) => {
+    if (voted || voting || !code) return;
+    setVoting(true);
+    const { error: err } = await supabase.rpc("increment_poll_vote" as any, {
+      poll_code: code,
+      choice,
+    });
+    if (!err) {
+      setVoted(choice);
+      // Update local results for instant feedback
+      if (poll) {
+        setPoll({
+          ...poll,
+          results: {
+            ...poll.results,
+            [choice]: (poll.results[choice] || 0) + 1,
+          },
+        });
+      }
+    }
+    setVoting(false);
   };
 
-  const totalVotes = Object.values(poll.results).reduce((a, b) => a + b, 0) + (voted ? 1 : 0);
+  const voteOptions = getVoteOptions();
+  const totalVotes = poll ? Object.values(poll.results).reduce((a, b) => a + b, 0) : 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  if (error || !poll) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 text-center">
+        <BarChart3 className="h-12 w-12 text-muted-foreground mb-4" />
+        <h1 className="text-xl font-bold mb-2">Poll Not Found</h1>
+        <p className="text-sm text-muted-foreground">{error || "This poll doesn't exist or has ended."}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -54,7 +121,6 @@ export default function LivePollParticipant() {
 
       {/* Poll content */}
       <main className="flex-1 max-w-lg mx-auto w-full px-4 py-6 space-y-6">
-        {/* Question */}
         <div>
           <p className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">Live Poll</p>
           <h1 className="text-xl sm:text-2xl font-bold">{poll.question}</h1>
@@ -64,23 +130,22 @@ export default function LivePollParticipant() {
         {!voted ? (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">Tap to vote:</p>
-            {poll.options.map(opt => (
-              <button key={opt} onClick={() => vote(opt)}
-                className="w-full text-left p-4 rounded-2xl border-2 border-border/50 hover:border-accent/50 active:scale-[0.98] active:border-accent transition-all">
-                <span className="text-base font-medium">{opt}</span>
+            {voteOptions.map(opt => (
+              <button key={opt} onClick={() => vote(opt)} disabled={voting}
+                className="w-full text-left p-4 rounded-2xl border-2 border-border/50 hover:border-accent/50 active:scale-[0.98] active:border-accent transition-all disabled:opacity-50">
+                <span className="text-base font-medium">{poll.type === "rating" ? `${"★".repeat(Number(opt))}${"☆".repeat(5 - Number(opt))}` : opt}</span>
               </button>
             ))}
           </div>
         ) : (
           <div className="space-y-3">
-            {/* Results */}
             <div className="flex items-center gap-2 mb-1">
               <Check className="h-4 w-4 text-green-500" />
               <span className="text-sm text-green-500 font-semibold">Vote recorded</span>
             </div>
-            {poll.options.map(opt => {
-              const count = poll.results[opt as keyof typeof poll.results] || 0;
-              const pct = Math.round((count / totalVotes) * 100);
+            {voteOptions.map(opt => {
+              const count = poll.results[opt] || 0;
+              const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
               return (
                 <div key={opt} className={cn("p-4 rounded-2xl border-2 relative overflow-hidden transition-all",
                   voted === opt ? "border-accent bg-accent/5" : "border-border/30")}>
