@@ -73,15 +73,14 @@ const Features = () => {
         {/* Section header */}
         <div className="text-center mb-16">
           <p className="text-accent font-medium text-sm uppercase tracking-wider mb-3">
-            Executive Performance System
+            Prepare. Practice. Deliver.
           </p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Win the moment, not just the slides
+            Win the room, not just the slides
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Message architecture. Q&A readiness. Rehearsal planning. Outcome tracking.
-            The only platform with delivery coaching built into deck generation.
-            Vocal tips. Story structure. Q&A readiness. Not just slides — a speaking system.
+            Write your speech. Prep for tough questions. Run live audience polls.
+            The only tool that helps you deliver, not just create.
           </p>
         </div>
 

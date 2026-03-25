@@ -34,12 +34,12 @@ export default function ExecutiveHub() {
           {/* Header */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-semibold mb-4">
-              <Sparkles className="h-3.5 w-3.5" /> Executive Performance System
+              <Sparkles className="h-3.5 w-3.5" /> Prepare. Practice. Deliver.
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">Win the moment, not just the slides</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">Win the room, not just the slides</h1>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Message architecture. Q&A readiness. Rehearsal planning. Outcome tracking.
-              Everything executives need to deliver high-stakes communication.
+              Write your speech. Prep for tough questions. Practice with a timer. Track what landed.
+              Everything you need before you stand up and speak.
             </p>
           </div>
 
