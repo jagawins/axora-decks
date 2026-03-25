@@ -471,7 +471,7 @@ export default function Demo() {
     <>
       <Helmet>
         <title>Interactive Demo | AXIVA — See AI Presentations in Action</title>
-        <meta name="description" content="Try AXIVA's executive performance system live. Speech prep with delivery coaching, Q&A readiness, 23 timeline styles. The only tool that teaches you how to deliver, not just what to say." />
+        <meta name="description" content="Try AXIVA live. Write your speech, generate your deck, run live audience polls. The only tool that helps you deliver, not just create slides." />
       </Helmet>
 
       <MarketingHeader />

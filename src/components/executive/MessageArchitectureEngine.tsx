@@ -1,5 +1,5 @@
 /**
- * Speech Prep — simplified from "Message Architecture Engine"
+ * Speech Prep — write your speech, get delivery coaching, generate your deck
  * 
  * One page, no wizard. Executive fills in what they need, generates deck.
  * Plain language, not jargon.
