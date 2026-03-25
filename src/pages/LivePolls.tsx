@@ -134,8 +134,7 @@ function JoinBar() {
       return;
     }
     setError("");
-    // Navigate to live poll page
-    window.location.href = `https://axiva.ai/live/${cleaned}`;
+    navigate(`/live/${cleaned}`);
   };
 
   return (
