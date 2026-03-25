@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Sparkles, Layers, MoreHorizontal, Mic, CalendarDays, GalleryHorizontalEnd, Target, Settings, X } from "lucide-react";
+import { Home, Sparkles, Layers, MoreHorizontal, Mic, CalendarDays, GalleryHorizontalEnd, Target, Settings, X, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sheet,
@@ -19,6 +19,7 @@ const primaryTabs: { id: MobileNavTab; label: string; icon: typeof Home }[] = [
 ];
 
 const moreItems: { id: string; label: string; icon: typeof Home }[] = [
+  { id: "live-polls", label: "Live Polls", icon: BarChart3 },
   { id: "executive", label: "Executive Hub", icon: Target },
   { id: "timelines", label: "Timelines", icon: CalendarDays },
   { id: "slides", label: "Slide Library", icon: GalleryHorizontalEnd },

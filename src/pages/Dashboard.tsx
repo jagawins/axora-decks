@@ -28,6 +28,7 @@ import DataVisualsGenerator from '@/components/datavisuals/DataVisualsGenerator'
 import ThemesLibrary from '@/components/themes/ThemesLibrary';
 import TimelineGenerator from '@/components/timelines/TimelineGenerator';
 import SlideInspiration from '@/components/slides/SlideInspiration';
+import LivePollCreator from '@/components/polls/LivePollCreator';
 
 interface Project {
   id: string;
@@ -482,7 +483,7 @@ const Dashboard = () => {
       return;
     }
     if (tab === 'live-polls') {
-      navigate('/live-polls');
+      setSidebarTab(tab);
       return;
     }
     setSidebarTab(tab);
@@ -729,6 +730,12 @@ const Dashboard = () => {
           {sidebarTab === 'slides' && (
             <div className="py-4">
               <SlideInspiration />
+            </div>
+          )}
+
+          {sidebarTab === 'live-polls' && (
+            <div className="py-4">
+              <LivePollCreator />
             </div>
           )}
 
