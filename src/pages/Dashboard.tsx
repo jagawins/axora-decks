@@ -186,6 +186,15 @@ const Dashboard = () => {
     }
   }, [searchParams, navigate, toast, checkSubscription]);
 
+  // Handle ?tab= URL param — allows deep linking to specific tabs
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      setSidebarTab(tabParam);
+      navigate('/dashboard', { replace: true });
+    }
+  }, [searchParams, navigate]);
+
   // Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !user) {

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import SeoHead from "@/components/SeoHead";
 import Navbar from "@/components/landing/Navbar";
 import MarketingFooter from "@/components/MarketingFooter";
@@ -44,7 +45,7 @@ export default function ExecutiveHub() {
           </div>
 
           {/* Tab navigation */}
-          <div className="flex gap-2 justify-center flex-wrap mb-8">
+          <div className="flex gap-2 justify-center flex-wrap mb-4">
             {TABS.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
                 className={cn("flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all",
@@ -55,6 +56,17 @@ export default function ExecutiveHub() {
                 {t.badge && <span className="text-[8px] bg-amber-400/20 text-amber-400 px-1.5 py-0.5 rounded-full">{t.badge}</span>}
               </button>
             ))}
+          </div>
+
+          {/* Quick links */}
+          <div className="flex gap-3 justify-center mb-8 text-xs">
+            <Link to="/dashboard?tab=live-polls" className="text-accent hover:underline flex items-center gap-1">
+              <BarChart3 className="h-3.5 w-3.5" /> My Polls & Results
+            </Link>
+            <span className="text-border">·</span>
+            <Link to="/live-polls" className="text-muted-foreground hover:text-accent flex items-center gap-1">
+              What are Live Polls?
+            </Link>
           </div>
 
           {/* Content */}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import SeoHead from "@/components/SeoHead";
 import Navbar from "@/components/landing/Navbar";
 import MarketingFooter from "@/components/MarketingFooter";
@@ -166,6 +167,8 @@ function JoinBar() {
 }
 
 export default function LivePolls() {
+  const { user } = useAuth();
+
   return (
     <>
       <SeoHead
@@ -190,16 +193,33 @@ export default function LivePolls() {
               Built right into your deck — no extra tool needed.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/auth">
-                <Button variant="hero" size="lg" className="gap-2 px-8">
-                  <Sparkles className="h-5 w-5" /> Get started free
-                </Button>
-              </Link>
-              <Link to="/demo">
-                <Button variant="outline" size="lg" className="gap-2 px-8">
-                  See it in action
-                </Button>
-              </Link>
+              {user ? (
+                <>
+                  <Link to="/dashboard?tab=live-polls">
+                    <Button variant="hero" size="lg" className="gap-2 px-8">
+                      <BarChart3 className="h-5 w-5" /> My Polls & Results
+                    </Button>
+                  </Link>
+                  <Link to="/dashboard?tab=live-polls&create=true">
+                    <Button variant="outline" size="lg" className="gap-2 px-8">
+                      <Sparkles className="h-5 w-5" /> Create New Poll
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth">
+                    <Button variant="hero" size="lg" className="gap-2 px-8">
+                      <Sparkles className="h-5 w-5" /> Get started free
+                    </Button>
+                  </Link>
+                  <Link to="/demo">
+                    <Button variant="outline" size="lg" className="gap-2 px-8">
+                      See it in action
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </section>
@@ -286,11 +306,21 @@ export default function LivePolls() {
           <div className="container-wide text-center">
             <h2 className="text-2xl sm:text-3xl font-bold mb-3">Make your next presentation interactive</h2>
             <p className="text-muted-foreground mb-8 max-w-lg mx-auto">Free to start. Add polls to your deck in under a minute. Audience joins with no downloads.</p>
-            <Link to="/auth">
-              <Button variant="hero" size="lg" className="gap-2 px-8">
-                <Sparkles className="h-5 w-5" /> Get started free
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              {user ? (
+                <Link to="/dashboard?tab=live-polls">
+                  <Button variant="hero" size="lg" className="gap-2 px-8">
+                    <BarChart3 className="h-5 w-5" /> Go to My Polls
+                  </Button>
+                </Link>
+              ) : (
+                <Link to="/auth">
+                  <Button variant="hero" size="lg" className="gap-2 px-8">
+                    <Sparkles className="h-5 w-5" /> Get started free
+                  </Button>
+                </Link>
+              )}
+            </div>
           </div>
         </section>
       </main>
