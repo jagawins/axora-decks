@@ -244,6 +244,38 @@ export type Database = {
         }
         Relationships: []
       }
+      live_poll_votes: {
+        Row: {
+          choice: string
+          created_at: string | null
+          id: string
+          poll_id: string
+          voter_id: string
+        }
+        Insert: {
+          choice: string
+          created_at?: string | null
+          id?: string
+          poll_id: string
+          voter_id: string
+        }
+        Update: {
+          choice?: string
+          created_at?: string | null
+          id?: string
+          poll_id?: string
+          voter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "live_polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_polls: {
         Row: {
           code: string
@@ -251,9 +283,11 @@ export type Database = {
           id: string
           is_active: boolean
           options: Json | null
+          participant_count: number | null
+          poll_type: string
           question: string
           results: Json
-          type: string
+          updated_at: string | null
           user_id: string
         }
         Insert: {
@@ -262,9 +296,11 @@ export type Database = {
           id?: string
           is_active?: boolean
           options?: Json | null
+          participant_count?: number | null
+          poll_type: string
           question: string
           results?: Json
-          type: string
+          updated_at?: string | null
           user_id: string
         }
         Update: {
@@ -273,9 +309,11 @@ export type Database = {
           id?: string
           is_active?: boolean
           options?: Json | null
+          participant_count?: number | null
+          poll_type?: string
           question?: string
           results?: Json
-          type?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
