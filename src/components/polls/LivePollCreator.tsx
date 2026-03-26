@@ -18,9 +18,9 @@ import {
   Download, Layers, Eye, Loader2
 } from "lucide-react";
 
-type PollType = "multiple-choice" | "yes-no" | "rating" | "qa" | "wordcloud" | "survey";
+export type PollType = "multiple-choice" | "yes-no" | "rating" | "qa" | "wordcloud" | "survey";
 
-interface Poll {
+export interface LivePoll {
   id: string;
   code: string;
   poll_type: PollType;
@@ -32,11 +32,13 @@ interface Poll {
   created_at: string;
 }
 
+type Poll = LivePoll;
+
 function generateCode(): string {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
-const POLL_TYPES: { id: PollType; label: string; icon: React.FC<any>; desc: string }[] = [
+export const POLL_TYPES: { id: PollType; label: string; icon: React.FC<any>; desc: string }[] = [
   { id: "multiple-choice", label: "Multiple Choice", icon: BarChart3, desc: "Audience picks from options" },
   { id: "yes-no", label: "Yes / No / Need More", icon: BarChart3, desc: "Quick decision vote" },
   { id: "rating", label: "Star Rating (1-5)", icon: Star, desc: "Rate a proposal or idea" },
@@ -70,7 +72,7 @@ export default function LivePollCreator() {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      setPolls((data || []) as Poll[]);
+      setPolls((data || []) as unknown as Poll[]);
     } catch (err: any) {
       console.error("Failed to load polls:", err);
       // Fallback: if table doesn't exist yet, show empty state
@@ -103,12 +105,12 @@ export default function LivePollCreator() {
           results: {},
           participant_count: 0,
           is_active: true,
-        })
+        } as any)
         .select()
         .single();
 
       if (error) throw error;
-      setPolls(prev => [data as Poll, ...prev]);
+      setPolls(prev => [data as unknown as Poll, ...prev]);
       setQuestion("");
       setOptions(["", "", ""]);
       setCreating(false);
@@ -150,7 +152,7 @@ export default function LivePollCreator() {
   const refreshResults = async (pollId: string) => {
     try {
       const { data } = await supabase
-        .from("live_poll_votes")
+        .from("live_poll_votes" as any)
         .select("choice")
         .eq("poll_id", pollId);
       if (data) {
