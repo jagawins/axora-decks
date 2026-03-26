@@ -152,7 +152,7 @@ export default function LivePollCreator() {
   const refreshResults = async (pollId: string) => {
     try {
       const { data } = await supabase
-        .from("live_poll_votes")
+        .from("live_poll_votes" as any)
         .select("choice")
         .eq("poll_id", pollId);
       if (data) {
