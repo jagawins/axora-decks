@@ -59,7 +59,7 @@ export default function PollCard({ poll, qrUrl, copyCode, copiedId, onDelete, on
       <div className="p-4 sm:p-5">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-[9px] px-2 py-0.5 rounded-full bg-accent/10 text-accent font-bold uppercase">
-            {POLL_TYPES.find(t => t.id === poll.type)?.label}
+            {POLL_TYPES.find(t => t.id === poll.poll_type)?.label}
           </span>
           <span className="text-[9px] text-muted-foreground">
             {new Date(poll.created_at).toLocaleDateString()} {new Date(poll.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

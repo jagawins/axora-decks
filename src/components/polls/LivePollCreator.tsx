@@ -72,7 +72,7 @@ export default function LivePollCreator() {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      setPolls((data || []) as Poll[]);
+      setPolls((data || []) as unknown as Poll[]);
     } catch (err: any) {
       console.error("Failed to load polls:", err);
       // Fallback: if table doesn't exist yet, show empty state
@@ -105,12 +105,12 @@ export default function LivePollCreator() {
           results: {},
           participant_count: 0,
           is_active: true,
-        })
+        } as any)
         .select()
         .single();
 
       if (error) throw error;
-      setPolls(prev => [data as Poll, ...prev]);
+      setPolls(prev => [data as unknown as Poll, ...prev]);
       setQuestion("");
       setOptions(["", "", ""]);
       setCreating(false);
