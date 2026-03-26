@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { cn } from "@/lib/utils";
 import { BarChart3, Check, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -103,8 +104,29 @@ export default function LivePollParticipant() {
     );
   }
 
+  const pollTitle = poll?.question || "Live Poll";
+  const pollDesc = poll?.type === "multiple-choice" && poll?.options
+    ? `Vote now: ${poll.options.slice(0, 3).join(" · ")}` 
+    : poll?.type === "yes-no" ? "Vote: Yes, No, or Need more info"
+    : poll?.type === "rating" ? "Rate from 1 to 5 stars"
+    : "Vote now on AXIVA Live";
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Dynamic OG tags for link previews */}
+      <Helmet>
+        <title>{pollTitle} — AXIVA Live Poll</title>
+        <meta name="description" content={pollDesc} />
+        <meta property="og:title" content={`📊 ${pollTitle}`} />
+        <meta property="og:description" content={`${pollDesc} — Tap to vote. No login needed.`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://axiva.ai/live/${code}`} />
+        <meta property="og:image" content="https://axiva.ai/og-live-poll.png" />
+        <meta property="og:site_name" content="AXIVA Live" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`📊 ${pollTitle}`} />
+        <meta name="twitter:description" content={`${pollDesc} — Tap to vote.`} />
+      </Helmet>
       {/* Header */}
       <header className="border-b border-border/30 bg-card/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">

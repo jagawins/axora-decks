@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0f0f14"/>
+  <rect x="60" y="60" width="1080" height="510" rx="24" fill="#18181f" stroke="#7c3aed" stroke-width="2"/>
+  <!-- Icon -->
+  <circle cx="150" cy="180" r="40" fill="#7c3aed" opacity="0.15"/>
+  <text x="150" y="195" text-anchor="middle" font-size="36" fill="#7c3aed">📊</text>
+  <!-- Title -->
+  <text x="210" y="190" font-family="system-ui, -apple-system, sans-serif" font-size="42" font-weight="700" fill="#ffffff">Live Poll — Tap to Vote</text>
+  <!-- Subtitle -->
+  <text x="100" y="260" font-family="system-ui, -apple-system, sans-serif" font-size="22" fill="#a1a1aa">You're invited to vote. No login needed. Just tap the link.</text>
+  <!-- Mock poll bars -->
+  <rect x="100" y="310" width="680" height="44" rx="12" fill="#7c3aed" opacity="0.15"/>
+  <rect x="100" y="310" width="480" height="44" rx="12" fill="#7c3aed" opacity="0.3"/>
+  <text x="120" y="340" font-family="system-ui, sans-serif" font-size="18" fill="#ffffff">Option A</text>
+  <text x="760" y="340" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#7c3aed">68%</text>
+  <rect x="100" y="370" width="680" height="44" rx="12" fill="#7c3aed" opacity="0.15"/>
+  <rect x="100" y="370" width="220" height="44" rx="12" fill="#7c3aed" opacity="0.3"/>
+  <text x="120" y="400" font-family="system-ui, sans-serif" font-size="18" fill="#ffffff">Option B</text>
+  <text x="760" y="400" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#7c3aed">22%</text>
+  <rect x="100" y="430" width="680" height="44" rx="12" fill="#7c3aed" opacity="0.15"/>
+  <rect x="100" y="430" width="100" height="44" rx="12" fill="#7c3aed" opacity="0.3"/>
+  <text x="120" y="460" font-family="system-ui, sans-serif" font-size="18" fill="#ffffff">Option C</text>
+  <text x="760" y="460" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#7c3aed">10%</text>
+  <!-- AXIVA branding -->
+  <text x="100" y="530" font-family="system-ui, sans-serif" font-size="16" fill="#a1a1aa">Powered by</text>
+  <text x="220" y="530" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#7c3aed">AXIVA</text>
+  <!-- Live badge -->
+  <rect x="900" y="100" width="140" height="36" rx="18" fill="#22c55e" opacity="0.15"/>
+  <circle cx="930" cy="118" r="6" fill="#22c55e"/>
+  <text x="945" y="124" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#22c55e">24 live</text>
+</svg>

@@ -53,6 +53,43 @@ export default {
     const url = new URL(request.url);
     const userAgent = request.headers.get('user-agent') || '';
 
+    // Special handling for /live/* poll URLs when shared on social media
+    // Serve minimal HTML with OG tags so link previews show poll info
+    const livePollMatch = url.pathname.match(/^\/live\/([A-Za-z0-9]+)$/);
+    if (livePollMatch && isBot(userAgent)) {
+      const code = livePollMatch[1].toUpperCase();
+      const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Live Poll #${code} — AXIVA</title>
+<meta name="description" content="You're invited to vote in a live poll. Tap to join — no login needed.">
+<meta property="og:title" content="📊 Live Poll — Tap to Vote">
+<meta property="og:description" content="You're invited to vote in a live poll on AXIVA. Tap the link to join instantly — no app, no login, no download.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://axiva.ai/live/${code}">
+<meta property="og:image" content="https://axiva.ai/og-live-poll.png">
+<meta property="og:site_name" content="AXIVA Live">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="📊 Live Poll — Tap to Vote">
+<meta name="twitter:description" content="You're invited to vote. No login needed.">
+<meta name="twitter:image" content="https://axiva.ai/og-live-poll.png">
+</head>
+<body>
+<h1>Live Poll #${code}</h1>
+<p>Tap the link to vote — no login needed.</p>
+<a href="https://axiva.ai/live/${code}">Join the poll</a>
+</body>
+</html>`;
+      return new Response(html, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'public, max-age=300',
+        },
+      });
+    }
+
     // Skip prerendering for non-bot requests, static assets, and non-GET methods
     if (
       request.method !== 'GET' ||
