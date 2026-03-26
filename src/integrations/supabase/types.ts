@@ -244,6 +244,42 @@ export type Database = {
         }
         Relationships: []
       }
+      live_polls: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          options: Json | null
+          question: string
+          results: Json
+          type: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          options?: Json | null
+          question: string
+          results?: Json
+          type: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          options?: Json | null
+          question?: string
+          results?: Json
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       newsletter_broadcasts: {
         Row: {
           body_html: string
@@ -579,7 +615,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_poll_vote: {
+        Args: { choice: string; poll_code: string }
+        Returns: undefined
+      }
     }
     Enums: {
       block_type:
