@@ -18,9 +18,9 @@ import {
   Download, Layers, Eye, Loader2
 } from "lucide-react";
 
-type PollType = "multiple-choice" | "yes-no" | "rating" | "qa" | "wordcloud" | "survey";
+export type PollType = "multiple-choice" | "yes-no" | "rating" | "qa" | "wordcloud" | "survey";
 
-interface Poll {
+export interface LivePoll {
   id: string;
   code: string;
   poll_type: PollType;
@@ -32,11 +32,13 @@ interface Poll {
   created_at: string;
 }
 
+type Poll = LivePoll;
+
 function generateCode(): string {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
-const POLL_TYPES: { id: PollType; label: string; icon: React.FC<any>; desc: string }[] = [
+export const POLL_TYPES: { id: PollType; label: string; icon: React.FC<any>; desc: string }[] = [
   { id: "multiple-choice", label: "Multiple Choice", icon: BarChart3, desc: "Audience picks from options" },
   { id: "yes-no", label: "Yes / No / Need More", icon: BarChart3, desc: "Quick decision vote" },
   { id: "rating", label: "Star Rating (1-5)", icon: Star, desc: "Rate a proposal or idea" },
