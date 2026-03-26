@@ -301,46 +301,11 @@ export default function LivePollCreator() {
                       ))}
                     </div>
                   )}
-                  {totalVotes > 0 && (
-                    <p className="text-xs text-muted-foreground mt-2">{totalVotes} vote{totalVotes !== 1 ? 's' : ''} so far</p>
-                  )}
                 </div>
 
                 {/* Results (toggle) */}
                 {isExpanded && (
-                  <div className="border-t border-border/30 bg-accent/[0.02] p-4 sm:p-5 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Eye className="h-4 w-4 text-accent" />
-                        <span className="text-xs font-bold text-accent uppercase tracking-wider">Results</span>
-                      </div>
-                      <Button variant="ghost" size="sm" className="text-[10px] gap-1" onClick={() => refreshResults(poll.id)}>
-                        <Loader2 className="h-3 w-3" /> Refresh
-                      </Button>
-                    </div>
-                    {poll.options && poll.options.length > 0 ? (
-                      <div className="space-y-2">
-                        {poll.options.map((opt: string) => {
-                          const count = Number((poll.results as any)?.[opt] || 0);
-                          const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
-                          return (
-                            <div key={opt} className="relative p-3 rounded-xl border border-border/30 overflow-hidden">
-                              <div className="absolute inset-y-0 left-0 bg-accent/10 transition-all" style={{ width: `${pct}%` }} />
-                              <div className="relative flex items-center justify-between">
-                                <span className="text-sm font-medium">{opt}</span>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs text-muted-foreground">{count}</span>
-                                  <span className="text-sm font-bold text-accent">{pct}%</span>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">No votes yet. Share the QR code to start collecting responses.</p>
-                    )}
-                  </div>
+                  <PollResults poll={poll} onRefresh={() => refreshResults(poll.id)} />
                 )}
 
                 {/* QR + Code */}
@@ -402,6 +367,104 @@ export default function LivePollCreator() {
             );
           })}
         </div>
+      )}
+    </div>
+  );
+}
+
+/* ── PollResults — fetches real votes from live_poll_votes table ── */
+function PollResults({ poll, onRefresh }: { poll: Poll; onRefresh: () => void }) {
+  const [votes, setVotes] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+  const [totalVotes, setTotalVotes] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const { data } = await supabase
+          .from("live_poll_votes" as any)
+          .select("choice")
+          .eq("poll_id", poll.id);
+        if (data && data.length > 0) {
+          const counts: Record<string, number> = {};
+          data.forEach((v: any) => { counts[v.choice] = (counts[v.choice] || 0) + 1; });
+          setVotes(counts);
+          setTotalVotes(data.length);
+        } else {
+          setVotes({});
+          setTotalVotes(0);
+        }
+      } catch {
+        setVotes({});
+        setTotalVotes(0);
+      }
+      setLoading(false);
+    })();
+  }, [poll.id]);
+
+  const handleRefresh = async () => {
+    setLoading(true);
+    try {
+      const { data } = await supabase
+        .from("live_poll_votes" as any)
+        .select("choice")
+        .eq("poll_id", poll.id);
+      if (data) {
+        const counts: Record<string, number> = {};
+        data.forEach((v: any) => { counts[v.choice] = (counts[v.choice] || 0) + 1; });
+        setVotes(counts);
+        setTotalVotes(data.length);
+      }
+    } catch {}
+    setLoading(false);
+    onRefresh();
+  };
+
+  const displayOptions = poll.options && poll.options.length > 0
+    ? poll.options
+    : poll.poll_type === "yes-no" ? ["Yes", "No", "Need more info"]
+    : poll.poll_type === "rating" ? ["1", "2", "3", "4", "5"]
+    : [];
+
+  return (
+    <div className="border-t border-border/30 bg-accent/[0.02] p-4 sm:p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Eye className="h-4 w-4 text-accent" />
+          <span className="text-xs font-bold text-accent uppercase tracking-wider">Results</span>
+          <span className="text-[10px] text-muted-foreground">{totalVotes} vote{totalVotes !== 1 ? "s" : ""}</span>
+        </div>
+        <Button variant="ghost" size="sm" className="text-[10px] gap-1" onClick={handleRefresh} disabled={loading}>
+          <Loader2 className={cn("h-3 w-3", loading && "animate-spin")} /> Refresh
+        </Button>
+      </div>
+
+      {loading && totalVotes === 0 ? (
+        <div className="text-center py-4">
+          <Loader2 className="h-5 w-5 animate-spin text-accent mx-auto" />
+        </div>
+      ) : displayOptions.length > 0 ? (
+        <div className="space-y-2">
+          {displayOptions.map((opt: string) => {
+            const count = votes[opt] || 0;
+            const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+            return (
+              <div key={opt} className="relative p-3 rounded-xl border border-border/30 overflow-hidden">
+                <div className="absolute inset-y-0 left-0 bg-accent/10 transition-all" style={{ width: `${pct}%` }} />
+                <div className="relative flex items-center justify-between">
+                  <span className="text-sm font-medium">{opt}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{count}</span>
+                    <span className="text-sm font-bold text-accent">{pct}%</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">No votes yet. Share the QR code to start collecting.</p>
       )}
     </div>
   );
