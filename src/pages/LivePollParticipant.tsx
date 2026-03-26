@@ -30,22 +30,28 @@ export default function LivePollParticipant() {
   useEffect(() => {
     if (!code) return;
     (async () => {
-      const { data, error: err } = await supabase
-        .from("live_polls" as any)
-        .select("question, type, options, results")
-        .eq("code", code)
-        .eq("is_active", true)
-        .single();
-      if (err || !data) {
-        setError("Poll not found or has ended.");
-      } else {
-        const d = data as any;
-        setPoll({
-          question: d.question,
-          type: d.type,
-          options: d.options as string[] | null,
-          results: (d.results || {}) as Record<string, number>,
-        });
+      try {
+        const { data, error: err } = await supabase
+          .from("live_polls" as any)
+          .select("question, poll_type, options, results")
+          .eq("code", code)
+          .eq("is_active", true)
+          .single();
+        if (err || !data) {
+          console.error("Poll query error:", err);
+          setError("Poll not found. It may have ended or the code is incorrect.");
+        } else {
+          const d = data as any;
+          setPoll({
+            question: d.question,
+            type: d.poll_type,
+            options: d.options as string[] | null,
+            results: (d.results || {}) as Record<string, number>,
+          });
+        }
+      } catch (e: any) {
+        console.error("Poll fetch error:", e);
+        setError("Could not load poll. The database may not be set up yet.");
       }
       setLoading(false);
     })();
