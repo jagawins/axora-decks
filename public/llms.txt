@@ -26,6 +26,7 @@
 - [Executive Hub](https://axiva.ai/executive): Speech prep, Q&A readiness, rehearsal planner, outcome tracking
 - [Live Polls](https://axiva.ai/live-polls): Live audience polls with QR codes — alternative to Slido
 - [Webinars](https://axiva.ai/webinars): Webinar solution — deck + speech + polls + coaching in one tool
+- [All-Hands](https://axiva.ai/all-hands): All-hands meeting solution — anonymous Q&A, pulse checks, word cloud icebreakers
 
 ### Templates
 - [Consulting Deck](https://axiva.ai/templates/consulting-deck-template): BCG and McKinsey style consulting decks
