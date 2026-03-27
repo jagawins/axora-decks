@@ -10,6 +10,101 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "live-audience-polls-built-into-your-deck-2026",
+    title: "Why We Built Live Audience Polls Into the Deck — Not as a Separate Tool",
+    excerpt: "Slido, Mentimeter, and Poll Everywhere are great. But they are separate tools that cost extra. AXIVA builds live polls, Q&A, word clouds, and surveys directly into your presentation. QR code, event code, real-time results — all inside the deck.",
+    category: "Product",
+    publishedAt: "2026-03-26",
+    author: "Jag Mariappan",
+    content: `# Why we built live audience polls into the deck — not as a separate tool
+
+You are presenting to the board. You want to take a quick pulse: "Should we approve this?" You have three options.
+
+**Option A: Raise hands.** Three people raise their hand. Everyone else looks at the CEO to see what they do. You get politics, not data.
+
+**Option B: Use Slido.** You set up a separate account, create an event, generate a code, tell everyone to go to slido.com, enter the code, wait for them to load the page, then show the results on a different screen. By the time you are ready, the moment has passed.
+
+**Option C: Use AXIVA.** The poll is already in your deck. You click to the poll slide. A QR code appears. People scan it. They vote from their phone in 3 seconds. Results appear live on the screen you are already presenting from.
+
+We built Option C.
+
+## The problem with separate polling tools
+
+The audience interaction market is dominated by tools that sit outside your presentation: Slido (owned by Cisco), Mentimeter, Poll Everywhere, Vevox. They all work the same way: you create an event in their platform, add questions, share a code, and toggle between your slides and their results screen.
+
+This creates three problems.
+
+**Extra cost.** Slido starts at around 15 euros per month. Mentimeter is similar. For an executive who presents once a month, that is a tool gathering dust 29 days out of 30.
+
+**Context switching.** You are in PowerPoint or Google Slides. You switch to the polling tool. You switch back. The audience watches you fumble between tabs. The energy drops.
+
+**Setup friction.** Before every meeting, you need to create a new event, add questions, test the code, and make sure the QR works. It takes 10 minutes of prep for 30 seconds of interaction.
+
+## What we did instead
+
+In AXIVA, polls are blocks — the same as charts, tables, and images. You add a poll block to your deck the same way you add a headline. It generates its own QR code and 6-digit event code automatically.
+
+When you present, the poll slide shows:
+- The question
+- A QR code the audience scans
+- A 6-digit code they can type at axiva.ai/live
+- A live participant counter
+- Real-time results that update as votes come in
+
+No separate app. No extra subscription. No context switching.
+
+## Four interaction types
+
+We built four block types based on what executives actually need in meetings:
+
+**Live Poll.** Multiple choice, yes/no, or 1-5 star rating. The audience taps one option on their phone. Results show as percentage bars that animate as votes come in. Use it for: "Should we approve this?" or "How confident are you in this plan?"
+
+**Audience Q&A.** Anyone can submit a question — anonymously or with their name. Others can upvote questions they care about. The most popular questions rise to the top. Use it for: town halls, all-hands, or board Q&A sessions.
+
+**Word Cloud.** Ask the audience to submit one word. The responses render as a live word cloud where bigger words mean more submissions. Use it for: "What is your biggest concern about this proposal?" or "Describe our culture in one word."
+
+**Feedback Survey.** Multi-question form with ratings, text fields, and yes/no questions. Audience fills it out and submits. Use it for: post-presentation feedback or pulse surveys.
+
+## How the QR code flow works
+
+Every poll block generates a unique 6-digit event code (like "WJ0VV0") and a QR code that links to axiva.ai/live/WJ0VV0.
+
+The audience has two ways to join:
+1. Scan the QR code with their phone camera
+2. Go to axiva.ai/live and type the code
+
+Either way, they land on a mobile-optimized voting page — no login, no download, no account needed. They tap their choice. The result appears on the presenter's screen.
+
+## Managing your polls
+
+Every poll you create is saved to your dashboard. You can:
+- **View results** — see real vote counts and percentages, refresh live
+- **Download the QR code** — save as PNG to print or share
+- **Copy the link** — send the voting URL via Slack, email, or text
+- **Insert into a deck** — add the poll as a slide in any presentation
+- **Present full screen** — open the poll in presenter mode
+- **Delete** — remove the poll and its votes
+
+Polls persist across sessions. You can create a poll today, present it next week, and check the results next month.
+
+## Why this matters for executives
+
+Board meetings, town halls, and strategy reviews are high-stakes moments. The difference between a decision that sticks and one that gets revisited is often whether the room felt heard.
+
+A quick poll does three things:
+1. It gives people a safe way to express disagreement (anonymous voting removes politics)
+2. It creates data you can reference later ("72% of the board voted to approve")
+3. It keeps the audience engaged — they are participants, not spectators
+
+When the poll is inside the deck, it happens naturally. No awkward "let me switch to the polling tool" moment. No fumbling with codes. The interaction is part of the presentation, not an interruption.
+
+## Try it
+
+Go to your [AXIVA dashboard](/dashboard?tab=live-polls) and create a poll. It takes 30 seconds. Share the QR code in your next meeting and watch the results come in live.
+
+Or visit [axiva.ai/live-polls](/live-polls) to see how it works.`,
+  },
+  {
     slug: "delivery-coaching-built-into-deck-generation-2026",
     title: "Why No Presentation Tool Teaches You How to Deliver — Until Now",
     excerpt: "Every AI deck tool helps you create slides. None help you deliver them. AXIVA is the first to integrate delivery coaching — vocal techniques, story structure, and a pre-flight checklist — directly into your deck workflow.",
