@@ -34,6 +34,9 @@ const Navbar = () => {
             <Link to="/live-polls" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Live Polls
             </Link>
+            <Link to="/all-hands" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              All-Hands
+            </Link>
             <Link to="/features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Features
             </Link>
@@ -119,7 +122,14 @@ const Navbar = () => {
               Live Polls
             </Link>
             <Link 
-              to="/features" 
+              to="/all-hands" 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              All-Hands
+            </Link>
+            <Link 
+              to="/features"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}
             >

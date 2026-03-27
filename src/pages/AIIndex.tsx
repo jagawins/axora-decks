@@ -80,6 +80,9 @@ const AIIndex = () => {
             <a href="https://axiva.ai/executive-deck-generator">Executive Deck Generator</a>
           </li>
           <li>
+            <a href="https://axiva.ai/all-hands">All-Hands Meetings</a>
+          </li>
+          <li>
             <a href="https://axiva.ai/features">Features</a>
           </li>
           <li>

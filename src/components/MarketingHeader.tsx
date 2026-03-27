@@ -43,8 +43,8 @@ const MarketingHeader = () => {
             <Link to="/webinars" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Webinars
             </Link>
-            <Link to="/demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Demo
+            <Link to="/all-hands" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              All-Hands
             </Link>
             <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Pricing
@@ -111,8 +111,8 @@ const MarketingHeader = () => {
             <Link to="/webinars" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
               Webinars
             </Link>
-            <Link to="/demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
-              Demo
+            <Link to="/all-hands" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
+              All-Hands
             </Link>
             <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
               Pricing
