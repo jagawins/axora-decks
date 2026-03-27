@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -360,6 +360,47 @@ Write in a natural, conversational tone. Not formal. Not scripted-sounding. Writ
               </label>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* AI-suggested audience polls */}
+      {(decision.length > 10 || currentReality.length > 10 || empathy.length > 10) && (
+        <div className="rounded-2xl border border-violet-500/20 bg-violet-500/[0.03] p-5 space-y-4">
+          <div>
+            <h3 className="text-base font-bold flex items-center gap-2 mb-1">
+              <span className="text-lg">📊</span> Suggested audience polls
+            </h3>
+            <p className="text-xs text-muted-foreground">Based on your content, here are polls to engage your audience during the presentation.</p>
+          </div>
+          <div className="space-y-2.5">
+            {(speechType === "decision" ? [
+              { q: `Should we ${decision.substring(0, 60).toLowerCase()}?`, type: "Yes / No / Need more info", when: "After presenting the recommendation" },
+              { q: "How confident are you in this direction?", type: "Rating (1-5 stars)", when: "After presenting the 3 reasons" },
+              { q: "What is your biggest concern?", type: "Word cloud", when: "Before Q&A — surfaces hidden objections" },
+            ] : speechType === "change" ? [
+              { q: "Does the current situation resonate with your experience?", type: "Yes / No", when: "After describing today's reality" },
+              { q: "How ready is your team for this change?", type: "Rating (1-5 stars)", when: "After presenting the vision" },
+              { q: "In one word, what would make this transition easier?", type: "Word cloud", when: "Before closing — creates shared ownership" },
+            ] : [
+              { q: "Do you feel the response has been adequate so far?", type: "Yes / No / Need more info", when: "After presenting the facts" },
+              { q: "What is your top concern right now?", type: "Word cloud", when: "After the empathy opening — surfaces real fears" },
+              { q: "Was this communication clear?", type: "Rating (1-5 stars)", when: "After presenting — feedback on clarity" },
+            ]).map((poll, i) => (
+              <div key={i} className="flex items-start gap-3 p-3 rounded-xl border border-violet-500/10 bg-background/50">
+                <div className="w-6 h-6 rounded-full bg-violet-500/10 flex items-center justify-center text-violet-500 text-xs font-bold shrink-0 mt-0.5">{i + 1}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold">{poll.q}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{poll.type} · {poll.when}</p>
+                </div>
+                <Link to={`/dashboard?tab=live-polls`} className="text-[10px] text-accent font-semibold hover:underline shrink-0 mt-1">
+                  Create →
+                </Link>
+              </div>
+            ))}
+          </div>
+          <Link to="/dashboard?tab=live-polls" className="text-xs text-accent font-semibold hover:underline flex items-center gap-1">
+            Go to Live Polls to create these <ArrowRight className="h-3 w-3" />
+          </Link>
         </div>
       )}
 

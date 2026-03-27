@@ -42,6 +42,11 @@ const MarketingFooter = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/webinars" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  Webinars
+                </Link>
+              </li>
+              <li>
                 <Link to="/pricing" className="text-sm text-muted-foreground hover:text-accent transition-colors">
                   Pricing
                 </Link>
