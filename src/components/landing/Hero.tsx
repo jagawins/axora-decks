@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Loader2, Zap, FileText, BarChart3, Target } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getVariant, trackABEvent } from "@/lib/ab-testing";
 
 /* ── Rotating word animation ───────────────────────────────── */
 const ROTATING_WORDS = ["board decks", "pitch decks", "strategy docs", "investor updates", "GTM plans"];
@@ -108,6 +109,78 @@ function AnimatedStat({ end, suffix, label }: { end: number; suffix: string; lab
 }
 
 /* ── Main Hero Component ───────────────────────────────────── */
+/* ── A/B Tested Hero Headline ───────────────────────────── */
+function ABTestedHeadline() {
+  const variant = getVariant("hero_headline");
+
+  useEffect(() => {
+    trackABEvent("hero_headline", "impression");
+  }, []);
+
+  if (variant === "webinar_angle") {
+    return (
+      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animation-delay-100">
+        One tool for your{" "}
+        <span className="text-accent">entire presentation</span>
+        <br className="hidden sm:block" />
+        — deck, speech, polls, results
+      </h1>
+    );
+  }
+
+  if (variant === "coaching_angle") {
+    return (
+      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animation-delay-100">
+        The only tool that helps you{" "}
+        <span className="text-accent">deliver</span>
+        <br className="hidden sm:block" />
+        not just create slides
+      </h1>
+    );
+  }
+
+  // Control
+  return (
+    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animation-delay-100">
+      Create stunning{" "}
+      <span className="text-accent">
+        <RotatingWord />
+      </span>
+      <br className="hidden sm:block" />
+      in minutes, not hours
+    </h1>
+  );
+}
+
+function ABTestedSubheadline() {
+  const variant = getVariant("hero_headline");
+
+  if (variant === "webinar_angle") {
+    return (
+      <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
+        Write your speech. Generate your deck. Run live audience polls with QR codes.
+        Track what landed. Replace PowerPoint + Slido with one workflow.
+      </p>
+    );
+  }
+
+  if (variant === "coaching_angle") {
+    return (
+      <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
+        Speech prep with vocal coaching. AI deck generation. Live polls with QR codes.
+        Delivery tips from Vinh Giang and Simon Sinek — built into your workflow.
+      </p>
+    );
+  }
+
+  return (
+    <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
+      Describe your goal. AI builds the structure, narrative, and visuals.
+      No credits to count. No complex setup. Just executive-grade decks in under 2 minutes.
+    </p>
+  );
+}
+
 const Hero = () => {
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
@@ -169,21 +242,11 @@ const Hero = () => {
             <span>Speech Prep · Delivery Coaching · Live Polls · Webinar-Ready · 23 Timelines</span>
           </div>
 
-          {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animation-delay-100">
-            Create stunning{" "}
-            <span className="text-accent">
-              <RotatingWord />
-            </span>
-            <br className="hidden sm:block" />
-            in minutes, not hours
-          </h1>
+          {/* Headline — A/B tested */}
+          <ABTestedHeadline />
 
-          {/* Subheadline */}
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
-            Describe your goal. AI builds the structure, narrative, and visuals.
-            No credits to count. No complex setup. Just executive-grade decks in under 2 minutes.
-          </p>
+          {/* Subheadline — matches headline variant */}
+          <ABTestedSubheadline />
 
           {/* ── Gamma-style prompt box ──────────────── */}
           <div className="max-w-2xl mx-auto animate-fade-in-up animation-delay-300">

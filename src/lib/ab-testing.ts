@@ -42,6 +42,14 @@ export interface ExperimentReport {
 // ─── Experiments Registry ─────────────────────────────
 
 export const EXPERIMENTS: Record<string, Experiment> = {
+  hero_headline: {
+    id: "hero_headline",
+    variants: ["control", "webinar_angle", "coaching_angle"],
+  },
+  hero_cta: {
+    id: "hero_cta",
+    variants: ["control", "try_free", "see_demo"],
+  },
   usage_meter_copy: {
     id: "usage_meter_copy",
     variants: ["control", "scarcity", "value"],
@@ -131,6 +139,15 @@ export function trackABEvent(
     timestamp: Date.now(),
     context,
   });
+
+  // Fire GA4 event for real analytics
+  if (typeof window !== "undefined" && (window as any).gtag) {
+    (window as any).gtag("event", `ab_${action}`, {
+      test_name: experimentId,
+      variant,
+      ...(context ? { context } : {}),
+    });
+  }
 }
 
 // ─── Reporting ────────────────────────────────────────
