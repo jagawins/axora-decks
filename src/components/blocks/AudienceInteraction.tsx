@@ -320,12 +320,16 @@ export function AudienceWordCloudBlock({ payload }: { payload: AudienceWordCloud
         </div>
         <p className="text-base sm:text-lg font-bold">{question}</p>
 
-        <div className="flex flex-wrap gap-x-3 gap-y-1 justify-center py-4 min-h-[120px]">
-          {sorted.map(([word, count]) => {
-            const size = 14 + Math.round((count / maxCount) * 22);
-            const opacity = 0.4 + (count / maxCount) * 0.6;
+        <div className="flex flex-wrap gap-x-4 gap-y-2 justify-center items-center py-6 min-h-[140px]">
+          {sorted.map(([word, count], i) => {
+            const size = 14 + Math.round((count / maxCount) * 24);
+            const opacity = 0.5 + (count / maxCount) * 0.5;
+            const colors = ["text-accent", "text-violet-500", "text-blue-500", "text-teal-500", "text-pink-500", "text-amber-500", "text-green-500"];
+            const color = colors[i % colors.length];
+            const rotate = ((i % 5) - 2) * 3; // slight tilt: -6, -3, 0, 3, 6 degrees
             return (
-              <span key={word} className="text-accent font-bold transition-all duration-300" style={{ fontSize: `${size}px`, opacity }}>
+              <span key={word} className={cn("font-bold transition-all duration-500", color)}
+                style={{ fontSize: `${size}px`, opacity, transform: `rotate(${rotate}deg)`, animationDelay: `${i * 80}ms` }}>
                 {word}
               </span>
             );

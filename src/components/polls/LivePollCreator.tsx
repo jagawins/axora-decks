@@ -219,8 +219,41 @@ export default function LivePollCreator() {
           </div>
           <div>
             <label className="text-sm font-semibold mb-1.5 block">Your question</label>
-            <Textarea placeholder="e.g., Should we approve the expansion?" value={question} onChange={e => setQuestion(e.target.value)} className="min-h-[56px]" />
+            <Textarea placeholder={
+              selectedType === "wordcloud" ? "e.g., In one word, what is your biggest concern?" :
+              selectedType === "qa" ? "e.g., What questions do you have for leadership?" :
+              selectedType === "rating" ? "e.g., How confident are you in this plan?" :
+              selectedType === "yes-no" ? "e.g., Should we approve this proposal?" :
+              selectedType === "survey" ? "e.g., Quick feedback on today's session" :
+              "e.g., Which direction should we pursue?"
+            } value={question} onChange={e => setQuestion(e.target.value)} className="min-h-[56px]" />
           </div>
+
+          {/* Word cloud question templates */}
+          {selectedType === "wordcloud" && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground">Quick templates — tap to use</p>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "In one word, describe our culture",
+                  "What is your biggest concern?",
+                  "One word for how you feel about this change",
+                  "What should we focus on next quarter?",
+                  "Describe this meeting in one word",
+                  "What does success look like?",
+                  "One word for our team's strength",
+                  "What is holding us back?",
+                  "Where are you joining from?",
+                  "What excites you about next year?",
+                ].map(t => (
+                  <button key={t} onClick={() => setQuestion(t)}
+                    className="text-[11px] px-2.5 py-1.5 rounded-lg border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all text-muted-foreground hover:text-foreground">
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {selectedType === "multiple-choice" && (
             <div className="space-y-2">
               <label className="text-sm font-semibold">Answer options</label>
