@@ -12,7 +12,7 @@ const blockTypes = [
   { icon: Timer, name: "23 Timelines", description: "Gantt, scenarios, S-curve", color: "#10B981" },
   { icon: LayoutGrid, name: "Smart Layouts", description: "6 executive patterns", color: "#F59E0B" },
   { icon: MousePointerClick, name: "Q&A Readiness", description: "Anticipate questions", color: "#EF4444" },
-  { icon: Calendar, name: "Rehearsal Plan", description: "14-day prep checklist", color: "#EC4899" },
+  { icon: Calendar, name: "Webinar-Ready", description: "Deck + polls + speech", color: "#EC4899" },
   { icon: Columns, name: "Comparison Tables", description: "Side-by-side analysis", color: "#06B6D4" },
   { icon: GitBranch, name: "Scenario Branching", description: "Multiple futures", color: "#7C3AED" },
   { icon: TrendingUp, name: "Live Polls", description: "QR code, real-time results", color: "#F97316" },
@@ -50,17 +50,17 @@ const features = [
   },
   {
     icon: Calendar,
-    title: "Rehearsal Planner",
-    description: "14-day rehearsal checklist with readiness score. Log run-throughs, capture coaching notes, track preparation quality before high-stakes moments.",
+    title: "Webinar-Ready",
+    description: "One tool for the entire webinar workflow. Deck + speech + polls + coaching + results. Replace PowerPoint + Slido + speaker notes with one platform.",
     color: "#F59E0B",
-    highlights: ["12-step prep checklist", "Readiness score percentage", "Coaching notes capture"],
+    highlights: ["Before: speech prep + deck generation", "During: live polls + delivery coaching", "After: results + follow-up tracking"],
   },
   {
     icon: BarChart3,
     title: "Live Audience Polls",
     description: "Built-in polls, Q&A, word clouds, and surveys — right inside your deck. Audience scans a QR code, votes from their phone, results update live. No separate tool needed.",
     color: "#06B6D4",
-    highlights: ["QR code + event code to join", "Live results update in real-time", "Replaces Slido — built into the deck"],
+    highlights: ["QR code + event code to join", "AI suggests polls from your content", "Replaces Slido — built into the deck"],
   },
 ];
 

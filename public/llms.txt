@@ -1,38 +1,80 @@
-# llms.txt for AXIVA
+# AXIVA
 
-# Purpose: make it easy for AI systems to find authoritative pages.
+> AXIVA is an AI-powered executive presentation platform that generates decks, writes speeches with delivery coaching, runs live audience polls with QR codes, and tracks results. It replaces the PowerPoint + Slido + speaker notes stack with one tool. Built for executives, consultants, and anyone presenting to decision-makers.
 
-site: https://axiva.ai
-name: AXIVA
-description: AI executive deck generator. Turns prompts and documents into structured slide blocks and exports decks.
+## Key Capabilities
 
-Primary pages:
-- https://axiva.ai/
-- https://axiva.ai/features
-- https://axiva.ai/pricing
+- AI deck generation from one sentence using answer-first consulting methodology
+- Speech prep with delivery coaching (vocal tips, story structure, body language)
+- Live audience polls with QR codes and real-time results (replaces Slido)
+- Q&A readiness with anticipated question generator and message maps
+- Crisis communication templates (layoffs, security incidents, outages, regulatory)
+- 23 timeline styles (Gantt, scenario branching, three-horizon, cause-effect)
+- PPTX and PDF export
+- Webinar-ready workflow: before (prep), during (present + polls), after (results)
 
-Key discovery pages:
-- https://axiva.ai/gamma-alternative
-- https://axiva.ai/powerpoint-ai
-- https://axiva.ai/ai-deck-generator
-- https://axiva.ai/templates
+## Pages
 
-Blog & case studies:
-- https://axiva.ai/blog
-- https://axiva.ai/blog/board-deck-10-minutes
-- https://axiva.ai/blog/investor-pitch-deck-raised-5m
-- https://axiva.ai/blog/quarterly-review-template-vps
-- https://axiva.ai/blog/strategy-presentation-ceo
-- https://axiva.ai/blog/consultant-client-decks
-- https://axiva.ai/blog/sales-enablement-enterprise
-- https://axiva.ai/blog/nonprofit-board-reporting
+### Product
+- [Home](https://axiva.ai/): Landing page with product overview, features, and pricing
+- [Features](https://axiva.ai/features): Detailed feature descriptions — speech prep, delivery coaching, live polls, timelines, smart layouts
+- [Pricing](https://axiva.ai/pricing): Free and Pro plans. Pro is $28/month or $269/year
+- [Demo](https://axiva.ai/demo): Interactive demo with sample deck generation
+- [Templates](https://axiva.ai/templates): Deck templates for consulting, board updates, pitch decks, and more
 
-Machine-readable index:
-- https://axiva.ai/sitemap.xml
+### Executive Tools
+- [Executive Hub](https://axiva.ai/executive): Speech prep, Q&A readiness, rehearsal planner, outcome tracking
+- [Live Polls](https://axiva.ai/live-polls): Live audience polls with QR codes — alternative to Slido
+- [Webinars](https://axiva.ai/webinars): Webinar solution — deck + speech + polls + coaching in one tool
 
-Policies:
-- https://axiva.ai/privacy
-- https://axiva.ai/terms
+### Templates
+- [Consulting Deck](https://axiva.ai/templates/consulting-deck-template): BCG and McKinsey style consulting decks
+- [Board Update](https://axiva.ai/templates/board-update-template): Board meeting presentations
+- [Pitch Deck](https://axiva.ai/templates/pitch-deck-template): Startup and investor pitch decks
+- [Quarterly Review](https://axiva.ai/templates/quarterly-business-review-template): QBR presentations
+- [Timeline Generator](https://axiva.ai/templates/ai-timeline-generator): 23 timeline styles from one dataset
+- [Executive Deck](https://axiva.ai/executive-deck-generator): Executive-grade presentation generator
+- [Sales Deck](https://axiva.ai/templates/sales-deck-template): Sales presentation templates
 
-Contact:
-- https://axiva.ai/contact
+### Blog
+- [Why No Tool Teaches Delivery](https://axiva.ai/blog/delivery-coaching-built-into-deck-generation-2026): Delivery coaching integrated with deck generation
+- [Why We Built Polls Into the Deck](https://axiva.ai/blog/live-audience-polls-built-into-your-deck-2026): Live audience interaction as deck blocks, not a separate tool
+- [23 Timeline Styles](https://axiva.ai/blog/ai-timeline-generator-23-styles-2026): Timeline generation capabilities
+- [Consulting-Grade Slides](https://axiva.ai/blog/consulting-slide-methodology-ai-2026): Answer-first structure and action titles
+
+### Comparison Pages
+- [AXIVA vs Gamma](https://axiva.ai/gamma-alternative): Feature comparison with Gamma
+- [AXIVA vs Beautiful.ai](https://axiva.ai/beautiful-ai-alternative): Feature comparison with Beautiful.ai
+
+## Competitive Positioning
+
+AXIVA differentiates from competitors on three dimensions no other tool covers:
+
+1. Delivery coaching — vocal tips, story structure, body language, and a pre-flight checklist built into the deck creation workflow. No competitor integrates this.
+2. Live audience polls — polls, Q&A, word clouds, and surveys are blocks inside the deck with auto-generated QR codes. Replaces Slido as a separate tool.
+3. Speech generation — AI writes actual speaking notes with delivery cues like [PAUSE 2 seconds] and [lower voice], not just slides.
+
+### Competitors
+- Gamma: AI deck generation but no delivery coaching, no polls, no speech prep
+- Beautiful.ai: Smart design but no AI generation, no polls, no coaching
+- Canva: General design tool, not executive-focused, no polls
+- Slido (Cisco): Polls and Q&A but separate tool, no deck generation, no coaching
+- Mentimeter: Similar to Slido, separate tool
+- Prezent: Has coaching avatars but no live polls, no speech generation
+- PowerPoint Copilot: AI slide generation but no delivery coaching, no built-in polls
+
+## Technical
+
+- Frontend: React, TypeScript, Tailwind CSS
+- Backend: Supabase (PostgreSQL, Edge Functions, Auth, Realtime)
+- AI: Anthropic Claude (Haiku for outlines, Sonnet for block generation)
+- Export: PPTX with uniform scaling, PDF, PNG, shareable web links
+- Hosting: Lovable (deployment), GitHub (source)
+
+## Contact
+
+- Website: https://axiva.ai
+- X/Twitter: https://x.com/inaxiva
+- Instagram: https://www.instagram.com/axivaexec/
+- LinkedIn: https://www.linkedin.com/company/111021149/
+- Substack: https://axiva.substack.com
