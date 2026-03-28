@@ -218,7 +218,7 @@ Write in a natural, conversational tone. Not formal. Not scripted-sounding. Writ
       {speechType === "decision" && (
         <div className="space-y-5">
           <Field label="What do you need approved?" placeholder="e.g., Expand to EU market in Q2 with a Berlin-first strategy" value={decision} onChange={setDecision} />
-          <Field label="Who are you presenting to?" placeholder="e.g., Board of Directors — 8 members, mostly financial backgrounds" value={audience} onChange={setAudience} />
+          <Field label="Who are you presenting to?" placeholder="e.g., Board of Directors, 8 members, mostly financial backgrounds" value={audience} onChange={setAudience} />
           <div>
             <p className="text-sm font-semibold mb-2">Why should they say yes? (give 3 reasons)</p>
             <div className="space-y-2">
@@ -244,7 +244,7 @@ Write in a natural, conversational tone. Not formal. Not scripted-sounding. Writ
       {/* Crisis flow */}
       {speechType === "crisis" && (
         <div className="space-y-5">
-          <Field label="Start with empathy — what do they need to hear first?" placeholder="e.g., We understand this is difficult news and we want to be fully transparent with you" value={empathy} onChange={setEmpathy} />
+          <Field label="Start with empathy. What do they need to hear first?" placeholder="e.g., We understand this is difficult news and we want to be fully transparent with you" value={empathy} onChange={setEmpathy} />
           <Field label="What do we know so far?" placeholder="e.g., 47 roles are affected across engineering and marketing. Severance includes 12 weeks plus benefits continuation." value={facts} onChange={setFacts} />
           <Field label="Who is this for?" placeholder="e.g., All employees, delivered in town hall format" value={audience} onChange={setAudience} />
           <Field label="What are the next steps?" placeholder="e.g., Affected employees notified by direct manager today. FAQ document by end of day. Follow-up town hall Friday." value={ask} onChange={setAsk} />
@@ -263,7 +263,7 @@ Write in a natural, conversational tone. Not formal. Not scripted-sounding. Writ
 
           {/* Vocal Delivery */}
           <div className="space-y-2">
-            <p className="text-xs font-bold uppercase tracking-wider text-accent">Voice — your instrument</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-accent">Voice (your instrument)</p>
             <p className="text-sm text-muted-foreground">Your voice is an instrument with 5 foundations: rate, pitch, volume, pause, and tone. Most people only use 2-3. Use all of them.</p>
             <div className="grid grid-cols-2 gap-2">
               {[
@@ -341,7 +341,7 @@ Write in a natural, conversational tone. Not formal. Not scripted-sounding. Writ
 
           {/* Quick Checklist — the 3Cs + expert tips */}
           <div className="space-y-1.5">
-            <p className="text-xs font-bold uppercase tracking-wider text-accent">Before you present — the 3Cs check</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-accent">Before you present: the 3Cs check</p>
             <p className="text-[10px] text-muted-foreground mb-1">Clarity. Conciseness. Confidence. If you can check all of these, you are ready.</p>
             {[
               { c: "Clarity", item: "Can you state your main point in one sentence?" },
@@ -376,14 +376,14 @@ Write in a natural, conversational tone. Not formal. Not scripted-sounding. Writ
             {(speechType === "decision" ? [
               { q: `Should we ${decision.substring(0, 60).toLowerCase()}?`, type: "Yes / No / Need more info", when: "After presenting the recommendation" },
               { q: "How confident are you in this direction?", type: "Rating (1-5 stars)", when: "After presenting the 3 reasons" },
-              { q: "What is your biggest concern?", type: "Word cloud", when: "Before Q&A — surfaces hidden objections" },
+              { q: "What is your biggest concern?", type: "Word cloud", when: "Before QBefore Q&A — surfacesA. Surfaces hidden objections" },
             ] : speechType === "change" ? [
               { q: "Does the current situation resonate with your experience?", type: "Yes / No", when: "After describing today's reality" },
               { q: "How ready is your team for this change?", type: "Rating (1-5 stars)", when: "After presenting the vision" },
-              { q: "In one word, what would make this transition easier?", type: "Word cloud", when: "Before closing — creates shared ownership" },
+              { q: "In one word, what would make this transition easier?", type: "Word cloud", when: "Before closing. Creates shared ownership" },
             ] : [
               { q: "Do you feel the response has been adequate so far?", type: "Yes / No / Need more info", when: "After presenting the facts" },
-              { q: "What is your top concern right now?", type: "Word cloud", when: "After the empathy opening — surfaces real fears" },
+              { q: "What is your top concern right now?", type: "Word cloud", when: "After the empathy opening. Surfaces real fears" },
               { q: "Was this communication clear?", type: "Rating (1-5 stars)", when: "After presenting — feedback on clarity" },
             ]).map((poll, i) => (
               <div key={i} className="flex items-start gap-3 p-3 rounded-xl border border-violet-500/10 bg-background/50">

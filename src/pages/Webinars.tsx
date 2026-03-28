@@ -23,7 +23,7 @@ const PHASES = [
     border: "border-blue-500/20",
     steps: [
       { title: "Write your speech", desc: "Use Speech Prep to structure your talk. Pick your goal: get a decision, drive change, or handle a crisis.", link: "/executive" },
-      { title: "Generate your deck", desc: "AI builds slides from your speech — answer-first structure, consulting-grade visuals, action titles.", link: "/create" },
+      { title: "Generate your deck", desc: "AI builds slides from your speech with answer-first structure, consulting-grade visuals, action titles.", link: "/create" },
       { title: "Add audience polls", desc: "Insert live polls, Q&A, and word clouds directly into your deck. QR codes generate automatically.", link: "/dashboard?tab=live-polls" },
       { title: "Share the link early", desc: "Send the deck link to attendees before the webinar. They can submit questions in advance via the Q&A block." },
     ],
@@ -35,7 +35,7 @@ const PHASES = [
     bg: "bg-accent/10",
     border: "border-accent/20",
     steps: [
-      { title: "Present your deck", desc: "Full-screen presenter mode. Your slides, polls, and Q&A are all in one place — no tab switching." },
+      { title: "Present your deck", desc: "Full-screen presenter mode. Your slides, polls, and Q&A are all in one place, no tab switching." },
       { title: "Run live polls", desc: "Audience scans QR code from the slide. Votes from their phone. Results update live on your screen." },
       { title: "Use delivery coaching", desc: "Vocal tips, strategic pauses, and story structure are built into your Speech Prep notes. Glance at them as you present." },
       { title: "Answer top questions", desc: "Q&A block sorts questions by upvotes. Address the most popular ones first. Mark as answered." },
@@ -87,8 +87,8 @@ export default function Webinars() {
   return (
     <>
       <SeoHead
-        title="Webinars Made Interactive — Deck + Polls + Speech Prep in One Tool | AXIVA"
-        description="Run engaging webinars without juggling separate tools. AXIVA generates your deck, writes your speech, adds live polls with QR codes, and tracks results — all in one place."
+        title="Webinars Made Interactive: Deck + Polls + Speech Prep in One Tool | AXIVA"
+        description="Run engaging webinars without juggling separate tools. AXIVA generates your deck, writes your speech, adds live polls with QR codes, and tracks results. All in one place."
         canonicalPath="/webinars"
       />
       <Navbar />
@@ -104,9 +104,9 @@ export default function Webinars() {
               One tool for the entire<br className="hidden sm:block" /> <span className="text-accent">webinar workflow</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Stop juggling PowerPoint + Slido + speaker notes + follow-up emails.
+              Stop juggling PowerPoint, Slido, speaker notes, and follow-up emails.
               AXIVA generates your deck, writes your speech, runs live polls,
-              and saves the results — in one place.
+              and saves the results. In one place.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {user ? (
@@ -172,7 +172,7 @@ export default function Webinars() {
         <section className="py-16 sm:py-20">
           <div className="container-wide">
             <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3">Your webinar in 3 phases</h2>
-            <p className="text-muted-foreground text-center mb-12 max-w-lg mx-auto">Everything you need — before, during, and after — in one tool.</p>
+            <p className="text-muted-foreground text-center mb-12 max-w-lg mx-auto">Everything you need, before, during, and after. In one tool.</p>
 
             <div className="max-w-4xl mx-auto space-y-8">
               {PHASES.map(phase => (

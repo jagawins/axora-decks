@@ -13,7 +13,7 @@ const QUICK_CHIPS = [
 /* Pre-built demo outlines keyed by chip label */
 const DEMO_OUTLINES: Record<string, { title: string; sections: Array<{ heading: string; points: string[] }> }> = {
   "Board update for Q4": {
-    title: "Q4 2025 Board Update — Executive Summary",
+    title: "Q4 2025 Board Update, Executive Summary",
     sections: [
       { heading: "Financial Performance", points: ["Revenue of $34.2M exceeded forecast by 12%", "Gross margin expanded to 72%, up 4 pts YoY", "Operating cash flow positive for third consecutive quarter"] },
       { heading: "Strategic Milestones", points: ["Enterprise tier launched with 14 design partners", "SOC 2 Type II certification completed ahead of schedule", "Partnership with Deloitte Digital signed for EMEA expansion"] },
@@ -21,7 +21,7 @@ const DEMO_OUTLINES: Record<string, { title: string; sections: Array<{ heading: 
     ],
   },
   "Series A pitch deck": {
-    title: "MedConnect — Series A Pitch Deck",
+    title: "MedConnect, Series A Pitch Deck",
     sections: [
       { heading: "The Problem", points: ["Clinical documentation takes physicians 2+ hours per day", "EHR fragmentation creates $150B in annual waste", "Burnout-driven attrition costs $500K per departed physician"] },
       { heading: "Our Solution & Traction", points: ["AI-powered clinical copilot reduces documentation time by 68%", "$2.4M ARR with 340% YoY growth across 127 clinics", "94% net revenue retention with zero-touch onboarding"] },
@@ -29,7 +29,7 @@ const DEMO_OUTLINES: Record<string, { title: string; sections: Array<{ heading: 
     ],
   },
   "GTM strategy presentation": {
-    title: "CloudSync — 2025 Go-to-Market Strategy",
+    title: "CloudSync, 2025 Go-to-Market Strategy",
     sections: [
       { heading: "Market Opportunity", points: ["$12.4B TAM growing at 19% CAGR through 2028", "Mid-market segment ($5M–$500M revenue) is fastest-growing", "Only 23% of target accounts have adopted modern sync tooling"] },
       { heading: "Channel & Motion", points: ["Product-led growth funnel converts 8.4% of free users to paid", "Outbound SDR team targeting top 2,000 ICP accounts", "Channel partnerships with AWS, Azure, and Snowflake marketplace"] },
@@ -98,7 +98,7 @@ export default function HeroLiveDemo() {
       <div className="rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-4 sm:p-6 shadow-lg">
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="h-4 w-4 text-accent" />
-          <span className="text-sm font-medium text-foreground">Try it now — no sign-up needed</span>
+          <span className="text-sm font-medium text-foreground">Try it now, no sign-up needed</span>
         </div>
 
         <Textarea
@@ -157,7 +157,7 @@ export default function HeroLiveDemo() {
             <>
               {/* Title card */}
               <div className="rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 p-5 animate-fade-in-up">
-                <p className="text-[10px] uppercase tracking-wider text-accent font-semibold mb-1">Slide 1 — Title</p>
+                <p className="text-[10px] uppercase tracking-wider text-accent font-semibold mb-1">Slide 1: Title</p>
                 <h3 className="text-lg sm:text-xl font-bold text-foreground leading-tight">
                   {outline.title}
                 </h3>
@@ -195,7 +195,7 @@ export default function HeroLiveDemo() {
                     </Button>
                   </Link>
                   <p className="text-xs text-muted-foreground mt-2">
-                    Free — no credit card required
+                    Free, no credit card required
                   </p>
                 </div>
               )}

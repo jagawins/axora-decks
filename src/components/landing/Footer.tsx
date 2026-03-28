@@ -138,7 +138,7 @@ const Footer = () => {
             <Link to="/about" className="text-accent hover:underline font-medium">
               Jag Mariappan
             </Link>{" "}
-            — Founder of AXIVA
+, Founder of AXIVA
           </p>
         </div>
 

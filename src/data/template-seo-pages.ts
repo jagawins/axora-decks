@@ -108,7 +108,7 @@ export const TEMPLATE_SEO_PAGES: TemplateSEOPage[] = [
     faqItems: [
       { q: "What frameworks does the AI use?", a: "AXIVA generates decks using proven frameworks: three pillars, 2×2 matrices, SWOT-style comparisons, and milestone timelines." },
       { q: "Can I include market research data?", a: "Yes. Paste your research, data, or notes as input and the AI will structure them into professional slides with charts and visualizations." },
-      { q: "Is this better than PowerPoint templates?", a: "Static templates give you layout. AXIVA generates the actual content, data visualizations, and narrative structure — not just formatting." },
+      { q: "Is this better than PowerPoint templates?", a: "Static templates give you layout. AXIVA generates the actual content, data visualizations, and narrative structure, not just formatting." },
     ],
   },
   {
@@ -225,7 +225,7 @@ export const TEMPLATE_SEO_PAGES: TemplateSEOPage[] = [
     faqItems: [
       { q: "Does it follow answer-first structure?", a: "Yes. AXIVA's AI is trained on consulting methodology. Every deck starts with the answer (executive summary), then provides supporting evidence. Section headings are action titles — complete assertions, not topic labels." },
       { q: "What consulting frameworks does it generate?", a: "2x2 matrices, three-pillar frameworks, comparison tables with RAG indicators, timeline blocks, KPI dashboards with benchmarks, evidence maps, and decision panels. The exact frameworks consultants use." },
-      { q: "How is this different from Gamma or Canva?", a: "Generic AI tools produce topic-label headings and text-heavy slides. AXIVA generates action titles, answer-first structure, and 70%+ visual density — the consulting standard. No other tool enforces answer-first structure by default." },
+      { q: "How is this different from Gamma or Canva?", a: "Generic AI tools produce topic-label headings and text-heavy slides. AXIVA generates action titles, answer-first structure, and 70%+ visual density (the consulting standard). No other tool enforces answer-first structure by default." },
       { q: "Can I use my own data?", a: "Yes. Paste your data directly in the prompt or import a CSV/Excel file. The AI structures it into consulting-grade charts and frameworks automatically." },
     ],
   },
@@ -251,7 +251,7 @@ export const TEMPLATE_SEO_PAGES: TemplateSEOPage[] = [
     faqItems: [
       { q: "How many timeline styles are available?", a: "23 professional styles across 5 categories: Core (horizontal, vertical, Gantt, milestones, swim lanes, alternating), Strategy (phase, three-horizon, product evolution, decision gate), Visualization (S-curve, calendar, step process, layered, before/after), Advanced Reasoning (scenario branching, impact magnitude, cause-effect), and Viral/Shareable (life journey, company story, tech evolution, then vs now, future prediction)." },
       { q: "What is the multi-narrative view feature?", a: "One dataset generates multiple narrative views. Enter your company history once, then instantly switch between a milestone view, a strategic phase view, a three-horizon view, a cause-effect chain, or a company story — same data, different executive narratives." },
-      { q: "What makes this different from Preceden or Office Timeline?", a: "Most timeline tools generate one layout from one dataset. AXIVA generates 23 different narrative views from the same data, includes advanced reasoning timelines (scenario branching, cause-effect), and bundles it with a full AI deck generator — not just timelines." },
+      { q: "What makes this different from Preceden or Office Timeline?", a: "Most timeline tools generate one layout from one dataset. AXIVA generates 23 different narrative views from the same data, includes advanced reasoning timelines (scenario branching, cause-effect), and bundles it with a full AI deck generator, not just timelines." },
       { q: "Can I import data from CSV or Excel?", a: "Yes. Upload a CSV, TSV, JSON, or text file with your events. The AI parses the data and generates timelines in any of the 23 styles." },
     ],
   },

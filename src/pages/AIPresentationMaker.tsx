@@ -8,7 +8,7 @@ import { Sparkles, ArrowRight, Check, Zap, BarChart3, FileDown, Clock, Layers, S
 const AIPresentationMaker = () => {
   const features = [
     { icon: Zap, title: "Prompt to deck in 2 minutes", desc: "Describe your topic and AXIVA generates a complete, structured presentation with charts, KPIs, and narratives." },
-    { icon: BarChart3, title: "Executive-grade visualizations", desc: "KPI dashboards, comparison tables, timeline blocks, decision matrices, and chart blocks — not just bullet points." },
+    { icon: BarChart3, title: "Executive-grade visualizations", desc: "KPI dashboards, comparison tables, timeline blocks, decision matrices, and chart blocks, not just bullet points." },
     { icon: FileDown, title: "Native PowerPoint export", desc: "Every element exports as editable PowerPoint objects. Text boxes, charts, and tables you can modify in PPT." },
     { icon: Layers, title: "25+ slide block types", desc: "Stat blocks, card grids, three pillars, two-by-two matrices, evidence maps, scenario analysis, and more." },
     { icon: Shield, title: "No credits to track", desc: "3 free decks. No credit system, no surprise charges, no complexity. Just generate and go." },
@@ -127,7 +127,7 @@ const AIPresentationMaker = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {[
               { num: "1", title: "Describe your deck", desc: "Type what you need: 'Q4 board update for SaaS company, ARR $8M, 34% growth.' Or paste existing notes and documents." },
-              { num: "2", title: "AI builds the slides", desc: "AXIVA generates structured slides with KPI blocks, charts, timelines, comparisons — not just text and bullets." },
+              { num: "2", title: "AI builds the slides", desc: "AXIVA generates structured slides with KPI blocks, charts, timelines, comparisons, not just text and bullets." },
               { num: "3", title: "Export and present", desc: "Download as native, editable PowerPoint. Share a link. Or present directly from AXIVA with presenter notes." },
             ].map((step, i) => (
               <div key={i} className="text-center">

@@ -86,7 +86,7 @@ function QADemo() {
         <MessageSquare className="h-4 w-4 text-accent" />
         <span className="text-[10px] font-bold text-accent uppercase tracking-wider">Live Q&A</span>
       </div>
-      <p className="text-sm font-bold">Ask anything — anonymous, upvote what matters</p>
+      <p className="text-sm font-bold">Ask anything. Anonymous, upvote what matters</p>
       <div className="space-y-2">
         {qs.map((q, i) => (
           <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg border border-border/30 bg-background/50">
@@ -104,9 +104,9 @@ function QADemo() {
 const FEATURES = [
   { icon: QrCode, title: "QR code + event code", desc: "Audience scans to join instantly. No app, no login, no download. Just scan and vote." },
   { icon: Zap, title: "Results update live", desc: "Votes appear in real-time on the presenter's screen. Audience sees the crowd's response as it happens." },
-  { icon: Smartphone, title: "Works on any phone", desc: "Responsive design. Participants vote from their phone, tablet, or laptop — whatever they have." },
+  { icon: Smartphone, title: "Works on any phone", desc: "Responsive design. Participants vote from their phone, tablet, or laptop, whatever they have." },
   { icon: Sparkles, title: "Built into your deck", desc: "Not a separate tool. Polls, Q&A, and word clouds are blocks inside your presentation. No extra setup." },
-  { icon: Users, title: "Anonymous or named", desc: "Participants can ask questions and vote anonymously — or use their name. You control the settings." },
+  { icon: Users, title: "Anonymous or named", desc: "Participants can ask questions and vote anonymously, or use their name. You control the settings." },
   { icon: BarChart3, title: "4 interaction types", desc: "Multiple choice polls, yes/no votes, star ratings, audience Q&A with upvoting, word clouds, and feedback surveys." },
 ];
 
@@ -172,8 +172,8 @@ export default function LivePolls() {
   return (
     <>
       <SeoHead
-        title="Live Audience Polls — QR Code Voting Built Into Your Deck | AXIVA"
-        description="Run live polls, Q&A, word clouds, and surveys during your presentation. Audience scans a QR code and votes from their phone. Results update live. No separate tool — built into your deck."
+        title="Live Audience Polls: QR Code Voting Built Into Your Deck | AXIVA"
+        description="Run live polls, Q&A, word clouds, and surveys during your presentation. Audience scans a QR code and votes from their phone. Results update live. No separate tool, built into your deck."
         canonicalPath="/live-polls"
       />
       <Navbar />
@@ -190,7 +190,7 @@ export default function LivePolls() {
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
               Run live polls, Q&A, and word clouds during your talk. 
               Audience scans a QR code. Results update instantly.
-              Built right into your deck — no extra tool needed.
+              Built right into your deck. No extra tool needed.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {user ? (
@@ -239,7 +239,7 @@ export default function LivePolls() {
         <section className="py-16 sm:py-20 bg-muted/20">
           <div className="container-wide text-center">
             <h2 className="text-2xl sm:text-3xl font-bold mb-3">How it works</h2>
-            <p className="text-muted-foreground mb-12 max-w-lg mx-auto">Three steps. Under a minute. Works in any meeting — in person, virtual, or hybrid.</p>
+            <p className="text-muted-foreground mb-12 max-w-lg mx-auto">Three steps. Under a minute. Works in any meeting, in person, virtual, or hybrid.</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {[
                 { step: "1", title: "Add a poll to your deck", desc: "Open your deck in AXIVA. Click Exec Prep → Audience Interaction → insert a Live Poll, Q&A, or Word Cloud." },
@@ -279,7 +279,7 @@ export default function LivePolls() {
         <section className="py-16 sm:py-20 bg-muted/20">
           <div className="container-wide">
             <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3">AXIVA vs Slido</h2>
-            <p className="text-muted-foreground text-center mb-10 max-w-lg mx-auto">Slido is great — but it is a separate tool you pay extra for. AXIVA builds it in.</p>
+            <p className="text-muted-foreground text-center mb-10 max-w-lg mx-auto">Slido is great, but it is a separate tool you pay extra for. AXIVA builds it in.</p>
             <div className="max-w-2xl mx-auto rounded-2xl border border-border/50 overflow-hidden">
               <div className="grid grid-cols-3 bg-muted/30 p-3 sm:p-4 border-b border-border/30">
                 <span className="text-xs font-semibold text-muted-foreground">Feature</span>

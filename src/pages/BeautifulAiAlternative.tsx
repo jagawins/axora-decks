@@ -93,7 +93,7 @@ const BeautifulAiAlternative = () => {
               <span className="text-gradient">Built for Professionals</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-              Beautiful.ai is great for templates. Axiva is built for outcomes. If you need boardroom-ready decks that tell a compelling story — not just pretty slides — it's time to make the switch.
+              Beautiful.ai is great for templates. Axiva is built for outcomes. If you need boardroom-ready decks that tell a compelling story, not just pretty slides — it's time to make the switch.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/auth">

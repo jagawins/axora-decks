@@ -96,7 +96,7 @@ export default function OutcomeAnalytics() {
       <div className="rounded-xl bg-accent/5 border border-accent/20 p-4 space-y-2">
         <p className="text-xs font-bold text-accent uppercase tracking-wider">Insights</p>
         <p className="text-sm">Presentations with 3+ rehearsals get same-day decisions {Math.round((events.filter(e => (e.rehearsals||0)>=3 && e.decisionTime==="Same day").length / Math.max(events.filter(e=>(e.rehearsals||0)>=3).length,1))*100)}% of the time.</p>
-        <p className="text-sm">Average objection coverage is {Math.round(avgObjCov)}% — target is 80%. {avgObjCov < 80 ? "Build more comprehensive Q&A banks." : "On track."}</p>
+        <p className="text-sm">Average objection coverage is {Math.round(avgObjCov)}%. Target is 80%. {avgObjCov < 80 ? "Build more comprehensive Q&A banks." : "On track."}</p>
       </div>
     </div>
   );

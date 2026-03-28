@@ -74,7 +74,7 @@ export default function BeforeAfter() {
                   <div className="w-2.5 h-2.5 rounded-full bg-accent/40" />
                   <div className="w-2.5 h-2.5 rounded-full bg-accent/20" />
                 </div>
-                <span className="text-[10px] text-accent/70 font-mono ml-2">AXIVA — Executive Deck</span>
+                <span className="text-[10px] text-accent/70 font-mono ml-2">AXIVA, Executive Deck</span>
               </div>
               <span className="px-2 py-0.5 rounded-md bg-accent/10 text-accent text-[10px] font-semibold">After</span>
             </div>

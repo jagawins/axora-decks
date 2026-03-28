@@ -149,7 +149,7 @@ function LiveEmbedsDemo() {
         <div className="rounded-lg bg-white/5 border border-border/30 h-32 flex items-center justify-center">
           <p className="text-xs text-muted-foreground">Paste any Google Sheets, PowerBI, or Tableau URL → auto-embeds</p>
         </div>
-        <p className="text-[9px] text-muted-foreground text-center mt-2 italic">Data updates in real-time — no manual refresh needed</p>
+        <p className="text-[9px] text-muted-foreground text-center mt-2 italic">Data updates in real-time. No manual refresh needed</p>
       </div>
       <div className="grid grid-cols-3 gap-2">
         {providers.map(p => (
@@ -254,7 +254,7 @@ export default function ExecutiveShowcase() {
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             Vocal coaching. Story structure. Q&A readiness. Smart layouts.
-            Prepare what to say AND how to say it — in one workflow.
+            Prepare what to say AND how to say it, in one workflow.
           </p>
         </div>
 

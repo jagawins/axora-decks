@@ -14,7 +14,7 @@ const FounderCard = ({ variant = "default", className = "" }: FounderCardProps) 
       <Link to="/about" className={`flex items-center gap-4 hover:opacity-80 transition-opacity ${className}`}>
         <img 
           src={founderCardSquare} 
-          alt="Jag Mariappan — Founder of AXIVA" 
+          alt="Jag Mariappan, Founder of AXIVA" 
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
@@ -39,7 +39,7 @@ const FounderCard = ({ variant = "default", className = "" }: FounderCardProps) 
               <Link to="/about">
                 <img 
                   src={founderCardSquare} 
-                  alt="Jag Mariappan — Founder of AXIVA" 
+                  alt="Jag Mariappan, Founder of AXIVA" 
                   className="w-24 h-24 rounded-2xl border-4 border-background shadow-lg object-cover hover:shadow-xl transition-shadow"
                 />
               </Link>

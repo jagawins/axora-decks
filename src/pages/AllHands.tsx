@@ -114,13 +114,13 @@ function WordCloudDemo() {
 const USE_CASES = [
   {
     title: "Leadership Q&A",
-    desc: "Employees submit questions anonymously. Most-upvoted rise to the top. Leadership addresses what matters most — not just the loudest voices.",
+    desc: "Employees submit questions anonymously. Most-upvoted rise to the top. Leadership addresses what matters most, not just the loudest voices.",
     icon: MessageSquare,
     polls: ["What is the status of the org restructure?", "Are more layoffs planned?", "When is the next promotion cycle?"],
   },
   {
     title: "Strategy alignment check",
-    desc: "Run a quick pulse: 'Are you aligned with our direction?' See the real sentiment in the room — not what people say in front of their manager.",
+    desc: "Run a quick pulse: 'Are you aligned with our direction?' See the real sentiment in the room, not what people say in front of their manager.",
     icon: BarChart3,
     polls: ["I am aligned with our strategy: Fully / Somewhat / Not at all", "How confident are you in our Q2 plan? (1-5 stars)"],
   },
@@ -171,7 +171,7 @@ export default function AllHands() {
   return (
     <>
       <SeoHead
-        title="All-Hands Meetings Made Interactive — Q&A, Polls, Word Clouds | AXIVA"
+        title="All-Hands Meetings Made Interactive: Q&A, Polls, Word Clouds | AXIVA"
         description="Run better all-hands meetings. Anonymous Q&A, pulse checks, word cloud icebreakers, and AI-generated decks with delivery coaching. One tool replaces PowerPoint + Slido."
         canonicalPath="/all-hands"
       />
@@ -189,7 +189,7 @@ export default function AllHands() {
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
               Anonymous Q&A so people ask what they really want to know.
               Pulse checks so leadership sees real sentiment.
-              AI builds the deck and coaches you on delivery — all in one tool.
+              AI builds the deck and coaches you on delivery. All in one tool.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to={user ? "/executive" : "/auth"}>
@@ -224,8 +224,8 @@ export default function AllHands() {
             <p className="text-muted-foreground mb-6">
               Most all-hands meetings feel one-directional. Leadership talks. Employees listen.
               When Q&A opens, the same three people raise their hands.
-              Everyone else stays quiet — not because they have nothing to ask,
-              but because asking in front of 200 colleagues feels risky.
+              Everyone else stays quiet, not because they have nothing to ask,
+              but because it feels risky to ask in front of 200 colleagues.
             </p>
             <p className="text-accent font-semibold">
               Anonymous Q&A changes this. When people can ask without being identified,

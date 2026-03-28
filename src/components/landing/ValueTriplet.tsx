@@ -13,7 +13,7 @@ const steps = [
     num: "02",
     icon: Wand2,
     title: "AI builds the deck",
-    description: "Structured slides with visual blocks — charts, KPIs, timelines, comparisons — not generic bullet points.",
+    description: "Structured slides with visual blocks like charts, KPIs, timelines, comparisons, not generic bullet points.",
     color: "#8B5CF6",
   },
   {

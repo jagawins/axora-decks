@@ -39,7 +39,7 @@ const DECKS: Record<string, DeckSlides> = {
   'example-mediflow-investor-pitch': {
     gradient: 'linear-gradient(135deg, #0B1628 0%, #0e1f3d 50%, #163060 100%)',
     accent: '#38bdf8', accentLight: '#38bdf820',
-    title: 'MediFlow AI — Investor Pitch',
+    title: 'MediFlow AI, Investor Pitch',
     industry: 'Healthcare SaaS', deckType: 'Investor Pitch', slideCount: 10,
     slides: [
       { layout: 'title', headline: 'MediFlow AI', subline: 'AI-Powered Clinical Workflow Automation', badge: 'SERIES A · $15M RAISE', bullets: ['Real-time AI clinical notes', 'Smart prior authorization', 'Population health analytics'] },
@@ -52,7 +52,7 @@ const DECKS: Record<string, DeckSlides> = {
   'example-fintech-board-update': {
     gradient: 'linear-gradient(135deg, #1A1A2E 0%, #1e1e3a 50%, #2d2d5a 100%)',
     accent: '#a78bfa', accentLight: '#a78bfa20',
-    title: 'FinTech Capital — Board Update',
+    title: 'FinTech Capital, Board Update',
     industry: 'Finance', deckType: 'Board Update', slideCount: 8,
     slides: [
       { layout: 'title', headline: 'FinTech Capital', subline: 'Q4 2024 Board Update', badge: 'CONFIDENTIAL · BOARD ONLY', bullets: ['Revenue exceeded target by 7%', '3 portfolio cos profitable', 'Risk exposure down 22%'] },
@@ -65,7 +65,7 @@ const DECKS: Record<string, DeckSlides> = {
   'example-cloudsync-gtm-strategy': {
     gradient: 'linear-gradient(135deg, #0F172A 0%, #131d38 50%, #1e3055 100%)',
     accent: '#818cf8', accentLight: '#818cf820',
-    title: 'CloudSync Enterprise — GTM Strategy',
+    title: 'CloudSync Enterprise, GTM Strategy',
     industry: 'B2B SaaS', deckType: 'Go-to-Market', slideCount: 12,
     slides: [
       { layout: 'title', headline: 'CloudSync Enterprise', subline: '2025 Go-to-Market Strategy', badge: 'GTM STRATEGY · B2B SAAS', bullets: ['200+ pre-built connectors', 'Zero-code pipeline builder', 'SOC 2 + HIPAA compliant'] },
@@ -78,7 +78,7 @@ const DECKS: Record<string, DeckSlides> = {
   'example-city-innovation-quarterly': {
     gradient: 'linear-gradient(135deg, #0A1A0F 0%, #0e2216 50%, #1a3d28 100%)',
     accent: '#34d399', accentLight: '#34d39920',
-    title: 'City Innovation Lab — Q1 Review',
+    title: 'City Innovation Lab, Q1 Review',
     industry: 'Government', deckType: 'Quarterly Review', slideCount: 9,
     slides: [
       { layout: 'title', headline: 'City Innovation Lab', subline: 'Q1 2025 Quarterly Review', badge: 'GOVERNMENT · Q1 REVIEW', bullets: ['311 AI chatbot launched', 'Permit processing: 21→7 days', '47 open datasets published'] },
@@ -418,7 +418,7 @@ export default function ExampleDecks() {
             See what you can build
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
-            Browse complete decks generated with AXIVA — real slide layouts, real data visualizations, real executive quality.
+            Browse complete decks generated with AXIVA. Real slide layouts, real data visualizations, real executive quality.
           </p>
         </div>
 

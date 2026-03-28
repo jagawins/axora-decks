@@ -45,14 +45,14 @@ const DEMO_OUTLINES: Record<string, { title: string; slides: { label: string; he
   "Board update for Q4": {
     title: "Q4 2025 Board Update",
     slides: [
-      { label: "Cover", headline: "Q4 2025 Board Update", detail: "Executive Summary — Confidential", color: "#3B82F6" },
+      { label: "Cover", headline: "Q4 2025 Board Update", detail: "Executive Summary, Confidential", color: "#3B82F6" },
       { label: "Financials", headline: "Revenue hit $34.2M", detail: "Exceeded forecast by 12% · Gross margin 72%", color: "#10B981" },
       { label: "Strategy", headline: "3 milestones delivered", detail: "Enterprise launch · SOC 2 · Partnership signed", color: "#8B5CF6" },
       { label: "Outlook", headline: "Targeting $52M ARR", detail: "28 new hires · $4M infrastructure investment", color: "#F59E0B" },
     ],
   },
   "Series A pitch deck": {
-    title: "MedConnect — Series A",
+    title: "MedConnect, Series A",
     slides: [
       { label: "Cover", headline: "MedConnect", detail: "AI Clinical Copilot · Series A · $15M", color: "#EC4899" },
       { label: "Problem", headline: "2+ hours/day lost", detail: "$150B annual waste from EHR fragmentation", color: "#EF4444" },
@@ -61,7 +61,7 @@ const DEMO_OUTLINES: Record<string, { title: string; slides: { label: string; he
     ],
   },
   "Product roadmap review": {
-    title: "CloudSync — Product Roadmap",
+    title: "CloudSync, Product Roadmap",
     slides: [
       { label: "Cover", headline: "2025 Product Roadmap", detail: "CloudSync · Engineering Review", color: "#06B6D4" },
       { label: "Q1 Shipped", headline: "Real-time sync engine", detail: "3x faster · 99.99% uptime", color: "#10B981" },
@@ -123,7 +123,7 @@ function ABTestedHeadline() {
         One tool for your{" "}
         <span className="text-accent">entire presentation</span>
         <br className="hidden sm:block" />
-        — deck, speech, polls, results
+        with deck, speech, polls, and results
       </h1>
     );
   }
@@ -168,7 +168,7 @@ function ABTestedSubheadline() {
     return (
       <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
         Speech prep with vocal coaching. AI deck generation. Live polls with QR codes.
-        Delivery tips from Vinh Giang and Simon Sinek — built into your workflow.
+        Delivery tips from Vinh Giang and Simon Sinek, built into your workflow.
       </p>
     );
   }
@@ -242,10 +242,10 @@ const Hero = () => {
             <span>Speech Prep · Delivery Coaching · Live Polls · Webinar-Ready · 23 Timelines</span>
           </div>
 
-          {/* Headline — A/B tested */}
+          {/* Headline (A/B tested) */}
           <ABTestedHeadline />
 
-          {/* Subheadline — matches headline variant */}
+          {/* Subheadline (matches headline variant */}
           <ABTestedSubheadline />
 
           {/* ── Gamma-style prompt box ──────────────── */}
@@ -258,7 +258,7 @@ const Hero = () => {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
-                  placeholder="Describe your deck — 'Q4 board update for SaaS startup'..."
+                  placeholder="Describe your deck, e.g. 'Q4 board update for SaaS startup'..."
                   className="flex-1 bg-transparent text-foreground placeholder-muted-foreground/60 text-sm sm:text-base outline-none"
                 />
                 <Button

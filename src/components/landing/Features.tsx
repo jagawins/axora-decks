@@ -23,7 +23,7 @@ const features = [
   {
     icon: Target,
     title: "Speech Prep + Delivery Coaching",
-    description: "The only tool that coaches you on how to deliver, not just what to say. Vocal variety, strategic pausing, storytelling structure, and a pre-flight checklist — built right into your deck workflow.",
+    description: "The only tool that coaches you on how to deliver, not just what to say. Vocal variety, strategic pausing, storytelling structure, and a pre-flight checklist, built right into your deck workflow.",
     color: "#3B82F6",
     highlights: ["Vocal coaching (pace, volume, pauses)", "Story structure (head → heart → head)", "Pre-flight checklist before you present"],
   },
@@ -37,7 +37,7 @@ const features = [
   {
     icon: Timer,
     title: "23 Timeline Styles",
-    description: "The most advanced timeline generator. Scenario branching, cause-effect chains, three-horizon models, impact magnitude — plus 5 viral styles for shareable content.",
+    description: "The most advanced timeline generator. Scenario branching, cause-effect chains, three-horizon models, impact magnitude, plus 5 viral styles for shareable content.",
     color: "#10B981",
     highlights: ["One dataset → multiple narratives", "Scenario branching (multiple futures)", "Import CSV, JPG, PPTX, PDF"],
   },
@@ -58,9 +58,9 @@ const features = [
   {
     icon: BarChart3,
     title: "Live Audience Polls",
-    description: "Built-in polls, Q&A, word clouds, and surveys — right inside your deck. Audience scans a QR code, votes from their phone, results update live. No separate tool needed.",
+    description: "Built-in polls, Q&A, word clouds, and surveys, right inside your deck. Audience scans a QR code, votes from their phone, results update live. No separate tool needed.",
     color: "#06B6D4",
-    highlights: ["QR code + event code to join", "AI suggests polls from your content", "Replaces Slido — built into the deck"],
+    highlights: ["QR code + event code to join", "AI suggests polls from your content", "Replaces Slido, built into the deck"],
   },
 ];
 
@@ -113,7 +113,7 @@ const Features = () => {
         {/* Comparison link */}
         <div className="text-center mb-14">
           <p className="text-muted-foreground">
-            Unlike Gamma, AXIVA generates structured blocks — not free-form slides.{" "}
+            Unlike Gamma, AXIVA generates structured blocks, not free-form slides.{" "}
             <Link to="/gamma-alternative" className="text-accent hover:underline">
               See the full comparison →
             </Link>

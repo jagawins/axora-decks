@@ -81,7 +81,7 @@ const DECKS: DemoDeck[] = [
                 </div>
               ))}
             </div>
-            <p className="text-sm text-sky-200/60 leading-relaxed">Current solutions automate forms — not clinical reasoning. Physicians need an AI that thinks like a clinician, not a data entry clerk.</p>
+            <p className="text-sm text-sky-200/60 leading-relaxed">Current solutions automate forms, not clinical reasoning. Physicians need an AI that thinks like a clinician, not a data entry clerk.</p>
           </div>
         ),
       },
@@ -143,7 +143,7 @@ const DECKS: DemoDeck[] = [
         ),
       },
       {
-        title: "The Ask — $15M Series A",
+        title: "The Ask: $15M Series A",
         blockType: "Decision Panel",
         color: "#F59E0B",
         content: (
@@ -165,7 +165,7 @@ const DECKS: DemoDeck[] = [
             <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 mt-4">
               <p className="text-xs font-semibold text-amber-400 mb-1">Key Milestones with This Capital:</p>
               <div className="space-y-1">
-                {["5 health system enterprise partnerships (Q1)", "Epic & Cerner marketplace integration (Q2)", "3 specialty modules — cardiology, oncology, ortho (Q3)"].map((m, i) => (
+                {["5 health system enterprise partnerships (Q1)", "Epic & Cerner marketplace integration (Q2)", "3 specialty modules: cardiology, oncology, ortho (Q3)"].map((m, i) => (
                   <div key={i} className="flex items-start gap-2 text-xs text-sky-200/70">
                     <Check className="h-3 w-3 text-amber-400 mt-0.5 shrink-0" />
                     <span>{m}</span>
@@ -180,7 +180,7 @@ const DECKS: DemoDeck[] = [
   },
   {
     id: "board-update",
-    prompt: "Q4 board update deck for FinTech Capital — performance, portfolio, risks",
+    prompt: "Q4 board update deck for FinTech Capital: performance, portfolio, risks",
     icon: "📊",
     label: "Board Update",
     category: "Strategy",
@@ -189,7 +189,7 @@ const DECKS: DemoDeck[] = [
     slides: [
       {
         title: "Q4 2024 Board Update",
-        subtitle: "FinTech Capital — Executive Summary",
+        subtitle: "FinTech Capital, Executive Summary",
         blockType: "Title Slide",
         color: "#A78BFA",
         content: (
@@ -247,11 +247,11 @@ const DECKS: DemoDeck[] = [
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3">
                 <div className="font-semibold text-red-400 mb-1">High Impact</div>
-                <p className="text-violet-200/60">Interest rate volatility — Fed signaling 2 cuts</p>
+                <p className="text-violet-200/60">Interest rate volatility. Fed signaling 2 cuts</p>
               </div>
               <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 p-3">
                 <div className="font-semibold text-amber-400 mb-1">Medium Impact</div>
-                <p className="text-violet-200/60">EU regulatory changes — manageable with compliance team</p>
+                <p className="text-violet-200/60">EU regulatory changes, manageable with compliance team</p>
               </div>
               <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
                 <div className="font-semibold text-emerald-400 mb-1">Mitigated</div>
@@ -276,7 +276,7 @@ const DECKS: DemoDeck[] = [
               {[
                 { title: "Approve Q1 Investment Pipeline", detail: "$45M allocation across 3 deals", status: "Vote Required", statusColor: "#F59E0B" },
                 { title: "Adopt Updated Risk Framework", detail: "New hedging model for 2025", status: "Recommended", statusColor: "#10B981" },
-                { title: "Confirm Fund III Close Timeline", detail: "$250M final close — January target", status: "On Track", statusColor: "#38BDF8" },
+                { title: "Confirm Fund III Close Timeline", detail: "$250M final close, January target", status: "On Track", statusColor: "#38BDF8" },
               ].map(r => (
                 <div key={r.title} className="rounded-lg border border-violet-400/10 bg-violet-400/5 p-3 flex items-center gap-3">
                   <div className="flex-1">
@@ -303,7 +303,7 @@ const DECKS: DemoDeck[] = [
     slides: [
       {
         title: "2025 GTM Strategy",
-        subtitle: "CloudSync — Go-to-Market Playbook",
+        subtitle: "CloudSync, Go-to-Market Playbook",
         blockType: "Title Slide",
         color: "#6366F1",
         content: (
@@ -470,7 +470,7 @@ export default function Demo() {
   return (
     <>
       <Helmet>
-        <title>Interactive Demo | AXIVA — See AI Presentations in Action</title>
+        <title>Interactive Demo | AXIVA: See AI Presentations in Action</title>
         <meta name="description" content="Try AXIVA live. Write your speech, generate your deck, run live audience polls. The only tool that helps you deliver, not just create slides." />
       </Helmet>
 
@@ -485,7 +485,7 @@ export default function Demo() {
               <div className="text-center mb-14">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-xs sm:text-sm font-medium mb-6">
                   <MousePointerClick className="h-3.5 w-3.5" />
-                  Interactive Demo — Try it yourself
+                  Interactive Demo: Try it yourself
                 </div>
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5">
                   Watch AI build a deck
@@ -493,7 +493,7 @@ export default function Demo() {
                   <span className="text-accent"> in real time</span>
                 </h1>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Pick a scenario below. AXIVA will analyze the prompt, structure the narrative, and generate executive-ready slides — all in seconds.
+                  Pick a scenario below. AXIVA will analyze the prompt, structure the narrative, and generate executive-ready slides, all in seconds.
                 </p>
               </div>
 
@@ -535,7 +535,7 @@ export default function Demo() {
 
               {/* Bottom note */}
               <p className="text-center text-xs text-muted-foreground mt-8">
-                Or <button onClick={() => navigate("/create")} className="text-accent hover:underline">create your own deck</button> from scratch — free, no sign-up required.
+                Or <button onClick={() => navigate("/create")} className="text-accent hover:underline">create your own deck</button> from scratch. Free, no sign-up required.
               </p>
             </div>
           </section>
@@ -660,7 +660,7 @@ export default function Demo() {
                           <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: selectedDeck.theme.accent + "15" }} />
                         </div>
                         <span className="text-[10px] font-mono ml-2" style={{ color: selectedDeck.theme.muted + "80" }}>
-                          {selectedDeck.logo} — {selectedDeck.slides[activeSlide].blockType}
+                          {selectedDeck.logo}, {selectedDeck.slides[activeSlide].blockType}
                         </span>
                       </div>
                       <div className="flex items-center gap-3">
@@ -749,7 +749,7 @@ export default function Demo() {
               <div className="text-center mt-12 pt-10 border-t border-border/20">
                 <h2 className="text-2xl sm:text-3xl font-bold mb-3">Like what you see?</h2>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Create your deck, write your speech, add live audience polls, and run your entire webinar from one tool. Speech prep, delivery coaching, QR-code voting, and results — all built in.
+                  Create your deck, write your speech, add live audience polls, and run your entire webinar from one tool. Speech prep, delivery coaching, QR-code voting, and results, all built in.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                   <Button variant="hero" size="lg" onClick={() => navigate("/create")} className="group gap-2">

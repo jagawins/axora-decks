@@ -319,7 +319,7 @@ export default function SlideInspiration() {
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             Browse real slide patterns used by McKinsey, BCG, and Goldman Sachs.
-            Pick any pattern — AI generates it with your data.
+            Pick any pattern. AI generates it with your data.
           </p>
         </div>
 
@@ -366,7 +366,7 @@ export default function SlideInspiration() {
         {/* CTA */}
         <div className="text-center mt-10">
           <p className="text-muted-foreground text-sm mb-4">
-            Don't just browse — generate. Every pattern becomes a real slide in seconds.
+            Don't just browse. Generate. Every pattern becomes a real slide in seconds.
           </p>
           <Link to="/create" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:opacity-90 transition-opacity">
             <Sparkles className="h-4 w-4" /> Create Your Deck <ArrowRight className="h-4 w-4" />

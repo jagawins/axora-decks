@@ -38,7 +38,7 @@ const PILLARS = [
   {
     icon: <Target className="h-5 w-5" />,
     title: "Action Titles",
-    desc: "Slide headings are complete assertions — the takeaway, not a topic label.",
+    desc: "Slide headings are complete assertions, the takeaway, not a topic label.",
     color: "text-teal-400",
     bgColor: "bg-teal-500/10",
   },

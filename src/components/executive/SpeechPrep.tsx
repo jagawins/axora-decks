@@ -126,14 +126,14 @@ export default function SpeechPrep({ deckId, onClose }: SpeechPrepProps) {
     const notes: SpeakingNote[] = headings.map((h, i) => ({
       slideTitle: h,
       notes: i === 0
-        ? `Open with energy. State the decision or key message within the first 30 seconds. Make eye contact with the most senior person in the room. Do not read the slide — the slide supports you, not the other way around.`
+        ? `Open with energy. State the decision or key message within the first 30 seconds. Make eye contact with the most senior person in the room. Do not read the slide. The slide supports you, not the other way around.`
         : i === headings.length - 1
-        ? `This is your close. Restate the recommendation in one sentence. Name the specific ask: what you need, from whom, by when. End with confidence — do not trail off or add "any questions?" as a filler.`
-        : `Lead with the action title — say the conclusion before showing the evidence. Pause after stating the key number. If challenged, bridge to your message map. Keep this section to ${Math.max(60, Math.min(180, Math.round(600 / headings.length)))} seconds.`,
+        ? `This is your close. Restate the recommendation in one sentence. Name the specific ask: what you need, from whom, by when. End with confidence. Do not trail off or add "any questions?" as a filler.`
+        : `Lead with the action title. Say the conclusion before showing the evidence. Pause after stating the key number. If challenged, bridge to your message map. Keep this section to ${Math.max(60, Math.min(180, Math.round(600 / headings.length)))} seconds.`,
       duration: i === 0 ? "30-60s" : i === headings.length - 1 ? "20-40s" : `${Math.max(60, Math.round(600 / headings.length))}s`,
       transition: i < headings.length - 1
         ? `Bridge: "Now that we've covered ${h.toLowerCase()}, let me show you..."`
-        : "No transition — this is your final slide.",
+        : "No transition. This is your final slide.",
     }));
     setSpeakingNotes(notes);
     setTotalDuration(`${Math.round(headings.length * 1.5)}-${Math.round(headings.length * 2.5)} minutes`);

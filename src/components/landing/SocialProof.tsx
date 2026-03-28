@@ -4,7 +4,7 @@ import { Quote, Star, ChevronLeft, ChevronRight } from "lucide-react";
 /* ── Testimonials data ─────────────────────────────────────── */
 const testimonials = [
   {
-    quote: "Had the board deck done in under 10 minutes — our CFO thought it was made by McKinsey.",
+    quote: "Had the board deck done in under 10 minutes. Our CFO thought it was made by McKinsey.",
     role: "VP of Strategy",
     company: "Series C Fintech",
     rating: 5,
@@ -16,7 +16,7 @@ const testimonials = [
     rating: 5,
   },
   {
-    quote: "Finally, a tool that generates structure — not just pretty slides with no substance.",
+    quote: "Finally, a tool that generates structure, not just pretty slides with no substance.",
     role: "Senior Consultant",
     company: "Big 4 Advisory",
     rating: 5,

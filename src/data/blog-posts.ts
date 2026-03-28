@@ -133,7 +133,7 @@ Top communication experts like Vinh Giang, Simon Sinek, and Carmine Gallo share 
 
 AXIVA is the first tool that integrates delivery coaching directly into the deck creation workflow:
 
-**Speech Prep** — not just content, but structure. Choose what you need to accomplish (get a decision, drive change, handle a crisis) and the tool guides you through the right framework.
+**Speech Prep**, not just content, but structure. Choose what you need to accomplish (get a decision, drive change, handle a crisis) and the tool guides you through the right framework.
 
 **Vocal Coaching Tips** — pace control, volume variation, strategic pausing, and the smile technique for vocal warmth. These appear contextually as you build your talk.
 
