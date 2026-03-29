@@ -779,6 +779,402 @@
       ],
       "thumbnail_url": null,
       "is_featured": false
+    },
+    {
+      "slug": "crisis-communication-deck",
+      "title": "Crisis Communication Deck",
+      "description": "Empathy-first structure for layoffs, incidents, outages, and regulatory announcements. Lead with empathy, state facts, explain actions, give next update.",
+      "category": "Strategy and Leadership",
+      "tags": [
+        "crisis",
+        "communication",
+        "leadership",
+        "town hall"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "succession-planning",
+      "title": "Succession Planning Brief",
+      "description": "Leadership pipeline review with readiness assessments, development plans, and timeline for key role transitions.",
+      "category": "Strategy and Leadership",
+      "tags": [
+        "succession",
+        "leadership",
+        "talent",
+        "planning"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "company-vision-deck",
+      "title": "Company Vision and Mission",
+      "description": "Articulate where the company is going. Vision, mission, values, strategic pillars, and 3-year horizon. For all-hands and town halls.",
+      "category": "Strategy and Leadership",
+      "tags": [
+        "vision",
+        "mission",
+        "values",
+        "culture"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "budget-approval-deck",
+      "title": "Budget Approval Deck",
+      "description": "Present your budget request with ROI projections, resource allocation, risk analysis, and phased spending plan.",
+      "category": "Strategy and Leadership",
+      "tags": [
+        "budget",
+        "finance",
+        "approval",
+        "resources"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "diversity-inclusion-report",
+      "title": "DEI Progress Report",
+      "description": "Diversity, equity, and inclusion metrics with year-over-year trends, initiatives, and action items.",
+      "category": "Strategy and Leadership",
+      "tags": [
+        "DEI",
+        "diversity",
+        "inclusion",
+        "HR",
+        "report"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "series-a-pitch-deck",
+      "title": "Series A Pitch Deck",
+      "description": "Post-seed pitch deck with product-market fit evidence, unit economics, growth metrics, and use of funds. 12-slide Sequoia format.",
+      "category": "Startup and Fundraising",
+      "tags": [
+        "series A",
+        "pitch",
+        "fundraising",
+        "VC"
+      ],
+      "thumbnail_url": null,
+      "is_featured": true
+    },
+    {
+      "slug": "series-b-growth-deck",
+      "title": "Series B Growth Deck",
+      "description": "Growth-stage pitch with scaled metrics, expansion strategy, competitive moat, and path to profitability.",
+      "category": "Startup and Fundraising",
+      "tags": [
+        "series B",
+        "growth",
+        "scaling",
+        "fundraising"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "angel-investor-deck",
+      "title": "Angel Investor Deck",
+      "description": "Early-stage pitch for angel investors. Problem, solution, team, early traction, and ask. Concise 10-slide format.",
+      "category": "Startup and Fundraising",
+      "tags": [
+        "angel",
+        "seed",
+        "pitch",
+        "early stage"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "ycombinator-application-deck",
+      "title": "YC Application Deck",
+      "description": "Y Combinator style application deck. What you do, why now, team, traction, and what you need.",
+      "category": "Startup and Fundraising",
+      "tags": [
+        "YC",
+        "accelerator",
+        "application",
+        "startup"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "exit-strategy-deck",
+      "title": "Exit Strategy Deck",
+      "description": "M&A or IPO readiness deck with valuation, comparable analysis, strategic fit, and transaction timeline.",
+      "category": "Startup and Fundraising",
+      "tags": [
+        "exit",
+        "M&A",
+        "IPO",
+        "acquisition"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "product-launch-deck",
+      "title": "Product Launch Deck",
+      "description": "Launch plan with positioning, messaging, channel strategy, timeline, and success metrics.",
+      "category": "Sales and Marketing",
+      "tags": [
+        "launch",
+        "product",
+        "GTM",
+        "marketing"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "brand-strategy-deck",
+      "title": "Brand Strategy Deck",
+      "description": "Brand positioning, visual identity guidelines, tone of voice, audience segmentation, and competitive differentiation.",
+      "category": "Sales and Marketing",
+      "tags": [
+        "brand",
+        "strategy",
+        "positioning",
+        "identity"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "customer-onboarding-deck",
+      "title": "Customer Onboarding Deck",
+      "description": "Welcome new customers. Product overview, getting started steps, key contacts, timeline to value, and support resources.",
+      "category": "Sales and Marketing",
+      "tags": [
+        "onboarding",
+        "customer success",
+        "welcome",
+        "training"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "annual-marketing-plan",
+      "title": "Annual Marketing Plan",
+      "description": "Full-year marketing strategy with budget allocation, channel mix, campaign calendar, KPIs, and team structure.",
+      "category": "Sales and Marketing",
+      "tags": [
+        "marketing plan",
+        "annual",
+        "budget",
+        "strategy"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "sales-enablement-deck",
+      "title": "Sales Enablement Deck",
+      "description": "Arm your sales team. Ideal customer profile, objection handling, competitive positioning, pricing guide, and demo script.",
+      "category": "Sales and Marketing",
+      "tags": [
+        "sales enablement",
+        "sales training",
+        "objections",
+        "ICP"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "design-review-deck",
+      "title": "Design Review Deck",
+      "description": "UX/UI design review with user research findings, wireframes, design decisions, accessibility notes, and next steps.",
+      "category": "Product and Technology",
+      "tags": [
+        "design",
+        "UX",
+        "UI",
+        "review",
+        "product"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "api-documentation-deck",
+      "title": "API Documentation Deck",
+      "description": "Developer-facing API overview. Endpoints, authentication, rate limits, code examples, and integration guide.",
+      "category": "Product and Technology",
+      "tags": [
+        "API",
+        "documentation",
+        "developer",
+        "integration"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "system-migration-plan",
+      "title": "System Migration Plan",
+      "description": "Legacy to modern system migration. Current state, target architecture, migration phases, risk mitigation, and rollback plan.",
+      "category": "Product and Technology",
+      "tags": [
+        "migration",
+        "system",
+        "architecture",
+        "infrastructure"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "incident-response-deck",
+      "title": "Incident Response Deck",
+      "description": "Post-incident review with timeline, root cause, impact assessment, remediation steps, and prevention measures.",
+      "category": "Product and Technology",
+      "tags": [
+        "incident",
+        "postmortem",
+        "response",
+        "security"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "performance-benchmark-deck",
+      "title": "Performance Benchmark Deck",
+      "description": "System performance metrics. Latency, throughput, uptime, error rates, compared against SLAs and industry benchmarks.",
+      "category": "Product and Technology",
+      "tags": [
+        "performance",
+        "benchmark",
+        "SLA",
+        "metrics"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "vendor-evaluation-deck",
+      "title": "Vendor Evaluation Deck",
+      "description": "Compare vendors side by side. Scoring criteria, feature comparison, pricing analysis, references, and recommendation.",
+      "category": "Projects and Operations",
+      "tags": [
+        "vendor",
+        "evaluation",
+        "procurement",
+        "comparison"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "change-readiness-assessment",
+      "title": "Change Readiness Assessment",
+      "description": "Assess organizational readiness for change. Stakeholder analysis, impact assessment, communication plan, and training needs.",
+      "category": "Projects and Operations",
+      "tags": [
+        "change management",
+        "readiness",
+        "assessment",
+        "transformation"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "quarterly-ops-review",
+      "title": "Quarterly Operations Review",
+      "description": "End-of-quarter operational performance. KPIs, process improvements, team capacity, cost optimization, and next quarter priorities.",
+      "category": "Projects and Operations",
+      "tags": [
+        "operations",
+        "quarterly review",
+        "KPIs",
+        "performance"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "compliance-audit-deck",
+      "title": "Compliance Audit Deck",
+      "description": "Audit findings, risk ratings, remediation timeline, and compliance status across regulatory requirements.",
+      "category": "Projects and Operations",
+      "tags": [
+        "compliance",
+        "audit",
+        "regulatory",
+        "risk"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "data-privacy-impact",
+      "title": "Data Privacy Impact Assessment",
+      "description": "GDPR/CCPA privacy impact assessment. Data flows, risk evaluation, consent mechanisms, and compliance roadmap.",
+      "category": "AI and Data",
+      "tags": [
+        "privacy",
+        "GDPR",
+        "CCPA",
+        "data protection",
+        "compliance"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "ml-model-deployment-deck",
+      "title": "ML Model Deployment Deck",
+      "description": "Model deployment plan. Training data, evaluation metrics, A/B test results, monitoring strategy, and rollout phases.",
+      "category": "AI and Data",
+      "tags": [
+        "ML",
+        "model",
+        "deployment",
+        "machine learning"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "analytics-dashboard-review",
+      "title": "Analytics Dashboard Review",
+      "description": "Present your analytics insights. Dashboard walkthrough, key metrics, trends, anomalies, and recommended actions.",
+      "category": "AI and Data",
+      "tags": [
+        "analytics",
+        "dashboard",
+        "insights",
+        "data"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
+    },
+    {
+      "slug": "ai-ethics-framework",
+      "title": "AI Ethics Framework",
+      "description": "Responsible AI principles. Bias detection, fairness metrics, transparency requirements, and governance structure.",
+      "category": "AI and Data",
+      "tags": [
+        "AI ethics",
+        "responsible AI",
+        "bias",
+        "fairness",
+        "governance"
+      ],
+      "thumbnail_url": null,
+      "is_featured": false
     }
   ],
   "template_blocks": [

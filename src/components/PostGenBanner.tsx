@@ -31,7 +31,7 @@ const VARIANT_CONFIGS = {
   },
   executive_focus: {
     features: [
-      { icon: Briefcase, label: "Board Templates", sub: "60+ executive" },
+      { icon: Briefcase, label: "Board Templates", sub: "88 executive" },
       { icon: Download, label: "Clean PPTX", sub: "Boardroom-ready" },
       { icon: Shield, label: "Brand Lock", sub: "Consistent identity" },
     ],
