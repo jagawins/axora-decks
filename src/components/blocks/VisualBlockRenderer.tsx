@@ -41,6 +41,7 @@ import { EmbedBlock } from './EmbedBlock';
 import { CTAButtonBlock } from './CTAButtonBlock';
 import { SmartLayoutBlock } from './SmartLayoutBlock';
 import { AudiencePollBlock, AudienceQABlock, AudienceWordCloudBlock, AudienceSurveyBlock } from './AudienceInteraction';
+import { LiveInputBlock, AdaptiveBlock } from './LiveAdaptive';
 
 // Interactive block components
 import { TabsBlock } from './TabsBlock';
@@ -175,6 +176,10 @@ export function VisualBlockRenderer({
       return <AudienceWordCloudBlock payload={payload as any} className={className} />;
     case 'audience_survey' as any:
       return <AudienceSurveyBlock payload={payload as any} className={className} />;
+    case 'live_input' as any:
+      return <LiveInputBlock payload={payload as any} />;
+    case 'adaptive_block' as any:
+      return <AdaptiveBlock payload={payload as any} />;
     
     // Interactive block types
     case 'tabs_block':

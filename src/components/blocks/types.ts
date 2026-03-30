@@ -332,7 +332,9 @@ export type VisualBlockType =
   | 'audience_poll'
   | 'audience_qa'
   | 'audience_wordcloud'
-  | 'audience_survey';
+  | 'audience_survey'
+  | 'live_input'
+  | 'adaptive_block';
 
 // Decision block type names
 export type DecisionBlockType =

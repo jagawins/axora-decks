@@ -365,6 +365,31 @@ const EditorToolset = ({
                     </button>
                   ))}
                 </div>
+
+                {/* Live Adaptive */}
+                <div className="border-t border-border/50 pt-3 mt-3">
+                  <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-2">Live adaptive slides</p>
+                  <p className="text-[9px] text-muted-foreground mb-2">Slides that adapt in real-time based on audience input during the meeting.</p>
+                  {[
+                    { type: "live_input" as BlockType, label: "Live Input", desc: "Capture audience data mid-presentation" },
+                    { type: "adaptive_block" as BlockType, label: "Adaptive Slide", desc: "Content regenerates when inputs change" },
+                  ].map(({ type, label, desc }) => (
+                    <button
+                      key={label}
+                      onClick={() => {
+                        onAddBlock(type);
+                        setActivePanel(null);
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-all text-left"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                      <div>
+                        <p className="text-xs font-medium">{label}</p>
+                        <p className="text-[9px] text-muted-foreground">{desc}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
