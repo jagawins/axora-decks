@@ -117,7 +117,7 @@ export default function SocialProof() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 max-w-4xl mx-auto">
           {[
             { value: "< 5 min", label: "Average deck creation" },
-            { value: "68+", label: "Executive templates" },
+            { value: "88", label: "Executive templates" },
             { value: "50×", label: "Faster than manual" },
             { value: "99%", label: "Export success rate" },
           ].map((stat) => (
