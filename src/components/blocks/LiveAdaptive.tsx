@@ -266,3 +266,258 @@ export function AdaptiveBlock({ payload }: { payload: AdaptiveBlockPayload }) {
     </div>
   );
 }
+
+/* ── Phase 2: Voice-Triggered Adaptation ───────────────── */
+
+/**
+ * VoiceInputBlock — listens to the presenter's speech via the
+ * browser's Web Speech API. When it detects key parameters
+ * (RPO, RTO, budget, headcount, etc.), it auto-fills the
+ * LiveVariable context. Downstream AdaptiveBlocks then regenerate.
+ *
+ * How it works:
+ * 1. Presenter clicks "Start Listening"
+ * 2. Browser captures speech in real-time
+ * 3. Transcript is shown as rolling text
+ * 4. AI extracts key-value pairs from the transcript
+ * 5. Variables are set in context → downstream slides adapt
+ */
+
+export interface VoiceInputPayload {
+  title?: string;
+  description?: string;
+  /** Variable keys to listen for — AI will extract these from speech */
+  targetVariables: {
+    key: string;
+    label: string;
+    hint?: string;  // e.g., "a time duration like '15 minutes' or '4 hours'"
+  }[];
+}
+
+export function VoiceInputBlock({ payload }: { payload: VoiceInputPayload }) {
+  const { title = "Voice Input", description, targetVariables = [] } = payload;
+  const { setVariable, variables } = useContext(LiveVariableContext);
+  const [listening, setListening] = useState(false);
+  const [transcript, setTranscript] = useState("");
+  const [extracting, setExtracting] = useState(false);
+  const [extracted, setExtracted] = useState<Record<string, string>>({});
+  const [supported, setSupported] = useState(true);
+
+  // Check browser support
+  const SpeechRecognition = typeof window !== "undefined"
+    ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    : null;
+
+  const recognitionRef = useState<any>(null);
+
+  const startListening = () => {
+    if (!SpeechRecognition) {
+      setSupported(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    let finalTranscript = transcript;
+
+    recognition.onresult = (event: any) => {
+      let interim = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalTranscript += result[0].transcript + " ";
+        } else {
+          interim += result[0].transcript;
+        }
+      }
+      setTranscript(finalTranscript + interim);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error);
+      if (event.error !== "no-speech") {
+        setListening(false);
+      }
+    };
+
+    recognition.onend = () => {
+      // Auto-restart if still in listening mode
+      if (listening) {
+        try { recognition.start(); } catch {}
+      }
+    };
+
+    try {
+      recognition.start();
+      recognitionRef[1](recognition);
+      setListening(true);
+    } catch (err) {
+      console.error("Failed to start speech recognition:", err);
+    }
+  };
+
+  const stopListening = () => {
+    if (recognitionRef[0]) {
+      recognitionRef[0].stop();
+    }
+    setListening(false);
+  };
+
+  const extractVariables = async () => {
+    if (!transcript.trim()) return;
+    setExtracting(true);
+
+    try {
+      const variableDescriptions = targetVariables
+        .map(v => `- "${v.key}" (${v.label}): ${v.hint || "any relevant value"}`)
+        .join("\n");
+
+      const { data, error } = await supabase.functions.invoke("generate-outline", {
+        body: {
+          topic: "Variable extraction",
+          prompt: `Extract specific values from this meeting transcript. Return ONLY the key-value pairs as a simple list, one per line, in format "key: value". If a value was not mentioned, skip it.
+
+Variables to extract:
+${variableDescriptions}
+
+Transcript:
+"${transcript}"
+
+Return ONLY lines like:
+rpo: 15 minutes
+rto: 4 hours
+
+No other text. No explanations. Just the key: value pairs that were actually mentioned.`,
+          tone: "executive",
+          cardsCount: 1,
+        },
+      });
+
+      if (error) throw error;
+
+      const outline = data?.outline;
+      const responseText = outline?.sections?.[0]?.bullets?.join("\n") 
+        || outline?.sections?.[0]?.description 
+        || "";
+
+      // Parse key-value pairs
+      const newExtracted: Record<string, string> = {};
+      responseText.split("\n").forEach((line: string) => {
+        const match = line.match(/^([a-z_]+)\s*:\s*(.+)$/i);
+        if (match) {
+          const key = match[1].trim().toLowerCase();
+          const val = match[2].trim();
+          const target = targetVariables.find(v => v.key.toLowerCase() === key);
+          if (target) {
+            newExtracted[target.key] = val;
+            setVariable(target.key, val);
+          }
+        }
+      });
+
+      setExtracted(newExtracted);
+    } catch (err) {
+      console.error("Variable extraction failed:", err);
+    } finally {
+      setExtracting(false);
+    }
+  };
+
+  if (!supported || !SpeechRecognition) {
+    return (
+      <div className="w-full rounded-xl border border-border/50 bg-card/30 p-5 text-center space-y-2">
+        <MessageSquare className="h-6 w-6 text-muted-foreground mx-auto" />
+        <p className="text-sm text-muted-foreground">Voice input requires Chrome or Edge browser with microphone access.</p>
+        <p className="text-xs text-muted-foreground">You can still type values manually in the Live Input blocks above.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("w-full rounded-xl border-2 p-5 space-y-4 transition-all",
+      listening ? "border-red-500/40 bg-red-500/[0.02]" : "border-violet-500/30 bg-violet-500/[0.03]")}>
+      
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center",
+          listening ? "bg-red-500/10" : "bg-violet-500/10")}>
+          <MessageSquare className={cn("h-4 w-4", listening ? "text-red-500" : "text-violet-500")} />
+        </div>
+        <div className="flex-1">
+          <span className={cn("text-[10px] font-bold uppercase tracking-wider block",
+            listening ? "text-red-500" : "text-violet-500")}>
+            {listening ? "Listening..." : "Voice Input"}
+          </span>
+          <p className="text-base font-bold">{title}</p>
+        </div>
+        {listening && (
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="text-[10px] text-red-500 font-bold">LIVE</span>
+          </div>
+        )}
+      </div>
+
+      {description && <p className="text-sm text-muted-foreground">{description}</p>}
+
+      {/* Transcript */}
+      {transcript && (
+        <div className="rounded-lg border border-border/30 bg-background/50 p-3 max-h-32 overflow-y-auto">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Transcript</p>
+          <p className="text-sm leading-relaxed">{transcript}</p>
+        </div>
+      )}
+
+      {/* Detected variables */}
+      {Object.keys(extracted).length > 0 && (
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-bold text-green-600 uppercase tracking-wider">Detected from speech</p>
+          <div className="flex flex-wrap gap-2">
+            {targetVariables.map(v => {
+              const val = extracted[v.key] || variables[v.key]?.value;
+              return (
+                <span key={v.key} className={cn("text-xs px-2.5 py-1 rounded-full border",
+                  val ? "border-green-500/30 bg-green-500/10 text-green-700" : "border-border/30 text-muted-foreground")}>
+                  {v.label}: {val || "not detected"}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Controls */}
+      <div className="flex items-center gap-2 pt-1">
+        {!listening ? (
+          <Button size="sm" className="gap-1.5 bg-violet-500 hover:bg-violet-600 text-white" onClick={startListening}>
+            <MessageSquare className="h-3.5 w-3.5" /> Start Listening
+          </Button>
+        ) : (
+          <Button size="sm" variant="outline" className="gap-1.5 border-red-500/30 text-red-500 hover:bg-red-500/5" onClick={() => { stopListening(); }}>
+            <div className="w-3 h-3 rounded-sm bg-red-500" /> Stop
+          </Button>
+        )}
+
+        {transcript && (
+          <Button size="sm" variant="outline" className="gap-1.5" onClick={extractVariables} disabled={extracting}>
+            {extracting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+            {extracting ? "Extracting..." : "Extract values"}
+          </Button>
+        )}
+      </div>
+
+      {/* What we're listening for */}
+      <div className="flex flex-wrap gap-1.5 pt-1 border-t border-border/30">
+        <span className="text-[9px] text-muted-foreground mr-1">Listening for:</span>
+        {targetVariables.map(v => (
+          <span key={v.key} className="text-[9px] px-2 py-0.5 rounded-full border border-border/30 text-muted-foreground">
+            {v.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}

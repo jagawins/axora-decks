@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { LiveVariableProvider } from "@/components/blocks/LiveAdaptive";
 import Index from "./pages/Index";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import Auth from "./pages/Auth";
@@ -72,6 +73,7 @@ const App = () => (
           <BrowserRouter>
             <AuthProvider>
               <SubscriptionProvider>
+              <LiveVariableProvider>
               <PWAInstallPrompt />
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -127,6 +129,7 @@ const App = () => (
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </LiveVariableProvider>
               </SubscriptionProvider>
             </AuthProvider>
           </BrowserRouter>
