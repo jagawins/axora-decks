@@ -82,7 +82,7 @@ const EXAMPLE_PROMPTS = [
 
 const ENTRY_CARDS = [
   { id: "scratch", icon: Sparkles, title: "Start from scratch", description: "Describe your topic and let AI create" },
-  { id: "template", icon: LayoutTemplate, title: "Use a template", description: "88 executive-ready templates", href: "/templates" },
+  { id: "template", icon: LayoutTemplate, title: "Use a template", description: "68+ executive-ready templates", href: "/templates" },
   { id: "import", icon: FileText, title: "Import content", description: "Paste notes, docs, or outlines" },
   { id: "quick", icon: Zap, title: "Quick deck", description: "One-click generation from topic" },
 ];
