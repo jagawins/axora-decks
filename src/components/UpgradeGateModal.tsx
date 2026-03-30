@@ -49,7 +49,7 @@ const FEATURE_CONTEXTS: Record<string, {
   "Premium Templates": {
     icon: Palette,
     headline: "Premium Templates",
-    subtext: "Access all 68+ executive templates — board updates, investor pitches, strategy decks.",
+    subtext: "Access all 88 executive templates — board updates, investor pitches, strategy decks.",
     highlight: "Templates designed by ex-McKinsey and ex-BCG consultants",
   },
   "Premium Themes": {
@@ -95,7 +95,7 @@ const PRO_FEATURES = [
   "Unlimited board & strategy decks",
   "PowerPoint & PDF export",
   "AI image generation",
-  "68+ executive templates",
+  "88 executive templates",
   "Brand Kit (fonts, colors, logo)",
   "Interactive blocks & KPI dashboards",
   "Presenter view & deck analytics",
