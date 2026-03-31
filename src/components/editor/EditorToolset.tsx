@@ -364,6 +364,31 @@ const EditorToolset = ({
                       </div>
                     </button>
                   ))}
+
+                  <div className="border-t border-border/30 pt-2 mt-2">
+                    <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-2">Smart Slides</p>
+                    <p className="text-[9px] text-muted-foreground mb-2">Slides that adapt in real-time based on what the audience says.</p>
+                    {[
+                      { type: "live_input" as BlockType, label: "Live Input", desc: "Capture requirements during meeting (text, number, select)" },
+                      { type: "voice_input" as BlockType, label: "Voice Input", desc: "Speech recognition extracts key parameters" },
+                      { type: "adaptive_block" as BlockType, label: "Adaptive Block", desc: "Downstream slide that regenerates from inputs" },
+                    ].map(({ type, label, desc }) => (
+                      <button
+                        key={label}
+                        onClick={() => {
+                          onAddBlock(type);
+                          setActivePanel(null);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-all text-left"
+                      >
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                        <div>
+                          <p className="text-xs font-medium">{label}</p>
+                          <p className="text-[9px] text-muted-foreground">{desc}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Live Adaptive */}
