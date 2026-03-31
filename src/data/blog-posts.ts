@@ -10,6 +10,73 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "smart-slides-live-adaptive-presentations-2026",
+    title: "Smart Slides: Your Presentation Now Adapts to What the Audience Says",
+    excerpt: "Someone asks about RPO during your datacenter pitch. By slide 6, the architecture has already adapted. No 'I'll get back to you.' AXIVA's Smart Slides use live input and voice recognition to regenerate downstream slides in real-time.",
+    category: "Product",
+    publishedAt: "2026-03-31",
+    author: "Jag Mariappan",
+    content: `# Smart Slides: your presentation now adapts to what the audience says
+
+A LinkedIn post recently asked: what agentic AI tool have you imagined but never seen? The scenario described was presenting a datacenter architecture. On slide 3, the customer shares their RPO and RTO requirements. By slide 6, the presentation has already adapted to show the right topology, sizing, and pricing. No pause. No follow-up needed.
+
+We built it.
+
+## The problem with static presentations
+
+Every presentation today is static. You create it before the meeting, present it during the meeting, and hope it covers what the audience cares about. When someone asks a question that requires a different number, a different architecture, or a different scenario, you say the same thing every presenter says: "Let me run the numbers and get back to you."
+
+That sentence kills momentum. The decision gets deferred. The follow-up email takes three days. By then, the urgency is gone.
+
+## What Smart Slides do
+
+Smart Slides are a new block type in AXIVA. They work in three parts:
+
+**Live Input blocks** sit on early slides in your deck. They have form fields where you or the audience can type values during the presentation. Think of them as variables: RPO, RTO, budget, headcount, region, compliance level.
+
+**Voice Input blocks** go further. Click "Start Listening" and the browser's speech recognition captures what the audience says in real-time. AI extracts key parameters from the conversation automatically. The customer says "our RPO needs to be under 15 minutes and RTO around 4 hours." The system detects both values without you typing anything.
+
+**Adaptive blocks** sit on downstream slides. They reference the variables from the input blocks. When new data arrives, the block shows a glowing "Adapt now" button. One click, and AI regenerates that slide using the actual numbers from the conversation. The architecture slide now shows active-active replication (for the 15-minute RPO) with a hot standby failover (for the 4-hour RTO).
+
+## How it works in practice
+
+Imagine you are pitching a cloud infrastructure solution:
+
+Slide 1-2: Company overview (standard)
+
+Slide 3: Live Input block asks the customer three questions: target RPO, target RTO, monthly budget. The customer says the numbers out loud. Voice Input captures them. Or you type them in.
+
+Slide 4-5: Standard slides about your team and methodology.
+
+Slide 6: Adaptive block with the architecture diagram. It detects that RPO, RTO, and budget have been filled in. You click "Adapt now." In 3 seconds, the slide regenerates to show the specific topology that meets those requirements, with estimated costs.
+
+Slide 7: Another adaptive block with the pricing breakdown. Same one-click regeneration. The numbers are specific to what the customer just said.
+
+You never left the presentation. You never said "I'll get back to you." The deal moves forward in the same meeting.
+
+## Voice recognition details
+
+The voice input uses the Web Speech API built into Chrome and Edge. It runs entirely in the browser. No audio is sent to external servers for the speech recognition step. The transcript is shown in real-time as the audience speaks.
+
+After capturing speech, you click "Extract values" and AXIVA's AI parses the transcript to find the parameters you told it to listen for. If you set up three target variables (RPO, RTO, budget), it extracts exactly those three from the conversation.
+
+## Who this is for
+
+Smart Slides are designed for solution architects, sales engineers, consultants, and anyone who presents configurable solutions. If your presentation includes numbers that change based on what the customer needs, Smart Slides turn your deck into a live configuration tool.
+
+Use cases: datacenter sizing, cloud architecture, SaaS pricing tiers, project timelines, resource planning, financial modeling, capacity planning.
+
+## No competitor has this
+
+Gamma generates static slides. Beautiful.ai has smart design but no live adaptation. PowerPoint Copilot can help you create slides but not adapt them mid-meeting. Canva is a design tool. None of them regenerate slides based on real-time audience input.
+
+AXIVA is the first presentation tool where the deck is a living document that responds to the conversation happening in the room.
+
+## Try it
+
+Go to [AXIVA](/create) and create a deck. Add a \`live_input\` block on an early slide with your key variables. Add \`adaptive_block\` blocks on later slides that reference those variables. Present it. Type or speak the audience's requirements. Watch the deck adapt.`,
+  },
+  {
     slug: "live-audience-polls-built-into-your-deck-2026",
     title: "Why We Built Live Audience Polls Into the Deck — Not as a Separate Tool",
     excerpt: "Slido, Mentimeter, and Poll Everywhere are great. But they are separate tools that cost extra. AXIVA builds live polls, Q&A, word clouds, and surveys directly into your presentation. QR code, event code, real-time results — all inside the deck.",

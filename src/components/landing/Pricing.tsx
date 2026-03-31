@@ -37,7 +37,7 @@ const plans = [
       "Unlimited projects",
       "PDF & PowerPoint export",
       "Speech Prep + Delivery Coaching (voice, story, presence)",
-      "Q&A Readiness + Crisis Templates",
+      "Smart Slides: live adaptive presentations with voice input",
       "Webinar-Ready (deck + speech + polls + results in one tool)",
       "Live Audience Polls (QR code, AI-suggested, real-time)",
       "23 Timeline Styles (Gantt, scenarios, S-curve...)",

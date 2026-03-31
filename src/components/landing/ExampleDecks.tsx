@@ -504,7 +504,7 @@ export default function ExampleDecks() {
         <div className="text-center mt-12">
           <Link to="/templates">
             <Button variant="outline" size="lg" className="gap-2 group rounded-full px-8">
-              Browse All 88 Templates
+              Browse All 90+ Templates
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>

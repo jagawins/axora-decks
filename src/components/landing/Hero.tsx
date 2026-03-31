@@ -239,7 +239,7 @@ const Hero = () => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-xs sm:text-sm font-medium mb-8 backdrop-blur-sm animate-fade-in-up">
             <Zap className="h-3.5 w-3.5" />
-            <span>Speech Prep · Delivery Coaching · Live Polls · Webinar-Ready · 23 Timelines</span>
+            <span>Smart Slides · Speech Prep · Delivery Coaching · Live Polls · Webinar-Ready</span>
           </div>
 
           {/* Headline (A/B tested) */}

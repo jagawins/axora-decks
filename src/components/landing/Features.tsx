@@ -43,10 +43,10 @@ const features = [
   },
   {
     icon: MousePointerClick,
-    title: "Q&A Readiness + Crisis",
-    description: "AI generates anticipated questions from your deck. Build 3-message maps for high-stress moments. 4 crisis templates. Timed 30-second drill mode.",
+    title: "Smart Slides (Live Adaptive)",
+    description: "Slides that adapt in real-time. Type audience inputs or use voice recognition during your presentation. Downstream slides regenerate with AI. No 'I'll get back to you.'",
     color: "#EF4444",
-    highlights: ["Q&A bank generator", "Message maps (3×3 structure)", "Crisis templates + timed drill"],
+    highlights: ["Type or speak audience requirements live", "AI regenerates downstream slides instantly", "Voice recognition extracts key parameters"],
   },
   {
     icon: Calendar,

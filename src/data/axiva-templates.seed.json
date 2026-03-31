@@ -1175,6 +1175,38 @@
       ],
       "thumbnail_url": null,
       "is_featured": false
+    },
+    {
+      "slug": "smart-slides-datacenter",
+      "title": "Smart Slides: Datacenter Architecture",
+      "description": "Live adaptive datacenter pitch. Audience shares RPO, RTO, and budget during the meeting. Architecture and pricing slides regenerate in real-time. Uses live_input and adaptive_block.",
+      "category": "Product and Technology",
+      "tags": [
+        "smart slides",
+        "adaptive",
+        "datacenter",
+        "architecture",
+        "live input",
+        "solution sizing"
+      ],
+      "thumbnail_url": null,
+      "is_featured": true
+    },
+    {
+      "slug": "smart-slides-voice-pricing",
+      "title": "Smart Slides: Voice-Adaptive Pricing",
+      "description": "Voice-powered sales deck. Speak naturally with the customer. AI extracts headcount, region, and tier from the conversation and regenerates pricing, ROI, and implementation timeline slides. Uses voice_input and adaptive_block.",
+      "category": "Sales and Marketing",
+      "tags": [
+        "smart slides",
+        "voice input",
+        "adaptive",
+        "pricing",
+        "sales",
+        "live"
+      ],
+      "thumbnail_url": null,
+      "is_featured": true
     }
   ],
   "template_blocks": [

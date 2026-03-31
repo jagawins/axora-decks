@@ -5,6 +5,8 @@
 ## Key Capabilities
 
 - AI deck generation from one sentence using answer-first consulting methodology
+- Smart Slides: live adaptive presentations where slides regenerate based on audience input during the meeting
+- Voice-triggered slide adaptation using browser speech recognition
 - Speech prep with delivery coaching (vocal tips, story structure, body language)
 - Live audience polls with QR codes and real-time results (replaces Slido)
 - Q&A readiness with anticipated question generator and message maps

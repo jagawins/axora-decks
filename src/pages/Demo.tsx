@@ -749,7 +749,7 @@ export default function Demo() {
               <div className="text-center mt-12 pt-10 border-t border-border/20">
                 <h2 className="text-2xl sm:text-3xl font-bold mb-3">Like what you see?</h2>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Create your deck, write your speech, add live audience polls, and run your entire webinar from one tool. Speech prep, delivery coaching, QR-code voting, and results, all built in.
+                  Create your deck, write your speech, add live audience polls, and use Smart Slides that adapt in real-time based on what your audience says. Speech prep, delivery coaching, QR-code voting, and results, all built in.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                   <Button variant="hero" size="lg" onClick={() => navigate("/create")} className="group gap-2">
