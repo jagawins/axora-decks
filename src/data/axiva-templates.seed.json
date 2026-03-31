@@ -8889,6 +8889,3876 @@
           "Publish the deck and run the review"
         ]
       }
+    },
+    {
+      "template_slug": "crisis-communication-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Crisis Communication Deck"
+      }
+    },
+    {
+      "template_slug": "crisis-communication-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Empathy-first structure for layoffs, incidents, outages, and regulatory announcements. Lead with empathy, state facts, explain actions, give next update."
+      }
+    },
+    {
+      "template_slug": "crisis-communication-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "crisis-communication-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "crisis-communication-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "crisis-communication-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "crisis-communication-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "crisis-communication-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Phase",
+          "Action",
+          "Owner",
+          "Timeline"
+        ],
+        "rows": [
+          [
+            "Immediate",
+            "Acknowledge the situation",
+            "CEO / Comms Lead",
+            "Within 2 hours"
+          ],
+          [
+            "24 hours",
+            "Publish detailed statement with facts",
+            "PR Team",
+            "Day 1"
+          ],
+          [
+            "Week 1",
+            "Employee town hall Q&A",
+            "Leadership",
+            "Within 5 days"
+          ],
+          [
+            "Ongoing",
+            "Weekly status updates until resolved",
+            "Ops Lead",
+            "Weekly"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "crisis-communication-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "crisis-communication-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Lead with empathy before facts. State what you know, what you don't, and when the next update will come. Never speculate."
+      }
+    },
+    {
+      "template_slug": "crisis-communication-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "succession-planning",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Succession Planning Brief"
+      }
+    },
+    {
+      "template_slug": "succession-planning",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Leadership pipeline review with readiness assessments, development plans, and timeline for key role transitions."
+      }
+    },
+    {
+      "template_slug": "succession-planning",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "succession-planning",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "succession-planning",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "succession-planning",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "succession-planning",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "succession-planning",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Role",
+          "Current Holder",
+          "Readiness",
+          "Successor"
+        ],
+        "rows": [
+          [
+            "CEO",
+            "[Name]",
+            "Planned retirement 2027",
+            "[Candidate A, B]"
+          ],
+          [
+            "CTO",
+            "[Name]",
+            "High risk (single point)",
+            "[Candidate]"
+          ],
+          [
+            "VP Sales",
+            "[Name]",
+            "Stable",
+            "[Internal + External search]"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "succession-planning",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "succession-planning",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Identify single points of failure now. Every critical role should have at least one ready-now candidate and one developing candidate."
+      }
+    },
+    {
+      "template_slug": "succession-planning",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "company-vision-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Company Vision and Mission"
+      }
+    },
+    {
+      "template_slug": "company-vision-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Articulate where the company is going. Vision, mission, values, strategic pillars, and 3-year horizon. For all-hands and town halls."
+      }
+    },
+    {
+      "template_slug": "company-vision-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "company-vision-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "company-vision-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "company-vision-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "company-vision-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "company-vision-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Pillar",
+          "2024 Status",
+          "2027 Target",
+          "Key Initiative"
+        ],
+        "rows": [
+          [
+            "Revenue",
+            "$X M ARR",
+            "$Y M ARR",
+            "Enterprise expansion"
+          ],
+          [
+            "Product",
+            "V2 launched",
+            "Platform play",
+            "API + marketplace"
+          ],
+          [
+            "Team",
+            "X employees",
+            "Y employees",
+            "Engineering + Sales hires"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "company-vision-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "company-vision-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "A vision without a timeline is a wish. Tie every pillar to a measurable 3-year target and review quarterly."
+      }
+    },
+    {
+      "template_slug": "company-vision-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "budget-approval-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Budget Approval Deck"
+      }
+    },
+    {
+      "template_slug": "budget-approval-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Present your budget request with ROI projections, resource allocation, risk analysis, and phased spending plan."
+      }
+    },
+    {
+      "template_slug": "budget-approval-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "budget-approval-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "budget-approval-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "budget-approval-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "budget-approval-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "budget-approval-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Category",
+          "Requested",
+          "Last Year",
+          "ROI Estimate"
+        ],
+        "rows": [
+          [
+            "Engineering",
+            "$X",
+            "$Y",
+            "3.2x"
+          ],
+          [
+            "Marketing",
+            "$X",
+            "$Y",
+            "2.8x"
+          ],
+          [
+            "Operations",
+            "$X",
+            "$Y",
+            "1.5x"
+          ],
+          [
+            "Total",
+            "$X",
+            "$Y",
+            "2.5x blended"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "budget-approval-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "budget-approval-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Lead with ROI, not cost. Show what the investment returns before showing what it costs."
+      }
+    },
+    {
+      "template_slug": "budget-approval-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "diversity-inclusion-report",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "DEI Progress Report"
+      }
+    },
+    {
+      "template_slug": "diversity-inclusion-report",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Diversity, equity, and inclusion metrics with year-over-year trends, initiatives, and action items."
+      }
+    },
+    {
+      "template_slug": "diversity-inclusion-report",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "diversity-inclusion-report",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "diversity-inclusion-report",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "diversity-inclusion-report",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "diversity-inclusion-report",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "diversity-inclusion-report",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Metric",
+          "Last Year",
+          "This Year",
+          "Target"
+        ],
+        "rows": [
+          [
+            "Women in leadership",
+            "28%",
+            "33%",
+            "40%"
+          ],
+          [
+            "Underrepresented minorities",
+            "18%",
+            "22%",
+            "30%"
+          ],
+          [
+            "Pay equity gap",
+            "4.2%",
+            "2.1%",
+            "<1%"
+          ],
+          [
+            "Inclusion score (survey)",
+            "72",
+            "78",
+            "85"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "diversity-inclusion-report",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "diversity-inclusion-report",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Progress requires accountability. Tie DEI metrics to leadership performance reviews and publish results transparently."
+      }
+    },
+    {
+      "template_slug": "diversity-inclusion-report",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "series-a-pitch-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Series A Pitch Deck"
+      }
+    },
+    {
+      "template_slug": "series-a-pitch-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Post-seed pitch deck with product-market fit evidence, unit economics, growth metrics, and use of funds. 12-slide Sequoia format."
+      }
+    },
+    {
+      "template_slug": "series-a-pitch-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "series-a-pitch-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "series-a-pitch-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "series-a-pitch-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "series-a-pitch-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "series-a-pitch-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Metric",
+          "Current",
+          "12-Mo Target",
+          "Benchmark"
+        ],
+        "rows": [
+          [
+            "ARR",
+            "$1.2M",
+            "$5M",
+            ">$3M for Series A"
+          ],
+          [
+            "MoM Growth",
+            "18%",
+            "15%+",
+            ">10%"
+          ],
+          [
+            "Net Revenue Retention",
+            "125%",
+            "130%",
+            ">120%"
+          ],
+          [
+            "CAC Payback",
+            "8 months",
+            "6 months",
+            "<12 months"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "series-a-pitch-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "series-a-pitch-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Series A investors buy the growth story. Lead with traction, then explain what more capital unlocks."
+      }
+    },
+    {
+      "template_slug": "series-a-pitch-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "series-b-growth-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Series B Growth Deck"
+      }
+    },
+    {
+      "template_slug": "series-b-growth-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Growth-stage pitch with scaled metrics, expansion strategy, competitive moat, and path to profitability."
+      }
+    },
+    {
+      "template_slug": "series-b-growth-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "series-b-growth-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "series-b-growth-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "series-b-growth-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "series-b-growth-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "series-b-growth-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Metric",
+          "Series A",
+          "Current",
+          "Series B Target"
+        ],
+        "rows": [
+          [
+            "ARR",
+            "$3M",
+            "$12M",
+            "$30M"
+          ],
+          [
+            "Headcount",
+            "25",
+            "80",
+            "150"
+          ],
+          [
+            "Markets",
+            "1",
+            "3",
+            "5+"
+          ],
+          [
+            "Gross Margin",
+            "65%",
+            "72%",
+            "75%+"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "series-b-growth-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "series-b-growth-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "At Series B, prove you can scale what works. Show unit economics improving with volume, not just revenue growing."
+      }
+    },
+    {
+      "template_slug": "series-b-growth-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "angel-investor-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Angel Investor Deck"
+      }
+    },
+    {
+      "template_slug": "angel-investor-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Early-stage pitch for angel investors. Problem, solution, team, early traction, and ask. Concise 10-slide format."
+      }
+    },
+    {
+      "template_slug": "angel-investor-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "angel-investor-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "angel-investor-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "angel-investor-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "angel-investor-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "angel-investor-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Milestone",
+          "Status",
+          "Timeline",
+          "Funding Need"
+        ],
+        "rows": [
+          [
+            "MVP",
+            "Complete",
+            "Done",
+            "$0"
+          ],
+          [
+            "First 10 customers",
+            "In progress",
+            "3 months",
+            "$200K"
+          ],
+          [
+            "Product-market fit",
+            "Planned",
+            "6 months",
+            "$500K"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "angel-investor-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "angel-investor-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Angels invest in founders first. Lead with your unfair advantage and why you are the team to solve this problem."
+      }
+    },
+    {
+      "template_slug": "angel-investor-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "ycombinator-application-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "YC Application Deck"
+      }
+    },
+    {
+      "template_slug": "ycombinator-application-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Y Combinator style application deck. What you do, why now, team, traction, and what you need."
+      }
+    },
+    {
+      "template_slug": "ycombinator-application-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "ycombinator-application-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "ycombinator-application-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "ycombinator-application-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "ycombinator-application-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "ycombinator-application-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Question",
+          "Answer"
+        ],
+        "rows": [
+          [
+            "What do you make?",
+            "[One sentence]"
+          ],
+          [
+            "Why now?",
+            "[Market timing]"
+          ],
+          [
+            "How do you make money?",
+            "[Revenue model]"
+          ],
+          [
+            "What's your unfair advantage?",
+            "[Moat]"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "ycombinator-application-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "ycombinator-application-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "YC values speed and clarity. Answer every question in one sentence. If you need two sentences, the first one is wrong."
+      }
+    },
+    {
+      "template_slug": "ycombinator-application-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "exit-strategy-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Exit Strategy Deck"
+      }
+    },
+    {
+      "template_slug": "exit-strategy-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: M&A or IPO readiness deck with valuation, comparable analysis, strategic fit, and transaction timeline."
+      }
+    },
+    {
+      "template_slug": "exit-strategy-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "exit-strategy-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "exit-strategy-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "exit-strategy-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "exit-strategy-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "exit-strategy-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Scenario",
+          "Valuation Range",
+          "Timeline",
+          "Probability"
+        ],
+        "rows": [
+          [
+            "Strategic Acquisition",
+            "$X-Y M",
+            "12-18 months",
+            "High"
+          ],
+          [
+            "IPO",
+            "$X-Y M",
+            "24-36 months",
+            "Medium"
+          ],
+          [
+            "Secondary Sale",
+            "$X-Y M",
+            "6-12 months",
+            "Low"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "exit-strategy-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "exit-strategy-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Model multiple exit scenarios with realistic timelines. Investors want to see you have thought about their return path."
+      }
+    },
+    {
+      "template_slug": "exit-strategy-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "product-launch-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Product Launch Deck"
+      }
+    },
+    {
+      "template_slug": "product-launch-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Launch plan with positioning, messaging, channel strategy, timeline, and success metrics."
+      }
+    },
+    {
+      "template_slug": "product-launch-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "product-launch-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "product-launch-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "product-launch-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "product-launch-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "product-launch-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Channel",
+          "Audience",
+          "Budget",
+          "Expected Reach"
+        ],
+        "rows": [
+          [
+            "Email",
+            "Existing customers",
+            "$X",
+            "Y,000"
+          ],
+          [
+            "Social",
+            "Target personas",
+            "$X",
+            "Y,000"
+          ],
+          [
+            "PR",
+            "Industry press",
+            "$X",
+            "Y,000"
+          ],
+          [
+            "Events",
+            "Key accounts",
+            "$X",
+            "Y00"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "product-launch-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "product-launch-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "A launch is not a single event. Plan pre-launch (build anticipation), launch day (maximize reach), and post-launch (capture feedback)."
+      }
+    },
+    {
+      "template_slug": "product-launch-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "brand-strategy-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Brand Strategy Deck"
+      }
+    },
+    {
+      "template_slug": "brand-strategy-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Brand positioning, visual identity guidelines, tone of voice, audience segmentation, and competitive differentiation."
+      }
+    },
+    {
+      "template_slug": "brand-strategy-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "brand-strategy-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "brand-strategy-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "brand-strategy-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "brand-strategy-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "brand-strategy-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Element",
+          "Current",
+          "Target",
+          "Action"
+        ],
+        "rows": [
+          [
+            "Brand voice",
+            "Technical",
+            "Confident + approachable",
+            "Messaging guide"
+          ],
+          [
+            "Visual identity",
+            "Dated",
+            "Modern, clean",
+            "Rebrand Q2"
+          ],
+          [
+            "Market position",
+            "Feature-led",
+            "Outcome-led",
+            "Website rewrite"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "brand-strategy-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "brand-strategy-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Your brand is not your logo. It is what people say about you when you are not in the room. Define that first."
+      }
+    },
+    {
+      "template_slug": "brand-strategy-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "customer-onboarding-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Customer Onboarding Deck"
+      }
+    },
+    {
+      "template_slug": "customer-onboarding-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Welcome new customers. Product overview, getting started steps, key contacts, timeline to value, and support resources."
+      }
+    },
+    {
+      "template_slug": "customer-onboarding-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "customer-onboarding-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "customer-onboarding-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "customer-onboarding-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "customer-onboarding-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "customer-onboarding-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Week",
+          "Milestone",
+          "Owner",
+          "Success Metric"
+        ],
+        "rows": [
+          [
+            "Week 1",
+            "Account setup + first login",
+            "CSM",
+            "100% activation"
+          ],
+          [
+            "Week 2",
+            "Core workflow configured",
+            "CSM + User",
+            "First value delivered"
+          ],
+          [
+            "Week 4",
+            "Team rollout",
+            "Champion",
+            "5+ active users"
+          ],
+          [
+            "Week 8",
+            "Business review",
+            "CSM",
+            "ROI documented"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "customer-onboarding-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "customer-onboarding-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Time to first value determines retention. Shorten the path from signup to 'aha moment' to under 5 minutes."
+      }
+    },
+    {
+      "template_slug": "customer-onboarding-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "annual-marketing-plan",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Annual Marketing Plan"
+      }
+    },
+    {
+      "template_slug": "annual-marketing-plan",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Full-year marketing strategy with budget allocation, channel mix, campaign calendar, KPIs, and team structure."
+      }
+    },
+    {
+      "template_slug": "annual-marketing-plan",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "annual-marketing-plan",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "annual-marketing-plan",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "annual-marketing-plan",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "annual-marketing-plan",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "annual-marketing-plan",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Quarter",
+          "Focus",
+          "Budget",
+          "Key Campaign"
+        ],
+        "rows": [
+          [
+            "Q1",
+            "Awareness",
+            "$X",
+            "Brand launch"
+          ],
+          [
+            "Q2",
+            "Demand gen",
+            "$X",
+            "Webinar series"
+          ],
+          [
+            "Q3",
+            "Pipeline",
+            "$X",
+            "Account-based"
+          ],
+          [
+            "Q4",
+            "Retention",
+            "$X",
+            "Customer conference"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "annual-marketing-plan",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "annual-marketing-plan",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Allocate 70% to proven channels, 20% to scaling experiments, 10% to bold bets. Review allocation quarterly."
+      }
+    },
+    {
+      "template_slug": "annual-marketing-plan",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "sales-enablement-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Sales Enablement Deck"
+      }
+    },
+    {
+      "template_slug": "sales-enablement-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Arm your sales team. Ideal customer profile, objection handling, competitive positioning, pricing guide, and demo script."
+      }
+    },
+    {
+      "template_slug": "sales-enablement-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "sales-enablement-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "sales-enablement-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "sales-enablement-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "sales-enablement-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "sales-enablement-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Objection",
+          "Response",
+          "Proof Point"
+        ],
+        "rows": [
+          [
+            "Too expensive",
+            "ROI payback in X months",
+            "Case study: Company A"
+          ],
+          [
+            "Already have a solution",
+            "We integrate, not replace",
+            "Integration demo"
+          ],
+          [
+            "Not a priority",
+            "Cost of inaction is $X/month",
+            "Industry benchmark"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "sales-enablement-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "sales-enablement-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "The best objection handling is anticipation. Address the top 3 objections before the prospect raises them."
+      }
+    },
+    {
+      "template_slug": "sales-enablement-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "design-review-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Design Review Deck"
+      }
+    },
+    {
+      "template_slug": "design-review-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: UX/UI design review with user research findings, wireframes, design decisions, accessibility notes, and next steps."
+      }
+    },
+    {
+      "template_slug": "design-review-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "design-review-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "design-review-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "design-review-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "design-review-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "design-review-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Screen",
+          "Status",
+          "Feedback",
+          "Next Step"
+        ],
+        "rows": [
+          [
+            "Dashboard",
+            "Final",
+            "Approved",
+            "Ship"
+          ],
+          [
+            "Onboarding",
+            "In review",
+            "Simplify step 3",
+            "Revision"
+          ],
+          [
+            "Settings",
+            "Draft",
+            "Needs user testing",
+            "Research"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "design-review-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "design-review-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Good design is invisible. If the user notices the UI, something is wrong. Measure success by task completion, not beauty."
+      }
+    },
+    {
+      "template_slug": "design-review-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "api-documentation-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "API Documentation Deck"
+      }
+    },
+    {
+      "template_slug": "api-documentation-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Developer-facing API overview. Endpoints, authentication, rate limits, code examples, and integration guide."
+      }
+    },
+    {
+      "template_slug": "api-documentation-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "api-documentation-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "api-documentation-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "api-documentation-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "api-documentation-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "api-documentation-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Endpoint",
+          "Method",
+          "Auth",
+          "Description"
+        ],
+        "rows": [
+          [
+            "/api/v1/users",
+            "GET",
+            "Bearer token",
+            "List all users"
+          ],
+          [
+            "/api/v1/projects",
+            "POST",
+            "Bearer token",
+            "Create a project"
+          ],
+          [
+            "/api/v1/blocks",
+            "PUT",
+            "Bearer token",
+            "Update block content"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "api-documentation-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "api-documentation-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Developers judge your product in 5 minutes. If they cannot make a successful API call in that time, you have lost them."
+      }
+    },
+    {
+      "template_slug": "api-documentation-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "system-migration-plan",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "System Migration Plan"
+      }
+    },
+    {
+      "template_slug": "system-migration-plan",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Legacy to modern system migration. Current state, target architecture, migration phases, risk mitigation, and rollback plan."
+      }
+    },
+    {
+      "template_slug": "system-migration-plan",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "system-migration-plan",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "system-migration-plan",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "system-migration-plan",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "system-migration-plan",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "system-migration-plan",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Phase",
+          "Duration",
+          "Risk",
+          "Rollback Plan"
+        ],
+        "rows": [
+          [
+            "Assessment",
+            "2 weeks",
+            "Low",
+            "N/A"
+          ],
+          [
+            "Data migration",
+            "4 weeks",
+            "High",
+            "Snapshot restore"
+          ],
+          [
+            "Cutover",
+            "1 weekend",
+            "Critical",
+            "DNS rollback"
+          ],
+          [
+            "Validation",
+            "2 weeks",
+            "Medium",
+            "Parallel running"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "system-migration-plan",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "system-migration-plan",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Every migration needs a rollback plan tested before go-live. Hope is not a strategy for critical infrastructure."
+      }
+    },
+    {
+      "template_slug": "system-migration-plan",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "incident-response-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Incident Response Deck"
+      }
+    },
+    {
+      "template_slug": "incident-response-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Post-incident review with timeline, root cause, impact assessment, remediation steps, and prevention measures."
+      }
+    },
+    {
+      "template_slug": "incident-response-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "incident-response-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "incident-response-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "incident-response-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "incident-response-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "incident-response-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Time",
+          "Event",
+          "Action Taken",
+          "Impact"
+        ],
+        "rows": [
+          [
+            "14:02",
+            "Alert triggered",
+            "On-call paged",
+            "None yet"
+          ],
+          [
+            "14:15",
+            "Root cause identified",
+            "Fix deployed",
+            "API latency 5x"
+          ],
+          [
+            "14:32",
+            "Service restored",
+            "Monitoring confirmed",
+            "Recovery complete"
+          ],
+          [
+            "15:00",
+            "Postmortem started",
+            "Timeline documented",
+            "N/A"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "incident-response-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "incident-response-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Transparency builds trust. Share what happened, why, what you fixed, and what you changed to prevent recurrence."
+      }
+    },
+    {
+      "template_slug": "incident-response-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "performance-benchmark-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Performance Benchmark Deck"
+      }
+    },
+    {
+      "template_slug": "performance-benchmark-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: System performance metrics. Latency, throughput, uptime, error rates, compared against SLAs and industry benchmarks."
+      }
+    },
+    {
+      "template_slug": "performance-benchmark-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "performance-benchmark-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "performance-benchmark-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "performance-benchmark-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "performance-benchmark-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "performance-benchmark-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Metric",
+          "Current",
+          "SLA",
+          "Industry Avg"
+        ],
+        "rows": [
+          [
+            "P99 Latency",
+            "120ms",
+            "<200ms",
+            "180ms"
+          ],
+          [
+            "Uptime",
+            "99.97%",
+            "99.95%",
+            "99.9%"
+          ],
+          [
+            "Error Rate",
+            "0.02%",
+            "<0.1%",
+            "0.05%"
+          ],
+          [
+            "Throughput",
+            "12K rps",
+            ">10K rps",
+            "8K rps"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "performance-benchmark-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "performance-benchmark-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Benchmark against your SLAs first, competitors second. Your customers care about your promises, not industry averages."
+      }
+    },
+    {
+      "template_slug": "performance-benchmark-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "vendor-evaluation-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Vendor Evaluation Deck"
+      }
+    },
+    {
+      "template_slug": "vendor-evaluation-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Compare vendors side by side. Scoring criteria, feature comparison, pricing analysis, references, and recommendation."
+      }
+    },
+    {
+      "template_slug": "vendor-evaluation-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "vendor-evaluation-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "vendor-evaluation-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "vendor-evaluation-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "vendor-evaluation-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "vendor-evaluation-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Criteria",
+          "Vendor A",
+          "Vendor B",
+          "Vendor C"
+        ],
+        "rows": [
+          [
+            "Price",
+            "$X/yr",
+            "$Y/yr",
+            "$Z/yr"
+          ],
+          [
+            "Feature fit",
+            "85%",
+            "72%",
+            "90%"
+          ],
+          [
+            "Support SLA",
+            "4hr",
+            "24hr",
+            "1hr"
+          ],
+          [
+            "References",
+            "3 enterprise",
+            "1 enterprise",
+            "5 enterprise"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "vendor-evaluation-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "vendor-evaluation-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Price is the last criterion to evaluate. Feature fit, support quality, and reference checks predict long-term value better."
+      }
+    },
+    {
+      "template_slug": "vendor-evaluation-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "change-readiness-assessment",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Change Readiness Assessment"
+      }
+    },
+    {
+      "template_slug": "change-readiness-assessment",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Assess organizational readiness for change. Stakeholder analysis, impact assessment, communication plan, and training needs."
+      }
+    },
+    {
+      "template_slug": "change-readiness-assessment",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "change-readiness-assessment",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "change-readiness-assessment",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "change-readiness-assessment",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "change-readiness-assessment",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "change-readiness-assessment",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Dimension",
+          "Score (1-5)",
+          "Risk",
+          "Mitigation"
+        ],
+        "rows": [
+          [
+            "Leadership alignment",
+            "4",
+            "Low",
+            "Weekly syncs"
+          ],
+          [
+            "Employee awareness",
+            "2",
+            "High",
+            "Communication plan"
+          ],
+          [
+            "Training readiness",
+            "3",
+            "Medium",
+            "Pilot group first"
+          ],
+          [
+            "Technical readiness",
+            "4",
+            "Low",
+            "Staging complete"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "change-readiness-assessment",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "change-readiness-assessment",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "The biggest risk in change management is not technology. It is people. Invest 60% of your change budget in communication and training."
+      }
+    },
+    {
+      "template_slug": "change-readiness-assessment",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "quarterly-ops-review",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Quarterly Operations Review"
+      }
+    },
+    {
+      "template_slug": "quarterly-ops-review",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: End-of-quarter operational performance. KPIs, process improvements, team capacity, cost optimization, and next quarter priorities."
+      }
+    },
+    {
+      "template_slug": "quarterly-ops-review",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "quarterly-ops-review",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "quarterly-ops-review",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "quarterly-ops-review",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "quarterly-ops-review",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "quarterly-ops-review",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "KPI",
+          "Target",
+          "Actual",
+          "Status"
+        ],
+        "rows": [
+          [
+            "Revenue",
+            "$X M",
+            "$Y M",
+            "On track"
+          ],
+          [
+            "Customer satisfaction",
+            "4.5/5",
+            "4.3/5",
+            "At risk"
+          ],
+          [
+            "Employee retention",
+            ">90%",
+            "92%",
+            "On track"
+          ],
+          [
+            "Cost per acquisition",
+            "<$X",
+            "$Y",
+            "Over budget"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "quarterly-ops-review",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "quarterly-ops-review",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Red metrics are not failures. They are early warnings. The only failure is a red metric nobody is working on."
+      }
+    },
+    {
+      "template_slug": "quarterly-ops-review",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "compliance-audit-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Compliance Audit Deck"
+      }
+    },
+    {
+      "template_slug": "compliance-audit-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Audit findings, risk ratings, remediation timeline, and compliance status across regulatory requirements."
+      }
+    },
+    {
+      "template_slug": "compliance-audit-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "compliance-audit-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "compliance-audit-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "compliance-audit-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "compliance-audit-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "compliance-audit-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Finding",
+          "Severity",
+          "Status",
+          "Due Date"
+        ],
+        "rows": [
+          [
+            "Access control gaps",
+            "High",
+            "Remediation in progress",
+            "Q2"
+          ],
+          [
+            "Data retention policy",
+            "Medium",
+            "Policy drafted",
+            "Q1"
+          ],
+          [
+            "Third-party risk review",
+            "Low",
+            "Scheduled",
+            "Q3"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "compliance-audit-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "compliance-audit-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Treat audit findings as gifts. Each one is a vulnerability identified before it becomes an incident."
+      }
+    },
+    {
+      "template_slug": "compliance-audit-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "data-privacy-impact",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Data Privacy Impact Assessment"
+      }
+    },
+    {
+      "template_slug": "data-privacy-impact",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: GDPR/CCPA privacy impact assessment. Data flows, risk evaluation, consent mechanisms, and compliance roadmap."
+      }
+    },
+    {
+      "template_slug": "data-privacy-impact",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "data-privacy-impact",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "data-privacy-impact",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "data-privacy-impact",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "data-privacy-impact",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "data-privacy-impact",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Data Type",
+          "Collection Method",
+          "Storage",
+          "Risk Level"
+        ],
+        "rows": [
+          [
+            "PII (name, email)",
+            "User registration",
+            "Encrypted at rest",
+            "Medium"
+          ],
+          [
+            "Usage analytics",
+            "Automatic tracking",
+            "Anonymized",
+            "Low"
+          ],
+          [
+            "Payment data",
+            "Stripe integration",
+            "Not stored locally",
+            "High"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "data-privacy-impact",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "data-privacy-impact",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Privacy by design costs 10x less than privacy by retrofit. Build it into the architecture from day one."
+      }
+    },
+    {
+      "template_slug": "data-privacy-impact",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "ml-model-deployment-deck",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "ML Model Deployment Deck"
+      }
+    },
+    {
+      "template_slug": "ml-model-deployment-deck",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Model deployment plan. Training data, evaluation metrics, A/B test results, monitoring strategy, and rollout phases."
+      }
+    },
+    {
+      "template_slug": "ml-model-deployment-deck",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "ml-model-deployment-deck",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "ml-model-deployment-deck",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "ml-model-deployment-deck",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "ml-model-deployment-deck",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "ml-model-deployment-deck",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Stage",
+          "Metric",
+          "Threshold",
+          "Status"
+        ],
+        "rows": [
+          [
+            "Training",
+            "Accuracy",
+            ">95%",
+            "97.2% \u2713"
+          ],
+          [
+            "Validation",
+            "F1 Score",
+            ">0.90",
+            "0.93 \u2713"
+          ],
+          [
+            "A/B Test",
+            "Conversion lift",
+            ">5%",
+            "8.3% \u2713"
+          ],
+          [
+            "Production",
+            "Latency P99",
+            "<100ms",
+            "Pending"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "ml-model-deployment-deck",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "ml-model-deployment-deck",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "A model in staging is worth nothing. Ship to production with monitoring, not perfection."
+      }
+    },
+    {
+      "template_slug": "ml-model-deployment-deck",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "analytics-dashboard-review",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Analytics Dashboard Review"
+      }
+    },
+    {
+      "template_slug": "analytics-dashboard-review",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Present your analytics insights. Dashboard walkthrough, key metrics, trends, anomalies, and recommended actions."
+      }
+    },
+    {
+      "template_slug": "analytics-dashboard-review",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "analytics-dashboard-review",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "analytics-dashboard-review",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "analytics-dashboard-review",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "analytics-dashboard-review",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "analytics-dashboard-review",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Dashboard",
+          "Audience",
+          "Update Freq",
+          "Key Insight"
+        ],
+        "rows": [
+          [
+            "Revenue",
+            "C-suite",
+            "Daily",
+            "MRR trend + forecast"
+          ],
+          [
+            "Product",
+            "PM team",
+            "Weekly",
+            "Feature adoption rates"
+          ],
+          [
+            "Support",
+            "CS team",
+            "Real-time",
+            "Ticket volume + CSAT"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "analytics-dashboard-review",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "analytics-dashboard-review",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "A dashboard nobody checks is worse than no dashboard. It creates a false sense of data-driven decision making."
+      }
+    },
+    {
+      "template_slug": "analytics-dashboard-review",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "ai-ethics-framework",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "AI Ethics Framework"
+      }
+    },
+    {
+      "template_slug": "ai-ethics-framework",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Responsible AI principles. Bias detection, fairness metrics, transparency requirements, and governance structure."
+      }
+    },
+    {
+      "template_slug": "ai-ethics-framework",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "ai-ethics-framework",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "ai-ethics-framework",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "ai-ethics-framework",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "ai-ethics-framework",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "ai-ethics-framework",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Principle",
+          "Implementation",
+          "Measurement",
+          "Owner"
+        ],
+        "rows": [
+          [
+            "Fairness",
+            "Bias testing on every release",
+            "Demographic parity score",
+            "ML team"
+          ],
+          [
+            "Transparency",
+            "Model cards for all models",
+            "Explainability audit",
+            "Product"
+          ],
+          [
+            "Privacy",
+            "Data minimization",
+            "PII scan results",
+            "Security"
+          ],
+          [
+            "Accountability",
+            "Human-in-the-loop for high-stakes",
+            "Override rate tracking",
+            "Ops"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "ai-ethics-framework",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "ai-ethics-framework",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Ethics is not a feature you ship once. It is a practice you maintain. Schedule quarterly bias reviews and publish the results."
+      }
+    },
+    {
+      "template_slug": "ai-ethics-framework",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "smart-slides-datacenter",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Smart Slides: Datacenter Architecture"
+      }
+    },
+    {
+      "template_slug": "smart-slides-datacenter",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Live adaptive datacenter pitch. Audience shares RPO, RTO, and budget during the meeting. Architecture and pricing slides regenerate in real-time. Uses live_input and adaptive_block."
+      }
+    },
+    {
+      "template_slug": "smart-slides-datacenter",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "smart-slides-datacenter",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "smart-slides-datacenter",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "smart-slides-datacenter",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "smart-slides-datacenter",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "smart-slides-datacenter",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Parameter",
+          "Input Source",
+          "Downstream Effect"
+        ],
+        "rows": [
+          [
+            "RPO",
+            "Live Input (slide 3)",
+            "Replication topology adapts"
+          ],
+          [
+            "RTO",
+            "Live Input (slide 3)",
+            "Failover architecture adapts"
+          ],
+          [
+            "Budget",
+            "Live Input (slide 3)",
+            "Pricing and sizing adapt"
+          ],
+          [
+            "Region",
+            "Voice Input",
+            "Compliance and latency adjust"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "smart-slides-datacenter",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "smart-slides-datacenter",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Smart Slides turn your presentation into a live configuration tool. The customer shares requirements, the deck adapts. No follow-up needed."
+      }
+    },
+    {
+      "template_slug": "smart-slides-datacenter",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
+    },
+    {
+      "template_slug": "smart-slides-voice-pricing",
+      "order_index": 0,
+      "type": "heading",
+      "content": {
+        "level": 1,
+        "text": "Smart Slides: Voice-Adaptive Pricing"
+      }
+    },
+    {
+      "template_slug": "smart-slides-voice-pricing",
+      "order_index": 1,
+      "type": "text",
+      "content": {
+        "text": "Purpose: Voice-powered sales deck. Speak naturally with the customer. AI extracts headcount, region, and tier from the conversation and regenerates pricing, ROI, and implementation timeline slides. Uses voice_input and adaptive_block."
+      }
+    },
+    {
+      "template_slug": "smart-slides-voice-pricing",
+      "order_index": 2,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Context"
+      }
+    },
+    {
+      "template_slug": "smart-slides-voice-pricing",
+      "order_index": 3,
+      "type": "two_col",
+      "content": {
+        "left": "Current situation. State 3 key facts and the primary constraint or trigger.",
+        "right": "Why this matters now. Connect to time, cost, risk, growth, or compliance."
+      }
+    },
+    {
+      "template_slug": "smart-slides-voice-pricing",
+      "order_index": 4,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Key Points"
+      }
+    },
+    {
+      "template_slug": "smart-slides-voice-pricing",
+      "order_index": 5,
+      "type": "list",
+      "content": {
+        "ordered": false,
+        "items": [
+          "Point 1: State the primary insight in one sentence",
+          "Point 2: Quantify the impact with specific numbers",
+          "Point 3: Define the decision or action required"
+        ]
+      }
+    },
+    {
+      "template_slug": "smart-slides-voice-pricing",
+      "order_index": 6,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Analysis"
+      }
+    },
+    {
+      "template_slug": "smart-slides-voice-pricing",
+      "order_index": 7,
+      "type": "table",
+      "content": {
+        "headers": [
+          "Parameter",
+          "Detection Method",
+          "Downstream Effect"
+        ],
+        "rows": [
+          [
+            "Headcount",
+            "Voice recognition",
+            "Per-seat pricing recalculates"
+          ],
+          [
+            "Region",
+            "Voice recognition",
+            "Compliance requirements adapt"
+          ],
+          [
+            "Tier",
+            "Voice recognition",
+            "Feature matrix adjusts"
+          ],
+          [
+            "Contract term",
+            "Voice recognition",
+            "Discount schedule adapts"
+          ]
+        ]
+      }
+    },
+    {
+      "template_slug": "smart-slides-voice-pricing",
+      "order_index": 8,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Recommendation"
+      }
+    },
+    {
+      "template_slug": "smart-slides-voice-pricing",
+      "order_index": 9,
+      "type": "callout",
+      "content": {
+        "icon": "\ud83d\udca1",
+        "text": "Voice-adaptive pricing removes the 'I'll get back to you' from sales meetings. The deck listens, extracts, and recalculates in real-time."
+      }
+    },
+    {
+      "template_slug": "smart-slides-voice-pricing",
+      "order_index": 10,
+      "type": "heading",
+      "content": {
+        "level": 2,
+        "text": "Next Steps"
+      }
     }
   ]
 }
