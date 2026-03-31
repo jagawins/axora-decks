@@ -24,7 +24,7 @@ const roadmapItems: RoadmapItem[] = [
   {
     title: "Template Gallery",
     description:
-      "90+ professionally designed templates for board decks, strategy presentations, and executive updates.",
+      "98 professionally designed templates for board decks, strategy presentations, and executive updates.",
     status: "shipped",
   },
   {

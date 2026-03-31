@@ -83,7 +83,7 @@ const EXAMPLE_PROMPTS = [
 const ENTRY_CARDS = [
   { id: "scratch", icon: Sparkles, title: "Start from scratch", description: "Describe your topic and let AI create" },
   { id: "smart", icon: Zap, title: "Create Smart Slide", description: "Slides that adapt live to audience input", href: "/create?prompt=Create+a+Smart+Slides+deck+with+live_input+blocks+for+audience+requirements+and+adaptive_blocks+that+regenerate+downstream+slides+based+on+those+inputs.+Include+voice_input+block+for+speech+recognition." },
-  { id: "template", icon: LayoutTemplate, title: "Use a template", description: "90+ executive-ready templates", href: "/templates" },
+  { id: "template", icon: LayoutTemplate, title: "Use a template", description: "98 executive-ready templates", href: "/templates" },
   { id: "import", icon: FileText, title: "Import content", description: "Paste notes, docs, or outlines" },
 ];
 
