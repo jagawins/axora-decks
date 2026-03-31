@@ -348,15 +348,40 @@ export default function DeckPlayer({
         />
 
         {viewMode === "deck" ? (
-          <DeckView
-            slide={slides[currentSlide]}
-            slideKey={slideKey}
-            animClass={animClass}
-            brandKit={brandKit}
-            onNavigateSlide={handleSlideLink}
-            onEditSlide={onEditSlide}
-            onQuickAction={onQuickAction}
-          />
+          <div className="relative flex-1 flex items-center justify-center">
+            <DeckView
+              slide={slides[currentSlide]}
+              slideKey={slideKey}
+              animClass={animClass}
+              brandKit={brandKit}
+              onNavigateSlide={handleSlideLink}
+              onEditSlide={onEditSlide}
+              onQuickAction={onQuickAction}
+            />
+
+            {/* Prominent prev/next side arrows */}
+            {totalSlides > 1 && currentSlide > 0 && (
+              <button onClick={prev}
+                className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-white/10 shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 group"
+                aria-label="Previous slide">
+                <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 text-white/80 group-hover:text-white" />
+              </button>
+            )}
+            {totalSlides > 1 && currentSlide < totalSlides - 1 && (
+              <button onClick={next}
+                className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-white/10 shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 group"
+                aria-label="Next slide">
+                <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 text-white/80 group-hover:text-white" />
+              </button>
+            )}
+
+            {/* Slide counter overlay */}
+            {totalSlides > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 text-white/70 text-xs font-medium">
+                {currentSlide + 1} / {totalSlides}
+              </div>
+            )}
+          </div>
         ) : (
           <DocumentView
             slides={slides}

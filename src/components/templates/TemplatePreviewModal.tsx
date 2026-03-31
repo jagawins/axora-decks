@@ -278,12 +278,13 @@ export function TemplatePreviewModal({
                   )}
 
                   {/* Prev arrow */}
-                  {!isMobile && currentSlide > 0 && (
+                  {currentSlide > 0 && (
                     <button
                       onClick={goPrev}
-                      className="absolute left-3 z-10 p-2.5 rounded-full bg-card/80 backdrop-blur-sm border border-border/30 shadow-lg hover:bg-card transition-colors"
+                      className="absolute left-2 sm:left-4 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-white/10 shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 group"
+                      aria-label="Previous slide"
                     >
-                      <ChevronLeft className="h-5 w-5 text-foreground" />
+                      <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 text-white/80 group-hover:text-white" />
                     </button>
                   )}
 
@@ -299,12 +300,13 @@ export function TemplatePreviewModal({
                   </div>
 
                   {/* Next arrow */}
-                  {!isMobile && currentSlide < totalSlides - 1 && (
+                  {currentSlide < totalSlides - 1 && (
                     <button
                       onClick={goNext}
-                      className="absolute right-3 z-10 p-2.5 rounded-full bg-card/80 backdrop-blur-sm border border-border/30 shadow-lg hover:bg-card transition-colors"
+                      className="absolute right-2 sm:right-4 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-white/10 shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 group"
+                      aria-label="Next slide"
                     >
-                      <ChevronRight className="h-5 w-5 text-foreground" />
+                      <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 text-white/80 group-hover:text-white" />
                     </button>
                   )}
                 </div>
