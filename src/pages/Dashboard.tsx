@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { trackABEvent } from '@/lib/ab-testing';
 import { Loader2, FileText, Plus, Sparkles, Upload, BarChart3, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -170,6 +171,15 @@ const Dashboard = () => {
   useEffect(() => {
     const checkoutStatus = searchParams.get('checkout');
     if (checkoutStatus === 'success') {
+      // Track the ultimate conversion event across all experiments
+      trackABEvent("pricing_pro_cta", "convert", "paid");
+      trackABEvent("pricing_pro_headline", "convert", "paid");
+      trackABEvent("pricing_social_proof", "convert", "paid");
+      trackABEvent("signup_cta", "convert", "paid");
+      trackABEvent("hero_headline", "convert", "paid");
+      trackABEvent("post_gen_banner", "convert", "paid");
+      trackABEvent("editor_nudge", "convert", "paid");
+      trackABEvent("upgrade_gate_cta", "convert", "paid");
       toast({
         title: 'Subscription activated!',
         description: 'Thank you for subscribing. Your account has been upgraded.',

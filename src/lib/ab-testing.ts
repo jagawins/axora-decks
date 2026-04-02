@@ -50,6 +50,28 @@ export const EXPERIMENTS: Record<string, Experiment> = {
     id: "hero_cta",
     variants: ["control", "try_free", "see_demo"],
   },
+  // Conversion funnel tests
+  pricing_pro_cta: {
+    id: "pricing_pro_cta",
+    variants: ["control", "urgency", "value_first"],
+  },
+  pricing_social_proof: {
+    id: "pricing_social_proof",
+    variants: ["control", "company_logos", "user_count"],
+  },
+  pricing_pro_headline: {
+    id: "pricing_pro_headline",
+    variants: ["control", "roi_angle", "time_saved"],
+  },
+  signup_cta: {
+    id: "signup_cta",
+    variants: ["control", "no_credit_card", "instant_deck"],
+  },
+  post_gen_upgrade: {
+    id: "post_gen_upgrade",
+    variants: ["control", "export_blocker", "feature_tease"],
+  },
+  // Existing experiments
   usage_meter_copy: {
     id: "usage_meter_copy",
     variants: ["control", "scarcity", "value"],

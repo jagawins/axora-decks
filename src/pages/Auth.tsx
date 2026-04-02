@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Mail, Lock, User, ArrowRight, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import { getVariant, trackABEvent } from '@/lib/ab-testing';
 import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
 
 const emailSchema = z.string().email('Please enter a valid email address');
@@ -65,6 +66,13 @@ const Auth = () => {
     if (!loading && user) navigate('/dashboard');
   }, [user, loading, navigate]);
 
+  // Track auth page impression for A/B testing
+  useEffect(() => {
+    if (mode === 'signup') {
+      trackABEvent("signup_cta", "impression");
+    }
+  }, [mode]);
+
   const validateEmail = () => {
     const result = emailSchema.safeParse(email);
     if (!result.success) {
@@ -103,6 +111,9 @@ const Auth = () => {
             variant: 'destructive',
           });
         } else {
+          trackABEvent("signup_cta", "convert", "email_signup");
+          trackABEvent("hero_headline", "convert", "signup_complete");
+          trackABEvent("pricing_pro_cta", "convert", "signup_complete");
           toast({ title: 'Welcome to AXIVA!', description: 'Your account has been created.' });
           navigate('/onboarding');
         }
@@ -137,6 +148,10 @@ const Auth = () => {
   };
 
   const handleOAuth = async (provider: 'google' | 'apple' | 'microsoft') => {
+    // Track OAuth signup intent
+    trackABEvent("signup_cta", "click", `oauth_${provider}`);
+    trackABEvent("hero_headline", "click", `oauth_${provider}`);
+
     setIsLoading(true);
     if (provider === 'apple') {
       const result = await lovable.auth.signInWithOAuth('apple', {
@@ -175,10 +190,18 @@ const Auth = () => {
             <img src={axivaWordmark} alt="AXIVA" className="h-8" />
           </a>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {mode === 'signup' ? 'Create your account' : mode === 'magic' ? 'Sign in with email' : 'Welcome back'}
+            {mode === 'signup' 
+              ? (getVariant("signup_cta") === "no_credit_card" ? "Start free, no credit card needed"
+                : getVariant("signup_cta") === "instant_deck" ? "Create your first deck in 60 seconds"
+                : "Create your account")
+              : mode === 'magic' ? 'Sign in with email' : 'Welcome back'}
           </h1>
           <p className="text-muted-foreground text-center">
-            {mode === 'signup' ? 'Start creating executive-grade presentations' : mode === 'magic' ? "We'll send you a magic link" : 'Sign in to continue to your dashboard'}
+            {mode === 'signup' 
+              ? (getVariant("signup_cta") === "no_credit_card" ? "98 executive templates. AI deck generation. Speech coaching. All free to start."
+                : getVariant("signup_cta") === "instant_deck" ? "Describe your topic. AI builds the structure, narrative, and visuals."
+                : "Start creating executive-grade presentations")
+              : mode === 'magic' ? "We'll send you a magic link" : 'Sign in to continue to your dashboard'}
           </p>
         </div>
 
