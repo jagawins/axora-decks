@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import SeoHead from "@/components/SeoHead";
 import Navbar from "@/components/landing/Navbar";
+import AIChatbot from "@/components/AIChatbot";
 import MarketingFooter from "@/components/MarketingFooter";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -275,6 +276,7 @@ export default function Webinars() {
         </section>
       </main>
       <MarketingFooter />
+      <AIChatbot />
     </>
   );
 }

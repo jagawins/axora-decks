@@ -3,6 +3,7 @@ import { ArrowRight, Sparkles, Brain, FileOutput, BarChart3, Timer, ExternalLink
 import { Link } from "react-router-dom";
 import MarketingHeader from "@/components/MarketingHeader";
 import Footer from "@/components/landing/Footer";
+import AIChatbot from "@/components/AIChatbot";
 import { cn } from "@/lib/utils";
 
 const heroFeatures = [
@@ -89,6 +90,7 @@ const Features = () => (
       </section>
     </main>
     <Footer />
+    <AIChatbot />
   </div>
 );
 

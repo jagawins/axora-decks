@@ -49,6 +49,11 @@
 - [AXIVA vs Gamma](https://axiva.ai/gamma-alternative): Feature comparison with Gamma
 - [AXIVA vs Beautiful.ai](https://axiva.ai/beautiful-ai-alternative): Feature comparison with Beautiful.ai
 
+### For Specific Audiences
+- [For Consultants](https://axiva.ai/for/consultants): Consulting-grade decks with answer-first structure
+- [For Founders](https://axiva.ai/for/founders): Pitch decks in Sequoia format, Series A/B/angel
+- [For Sales](https://axiva.ai/for/sales): Smart Slides that adapt pricing live during meetings
+
 ## Competitive Positioning
 
 AXIVA differentiates from competitors on three dimensions no other tool covers:

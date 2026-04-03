@@ -12,6 +12,7 @@ import SocialProof from "@/components/landing/SocialProof";
 import ConsultingMethodology from "@/components/landing/ConsultingMethodology";
 import ExecutiveShowcase from "@/components/landing/ExecutiveShowcase";
 import SlideInspiration from "@/components/landing/SlideInspiration";
+import AIChatbot from "@/components/AIChatbot";
 
 const Index = () => {
   return (
@@ -55,6 +56,7 @@ const Index = () => {
         <CTA />
       </main>
       <Footer />
+      <AIChatbot />
     </div>
   );
 };

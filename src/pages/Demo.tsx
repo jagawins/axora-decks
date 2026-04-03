@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import MarketingHeader from "@/components/MarketingHeader";
 import Footer from "@/components/landing/Footer";
+import AIChatbot from "@/components/AIChatbot";
 
 /* ═══════════════════════════════════════════════════════════════
    DEMO DATA — Full deck simulations
@@ -768,6 +769,7 @@ export default function Demo() {
       </main>
 
       <Footer />
+      <AIChatbot />
     </>
   );
 }
