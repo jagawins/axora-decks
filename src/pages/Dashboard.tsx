@@ -30,6 +30,7 @@ import ThemesLibrary from '@/components/themes/ThemesLibrary';
 import TimelineGenerator from '@/components/timelines/TimelineGenerator';
 import SlideInspiration from '@/components/slides/SlideInspiration';
 import LivePollCreator from '@/components/polls/LivePollCreator';
+import SocialContentGenerator from '@/components/social/SocialContentGenerator';
 
 interface Project {
   id: string;
@@ -755,6 +756,12 @@ const Dashboard = () => {
           {sidebarTab === 'live-polls' && (
             <div className="py-4">
               <LivePollCreator />
+            </div>
+          )}
+
+          {sidebarTab === 'social' && (
+            <div className="py-4">
+              <SocialContentGenerator />
             </div>
           )}
 

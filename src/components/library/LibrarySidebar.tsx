@@ -1,4 +1,4 @@
-import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown, Palette, Paintbrush, SwatchBook, BarChart3, CalendarDays, GalleryHorizontalEnd, Target, Zap } from "lucide-react";
+import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown, Palette, Paintbrush, SwatchBook, BarChart3, CalendarDays, GalleryHorizontalEnd, Target, Zap, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
@@ -52,6 +52,7 @@ const navItems = [
   { id: "executive", label: "Executive Hub", icon: Target, href: "/executive" },
   { id: "live-polls", label: "Live Polls", icon: BarChart3 },
   { id: "smart-slides", label: "Smart Slides", icon: Zap, href: "/create?prompt=Create+a+Smart+Slides+deck+with+live_input+blocks+for+capturing+audience+requirements+and+adaptive_blocks+that+regenerate+based+on+those+inputs.+Include+a+voice_input+block." },
+  { id: "social", label: "Social Posts", icon: Share2 },
   { id: "slides", label: "Slide Library", icon: GalleryHorizontalEnd },
   { id: "data-visuals", label: "Data & Visuals", icon: BarChart3 },
   { id: "timelines", label: "Timelines", icon: CalendarDays, pro: true },
