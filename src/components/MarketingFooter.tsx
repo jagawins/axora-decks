@@ -52,6 +52,36 @@ const MarketingFooter = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/for/consultants" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  For Consultants
+                </Link>
+              </li>
+              <li>
+                <Link to="/for/founders" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  For Founders
+                </Link>
+              </li>
+              <li>
+                <Link to="/for/sales" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  For Sales
+                </Link>
+              </li>
+              <li>
+                <Link to="/for/consultants" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  For Consultants
+                </Link>
+              </li>
+              <li>
+                <Link to="/for/founders" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  For Founders
+                </Link>
+              </li>
+              <li>
+                <Link to="/for/sales" className="text-sm text-muted-foreground hover:text-accent transition-colors">
+                  For Sales
+                </Link>
+              </li>
+              <li>
                 <Link to="/pricing" className="text-sm text-muted-foreground hover:text-accent transition-colors">
                   Pricing
                 </Link>

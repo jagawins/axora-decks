@@ -71,10 +71,13 @@ function addBlockToSlide(
   });
 
   if (showWatermark) {
-    slide.addText("Made with AXIVA", {
-      x: sx(8.5), y: sy(6.8), w: sx(3.5), h: sy(0.5),
-      fontSize: 12, fontFace: "Calibri", color: "AAAAAA",
-      align: "right", italic: true, transparency: 30,
+    slide.addText([
+      { text: "Made with ", options: { fontSize: 10, fontFace: "Calibri", color: "AAAAAA", italic: true } },
+      { text: "AXIVA", options: { fontSize: 10, fontFace: "Calibri", color: "7C3AED", bold: true, italic: true } },
+      { text: " — axiva.ai", options: { fontSize: 9, fontFace: "Calibri", color: "BBBBBB", italic: true, hyperlink: { url: "https://axiva.ai?ref=pptx" } } },
+    ], {
+      x: sx(6), y: sy(6.85), w: sx(6), h: sy(0.4),
+      align: "right", transparency: 20,
     });
   }
 
