@@ -1,12 +1,13 @@
 /**
- * SocialContentGenerator — Generate LinkedIn and Twitter posts
- * from your deck content.
+ * SocialContentGenerator v2 — Viral-quality LinkedIn and Twitter posts
  *
- * Two modes:
- * 1. From a deck: AI reads your slides and generates social posts
- * 2. From scratch: Pick a topic, AI generates thought leadership content
- *
- * Every post subtly includes AXIVA branding — viral marketing built in.
+ * Generates properly formatted posts with:
+ * - Hook-first structure (first 2 lines grab attention)
+ * - Short paragraphs with line breaks
+ * - Emoji usage where appropriate
+ * - Hashtag strategy
+ * - Image/diagram suggestions per post
+ * - Copy-paste ready formatting
  */
 
 import { useState, useCallback } from "react";
@@ -16,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Sparkles, Loader2, Copy, Check, RefreshCw, Twitter,
-  Linkedin, FileText, Zap, Hash, ArrowRight, ChevronDown,
+  Linkedin, ArrowRight, ChevronDown, Image,
 } from "lucide-react";
 
 type Platform = "linkedin" | "twitter";
@@ -28,7 +29,7 @@ const STYLES: { id: PostStyle; label: string; desc: string; icon: string }[] = [
   { id: "hot_take", label: "Hot Take", desc: "Bold opinion that sparks discussion", icon: "🔥" },
   { id: "how_to", label: "How-To / Tips", desc: "Practical advice in 3-5 steps", icon: "📝" },
   { id: "data_insight", label: "Data Insight", desc: "Lead with a surprising number", icon: "📈" },
-  { id: "announcement", label: "Product Announcement", desc: "Share a new feature or update", icon: "🚀" },
+  { id: "announcement", label: "Announcement", desc: "Share a new feature or update", icon: "🚀" },
 ];
 
 const TOPIC_SUGGESTIONS = [
@@ -41,7 +42,7 @@ const TOPIC_SUGGESTIONS = [
   "Smart Slides: presentations that adapt to what the audience says",
   "Stop using Slido as a separate tool",
   "Voice-powered presentations are here",
-  "98 templates later: what we learned about executive decks",
+  "I built a presentation tool and here is what I learned",
 ];
 
 interface GeneratedPost {
@@ -49,6 +50,7 @@ interface GeneratedPost {
   content: string;
   hashtags: string[];
   hookLine: string;
+  imageSuggestion?: string;
 }
 
 export default function SocialContentGenerator() {
@@ -68,82 +70,92 @@ export default function SocialContentGenerator() {
 
     try {
       const styleInfo = STYLES.find(s => s.id === style);
-      
+
       const { data, error } = await supabase.functions.invoke("generate-outline", {
         body: {
-          topic: "Social media content generation",
-          prompt: `Generate 3 ${platform === "linkedin" ? "LinkedIn" : "Twitter/X"} posts about this topic:
-
-TOPIC: ${topic}
-
-${deckContext ? `CONTEXT FROM DECK:\n${deckContext}\n` : ""}
-
-STYLE: ${styleInfo?.label} — ${styleInfo?.desc}
-
-PLATFORM RULES:
-${platform === "linkedin" ? `
-- LinkedIn posts should be 150-300 words
-- Start with a hook line (first 2 lines visible before "see more")
-- Use short paragraphs (1-2 sentences each)
-- Add line breaks between paragraphs for readability
-- End with a question or call to action
-- Include 3-5 relevant hashtags at the end
-- Mention AXIVA naturally if relevant (not forced)
-- Write in first person, conversational professional tone
-` : `
-- Twitter posts must be under 280 characters
-- Lead with the most compelling point
-- Use a thread format (3 tweets that work together)
-- Each tweet should stand alone but connect to the thread
-- Include 2-3 hashtags
-- Be punchy, direct, no fluff
-- Mention @inaxiva if naturally relevant
-`}
-
-FORMAT YOUR RESPONSE AS EXACTLY 3 SECTIONS:
----POST 1---
-[full post content including hashtags]
----POST 2---
-[full post content including hashtags]
----POST 3---
-[full post content including hashtags]
-
-Make each post genuinely useful and engaging. Not salesy. Write like a real executive sharing real insights, not a marketing team.`,
+          topic: topic,
+          prompt: platform === "linkedin"
+            ? buildLinkedInPrompt(topic, styleInfo, deckContext)
+            : buildTwitterPrompt(topic, styleInfo, deckContext),
           tone: "executive",
-          cardsCount: 1,
+          cardsCount: 3,
         },
       });
 
       if (error) throw error;
 
       const outline = data?.outline;
-      const responseText = outline?.sections?.map((s: any) =>
-        `${s.heading || ""}\n${s.bullets?.join("\n") || s.description || ""}`
-      ).join("\n\n") || "";
+      const sections = outline?.sections || [];
 
-      // Parse the 3 posts
-      const postTexts = responseText.split(/---POST \d+---/).filter((t: string) => t.trim());
-      
-      const generated: GeneratedPost[] = postTexts.slice(0, 3).map((text: string) => {
-        const clean = text.trim();
-        const hashtagMatch = clean.match(/#\w+/g);
-        const hashtags = hashtagMatch || [];
-        const hookLine = clean.split("\n")[0] || "";
+      // Build posts from outline sections
+      const generated: GeneratedPost[] = sections.slice(0, 3).map((section: any, i: number) => {
+        const heading = section.heading || "";
+        const desc = section.description || "";
+        const bullets = section.bullets || [];
+
+        let content: string;
+
+        if (platform === "linkedin") {
+          const parts: string[] = [];
+
+          // Hook line from heading
+          if (heading && !heading.toLowerCase().startsWith("post")) {
+            parts.push(heading);
+            parts.push("");
+          }
+
+          // Body paragraphs from description (split into short paras)
+          if (desc) {
+            const sentences = desc.split(/(?<=\.)\s+/);
+            for (let j = 0; j < sentences.length; j += 2) {
+              const para = sentences.slice(j, j + 2).join(" ").trim();
+              if (para) {
+                parts.push(para);
+                parts.push("");
+              }
+            }
+          }
+
+          // Bullet points as formatted lines
+          if (bullets.length > 0) {
+            bullets.forEach((b: string) => {
+              const clean = b.replace(/^[-•*]\s*/, "").trim();
+              if (clean) parts.push(clean);
+            });
+            parts.push("");
+          }
+
+          content = parts.join("\n").trim();
+
+          // Add hashtags if missing
+          if (!content.includes("#")) {
+            content += "\n\n" + generateHashtags(topic, style);
+          }
+        } else {
+          // Twitter: combine and truncate
+          const all = [heading, desc, ...bullets].filter(Boolean).join(" ").trim();
+          content = all.substring(0, 260);
+          if (!content.includes("#")) {
+            content += " " + generateHashtags(topic, style, 2);
+          }
+          if (content.length > 280) content = content.substring(0, 277) + "...";
+        }
+
         return {
           platform,
-          content: clean,
-          hashtags,
-          hookLine,
+          content,
+          hashtags: content.match(/#\w+/g) || [],
+          hookLine: content.split("\n")[0] || "",
+          imageSuggestion: getImageSuggestion(style, i),
         };
       });
 
       if (generated.length === 0) {
-        // Fallback: treat the whole response as one post
         generated.push({
           platform,
-          content: responseText.trim(),
-          hashtags: responseText.match(/#\w+/g) || [],
-          hookLine: responseText.split("\n")[0] || "",
+          content: "Generation returned empty. Try a more specific topic or add deck context.",
+          hashtags: [],
+          hookLine: "",
         });
       }
 
@@ -152,7 +164,7 @@ Make each post genuinely useful and engaging. Not salesy. Write like a real exec
       console.error("Social content generation failed:", err);
       setPosts([{
         platform,
-        content: "Generation failed. Try a more specific topic or check your connection.",
+        content: "Generation failed. Check your connection and try again.",
         hashtags: [],
         hookLine: "",
       }]);
@@ -169,7 +181,7 @@ Make each post genuinely useful and engaging. Not salesy. Write like a real exec
 
   const openInPlatform = (post: GeneratedPost) => {
     if (post.platform === "linkedin") {
-      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://axiva.ai")}`, "_blank");
+      window.open("https://www.linkedin.com/feed/?shareActive=true", "_blank");
     } else {
       window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.content)}`, "_blank");
     }
@@ -177,10 +189,9 @@ Make each post genuinely useful and engaging. Not salesy. Write like a real exec
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h2 className="text-xl font-bold">Social Content Generator</h2>
-        <p className="text-sm text-muted-foreground mt-1">Generate LinkedIn and Twitter posts from your deck content or any topic. Every share grows your reach.</p>
+        <p className="text-sm text-muted-foreground mt-1">Generate viral LinkedIn and Twitter posts. Each post includes a hook, formatted body, hashtags, and image suggestions.</p>
       </div>
 
       {/* Platform toggle */}
@@ -212,15 +223,11 @@ Make each post genuinely useful and engaging. Not salesy. Write like a real exec
         </div>
       </div>
 
-      {/* Topic input */}
+      {/* Topic */}
       <div>
         <label className="text-sm font-semibold mb-1.5 block">What do you want to post about?</label>
-        <Textarea
-          value={topic}
-          onChange={e => setTopic(e.target.value)}
-          placeholder="e.g., Why most board presentations fail in the first 30 seconds"
-          className="min-h-[72px]"
-        />
+        <Textarea value={topic} onChange={e => setTopic(e.target.value)}
+          placeholder="e.g., Why most board presentations fail in the first 30 seconds" className="min-h-[72px]" />
         <button onClick={() => setShowTopics(!showTopics)}
           className="text-[11px] text-accent font-medium mt-1.5 flex items-center gap-1 hover:underline">
           <Sparkles className="h-3 w-3" /> Topic suggestions
@@ -238,44 +245,38 @@ Make each post genuinely useful and engaging. Not salesy. Write like a real exec
         )}
       </div>
 
-      {/* Optional deck context */}
+      {/* Deck context */}
       <div>
         <label className="text-sm font-semibold mb-1.5 block">
-          Deck context <span className="text-muted-foreground font-normal">(optional)</span>
+          Deck context <span className="text-muted-foreground font-normal">(optional, paste key points)</span>
         </label>
-        <Textarea
-          value={deckContext}
-          onChange={e => setDeckContext(e.target.value)}
-          placeholder="Paste key points from your deck to make the post more specific..."
-          className="min-h-[56px]"
-        />
+        <Textarea value={deckContext} onChange={e => setDeckContext(e.target.value)}
+          placeholder="Paste key points, stats, or talking points from your deck..." className="min-h-[56px]" />
       </div>
 
-      {/* Generate button */}
+      {/* Generate */}
       <Button onClick={generate} disabled={generating || !topic.trim()} variant="hero" className="gap-2 w-full sm:w-auto">
         {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-        {generating ? "Generating 3 posts..." : `Generate ${platform === "linkedin" ? "LinkedIn" : "Twitter"} Posts`}
+        {generating ? "Writing 3 viral posts..." : `Generate ${platform === "linkedin" ? "LinkedIn" : "Twitter"} Posts`}
       </Button>
 
-      {/* Generated posts */}
+      {/* Results */}
       {posts.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
             {posts.length} post{posts.length > 1 ? "s" : ""} generated
           </h3>
           {posts.map((post, i) => (
             <div key={i} className="rounded-2xl border border-border/50 bg-card/30 overflow-hidden">
-              {/* Post header */}
+              {/* Header */}
               <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/30 bg-muted/20">
                 <div className="flex items-center gap-2">
-                  {platform === "linkedin" ? (
-                    <Linkedin className="h-4 w-4 text-[#0A66C2]" />
-                  ) : (
-                    <Twitter className="h-4 w-4" />
-                  )}
+                  {platform === "linkedin" ? <Linkedin className="h-4 w-4 text-[#0A66C2]" /> : <Twitter className="h-4 w-4" />}
                   <span className="text-xs font-medium">Post {i + 1}</span>
                   {platform === "twitter" && (
-                    <span className="text-[10px] text-muted-foreground">{post.content.length}/280</span>
+                    <span className={cn("text-[10px]", post.content.length > 280 ? "text-red-500 font-bold" : "text-muted-foreground")}>
+                      {post.content.length}/280
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center gap-1">
@@ -290,19 +291,126 @@ Make each post genuinely useful and engaging. Not salesy. Write like a real exec
               </div>
 
               {/* Post content */}
-              <div className="p-4">
-                <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {post.content}
-                </div>
+              <div className="p-4 sm:p-5">
+                <div className="whitespace-pre-wrap text-sm leading-relaxed">{post.content}</div>
               </div>
+
+              {/* Image suggestion */}
+              {post.imageSuggestion && (
+                <div className="border-t border-border/30 bg-amber-500/[0.03] px-4 py-3 flex items-start gap-2.5">
+                  <Image className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-0.5">Suggested image</p>
+                    <p className="text-xs text-muted-foreground">{post.imageSuggestion}</p>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
 
-          <Button variant="outline" className="gap-2" onClick={generate} disabled={generating}>
-            <RefreshCw className="h-4 w-4" /> Regenerate
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" className="gap-2" onClick={generate} disabled={generating}>
+              <RefreshCw className="h-4 w-4" /> Regenerate all
+            </Button>
+            <p className="text-[10px] text-muted-foreground">Each generation creates 3 unique variants</p>
+          </div>
         </div>
       )}
     </div>
   );
+}
+
+/* ── Prompt builders ─────────────────────────────────────── */
+
+function buildLinkedInPrompt(topic: string, styleInfo: any, deckContext: string): string {
+  return `Write 3 viral LinkedIn posts about: "${topic}"
+
+${deckContext ? `Use these specific details:\n${deckContext}\n` : ""}
+
+STYLE: ${styleInfo?.label} — ${styleInfo?.desc}
+
+RULES FOR EACH POST:
+1. HOOK (heading): First 1-2 lines MUST grab attention. Use a surprising stat, contrarian opinion, bold claim, or provocative question. This is what people see before clicking "see more."
+2. BODY (description): Write 4-6 short paragraphs. Each paragraph is 1-2 sentences max. This creates the scannable format that performs on LinkedIn.
+3. Use one of these proven formats:
+   - Story: "I used to think X. Then Y happened. Now I believe Z."
+   - Lesson: "3 things I learned about [topic]:"
+   - Contrarian: "Everyone says X. They are wrong. Here is why."
+   - Data-led: "X% of [thing]. That number changed how I see [topic]."
+4. CLOSING (last bullet): End with a question that invites comments or a clear takeaway. Add 3-5 hashtags.
+5. TONE: First person. Conversational. Like telling a smart colleague over coffee. Not corporate. Not salesy.
+6. Each of the 3 posts MUST use a DIFFERENT angle and hook style.
+
+Return heading as the hook line, description as the body, and bullets for key points/CTA/hashtags.`;
+}
+
+function buildTwitterPrompt(topic: string, styleInfo: any, deckContext: string): string {
+  return `Write 3 standalone Twitter/X posts about: "${topic}"
+
+${deckContext ? `Context:\n${deckContext}\n` : ""}
+
+STYLE: ${styleInfo?.label}
+
+RULES:
+1. Each MUST be under 260 characters (leave room for hashtags)
+2. Lead with the punchiest statement possible
+3. Be provocative enough to get quote tweets and replies
+4. Include 1-2 hashtags at the end
+5. No thread format. 3 standalone bangers.
+
+Return heading as the tweet text.`;
+}
+
+function generateHashtags(topic: string, style: PostStyle, count: number = 4): string {
+  const t = topic.toLowerCase();
+  const tags: string[] = ["#leadership"];
+
+  if (t.includes("presentation") || t.includes("deck") || t.includes("slide")) tags.push("#presentations", "#publicspeaking");
+  if (t.includes("ai") || t.includes("artificial")) tags.push("#AI", "#generativeAI");
+  if (t.includes("board") || t.includes("executive")) tags.push("#executivecommunication");
+  if (t.includes("startup") || t.includes("pitch")) tags.push("#startups", "#fundraising");
+  if (t.includes("sales") || t.includes("deal")) tags.push("#sales", "#B2B");
+  if (t.includes("consulting")) tags.push("#consulting", "#strategy");
+  if (style === "hot_take") tags.push("#unpopularopinion");
+  if (style === "how_to") tags.push("#productivity");
+  if (style === "data_insight") tags.push("#data");
+
+  return [...new Set(tags)].slice(0, count).join(" ");
+}
+
+function getImageSuggestion(style: PostStyle, index: number): string {
+  const suggestions: Record<PostStyle, string[]> = {
+    thought_leadership: [
+      "Text-on-image quote card: your boldest sentence in large white text on a dark gradient background with your name and title at the bottom.",
+      "Simple before/after diagram showing the old way vs your insight. Two columns, minimal design, dark background.",
+      "Screenshot a key slide from your deck with a red circle highlighting the key insight.",
+    ],
+    case_study: [
+      "KPI card with the headline result. Large number (e.g., '12.4 seconds'), small label, brand purple accent.",
+      "Before/after comparison. Left: old way in gray/red. Right: new result in green. Include the key metric.",
+      "Timeline: problem → solution → result. Three nodes connected by a line. Clean, minimal.",
+    ],
+    hot_take: [
+      "Bold text image: your hot take centered in large font on a solid dark background. No decoration, just the statement.",
+      "Two-column comparison: 'What everyone thinks' vs 'What actually works'. Simple icons, contrasting colors.",
+      "Meme-style: a relatable image with your contrarian take as an overlay. Professional but punchy.",
+    ],
+    how_to: [
+      "Numbered carousel: each step gets its own card with a large step number, icon, and one-line description.",
+      "Flowchart showing the process from start to finish. 3-5 steps, connected by arrows, clean layout.",
+      "Infographic: one row per tip, icon on the left, text on the right. Vertical, scannable.",
+    ],
+    data_insight: [
+      "Bar chart with one highlighted bar. The key stat in a different color, everything else in gray.",
+      "Giant number card: the headline stat in 72pt+ font with context in 14pt below it.",
+      "Trend line with an arrow pointing to the key inflection point. Minimal labels, clean axes.",
+    ],
+    announcement: [
+      "Product screenshot with a 'NEW' badge in the corner. Show the feature being used, not just a logo.",
+      "Feature comparison: 'Before' column vs 'Now' column. Check marks for new capabilities.",
+      "3-panel image: before → during → after. Showing the feature's impact visually.",
+    ],
+  };
+
+  return (suggestions[style] || suggestions.thought_leadership)[index % 3];
 }
