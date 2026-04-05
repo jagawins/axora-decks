@@ -103,7 +103,7 @@ export default function SocialProof() {
                     <span className={`block rounded-full transition-all duration-300 ${
                       i === active ? "bg-accent w-6 h-2" : "bg-muted-foreground/30 hover:bg-muted-foreground/50 w-2 h-2"
                     }`} />
-                  />
+                  </button>
                 ))}
               </div>
 
