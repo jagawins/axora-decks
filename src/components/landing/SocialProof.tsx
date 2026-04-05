@@ -98,9 +98,11 @@ export default function SocialProof() {
                     key={i}
                     onClick={() => setActive(i)}
                     aria-label={`Go to testimonial ${i + 1}`}
-                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                      i === active ? "bg-accent w-6" : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                    }`}
+                    className="relative w-6 h-6 flex items-center justify-center"
+                  >
+                    <span className={`block rounded-full transition-all duration-300 ${
+                      i === active ? "bg-accent w-6 h-2" : "bg-muted-foreground/30 hover:bg-muted-foreground/50 w-2 h-2"
+                    }`} />
                   />
                 ))}
               </div>
