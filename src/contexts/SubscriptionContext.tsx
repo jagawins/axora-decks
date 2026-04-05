@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SubscriptionTier, SubscriptionStatus } from '@/lib/subscription';
 import { invokeFunction } from '@/lib/supabase-function-client';
@@ -38,11 +38,23 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
   const [loading, setLoading] = useState(false);
 
   // Admin override: jagawins@gmail.com → Pro (build-trigger-v2)
+  // Deduplication: prevent multiple simultaneous calls
+  const checkInFlightRef = useRef(false);
+  const lastCheckRef = useRef(0);
+
   const checkSubscription = useCallback(async () => {
     if (!session?.access_token) {
       setSubscription(defaultSubscription);
       return;
     }
+
+    // Skip if already checking or checked within last 5 seconds
+    const now = Date.now();
+    if (checkInFlightRef.current || (now - lastCheckRef.current) < 5000) {
+      return;
+    }
+    checkInFlightRef.current = true;
+    lastCheckRef.current = now;
 
     setLoading(true);
     try {
@@ -103,6 +115,7 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
       setSubscription(defaultSubscription);
     } finally {
       setLoading(false);
+      checkInFlightRef.current = false;
     }
   }, [session?.access_token]);
 

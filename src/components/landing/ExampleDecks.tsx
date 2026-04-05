@@ -382,11 +382,29 @@ export default function ExampleDecks() {
     return () => { document.head.removeChild(el); };
   }, []);
 
+  // Lazy fetch: only load templates when this section scrolls into view
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const hasFetchedRef = useRef(false);
+
   useEffect(() => {
-    fetchExampleDecks()
-      .then(setExamples)
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    if (hasFetchedRef.current || !sectionRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasFetchedRef.current) {
+          hasFetchedRef.current = true;
+          fetchExampleDecks()
+            .then(setExamples)
+            .catch(console.error)
+            .finally(() => setLoading(false));
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" } // Start loading 200px before visible
+    );
+
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
   }, []);
 
   const handleUseTemplate = useCallback(async (templateId: string) => {
@@ -406,7 +424,7 @@ export default function ExampleDecks() {
   });
 
   return (
-    <section className="section-padding relative overflow-hidden">
+    <section ref={sectionRef} className="section-padding relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.015] to-transparent" />
       <div className="container-wide relative">
         {/* Header */}

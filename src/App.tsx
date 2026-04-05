@@ -8,61 +8,66 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LiveVariableProvider } from "@/components/blocks/LiveAdaptive";
-import Index from "./pages/Index";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import NewsletterAdmin from "./pages/NewsletterAdmin";
-import Editor from "./pages/Editor";
-import Preview from "./pages/Preview";
-import PublicPreview from "./pages/PublicPreview";
-import Print from "./pages/Print";
-import Present from "./pages/Present";
-import Create from "./pages/Create";
-import Templates from "./pages/Templates";
-import ExecutiveHub from "./pages/ExecutiveHub";
-import LivePolls from "./pages/LivePolls";
-import LivePollParticipant from "./pages/LivePollParticipant";
-import Webinars from "./pages/Webinars";
-import AllHands from "./pages/AllHands";
-import ForConsultants from "./pages/ForConsultants";
-import ForFounders from "./pages/ForFounders";
-import ForSales from "./pages/ForSales";
-import TemplateDetail from "./pages/TemplateDetail";
-import TemplateSEOPage from "./pages/TemplateSEOPage";
-import HowItWorks from "./pages/HowItWorks";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import Press from "./pages/Press";
-import Founder from "./pages/Founder";
-import Roadmap from "./pages/Roadmap";
-import GammaAlternative from "./pages/GammaAlternative";
-import GensparkAlternative from "./pages/GensparkAlternative";
-import PowerPointAI from "./pages/PowerPointAI";
-import PPTGenerator from "./pages/PPTGenerator";
-import ExecutiveDeckGenerator from "./pages/ExecutiveDeckGenerator";
-import AIDeckGenerator from "./pages/AIDeckGenerator";
-import AIPresentationMaker from "./pages/AIPresentationMaker";
-import Features from "./pages/Features";
-import Pricing from "./pages/Pricing";
-import AIIndex from "./pages/AIIndex";
-import About from "./pages/About";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import Contact from "./pages/Contact";
+import { lazy, Suspense } from "react";
+
+// ── Critical path: loaded eagerly (landing page) ──
+import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Demo from "./pages/Demo";
-import SettingsPage from "./pages/Settings";
-import Onboarding from "./pages/Onboarding";
-import FAQ from "./pages/FAQ";
-import InvestorPitchDeck from "./pages/InvestorPitchDeck";
-import BeautifulAiAlternative from "./pages/BeautifulAiAlternative";
-import BrandKitPage from "./pages/BrandKit";
-import HealthcareAIPresentations from "./pages/HealthcareAIPresentations";
-import NHSBoardPresentationGenerator from "./pages/NHSBoardPresentationGenerator";
-import APACEnterprisePresentations from "./pages/APACEnterprisePresentations";
-import ConversionDashboard from "./pages/ConversionDashboard";
-import Enterprise from "./pages/Enterprise";
+
+// ── Everything else: lazy loaded (code-split per route) ──
+const Auth = lazy(() => import("./pages/Auth"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const NewsletterAdmin = lazy(() => import("./pages/NewsletterAdmin"));
+const Editor = lazy(() => import("./pages/Editor"));
+const Preview = lazy(() => import("./pages/Preview"));
+const PublicPreview = lazy(() => import("./pages/PublicPreview"));
+const Print = lazy(() => import("./pages/Print"));
+const Present = lazy(() => import("./pages/Present"));
+const Create = lazy(() => import("./pages/Create"));
+const Templates = lazy(() => import("./pages/Templates"));
+const ExecutiveHub = lazy(() => import("./pages/ExecutiveHub"));
+const LivePolls = lazy(() => import("./pages/LivePolls"));
+const LivePollParticipant = lazy(() => import("./pages/LivePollParticipant"));
+const Webinars = lazy(() => import("./pages/Webinars"));
+const AllHands = lazy(() => import("./pages/AllHands"));
+const ForConsultants = lazy(() => import("./pages/ForConsultants"));
+const ForFounders = lazy(() => import("./pages/ForFounders"));
+const ForSales = lazy(() => import("./pages/ForSales"));
+const TemplateDetail = lazy(() => import("./pages/TemplateDetail"));
+const TemplateSEOPage = lazy(() => import("./pages/TemplateSEOPage"));
+const HowItWorks = lazy(() => import("./pages/HowItWorks"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const Press = lazy(() => import("./pages/Press"));
+const Founder = lazy(() => import("./pages/Founder"));
+const Roadmap = lazy(() => import("./pages/Roadmap"));
+const GammaAlternative = lazy(() => import("./pages/GammaAlternative"));
+const GensparkAlternative = lazy(() => import("./pages/GensparkAlternative"));
+const PowerPointAI = lazy(() => import("./pages/PowerPointAI"));
+const PPTGenerator = lazy(() => import("./pages/PPTGenerator"));
+const ExecutiveDeckGenerator = lazy(() => import("./pages/ExecutiveDeckGenerator"));
+const AIDeckGenerator = lazy(() => import("./pages/AIDeckGenerator"));
+const AIPresentationMaker = lazy(() => import("./pages/AIPresentationMaker"));
+const Features = lazy(() => import("./pages/Features"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const AIIndex = lazy(() => import("./pages/AIIndex"));
+const About = lazy(() => import("./pages/About"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Demo = lazy(() => import("./pages/Demo"));
+const SettingsPage = lazy(() => import("./pages/Settings"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const InvestorPitchDeck = lazy(() => import("./pages/InvestorPitchDeck"));
+const BeautifulAiAlternative = lazy(() => import("./pages/BeautifulAiAlternative"));
+const BrandKitPage = lazy(() => import("./pages/BrandKit"));
+const HealthcareAIPresentations = lazy(() => import("./pages/HealthcareAIPresentations"));
+const NHSBoardPresentationGenerator = lazy(() => import("./pages/NHSBoardPresentationGenerator"));
+const APACEnterprisePresentations = lazy(() => import("./pages/APACEnterprisePresentations"));
+const ConversionDashboard = lazy(() => import("./pages/ConversionDashboard"));
+const Enterprise = lazy(() => import("./pages/Enterprise"));
 
 const queryClient = new QueryClient();
 
@@ -78,6 +83,7 @@ const App = () => (
               <SubscriptionProvider>
               <LiveVariableProvider>
               <PWAInstallPrompt />
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" /></div>}>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/demo" element={<Demo />} />
@@ -135,6 +141,7 @@ const App = () => (
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </Suspense>
               </LiveVariableProvider>
               </SubscriptionProvider>
             </AuthProvider>

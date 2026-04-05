@@ -1,4 +1,5 @@
 import MarketingHeader from "@/components/MarketingHeader";
+import { Helmet } from "react-helmet-async";
 import Hero from "@/components/landing/Hero";
 import ValueTriplet from "@/components/landing/ValueTriplet";
 import Features from "@/components/landing/Features";
@@ -17,6 +18,12 @@ import AIChatbot from "@/components/AIChatbot";
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
+      {/* Prefetch most common next pages for instant navigation */}
+      <Helmet>
+        <link rel="prefetch" href="/auth" />
+        <link rel="prefetch" href="/demo" />
+        <link rel="prefetch" href="/create" />
+      </Helmet>
       <MarketingHeader />
       <main>
         {/* 1. Hero — prompt input + live preview + stats */}
