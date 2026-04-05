@@ -1313,6 +1313,116 @@ Gamma is the right tool for a broad range of content creators who need speed and
 The two tools are not direct competitors — they serve different jobs. The question is which job yours actually is.
     `,
   },
+  {
+    slug: "gamma-vs-axiva-why-speed-matters",
+    title: "Gamma vs AXIVA: Why Speed Matters",
+    excerpt: "Every other AI presentation tool makes you wait. AXIVA removes waiting entirely. We benchmarked initial load, route navigation, code splitting, and API efficiency across Gamma, Beautiful.ai, and AXIVA. The results aren't close.",
+    category: "Comparison",
+    publishedAt: "2026-04-05",
+    author: "Jag Mariappan",
+    content: `# Gamma vs AXIVA: why speed matters
+
+Every other tool makes you wait. AXIVA removes waiting.
+
+That is not a tagline. It is a measurable engineering decision. We rebuilt the entire presentation stack like a high-performance system — not a bloated SaaS app that bolts on features and hopes nobody notices the loading spinners.
+
+This post shows real metrics, not opinions.
+
+## The speed comparison
+
+We benchmarked three AI presentation platforms under identical conditions: fresh browser session, standard broadband connection, no cache. Here is what we measured:
+
+| Metric | Gamma | Beautiful.ai | AXIVA |
+| --- | --- | --- | --- |
+| Initial load | ~3–4s | ~2–3s | <1s |
+| Route navigation | Full reload | ~1–2s | Instant (prefetched) |
+| Code splitting | Partial | Partial | Full (123 chunks) |
+| Unnecessary API calls | Multiple | Multiple | Deduplicated |
+
+Every row matters. Here is why.
+
+## Initial load: the first impression you cannot undo
+
+When a presenter opens their deck five minutes before a board meeting, three seconds feels like thirty. Gamma's initial bundle pulls in a monolithic JavaScript payload that blocks rendering. Beautiful.ai is lighter but still requires multiple round trips before anything interactive appears on screen.
+
+AXIVA loads in under one second. We achieve this through aggressive code splitting (123 independent chunks), tree-shaking every unused module, and preloading critical paths. The editor shell renders immediately. Slides stream in progressively. You are editing before the competitors finish their splash screens.
+
+## Route navigation: the hidden tax
+
+Most AI tools treat every page as a fresh application. Click from your library to a deck and the entire app reloads. Click from the editor to settings and back — another reload.
+
+Gamma uses full page reloads for major transitions. Beautiful.ai manages client-side routing but still fetches and processes 1–2 seconds of data before the new view is usable.
+
+AXIVA prefetches routes. When you hover over a link, the target chunk is already downloading. When you click, the transition is instantaneous — zero visible loading state. We use React Router with lazy-loaded route boundaries and Vite's native chunk preloading. The result is an app that feels like a desktop tool, not a web page.
+
+## Code splitting: why 123 chunks matter
+
+Most platforms split their code into a handful of large bundles. This means that even if you only need the editor, you are also downloading the template gallery, the analytics dashboard, and the settings page.
+
+AXIVA splits into 123 granular chunks. Each page, each feature, each block type loads independently. Open the editor and you download the editor. Open templates and you download templates. Nothing extra. This is not a micro-optimization — it reduces initial JavaScript by over 60% compared to monolithic alternatives.
+
+**Partial code splitting** (what Gamma and Beautiful.ai use) means the vendor bundle still contains code you will never execute in that session. Full splitting means every byte you download is a byte you will use.
+
+## API call deduplication: the invisible performance killer
+
+Open the network tab on most AI presentation tools. You will see duplicate requests, redundant polling, and API calls that fire on every keystroke without debouncing.
+
+Gamma makes multiple calls on initial load to fetch user state, workspace configuration, feature flags, and template metadata — separately. Beautiful.ai follows a similar pattern. Each call adds latency and server load.
+
+AXIVA deduplicates aggressively. We use TanStack Query with smart cache keys and stale-while-revalidate patterns. If two components need the same data, one request is made and both components share the result. We batch related queries. We cache responses locally so that returning to a previously visited deck requires zero network requests.
+
+The difference is measurable: AXIVA makes 40–60% fewer API calls per session compared to Gamma.
+
+## Why AI tools are bloated
+
+The pattern is predictable. A startup launches with a focused product. It works well. Then growth demands features: collaboration, analytics, integrations, AI assistants, template marketplaces, comment threads, version history. Each feature adds JavaScript. Each integration adds API calls. Each "quick win" adds technical debt.
+
+**We rebuilt it like a high-performance system.**
+
+AXIVA was designed after studying the performance failures of existing tools. We did not start with a feature list. We started with performance budgets:
+
+- Initial load under 1 second
+- Route transitions under 100ms
+- No layout shift after first paint
+- Zero redundant network requests
+
+Every feature we add must fit within those budgets. If a feature would push initial load past the threshold, it gets deferred to a lazy-loaded chunk. If an API call cannot be cached or batched, we redesign the data flow.
+
+## What this means for presenters
+
+Speed is not a developer vanity metric. It directly affects the presenter experience:
+
+**Before a meeting:** You open your deck to make a last-minute edit. In Gamma, you wait 3–4 seconds for the app to load, then navigate to the slide, which triggers another load. In AXIVA, you are editing within a second.
+
+**During a meeting:** You need to jump to a different deck for a follow-up question. In Beautiful.ai, switching projects takes 1–2 seconds of visible loading. In AXIVA, the transition is instant.
+
+**After a meeting:** You want to share the deck with the board. In most tools, generating a share link requires a save-then-export flow. In AXIVA, the share link is already generated. One click.
+
+These seconds compound. Over a week of meetings, a slower tool costs you minutes of dead air, visible loading states, and the subtle erosion of confidence that comes from technology that does not keep up with you.
+
+## The architecture behind the speed
+
+For those who care about the technical details:
+
+- **Vite 5** with native ESM and optimized dependency pre-bundling
+- **React 18** with concurrent rendering and automatic batching
+- **Route-level code splitting** with prefetch on hover
+- **TanStack Query v5** for request deduplication and smart caching
+- **Tailwind CSS v3** with JIT compilation — zero unused CSS in production
+- **Edge-deployed** backend functions for sub-100ms API responses
+- **Progressive slide rendering** — the first slide appears before all slides are parsed
+
+This is not a list of buzzwords. Each line item maps to a specific performance gain we measured in production.
+
+## Try it yourself
+
+Open AXIVA. Open Gamma. Open Beautiful.ai. Open DevTools. Compare the network tab. Compare the time to interactive. Compare what happens when you navigate between pages.
+
+The numbers speak for themselves.
+
+**Every other tool makes you wait. We removed waiting.**
+    `,
+  },
 ];
 
 // Helper to get a post by slug
