@@ -74,6 +74,17 @@ export default function Preview() {
         setShowMobileShare(true);
       }
 
+      // Show speed toast if coming from generation
+      const speed = searchParams.get("speed");
+      if (speed && searchParams.get("new") === "1") {
+        setTimeout(() => {
+          toast({
+            title: `Deck generated in ${speed}s`,
+            description: `${blocksData?.length || 0} slides created. AXIVA is the fastest AI deck generator.`,
+          });
+        }, 500);
+      }
+
       const { data: blocksData, error: be } = await supabase
         .from("blocks")
         .select("*")

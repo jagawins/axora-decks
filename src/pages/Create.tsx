@@ -87,6 +87,20 @@ const ENTRY_CARDS = [
   { id: "import", icon: FileText, title: "Import content", description: "Paste notes, docs, or outlines" },
 ];
 
+/* ── Live generation timer ──────────────────────────────── */
+function GenerationTimer({ startTime }: { startTime: number | null }) {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (!startTime) return;
+    const interval = setInterval(() => {
+      setElapsed(Math.round((performance.now() - startTime) / 100) / 10);
+    }, 100);
+    return () => clearInterval(interval);
+  }, [startTime]);
+  if (!startTime) return null;
+  return <span className="ml-1 font-mono text-xs opacity-70">{elapsed.toFixed(1)}s</span>;
+}
+
 function normalizeBlockContent(type: string, content: Record<string, unknown>): Record<string, unknown> {
   const normalized = { ...content };
   
@@ -168,6 +182,8 @@ export default function Create() {
   const [visualsMode, setVisualsMode] = useState<VisualsMode>("stock");
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [genStartTime, setGenStartTime] = useState<number | null>(null);
+  const [genElapsed, setGenElapsed] = useState<number | null>(null);
   const [searchParams] = useSearchParams();
 
   // Auto-fill prompt from URL parameter (from Speech Prep, Timeline, etc.)
@@ -293,6 +309,8 @@ export default function Create() {
     }
 
     setGenerating(true);
+    setGenStartTime(performance.now());
+    setGenElapsed(null);
     if (isMobile) setMobileOverlayVisible(true);
 
     try {
@@ -388,7 +406,10 @@ Create exactly ${cardsCount} slides/cards.`;
       }
 
       toast({ title: "Deck created!", description: "Your AI-generated deck is ready." });
-      navigate(`/preview/${newProject.id}?new=1`);
+      const elapsed = genStartTime ? Math.round((performance.now() - genStartTime) / 1000 * 10) / 10 : null;
+      setGenElapsed(elapsed);
+      
+      navigate(`/preview/${newProject.id}?new=1&speed=${elapsed}`);
     } catch (error) {
       console.error("Generation error:", error);
       toast({
@@ -398,6 +419,7 @@ Create exactly ${cardsCount} slides/cards.`;
       });
     } finally {
       setGenerating(false);
+      setGenStartTime(null);
       setMobileOverlayVisible(false);
     }
   };
@@ -700,7 +722,7 @@ Create exactly ${cardsCount} slides/cards.`;
                 {generating ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                    Generating...
+                    Generating... <GenerationTimer startTime={genStartTime} />
                   </>
                 ) : (
                   <>

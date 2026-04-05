@@ -121,10 +121,10 @@ export default function SocialProof() {
         {/* Metric cards row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 max-w-4xl mx-auto">
           {[
-            { value: "< 5 min", label: "Average deck creation" },
+            { value: "< 15s", label: "Deck generation time" },
             { value: "98", label: "Executive templates" },
-            { value: "50×", label: "Faster than manual" },
-            { value: "99%", label: "Export success rate" },
+            { value: "3s", label: "Live poll creation" },
+            { value: "0", label: "Follow-up emails needed" },
           ].map((stat) => (
             <div
               key={stat.label}
