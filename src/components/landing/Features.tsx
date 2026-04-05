@@ -103,7 +103,7 @@ const Features = () => {
                 >
                   <block.icon className="h-5 w-5" style={{ color: block.color }} />
                 </div>
-                <h4 className="font-medium text-sm mb-0.5">{block.name}</h4>
+                <h3 className="font-medium text-sm mb-0.5">{block.name}</h3>
                 <p className="text-[11px] text-muted-foreground">{block.description}</p>
               </div>
             </div>

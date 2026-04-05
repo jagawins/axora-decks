@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           {/* Column 1: Product */}
           <div>
-            <h4 className="text-sm font-semibold mb-4">Product</h4>
+            <h3 className="text-sm font-semibold mb-4">Product</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/ai-deck-generator" className="text-sm text-muted-foreground hover:text-accent transition-colors">
@@ -36,7 +36,7 @@ const Footer = () => {
 
           {/* Column 2: Compare */}
           <div>
-            <h4 className="text-sm font-semibold mb-4">Compare</h4>
+            <h3 className="text-sm font-semibold mb-4">Compare</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/gamma-alternative" className="text-sm text-muted-foreground hover:text-accent transition-colors">
@@ -63,7 +63,7 @@ const Footer = () => {
 
           {/* Column 3: Resources */}
           <div>
-            <h4 className="text-sm font-semibold mb-4">Resources</h4>
+            <h3 className="text-sm font-semibold mb-4">Resources</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/templates" className="text-sm text-muted-foreground hover:text-accent transition-colors">
@@ -105,7 +105,7 @@ const Footer = () => {
 
           {/* Column 4: Company */}
           <div>
-            <h4 className="text-sm font-semibold mb-4">Company</h4>
+            <h3 className="text-sm font-semibold mb-4">Company</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/about" className="text-sm text-muted-foreground hover:text-accent transition-colors">
