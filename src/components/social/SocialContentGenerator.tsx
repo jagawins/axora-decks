@@ -127,16 +127,19 @@ export default function SocialContentGenerator() {
 
           content = parts.join("\n").trim();
 
-          // Add hashtags if missing
-          if (!content.includes("#")) {
-            content += "\n\n" + generateHashtags(topic, style);
-          }
+          // Add AXIVA branding + hashtags
+          const brandLine = "🔗 Built with AXIVA — axiva.ai";
+          const hashtags = content.includes("#") ? "" : "\n" + generateHashtags(topic, style);
+          content += "\n\n" + brandLine + hashtags;
         } else {
-          // Twitter: combine and truncate
+          // Twitter: combine and truncate, leave room for branding
           const all = [heading, desc, ...bullets].filter(Boolean).join(" ").trim();
-          content = all.substring(0, 260);
+          const brand = " via @inaxiva axiva.ai";
+          const hashStr = generateHashtags(topic, style, 2);
+          const maxLen = 280 - brand.length - hashStr.length - 2;
+          content = all.substring(0, maxLen) + brand;
           if (!content.includes("#")) {
-            content += " " + generateHashtags(topic, style, 2);
+            content += " " + hashStr;
           }
           if (content.length > 280) content = content.substring(0, 277) + "...";
         }
@@ -339,7 +342,8 @@ RULES FOR EACH POST:
    - Data-led: "X% of [thing]. That number changed how I see [topic]."
 4. CLOSING (last bullet): End with a question that invites comments or a clear takeaway. Add 3-5 hashtags.
 5. TONE: First person. Conversational. Like telling a smart colleague over coffee. Not corporate. Not salesy.
-6. Each of the 3 posts MUST use a DIFFERENT angle and hook style.
+6. AXIVA MENTION: Naturally weave in a mention of AXIVA (axiva.ai) as the tool you used or recommend. Don't force it. Examples: "I used AXIVA to generate this deck in 12 seconds" or "Tools like AXIVA are making this possible" or "This is what convinced me to build AXIVA."
+7. Each of the 3 posts MUST use a DIFFERENT angle and hook style.
 
 Return heading as the hook line, description as the body, and bullets for key points/CTA/hashtags.`;
 }
@@ -352,11 +356,12 @@ ${deckContext ? `Context:\n${deckContext}\n` : ""}
 STYLE: ${styleInfo?.label}
 
 RULES:
-1. Each MUST be under 260 characters (leave room for hashtags)
+1. Each MUST be under 220 characters (room for branding link)
 2. Lead with the punchiest statement possible
 3. Be provocative enough to get quote tweets and replies
 4. Include 1-2 hashtags at the end
-5. No thread format. 3 standalone bangers.
+5. Mention @inaxiva naturally in at least one of the three posts
+6. No thread format. 3 standalone bangers.
 
 Return heading as the tweet text.`;
 }
