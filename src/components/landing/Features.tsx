@@ -113,7 +113,7 @@ const Features = () => {
         {/* Comparison link */}
         <div className="text-center mb-14">
           <p className="text-muted-foreground">
-            Unlike Gamma, AXIVA generates structured blocks, not free-form slides.{" "}
+            Unlike Gamma, AXIVA generates structured blocks, not free-form slides. Decks in under 15 seconds, polls in 3 seconds.{" "}
             <Link to="/gamma-alternative" className="text-accent hover:underline">
               See the full comparison →
             </Link>

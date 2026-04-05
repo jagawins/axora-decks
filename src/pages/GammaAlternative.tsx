@@ -9,10 +9,14 @@ import CreatorNote from "@/components/landing/CreatorNote";
 
 const GammaAlternative = () => {
   const features = [
+    { feature: "Deck generation speed", axor: true, gamma: "30-60s" },
     { feature: "Structured block system", axor: true, gamma: "limited" },
+    { feature: "Speech prep + delivery coaching", axor: true, gamma: false },
+    { feature: "Live audience polls (QR code)", axor: true, gamma: false },
+    { feature: "Smart Slides (adapt in real-time)", axor: true, gamma: false },
     { feature: "Executive tone control", axor: true, gamma: "partial" },
     { feature: "PowerPoint-ready output", axor: true, gamma: "inconsistent" },
-    { feature: "Business tables & layouts", axor: true, gamma: "limited" },
+    { feature: "Voice-triggered adaptation", axor: true, gamma: false },
     { feature: "Designed for executives", axor: true, gamma: false },
     { feature: "AI refinement per block", axor: true, gamma: "limited" },
   ];

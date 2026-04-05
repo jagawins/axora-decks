@@ -207,7 +207,19 @@ export const ProjectCard = ({
     <div
       className="group relative rounded-xl border border-border bg-card/50 overflow-hidden hover:border-accent/30 transition-all cursor-pointer"
       onClick={() => onOpen(id)}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        // Prefetch blocks on hover for instant editor opening
+        if (!blocksLoaded) {
+          supabase.from('blocks').select('id, type, content, order_index').eq('project_id', id).order('order_index').limit(5)
+            .then(({ data }) => {
+              if (data) {
+                setBlocks(data.map(b => ({ id: b.id, type: b.type, content: (b.content || {}) as Record<string, unknown>, order_index: b.order_index })));
+                setBlocksLoaded(true);
+              }
+            });
+        }
+      }}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Cover / Preview */}
