@@ -85,6 +85,7 @@ export default function SocialProof() {
             <div className="flex items-center justify-center gap-4 mt-8">
               <button
                 onClick={prev}
+                aria-label="Previous testimonial"
                 className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted/50 transition-colors"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -96,6 +97,7 @@ export default function SocialProof() {
                   <button
                     key={i}
                     onClick={() => setActive(i)}
+                    aria-label={`Go to testimonial ${i + 1}`}
                     className={`w-2 h-2 rounded-full transition-all duration-300 ${
                       i === active ? "bg-accent w-6" : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
                     }`}
@@ -105,6 +107,7 @@ export default function SocialProof() {
 
               <button
                 onClick={next}
+                aria-label="Next testimonial"
                 className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted/50 transition-colors"
               >
                 <ChevronRight className="h-4 w-4" />

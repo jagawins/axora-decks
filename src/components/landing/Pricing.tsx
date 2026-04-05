@@ -218,6 +218,7 @@ const Pricing = () => {
               Monthly
             </span>
             <Switch
+              aria-label="Toggle annual billing"
               checked={isAnnual}
               onCheckedChange={setIsAnnual}
               className="data-[state=checked]:bg-accent"
