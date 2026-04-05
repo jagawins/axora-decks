@@ -207,6 +207,7 @@ export default function AIChatbot() {
 
       {/* Floating button */}
       <button onClick={() => setOpen(!open)}
+        aria-label={open ? "Close chat" : "Open chat"}
         className={cn(
           "fixed bottom-4 right-4 sm:right-6 z-50 w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95",
           open ? "bg-muted border border-border/50" : "bg-accent text-white hover:bg-accent/90"
