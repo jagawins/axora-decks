@@ -7,21 +7,21 @@ const steps = [
     icon: MessageSquare,
     title: "Describe your goal",
     description: "Paste meeting notes, an outline, or just type a one-liner. Our AI understands executive context.",
-    color: "#3B82F6",
+    color: "#2563EB",
   },
   {
     num: "02",
     icon: Wand2,
     title: "AI builds the deck",
     description: "Structured slides with visual blocks like charts, KPIs, timelines, comparisons, not generic bullet points.",
-    color: "#8B5CF6",
+    color: "#7C3AED",
   },
   {
     num: "03",
     icon: Download,
     title: "Present & export",
     description: "Present live, export to PowerPoint or PDF, or share a link. Apply your brand kit with one click.",
-    color: "#10B981",
+    color: "#059669",
   },
 ];
 

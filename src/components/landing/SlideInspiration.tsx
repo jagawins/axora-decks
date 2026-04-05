@@ -354,7 +354,7 @@ export default function SlideInspiration() {
               {/* Info */}
               <div className="p-3">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <span className="text-[8px] font-bold text-accent/60 uppercase tracking-wider">{pattern.source}</span>
+                  <span className="text-[8px] font-bold text-accent uppercase tracking-wider">{pattern.source}</span>
                 </div>
                 <p className="text-sm font-semibold leading-tight">{pattern.title}</p>
                 <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2">{pattern.description}</p>
