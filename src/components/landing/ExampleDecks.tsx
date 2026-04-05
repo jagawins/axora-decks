@@ -500,7 +500,7 @@ export default function ExampleDecks() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-white text-sm font-semibold tracking-tight">{card.title}</h4>
+                      <h3 className="text-white text-sm font-semibold tracking-tight">{card.title}</h3>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-white/50 text-[11px]">{card.industry}</span>
                         <span className="text-white/30">·</span>
