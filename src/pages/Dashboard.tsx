@@ -31,6 +31,7 @@ import TimelineGenerator from '@/components/timelines/TimelineGenerator';
 import SlideInspiration from '@/components/slides/SlideInspiration';
 import LivePollCreator from '@/components/polls/LivePollCreator';
 import SocialContentGenerator from '@/components/social/SocialContentGenerator';
+import WhatsNew from '@/components/WhatsNew';
 
 interface Project {
   id: string;
@@ -540,6 +541,8 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
+      {/* Feature showcase modal */}
+      <WhatsNew />
       {/* Sidebar — hidden on mobile */}
       <div className="hidden md:flex md:flex-col md:h-screen md:sticky md:top-0">
         <LibrarySidebar 
