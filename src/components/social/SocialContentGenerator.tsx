@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Sparkles, Loader2, Copy, Check, RefreshCw, Twitter,
-  Linkedin, ArrowRight, ChevronDown, Image,
+  Linkedin, ArrowRight, ChevronDown, Image, Download,
 } from "lucide-react";
 
 type Platform = "linkedin" | "twitter";
@@ -182,6 +182,93 @@ export default function SocialContentGenerator() {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const downloadImage = (post: GeneratedPost, index: number) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const W = 1200;
+    const H = 630;
+    canvas.width = W;
+    canvas.height = H;
+
+    // Background gradient
+    const grad = ctx.createLinearGradient(0, 0, W, H);
+    grad.addColorStop(0, "#0f0f14");
+    grad.addColorStop(1, "#1a1a2e");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle accent glow
+    const glowGrad = ctx.createRadialGradient(W * 0.8, H * 0.3, 0, W * 0.8, H * 0.3, 400);
+    glowGrad.addColorStop(0, "rgba(124, 58, 237, 0.08)");
+    glowGrad.addColorStop(1, "rgba(124, 58, 237, 0)");
+    ctx.fillStyle = glowGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Extract hook line (first meaningful line)
+    const lines = post.content.split("\n").filter(l => l.trim() && !l.startsWith("#") && !l.startsWith("🔗"));
+    const hookLine = lines[0] || post.hookLine || "Insight";
+    const bodyLines = lines.slice(1, 5).filter(l => l.trim() && !l.startsWith("#") && !l.startsWith("🔗"));
+
+    // Hook text (large, white)
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 42px system-ui, -apple-system, sans-serif";
+    const wrappedHook = wrapText(ctx, hookLine, W - 160);
+    let y = 80;
+    wrappedHook.forEach(line => {
+      ctx.fillText(line, 80, y);
+      y += 52;
+    });
+
+    // Accent line
+    y += 10;
+    ctx.fillStyle = "#7c3aed";
+    ctx.fillRect(80, y, 80, 4);
+    y += 30;
+
+    // Body text (smaller, gray)
+    ctx.fillStyle = "#a1a1aa";
+    ctx.font = "400 22px system-ui, -apple-system, sans-serif";
+    bodyLines.forEach(line => {
+      const clean = line.replace(/^[-•*]\s*/, "").trim();
+      if (!clean) return;
+      const wrapped = wrapText(ctx, clean, W - 160);
+      wrapped.forEach(wl => {
+        if (y < H - 100) {
+          ctx.fillText(wl, 80, y);
+          y += 30;
+        }
+      });
+      y += 8;
+    });
+
+    // Bottom bar with AXIVA branding
+    ctx.fillStyle = "rgba(124, 58, 237, 0.1)";
+    ctx.fillRect(0, H - 70, W, 70);
+
+    ctx.fillStyle = "#7c3aed";
+    ctx.font = "bold 20px system-ui, -apple-system, sans-serif";
+    ctx.fillText("AXIVA", 80, H - 30);
+
+    ctx.fillStyle = "#71717a";
+    ctx.font = "400 16px system-ui, -apple-system, sans-serif";
+    ctx.fillText("axiva.ai", 160, H - 30);
+
+    // Right side: platform icon hint
+    ctx.fillStyle = "#52525b";
+    ctx.font = "400 14px system-ui, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(platform === "linkedin" ? "linkedin.com" : "x.com", W - 80, H - 30);
+    ctx.textAlign = "left";
+
+    // Download
+    const link = document.createElement("a");
+    link.download = `axiva-post-${index + 1}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  };
+
   const openInPlatform = (post: GeneratedPost) => {
     if (post.platform === "linkedin") {
       window.open("https://www.linkedin.com/feed/?shareActive=true", "_blank");
@@ -285,7 +372,10 @@ export default function SocialContentGenerator() {
                 <div className="flex items-center gap-1">
                   <Button variant="ghost" size="sm" className="h-7 text-[10px] gap-1" onClick={() => copyPost(i)}>
                     {copied === i ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-                    {copied === i ? "Copied" : "Copy"}
+                    {copied === i ? "Copied" : "Copy text"}
+                  </Button>
+                  <Button variant="ghost" size="sm" className="h-7 text-[10px] gap-1" onClick={() => downloadImage(post, i)}>
+                    <Download className="h-3 w-3" /> Image
                   </Button>
                   <Button variant="ghost" size="sm" className="h-7 text-[10px] gap-1" onClick={() => openInPlatform(post)}>
                     <ArrowRight className="h-3 w-3" /> Post
@@ -293,9 +383,15 @@ export default function SocialContentGenerator() {
                 </div>
               </div>
 
-              {/* Post content */}
+              {/* Branded image card preview */}
               <div className="p-4 sm:p-5">
-                <div className="whitespace-pre-wrap text-sm leading-relaxed">{post.content}</div>
+                <BrandedImageCard post={post} index={i} style={style} />
+              </div>
+
+              {/* Text content (copy-paste ready) */}
+              <div className="border-t border-border/30 px-4 py-3 sm:px-5">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Post text (copy-paste ready)</p>
+                <div className="whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground max-h-40 overflow-y-auto">{post.content}</div>
               </div>
 
               {/* Image suggestion */}
@@ -303,7 +399,7 @@ export default function SocialContentGenerator() {
                 <div className="border-t border-border/30 bg-amber-500/[0.03] px-4 py-3 flex items-start gap-2.5">
                   <Image className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-0.5">Suggested image</p>
+                    <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-0.5">Additional image idea</p>
                     <p className="text-xs text-muted-foreground">{post.imageSuggestion}</p>
                   </div>
                 </div>
@@ -319,6 +415,70 @@ export default function SocialContentGenerator() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ── Text wrapping helper for canvas ──────────────────────── */
+
+function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let current = "";
+  for (const word of words) {
+    const test = current ? `${current} ${word}` : word;
+    if (ctx.measureText(test).width > maxWidth && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = test;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+/* ── Branded Image Card (inline preview) ─────────────────── */
+
+function BrandedImageCard({ post, index, style }: { post: GeneratedPost; index: number; style: PostStyle }) {
+  const lines = post.content.split("\n").filter(l => l.trim() && !l.startsWith("#") && !l.startsWith("🔗") && !l.startsWith("via @"));
+  const hookLine = lines[0] || "";
+  const bodyLines = lines.slice(1, 4).map(l => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean);
+
+  const ACCENT_COLORS: Record<PostStyle, string> = {
+    thought_leadership: "#7c3aed",
+    case_study: "#10b981",
+    hot_take: "#ef4444",
+    how_to: "#3b82f6",
+    data_insight: "#f59e0b",
+    announcement: "#ec4899",
+  };
+  const accent = ACCENT_COLORS[style] || "#7c3aed";
+
+  return (
+    <div className="rounded-xl overflow-hidden border border-border/30 bg-[#0f0f14] text-white aspect-[1200/630] relative flex flex-col justify-between p-6 sm:p-8">
+      {/* Subtle glow */}
+      <div className="absolute top-0 right-0 w-1/2 h-1/2 rounded-full opacity-10 blur-3xl" style={{ background: accent }} />
+
+      {/* Content */}
+      <div className="relative z-10 flex-1 flex flex-col justify-center">
+        <p className="text-base sm:text-lg md:text-xl font-bold leading-snug mb-3" style={{ lineHeight: 1.3 }}>
+          {hookLine}
+        </p>
+        <div className="w-12 h-1 rounded-full mb-3" style={{ backgroundColor: accent }} />
+        {bodyLines.map((line, j) => (
+          <p key={j} className="text-[10px] sm:text-xs text-gray-400 leading-relaxed mb-1">{line}</p>
+        ))}
+      </div>
+
+      {/* Bottom bar with branding */}
+      <div className="relative z-10 flex items-center justify-between pt-3 border-t border-white/10">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold" style={{ color: accent }}>AXIVA</span>
+          <span className="text-[10px] text-gray-500">axiva.ai</span>
+        </div>
+        <span className="text-[10px] text-gray-600">{post.platform === "linkedin" ? "linkedin.com" : "x.com"}</span>
+      </div>
     </div>
   );
 }
