@@ -179,7 +179,7 @@ const Pricing = () => {
 
     // A/B test the Pro CTA text
     if (plan.tier === "pro") {
-      if (ctaVariant === "urgency") return "Start Free Trial (Limited Time)";
+      if (ctaVariant === "urgency") return "Start Free Trial";
       if (ctaVariant === "value_first") return "Try Pro Free for 14 Days";
     }
     
