@@ -58,7 +58,7 @@ const Unsubscribe = () => {
 
   return (
     <>
-      <SeoHead title="Unsubscribe | AXIVA" description="Manage your email preferences" noIndex />
+      <SeoHead title="Unsubscribe | AXIVA" description="Manage your email preferences" canonicalPath="/unsubscribe" noIndex />
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="max-w-md w-full text-center space-y-6">
           {state === "loading" && (
