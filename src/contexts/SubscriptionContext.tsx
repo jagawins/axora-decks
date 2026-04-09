@@ -9,6 +9,7 @@ interface SubscriptionContextType {
   checkSubscription: () => Promise<void>;
   createCheckout: (priceId: string) => Promise<string | null>;
   openCustomerPortal: () => Promise<string | null>;
+  cancelSubscription: () => Promise<boolean>;
 }
 
 const defaultSubscription: SubscriptionStatus = {
