@@ -9,6 +9,7 @@ interface SubscriptionContextType {
   checkSubscription: () => Promise<void>;
   createCheckout: (priceId: string) => Promise<string | null>;
   openCustomerPortal: () => Promise<string | null>;
+  cancelSubscription: () => Promise<boolean>;
 }
 
 const defaultSubscription: SubscriptionStatus = {
@@ -165,6 +166,32 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
     }
   };
 
+  const cancelSubscription = async (): Promise<boolean> => {
+    if (!session?.access_token) {
+      console.error('No session available for cancellation');
+      return false;
+    }
+
+    try {
+      const response = await invokeFunction<{ success?: boolean; error?: string }>('cancel-subscription', undefined, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (response.error || !response.data?.success) {
+        console.error('Error canceling subscription:', response.error || response.data?.error);
+        return false;
+      }
+
+      // Refresh subscription state
+      lastCheckRef.current = 0;
+      await checkSubscription();
+      return true;
+    } catch (error) {
+      console.error('Error canceling subscription:', error);
+      return false;
+    }
+  };
+
   // Check subscription on mount and when user changes
   useEffect(() => {
     if (user) {
@@ -191,6 +218,7 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
     checkSubscription,
     createCheckout,
     openCustomerPortal,
+    cancelSubscription,
   };
 
   return (
