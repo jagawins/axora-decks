@@ -58,6 +58,7 @@ const Terms = lazy(() => import("./pages/Terms"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Demo = lazy(() => import("./pages/Demo"));
 const SettingsPage = lazy(() => import("./pages/Settings"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const InvestorPitchDeck = lazy(() => import("./pages/InvestorPitchDeck"));
@@ -138,6 +139,7 @@ const App = () => (
                 <Route path="/asia-pacific-enterprise-presentations" element={<APACEnterprisePresentations />} />
                 <Route path="/conversion" element={<ConversionDashboard />} />
                 <Route path="/enterprise" element={<Enterprise />} />
+                <Route path="/unsubscribe" element={<Unsubscribe />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
