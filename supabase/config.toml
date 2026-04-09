@@ -49,3 +49,7 @@ project_id = "isxdedybwhlxzeuymxcq"
     verify_jwt = false
   [functions.weekly-analytics]
     verify_jwt = false
+  [functions.cancel-subscription]
+    verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
