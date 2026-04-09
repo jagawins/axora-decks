@@ -859,9 +859,11 @@ function BrandTab({
 
 // ─── Billing Tab ──────────────────────────────────────────
 function BillingTab({ tier }: { tier: string }) {
-  const { subscription, createCheckout, openCustomerPortal } = useSubscription();
+  const { subscription, createCheckout, openCustomerPortal, cancelSubscription } = useSubscription();
   const { toast } = useToast();
   const [portalLoading, setPortalLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const [usage, setUsage] = useState<any>(null);
   useEffect(() => {
