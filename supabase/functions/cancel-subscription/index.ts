@@ -23,11 +23,12 @@ serve(async (req) => {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
-    );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false },
+    });
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
@@ -70,6 +71,23 @@ serve(async (req) => {
     // Cancel immediately
     const canceled = await stripe.subscriptions.cancel(subscription.id);
     logStep("Subscription canceled", { subscriptionId: canceled.id, status: canceled.status });
+
+    // Send cancellation confirmation email
+    const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split("@")[0] || "there";
+    try {
+      const emailResponse = await supabaseClient.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "subscription-canceled",
+          recipientEmail: user.email,
+          idempotencyKey: `cancel-${canceled.id}`,
+          templateData: { name: userName },
+        },
+      });
+      logStep("Cancellation email sent", { success: !emailResponse.error });
+    } catch (emailErr) {
+      // Non-fatal — log and continue
+      logStep("Failed to send cancellation email (non-fatal)", { error: String(emailErr) });
+    }
 
     return new Response(JSON.stringify({ success: true, status: canceled.status }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
