@@ -7,57 +7,78 @@ const corsHeaders = {
 };
 
 const DRIP_SCHEDULE = [
-  { key: "day0", daysAfterSignup: 0, subject: "Your deck is one prompt away", needsDeck: false, needsNoDeck: false },
-  { key: "day3", daysAfterSignup: 3, subject: "Here's a deck we made in 90 seconds", needsDeck: false, needsNoDeck: true },
-  { key: "day5", daysAfterSignup: 5, subject: "Here's what Pro unlocks", needsDeck: true, needsNoDeck: false },
-  { key: "day10", daysAfterSignup: 10, subject: "You're halfway through your trial", needsDeck: false, needsNoDeck: false },
-  { key: "day13", daysAfterSignup: 13, subject: "Your trial ends tomorrow", needsDeck: false, needsNoDeck: false },
+  { key: "day1", daysAfterSignup: 0, subject: "Welcome to Axiva — create your first deck", needsDeck: false, needsNoDeck: false },
+  { key: "day3", daysAfterSignup: 3, subject: "Haven't created a deck yet? Here's how", needsDeck: false, needsNoDeck: true },
+  { key: "day7", daysAfterSignup: 7, subject: "You're halfway through your trial — unlock these features", needsDeck: false, needsNoDeck: false },
+  { key: "day12", daysAfterSignup: 12, subject: "Your trial ends in 2 days — here's what you'll miss", needsDeck: false, needsNoDeck: false },
+  { key: "day14", daysAfterSignup: 14, subject: "Last day of your trial — special offer inside", needsDeck: false, needsNoDeck: false },
 ];
 
-function getEmailBody(key: string, appUrl: string): string {
+function getEmailBody(key: string, appUrl: string, hasDeck: boolean, hasExport: boolean, hasBrandKit: boolean): string {
   switch (key) {
-    case "day0":
+    case "day1":
       return `
-        <h2 style="margin:0 0 16px">Welcome to Axiva 👋</h2>
-        <p>Your first executive-grade deck is one prompt away.</p>
-        <p>Just describe what you need — "Seed round pitch for an AI startup" — and Axiva builds a polished presentation in under 2 minutes.</p>
-        <a href="${appUrl}/onboarding" style="display:inline-block;padding:12px 24px;background:#000;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:12px">Create Your First Deck →</a>
+        <h2 style="margin:0 0 16px;font-size:22px;color:#111">Welcome to Axiva 👋</h2>
+        <p style="color:#555;line-height:1.6">You've just unlocked 14 days of executive-grade presentations, powered by AI.</p>
+        <p style="color:#555;line-height:1.6">Here's your quickstart checklist:</p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0">
+          <tr><td style="padding:8px 0;color:#555">✅ Create your first deck (takes 90 seconds)</td></tr>
+          <tr><td style="padding:8px 0;color:#555">🎨 Set up your Brand Kit</td></tr>
+          <tr><td style="padding:8px 0;color:#555">📤 Export to PowerPoint</td></tr>
+          <tr><td style="padding:8px 0;color:#555">🔗 Share a deck with your team</td></tr>
+        </table>
+        <a href="${appUrl}/create" style="display:inline-block;padding:14px 28px;background:#0057C3;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">Create Your First Deck →</a>
       `;
     case "day3":
       return `
-        <h2 style="margin:0 0 16px">See what Axiva can do in 90 seconds ⚡</h2>
-        <p>We noticed you haven't created a deck yet. No worries — here's what a single prompt produces:</p>
-        <p><strong>Prompt:</strong> "Q4 board update with revenue metrics and strategic outlook"</p>
-        <p>→ 8 slides, structured narrative, data visualizations, executive formatting — all in under 2 minutes.</p>
-        <a href="${appUrl}/onboarding" style="display:inline-block;padding:12px 24px;background:#000;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:12px">Try It Now →</a>
+        <h2 style="margin:0 0 16px;font-size:22px;color:#111">Create a deck in under 2 minutes ⚡</h2>
+        <p style="color:#555;line-height:1.6">We noticed you haven't created a deck yet. Here's how easy it is:</p>
+        <div style="background:#f8f9fa;border-radius:8px;padding:20px;margin:16px 0">
+          <p style="margin:0 0 8px;color:#333;font-weight:600">Step 1:</p>
+          <p style="margin:0 0 16px;color:#555">Type a one-line prompt like "Q4 board update with revenue metrics"</p>
+          <p style="margin:0 0 8px;color:#333;font-weight:600">Step 2:</p>
+          <p style="margin:0 0 16px;color:#555">Axiva generates 8–12 structured slides with data visualizations</p>
+          <p style="margin:0 0 8px;color:#333;font-weight:600">Step 3:</p>
+          <p style="margin:0;color:#555">Edit, export to PowerPoint, or share a live link</p>
+        </div>
+        <a href="${appUrl}/create" style="display:inline-block;padding:14px 28px;background:#0057C3;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">Try It Now →</a>
       `;
-    case "day5":
+    case "day7":
       return `
-        <h2 style="margin:0 0 16px">Here's what Pro unlocks 🚀</h2>
-        <p>You've created your first deck — nice. Pro takes it further:</p>
-        <ul style="padding-left:20px">
-          <li><strong>Brand Kit</strong> — your logo, fonts, and colors on every slide</li>
-          <li><strong>PowerPoint export</strong> — fully editable .pptx files</li>
-          <li><strong>Unlimited decks</strong> — no generation limits</li>
-          <li><strong>Interactive blocks</strong> — Tabs, Toggle, Reveal for richer storytelling</li>
-          <li><strong>AI images</strong> — generated visuals that match your narrative</li>
-        </ul>
-        <p><strong>$28/mo</strong> — 14-day free trial, cancel anytime.</p>
-        <a href="${appUrl}/pricing" style="display:inline-block;padding:12px 24px;background:#000;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:12px">Start Free Trial →</a>
+        <h2 style="margin:0 0 16px;font-size:22px;color:#111">You're halfway through your trial ⏳</h2>
+        <p style="color:#555;line-height:1.6">Here are the top features you should try before your trial ends:</p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0">
+          ${!hasBrandKit ? '<tr><td style="padding:10px 0;border-bottom:1px solid #eee"><strong style="color:#333">🎨 Brand Kit</strong><br/><span style="color:#777;font-size:13px">Your logo, fonts, and colors on every slide</span></td></tr>' : ''}
+          ${!hasExport ? '<tr><td style="padding:10px 0;border-bottom:1px solid #eee"><strong style="color:#333">📤 PowerPoint Export</strong><br/><span style="color:#777;font-size:13px">Fully editable .pptx files your team can work with</span></td></tr>' : ''}
+          <tr><td style="padding:10px 0;border-bottom:1px solid #eee"><strong style="color:#333">🧩 Interactive Blocks</strong><br/><span style="color:#777;font-size:13px">Tabs, Toggle, Reveal for richer storytelling</span></td></tr>
+          <tr><td style="padding:10px 0;border-bottom:1px solid #eee"><strong style="color:#333">🖼️ AI Images</strong><br/><span style="color:#777;font-size:13px">Generated visuals that match your narrative</span></td></tr>
+          <tr><td style="padding:10px 0"><strong style="color:#333">📊 KPI Dashboards</strong><br/><span style="color:#777;font-size:13px">Automatic chart blocks from your data</span></td></tr>
+        </table>
+        <a href="${appUrl}/dashboard" style="display:inline-block;padding:14px 28px;background:#0057C3;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">Explore Features →</a>
       `;
-    case "day10":
+    case "day12":
       return `
-        <h2 style="margin:0 0 16px">You're halfway through your trial ⏳</h2>
-        <p>4 days left to experience everything Axiva Pro offers — unlimited deck generations, Brand Kit, PowerPoint export, interactive blocks, and more.</p>
-        <p>Don't let your trial expire without trying the features that make Axiva indispensable.</p>
-        <a href="${appUrl}/pricing" style="display:inline-block;padding:12px 24px;background:#000;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:12px">Upgrade Now — $28/mo →</a>
+        <h2 style="margin:0 0 16px;font-size:22px;color:#111">Your trial ends in 2 days 🔔</h2>
+        <p style="color:#555;line-height:1.6">Here's what you'll lose when your trial expires:</p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0">
+          <tr><td style="padding:8px 0;color:#555">❌ Unlimited deck generations</td></tr>
+          <tr><td style="padding:8px 0;color:#555">❌ Brand Kit customization</td></tr>
+          <tr><td style="padding:8px 0;color:#555">❌ PowerPoint export</td></tr>
+          <tr><td style="padding:8px 0;color:#555">❌ Interactive blocks (Tabs, Toggle, Reveal)</td></tr>
+          <tr><td style="padding:8px 0;color:#555">❌ AI-generated images</td></tr>
+        </table>
+        <p style="color:#555;line-height:1.6"><strong>$28/mo</strong> — 14-day refund guarantee. Zero risk.</p>
+        <a href="${appUrl}/pricing" style="display:inline-block;padding:14px 28px;background:#0057C3;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">Upgrade to Pro →</a>
       `;
-    case "day13":
+    case "day14":
       return `
-        <h2 style="margin:0 0 16px">Your trial ends tomorrow 🔔</h2>
-        <p>This is your last chance to lock in Axiva Pro before your account reverts to Free (3 deck limit, no Brand Kit, no PowerPoint export).</p>
-        <p><strong>$28/mo</strong> — and if you're not satisfied, we offer a full 14-day refund guarantee. Zero risk.</p>
-        <a href="${appUrl}/pricing" style="display:inline-block;padding:12px 24px;background:#000;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:12px">Keep Pro — Start Now →</a>
+        <h2 style="margin:0 0 16px;font-size:22px;color:#111">Last day — your trial expires tonight 🚨</h2>
+        <p style="color:#555;line-height:1.6">This is your final chance to keep Axiva Pro. After today, your account reverts to Free (3 deck limit, no Brand Kit, no PowerPoint export).</p>
+        <div style="background:#f0f7ff;border:1px solid #0057C3;border-radius:8px;padding:20px;margin:16px 0;text-align:center">
+          <p style="margin:0 0 4px;font-size:18px;font-weight:bold;color:#0057C3">Special offer: 20% off your first 3 months</p>
+          <p style="margin:0;color:#555;font-size:14px">Use code <strong>LAUNCH20</strong> at checkout</p>
+        </div>
+        <a href="${appUrl}/pricing" style="display:inline-block;padding:14px 28px;background:#0057C3;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">Keep Pro — Upgrade Now →</a>
       `;
     default:
       return "";
@@ -69,7 +90,6 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Authenticate: require CRON_SECRET as Bearer token
   const cronSecret = Deno.env.get("CRON_SECRET");
   const authHeader = req.headers.get("Authorization");
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
@@ -86,11 +106,9 @@ serve(async (req) => {
   );
 
   try {
-    const appUrl = req.headers.get("origin") || "https://axiva.ai";
-    
-    // Get all free-tier users who signed up in the last 14 days
-    const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
-    
+    const appUrl = "https://axiva.ai";
+    const fourteenDaysAgo = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString();
+
     const { data: users, error: usersError } = await supabase.auth.admin.listUsers({
       perPage: 1000,
     });
@@ -121,13 +139,22 @@ serve(async (req) => {
 
       if (sub && sub.tier !== "free") continue;
 
-      // Check if user has any decks
-      const { count: deckCount } = await supabase
-        .from("projects")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id);
+      // Check user activity for personalized content
+      const [
+        { count: deckCount },
+        { count: exportCount },
+        { data: profileData },
+      ] = await Promise.all([
+        supabase.from("projects").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("exports").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("brand_kit").eq("user_id", user.id).maybeSingle(),
+      ]);
 
       const hasDeck = (deckCount || 0) > 0;
+      const hasExport = (exportCount || 0) > 0;
+      const hasBrandKit = profileData?.brand_kit &&
+        typeof profileData.brand_kit === "object" &&
+        ((profileData.brand_kit as any)?.logoUrl || (profileData.brand_kit as any)?.primaryColor);
 
       // Check already sent emails
       const { data: sentEmails } = await supabase
@@ -143,12 +170,11 @@ serve(async (req) => {
         if (drip.needsNoDeck && hasDeck) continue;
         if (drip.needsDeck && !hasDeck) continue;
 
-        // Send email via Lovable AI (using LOVABLE_API_KEY)
-        const body = getEmailBody(drip.key, appUrl);
+        const body = getEmailBody(drip.key, appUrl, hasDeck, !!hasExport, !!hasBrandKit);
         const htmlEmail = `
           <!DOCTYPE html>
-          <html><head><meta charset="utf-8"></head>
-          <body style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#333;">
+          <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+          <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#333;background:#fff;">
             ${body}
             <hr style="margin-top:32px;border:none;border-top:1px solid #eee"/>
             <p style="font-size:12px;color:#999;margin-top:16px">Axiva — Executive-grade presentations, powered by AI.<br/>
@@ -156,7 +182,6 @@ serve(async (req) => {
           </body></html>
         `;
 
-        // Send via Resend
         const resendRes = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -179,7 +204,6 @@ serve(async (req) => {
         await resendRes.text();
         console.log(`[TRIAL-EMAILS] Sent "${drip.subject}" to ${user.email} (${drip.key})`);
 
-        // Record the send
         await supabase.from("trial_emails").insert({
           user_id: user.id,
           email_key: drip.key,
