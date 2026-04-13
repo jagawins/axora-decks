@@ -77,6 +77,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
+      allow_promotion_codes: true,
       subscription_data: isTrialEligible ? {
         trial_period_days: 14,
       } : undefined,
