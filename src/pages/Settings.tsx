@@ -863,7 +863,7 @@ function BillingTab({ tier }: { tier: string }) {
   const { toast } = useToast();
   const [portalLoading, setPortalLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const [usage, setUsage] = useState<any>(null);
   useEffect(() => {
