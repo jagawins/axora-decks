@@ -10,7 +10,9 @@ export interface TemplateEntry {
 }
 
 import { template as subscriptionCanceled } from './subscription-canceled.tsx'
+import { template as cancellationFeedback } from './cancellation-feedback.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'subscription-canceled': subscriptionCanceled,
+  'cancellation-feedback': cancellationFeedback,
 }
