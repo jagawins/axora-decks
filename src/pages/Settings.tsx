@@ -946,53 +946,39 @@ function BillingTab({ tier }: { tier: string }) {
                 Manage Subscription
               </Button>
 
-              {!showCancelConfirm ? (
-                <Button
+              <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setShowCancelConfirm(true)}
+                  onClick={() => setShowCancelModal(true)}
                   className="text-destructive hover:text-destructive hover:bg-destructive/10 text-xs"
                 >
                   Cancel Free Trial
                 </Button>
-              ) : (
-                <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-3">
-                  <p className="text-sm text-foreground font-medium">Are you sure you want to cancel?</p>
-                  <p className="text-xs text-muted-foreground">
-                    Your subscription will be canceled immediately and you'll lose access to Pro features.
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      disabled={cancelLoading}
-                      onClick={async () => {
-                        setCancelLoading(true);
-                        try {
-                          const success = await cancelSubscription();
-                          if (success) {
-                            toast({ title: "Subscription canceled", description: "You've been moved to the Free plan." });
-                            setShowCancelConfirm(false);
-                          } else {
-                            toast({ title: "Unable to cancel", description: "Please try again or contact support.", variant: "destructive" });
-                          }
-                        } catch {
-                          toast({ title: "Something went wrong", variant: "destructive" });
-                        } finally {
-                          setCancelLoading(false);
-                        }
-                      }}
-                      className="gap-1"
-                    >
-                      {cancelLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
-                      Yes, Cancel
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => setShowCancelConfirm(false)}>
-                      Keep Plan
-                    </Button>
-                  </div>
-                </div>
-              )}
+
+                <CancelFeedbackModal
+                  open={showCancelModal}
+                  onOpenChange={setShowCancelModal}
+                  cancelLoading={cancelLoading}
+                  onConfirmCancel={async () => {
+                    setCancelLoading(true);
+                    try {
+                      const success = await cancelSubscription();
+                      if (success) {
+                        toast({ title: "Subscription canceled", description: "You've been moved to the Free plan." });
+                        setShowCancelModal(false);
+                        return true;
+                      } else {
+                        toast({ title: "Unable to cancel", description: "Please try again or contact support.", variant: "destructive" });
+                        return false;
+                      }
+                    } catch {
+                      toast({ title: "Something went wrong", variant: "destructive" });
+                      return false;
+                    } finally {
+                      setCancelLoading(false);
+                    }
+                  }}
+                />
             </>
           ) : (
             <Button variant="hero" onClick={handleManageSubscription} disabled={portalLoading} className="gap-2">
