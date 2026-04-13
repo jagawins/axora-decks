@@ -24,6 +24,7 @@ import { SUBSCRIPTION_TIERS, getProjectLimit } from '@/lib/subscription';
 import { fetchTemplates, Template } from '@/lib/templates';
 import { FirstDeckModal } from '@/components/FirstDeckModal';
 import { BrandKitCard } from '@/components/dashboard/BrandKitCard';
+import { OnboardingChecklist } from '@/components/dashboard/OnboardingChecklist';
 import InfographicGenerator from '@/components/infographics/InfographicGenerator';
 import DataVisualsGenerator from '@/components/datavisuals/DataVisualsGenerator';
 import ThemesLibrary from '@/components/themes/ThemesLibrary';
@@ -568,6 +569,11 @@ const Dashboard = () => {
         <main className="flex-1 overflow-auto p-4 md:p-6 pb-24 md:pb-6">
           {sidebarTab === 'library' && (
             <>
+              {/* Onboarding checklist for trial users */}
+              <div className="mb-6">
+                <OnboardingChecklist />
+              </div>
+
               {/* Brand Kit Card - top of library */}
               <div className="mb-6">
                 <BrandKitCard />
