@@ -21,7 +21,7 @@ const steps = [
     icon: Download,
     title: "Present & export",
     description: "Present live, export to PowerPoint or PDF, or share a link. Apply your brand kit with one click.",
-    color: "#059669",
+    color: "#047857",
   },
 ];
 
