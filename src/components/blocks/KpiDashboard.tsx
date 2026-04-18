@@ -16,8 +16,7 @@ import {
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import type { KpiDashboardPayload } from './types';
 import type { VisualBlockProps } from './types';
-
-const PALETTE = ['#14b8a6', '#06b6d4', '#0ea5e9', '#6366f1', '#8b5cf6'];
+import { autoPalette, getPalette } from '@/lib/chart-palettes';
 
 function MiniChart({
   type = 'bar',
