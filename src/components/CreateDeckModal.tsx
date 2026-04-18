@@ -205,7 +205,7 @@ function injectImagesIntoBlocks(blocks: Block[], slots: ImageSlot[]): Block[] {
   });
 }
 
-export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckModalProps) {
+export function CreateDeckModal({ open, onOpenChange, onGenerate, initialTopic }: CreateDeckModalProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -216,6 +216,14 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
   // Setup form
   const [topic, setTopic] = useState("");
   const [audience, setAudience] = useState("");
+
+  // Apply initialTopic when modal opens
+  useEffect(() => {
+    if (open && initialTopic) {
+      setTopic(initialTopic);
+    }
+  }, [open, initialTopic]);
+
   const [goal, setGoal] = useState("");
   const [tone, setTone] = useState<ToneType>("professional");
   const [slideCountPreset, setSlideCountPreset] = useState<5 | 10 | 12 | "custom">(10);
