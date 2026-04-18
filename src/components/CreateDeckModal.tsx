@@ -444,167 +444,216 @@ export function CreateDeckModal({ open, onOpenChange, onGenerate }: CreateDeckMo
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {/* ── STEP 1: SETUP ── */}
           {step === "setup" && (
-            <div className="space-y-4">
-              {/* Consulting methodology badge */}
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-accent/5 border border-accent/10">
-                <div className="w-5 h-5 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
-                  <Sparkles className="h-3 w-3 text-accent" />
+            <div className="space-y-5">
+              {/* Hero headline + social proof */}
+              <div className="text-center space-y-2">
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+                  Describe your deck. AI does the rest.
+                </h2>
+                <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground flex-wrap">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Zap className="h-3.5 w-3.5 text-accent" />
+                    <span>Avg. 12 seconds</span>
+                  </span>
+                  <span className="text-border">•</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Users className="h-3.5 w-3.5 text-accent" />
+                    <span>2,400+ decks this week</span>
+                  </span>
+                  <span className="text-border">•</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-accent" />
+                    <span>Consulting-grade structure</span>
+                  </span>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
-                  <span className="font-semibold text-accent">Consulting-grade AI</span> — Answer-first structure, action titles, 70%+ visual density
-                </p>
               </div>
 
+              {/* Topic textarea */}
               <div className="space-y-2">
-                <Label htmlFor="topic">
-                  Topic <span className="text-destructive">*</span>
-                </Label>
                 <Textarea
                   id="topic"
-                  placeholder="e.g., Q3 2024 Sales Performance Review, Product Launch Strategy..."
+                  placeholder="e.g., Q3 board update covering revenue, key wins, and Q4 priorities…"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
-                  className="bg-muted/50 min-h-[80px]"
+                  className="bg-muted/50 min-h-[110px] text-base resize-none"
+                  autoFocus
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="audience">Target Audience</Label>
-                  <Input
-                    id="audience"
-                    placeholder="e.g., Board of Directors"
-                    value={audience}
-                    onChange={(e) => setAudience(e.target.value)}
-                    className="bg-muted/50"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="goal">Goal</Label>
-                  <Input
-                    id="goal"
-                    placeholder="e.g., Secure funding"
-                    value={goal}
-                    onChange={(e) => setGoal(e.target.value)}
-                    className="bg-muted/50"
-                  />
-                </div>
-              </div>
-
+              {/* One-click example prompts */}
               <div className="space-y-2">
-                <Label>Tone</Label>
-                <Select value={tone} onValueChange={(v) => setTone(v as ToneType)}>
-                  <SelectTrigger className="bg-muted/50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TONE_OPTIONS.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
-                        {o.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Slide count */}
-              <div className="space-y-2">
-                <Label>Number of Slides</Label>
-                <div
-                  className={cn(
-                    "flex gap-1 rounded-lg border border-border/60 bg-muted/30 p-1",
-                    decisionMode && "opacity-50 pointer-events-none"
-                  )}
-                >
-                  {PRESET_SLIDE_COUNTS.map((count) => (
-                    <button
-                      key={count}
-                      type="button"
-                      disabled={decisionMode}
-                      onClick={() => setSlideCountPreset(count)}
-                      className={cn(
-                        "flex-1 rounded-md py-1.5 text-sm font-medium transition-all",
-                        slideCountPreset === count
-                          ? "bg-background shadow-sm text-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      {count}
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    disabled={decisionMode}
-                    onClick={() => setSlideCountPreset("custom")}
-                    className={cn(
-                      "flex-1 rounded-md py-1.5 text-sm font-medium transition-all",
-                      slideCountPreset === "custom"
-                        ? "bg-background shadow-sm text-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    Custom
-                  </button>
-                </div>
-                {slideCountPreset === "custom" && !decisionMode && (
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      min={3}
-                      max={20}
-                      value={customSlideCount}
-                      onChange={(e) =>
-                        setCustomSlideCount(Math.min(20, Math.max(3, parseInt(e.target.value) || 3)))
-                      }
-                      className="bg-muted/50 w-24"
-                    />
-                    <span className="text-sm text-muted-foreground">slides (3–20)</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Visual density */}
-              <div className="space-y-2">
-                <Label>Visual Density</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  {DENSITY_OPTIONS.map((d) => (
-                    <button
-                      key={d.value}
-                      type="button"
-                      onClick={() => setDensity(d.value)}
-                      className={cn(
-                        "rounded-lg border p-3 text-left transition-all",
-                        density === d.value
-                          ? "border-accent bg-accent/10 text-foreground"
-                          : "border-border/60 bg-muted/20 text-muted-foreground hover:border-border hover:bg-muted/40"
-                      )}
-                    >
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <LayoutGrid className="w-3.5 h-3.5" />
-                        <span className="text-sm font-medium">{d.label}</span>
-                      </div>
-                      <p className="text-xs leading-snug">{d.description}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Decision mode */}
-              <div className="flex items-center justify-between rounded-lg border border-border/50 p-4 bg-muted/30">
-                <div className="space-y-0.5">
-                  <Label htmlFor="decisionMode" className="text-sm font-medium cursor-pointer">
-                    Decision Mode
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Executive brief with evidence and recommendations
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-accent" />
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Try one of these — click to fill
                   </p>
                 </div>
-                <Switch
-                  id="decisionMode"
-                  checked={decisionMode}
-                  onCheckedChange={setDecisionMode}
-                />
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {EXAMPLE_PROMPTS.map((ex) => (
+                    <button
+                      key={ex.label}
+                      type="button"
+                      onClick={() => {
+                        setTopic(ex.prompt);
+                        setTone(ex.tone);
+                      }}
+                      className="group rounded-lg border border-border/60 bg-muted/20 hover:border-accent/50 hover:bg-accent/5 p-3 text-left transition-all"
+                    >
+                      <div className="flex items-center gap-2 mb-1 text-accent">
+                        {ex.icon}
+                        <span className="text-xs font-semibold text-foreground">{ex.label}</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground line-clamp-2 leading-snug">
+                        {ex.prompt}
+                      </p>
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Advanced settings — collapsed by default */}
+              <Collapsible>
+                <CollapsibleTrigger className="group flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors w-full">
+                  <ChevronDown className="h-3.5 w-3.5 transition-transform group-data-[state=open]:rotate-180" />
+                  <span>Advanced settings (audience, tone, slide count, density)</span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-4 pt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="audience">Target Audience</Label>
+                      <Input
+                        id="audience"
+                        placeholder="e.g., Board of Directors"
+                        value={audience}
+                        onChange={(e) => setAudience(e.target.value)}
+                        className="bg-muted/50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="goal">Goal</Label>
+                      <Input
+                        id="goal"
+                        placeholder="e.g., Secure funding"
+                        value={goal}
+                        onChange={(e) => setGoal(e.target.value)}
+                        className="bg-muted/50"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Tone</Label>
+                    <Select value={tone} onValueChange={(v) => setTone(v as ToneType)}>
+                      <SelectTrigger className="bg-muted/50">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TONE_OPTIONS.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>
+                            {o.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Number of Slides</Label>
+                    <div
+                      className={cn(
+                        "flex gap-1 rounded-lg border border-border/60 bg-muted/30 p-1",
+                        decisionMode && "opacity-50 pointer-events-none"
+                      )}
+                    >
+                      {PRESET_SLIDE_COUNTS.map((count) => (
+                        <button
+                          key={count}
+                          type="button"
+                          disabled={decisionMode}
+                          onClick={() => setSlideCountPreset(count)}
+                          className={cn(
+                            "flex-1 rounded-md py-1.5 text-sm font-medium transition-all",
+                            slideCountPreset === count
+                              ? "bg-background shadow-sm text-foreground"
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          {count}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        disabled={decisionMode}
+                        onClick={() => setSlideCountPreset("custom")}
+                        className={cn(
+                          "flex-1 rounded-md py-1.5 text-sm font-medium transition-all",
+                          slideCountPreset === "custom"
+                            ? "bg-background shadow-sm text-foreground"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        Custom
+                      </button>
+                    </div>
+                    {slideCountPreset === "custom" && !decisionMode && (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          min={3}
+                          max={20}
+                          value={customSlideCount}
+                          onChange={(e) =>
+                            setCustomSlideCount(Math.min(20, Math.max(3, parseInt(e.target.value) || 3)))
+                          }
+                          className="bg-muted/50 w-24"
+                        />
+                        <span className="text-sm text-muted-foreground">slides (3–20)</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Visual Density</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {DENSITY_OPTIONS.map((d) => (
+                        <button
+                          key={d.value}
+                          type="button"
+                          onClick={() => setDensity(d.value)}
+                          className={cn(
+                            "rounded-lg border p-3 text-left transition-all",
+                            density === d.value
+                              ? "border-accent bg-accent/10 text-foreground"
+                              : "border-border/60 bg-muted/20 text-muted-foreground hover:border-border hover:bg-muted/40"
+                          )}
+                        >
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <LayoutGrid className="w-3.5 h-3.5" />
+                            <span className="text-sm font-medium">{d.label}</span>
+                          </div>
+                          <p className="text-xs leading-snug">{d.description}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-lg border border-border/50 p-4 bg-muted/30">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="decisionMode" className="text-sm font-medium cursor-pointer">
+                        Decision Mode
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Executive brief with evidence and recommendations
+                      </p>
+                    </div>
+                    <Switch
+                      id="decisionMode"
+                      checked={decisionMode}
+                      onCheckedChange={setDecisionMode}
+                    />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           )}
 
