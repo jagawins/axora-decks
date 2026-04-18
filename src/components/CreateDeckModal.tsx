@@ -63,6 +63,15 @@ const DENSITY_OPTIONS: { value: VisualDensity; label: string; description: strin
 const DECISION_BLOCK_TYPES = ["decision_summary", "evidence_map", "scenario_set", "recommendation_panel"] as const;
 const DECISION_BLOCK_ORDER = ["decision_summary", "evidence_map", "scenario_set", "recommendation_panel"];
 
+const EXAMPLE_PROMPTS: { icon: React.ReactNode; label: string; prompt: string; tone: ToneType }[] = [
+  { icon: <Briefcase className="w-4 h-4" />, label: "Q3 Board Update", prompt: "Q3 board update covering revenue growth, key wins, headcount changes, and strategic priorities for next quarter", tone: "executive" },
+  { icon: <Rocket className="w-4 h-4" />, label: "Series A Pitch", prompt: "Series A pitch deck for an AI-powered B2B SaaS startup with $2M ARR, 18% MoM growth, and a path to $20M ARR", tone: "persuasive" },
+  { icon: <TrendingUp className="w-4 h-4" />, label: "Product Launch Strategy", prompt: "Go-to-market strategy for launching a new enterprise product, including ICP, positioning, pricing, and 90-day plan", tone: "professional" },
+  { icon: <FileBarChart className="w-4 h-4" />, label: "Sales QBR", prompt: "Quarterly business review for the sales team: pipeline health, win/loss analysis, top accounts, and Q4 forecast", tone: "analytical" },
+  { icon: <Presentation className="w-4 h-4" />, label: "All-Hands Update", prompt: "Company all-hands update on progress against annual goals, team highlights, customer wins, and what's next", tone: "professional" },
+  { icon: <Megaphone className="w-4 h-4" />, label: "Strategic Recommendation", prompt: "Recommendation to leadership on whether to expand into the European market, including evidence and risks", tone: "executive" },
+];
+
 // Classify slide intent for visual hints
 function classifySlideIntent(heading: string): "data" | "strategy" | "decision" | "other" {
   const h = heading.toLowerCase();
