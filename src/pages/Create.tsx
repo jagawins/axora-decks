@@ -186,11 +186,12 @@ export default function Create() {
   const [genElapsed, setGenElapsed] = useState<number | null>(null);
   const [searchParams] = useSearchParams();
 
-  // Auto-fill prompt from URL parameter (from Speech Prep, Timeline, etc.)
+  // Auto-fill prompt from URL parameter (from Speech Prep, Timeline, Smart Slides, etc.)
   useEffect(() => {
     const urlPrompt = searchParams.get("prompt");
-    if (urlPrompt && !prompt) {
+    if (urlPrompt) {
       setPrompt(urlPrompt);
+      setActiveEntry("scratch");
     }
   }, [searchParams]);
   const [useBrandKit, setUseBrandKit] = useState(false);
@@ -238,6 +239,12 @@ export default function Create() {
   };
 
   const handleEntryClick = (cardId: string, href?: string) => {
+    // Smart Slide: set prompt and open scratch form directly
+    if (cardId === "smart") {
+      setPrompt("Create a Smart Slides deck with live_input blocks for capturing audience requirements (RPO, RTO, budget, headcount) and adaptive_blocks that regenerate downstream slides based on those inputs. Include a voice_input block for speech recognition.");
+      setActiveEntry("scratch");
+      return;
+    }
     if (href) {
       navigate(href);
       return;
