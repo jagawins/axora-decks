@@ -137,6 +137,7 @@ const Editor = () => {
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"edit" | "presentation">("edit");
   const [aiSidebarOpen, setAiSidebarOpen] = useState(false);
+  const [visualSuggestionsOpen, setVisualSuggestionsOpen] = useState(false);
 
   // Drag sensors
   const sensors = useSensors(
