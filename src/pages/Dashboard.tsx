@@ -164,6 +164,7 @@ const Dashboard = () => {
   // Modal state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreateAIOpen, setIsCreateAIOpen] = useState(false);
+  const [aiInitialTopic, setAiInitialTopic] = useState<string | undefined>(undefined);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [renameModalOpen, setRenameModalOpen] = useState(false);
   const [renameProjectId, setRenameProjectId] = useState<string | null>(null);
@@ -825,11 +826,19 @@ const Dashboard = () => {
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
         onSubmit={handleCreateProject}
+        onUseAI={(prefilledPrompt) => {
+          setAiInitialTopic(prefilledPrompt);
+          setIsCreateAIOpen(true);
+        }}
       />
 
       <CreateDeckModal
         open={isCreateAIOpen}
-        onOpenChange={setIsCreateAIOpen}
+        onOpenChange={(o) => {
+          setIsCreateAIOpen(o);
+          if (!o) setAiInitialTopic(undefined);
+        }}
+        initialTopic={aiInitialTopic}
       />
 
       <ImportContentModal
