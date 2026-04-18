@@ -31,6 +31,8 @@ import type { ImageSlot, ImageAsset, VisualDensity } from "@/types/visual-builde
 interface CreateDeckModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Optional pre-filled topic (e.g., from a starter card). Set when modal opens. */
+  initialTopic?: string;
   onGenerate?: (params: {
     topic: string;
     audience?: string;
