@@ -18,7 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Sparkles, ArrowRight, ArrowLeft, Image, LayoutGrid, FileText, Pencil, BarChart3, Target, Lightbulb } from "lucide-react";
+import { Loader2, Sparkles, ArrowRight, ArrowLeft, Image, LayoutGrid, FileText, Pencil, BarChart3, Target, Lightbulb, Zap, Users, ChevronDown, Briefcase, TrendingUp, Rocket, Presentation, FileBarChart, Megaphone } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
