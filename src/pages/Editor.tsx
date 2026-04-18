@@ -79,6 +79,7 @@ import MobileBlocksPanel from "@/components/editor/MobileBlocksPanel";
 import MobileAIPanel from "@/components/editor/MobileAIPanel";
 import BlockHoverToolbar from "@/components/editor/BlockHoverToolbar";
 import AgentChatSidebar from "@/components/editor/AgentChatSidebar";
+import { VisualSuggestionsSidebar } from "@/components/editor/VisualSuggestionsSidebar";
 import EditorToolset from "@/components/editor/EditorToolset";
 import { BLOCK_ICONS, getBlockIcon } from "@/lib/block-icons";
 import { BrandKitPanel } from "@/components/BrandKitPanel";
@@ -137,6 +138,7 @@ const Editor = () => {
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"edit" | "presentation">("edit");
   const [aiSidebarOpen, setAiSidebarOpen] = useState(false);
+  const [visualSuggestionsOpen, setVisualSuggestionsOpen] = useState(false);
 
   // Drag sensors
   const sensors = useSensors(
@@ -1097,6 +1099,18 @@ const Editor = () => {
               Share
             </Button>
 
+            {/* Visual Suggestions toggle */}
+            <Button
+              variant={visualSuggestionsOpen ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => setVisualSuggestionsOpen((v) => !v)}
+              title="Visual Suggestions"
+              className="gap-1.5"
+            >
+              <Palette className="h-4 w-4" />
+              Visuals
+            </Button>
+
             {/* Agent Sidebar toggle */}
             <Button
               variant={aiSidebarOpen ? "secondary" : "ghost"}
@@ -1391,6 +1405,16 @@ const Editor = () => {
             )}
           </div>
         </main>
+
+        {/* Right sidebar - Visual Suggestions (Napkin-style) */}
+        <VisualSuggestionsSidebar
+          open={visualSuggestionsOpen}
+          onClose={() => setVisualSuggestionsOpen(false)}
+          selectedBlock={selectedBlock || null}
+          onUpdateContent={(blockId, content) => {
+            updateBlock(blockId, content);
+          }}
+        />
 
         {/* Right sidebar - Agent Chat */}
         <AgentChatSidebar
