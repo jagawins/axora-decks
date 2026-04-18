@@ -826,11 +826,19 @@ const Dashboard = () => {
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
         onSubmit={handleCreateProject}
+        onUseAI={(prefilledPrompt) => {
+          setAiInitialTopic(prefilledPrompt);
+          setIsCreateAIOpen(true);
+        }}
       />
 
       <CreateDeckModal
         open={isCreateAIOpen}
-        onOpenChange={setIsCreateAIOpen}
+        onOpenChange={(o) => {
+          setIsCreateAIOpen(o);
+          if (!o) setAiInitialTopic(undefined);
+        }}
+        initialTopic={aiInitialTopic}
       />
 
       <ImportContentModal
