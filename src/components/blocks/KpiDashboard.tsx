@@ -16,8 +16,7 @@ import {
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import type { KpiDashboardPayload } from './types';
 import type { VisualBlockProps } from './types';
-
-const PALETTE = ['#14b8a6', '#06b6d4', '#0ea5e9', '#6366f1', '#8b5cf6'];
+import { autoPalette, getPalette } from '@/lib/chart-palettes';
 
 function MiniChart({
   type = 'bar',
@@ -81,7 +80,10 @@ function MiniChart({
 
 export function KpiDashboard({ payload, className = '' }: VisualBlockProps<KpiDashboardPayload>) {
   const { cards = [], title } = payload;
+  const paletteId = (payload as KpiDashboardPayload & { paletteId?: string }).paletteId;
   if (!cards.length) return null;
+
+  const palette = (paletteId ? getPalette(paletteId) : autoPalette(title || cards.map((c) => c.title).join(''))).colors;
 
   const TrendIcon = { up: TrendingUp, down: TrendingDown, neutral: Minus };
 
@@ -94,7 +96,7 @@ export function KpiDashboard({ payload, className = '' }: VisualBlockProps<KpiDa
       )}
       <div className="grid grid-cols-2 gap-4">
         {cards.slice(0, 4).map((card, i) => {
-          const color = card.color || PALETTE[i % PALETTE.length];
+          const color = card.color || palette[i % palette.length];
           const Icon = card.trend ? TrendIcon[card.trend] : null;
           const trendColor =
             card.trend === 'up'

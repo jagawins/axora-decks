@@ -21,15 +21,18 @@ import {
 } from 'recharts';
 import type { ChartBlockPayload } from './types';
 import type { VisualBlockProps } from './types';
-
-const DEFAULT_COLORS = ['#14b8a6', '#06b6d4', '#0ea5e9', '#6366f1', '#8b5cf6'];
+import { autoPalette, getPalette } from '@/lib/chart-palettes';
 
 export function ChartBlock({ payload, className = '' }: VisualBlockProps<ChartBlockPayload>) {
   const { chartType = 'bar', data = [], title, xLabel, yLabel, colors } = payload;
+  // Optional explicit paletteId on payload (set by variant picker / generator)
+  const paletteId = (payload as ChartBlockPayload & { paletteId?: string }).paletteId;
 
   if (!data.length) return null;
 
-  const palette = colors?.length ? colors : DEFAULT_COLORS;
+  const palette = colors?.length
+    ? colors
+    : (paletteId ? getPalette(paletteId) : autoPalette(title || data.map((d) => d.label).join(''))).colors;
   const chartData = data.map((d) => ({ name: d.label, value: d.value }));
 
   const axisProps = {
@@ -137,9 +140,9 @@ export function ChartBlock({ payload, className = '' }: VisualBlockProps<ChartBl
             <Line
               type="monotone"
               dataKey="value"
-              stroke="hsl(var(--primary))"
+              stroke={palette[0]}
               strokeWidth={2}
-              dot={{ fill: 'hsl(var(--primary))', r: 4 }}
+              dot={{ fill: palette[0], r: 4 }}
               activeDot={{ r: 6 }}
             />
           </LineChart>
@@ -153,7 +156,11 @@ export function ChartBlock({ payload, className = '' }: VisualBlockProps<ChartBl
             <XAxis {...axisProps.x} />
             <YAxis {...axisProps.y} />
             <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+              {chartData.map((_, i) => (
+                <Cell key={i} fill={palette[i % palette.length]} />
+              ))}
+            </Bar>
           </BarChart>
         );
       }
