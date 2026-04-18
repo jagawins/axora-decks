@@ -140,9 +140,9 @@ export function ChartBlock({ payload, className = '' }: VisualBlockProps<ChartBl
             <Line
               type="monotone"
               dataKey="value"
-              stroke="hsl(var(--primary))"
+              stroke={palette[0]}
               strokeWidth={2}
-              dot={{ fill: 'hsl(var(--primary))', r: 4 }}
+              dot={{ fill: palette[0], r: 4 }}
               activeDot={{ r: 6 }}
             />
           </LineChart>
