@@ -156,7 +156,11 @@ export function ChartBlock({ payload, className = '' }: VisualBlockProps<ChartBl
             <XAxis {...axisProps.x} />
             <YAxis {...axisProps.y} />
             <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+              {chartData.map((_, i) => (
+                <Cell key={i} fill={palette[i % palette.length]} />
+              ))}
+            </Bar>
           </BarChart>
         );
       }
