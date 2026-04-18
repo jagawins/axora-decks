@@ -1406,6 +1406,16 @@ const Editor = () => {
           </div>
         </main>
 
+        {/* Right sidebar - Visual Suggestions (Napkin-style) */}
+        <VisualSuggestionsSidebar
+          open={visualSuggestionsOpen}
+          onClose={() => setVisualSuggestionsOpen(false)}
+          selectedBlock={selectedBlock || null}
+          onUpdateContent={(blockId, content) => {
+            updateBlock(blockId, content);
+          }}
+        />
+
         {/* Right sidebar - Agent Chat */}
         <AgentChatSidebar
           open={aiSidebarOpen}
