@@ -75,7 +75,7 @@ function validateRequest(body: unknown): ValidationResult {
     valid: true,
     sanitized: {
       prompt: sanitizedPrompt,
-      topic: topic.trim(),
+      topic: sanitizedTopic.trim(),
       tone: sanitizedTone,
       density: sanitizedDensity,
       cardsCount: sanitizedCardsCount,
