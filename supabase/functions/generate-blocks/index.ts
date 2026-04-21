@@ -1123,6 +1123,13 @@ ${decisionModePrompt}
 NEVER return {"type": "decision_summary", "content": {}} - this will fail validation.`
     : `You are an expert presentation designer trained in McKinsey, BCG, and Bain consulting slide methodology. You combine strategic structure with compelling visual storytelling to create presentations that get approvals.
 
+═══ SLIDE GROUPING (CRITICAL — prevents 65-slide decks) ═══
+- Each outline section = ONE slide (heading + ONE rich content block)
+- NEVER make a separate block for each bullet point
+- Group all bullets from a section into a SINGLE list, table, or visual block
+- A 10-section outline should produce ~12-15 total blocks, NOT 40-65
+- If you create more than 3 blocks per section, you are doing it wrong
+
 ═══ BCG/McKINSEY SLIDE METHODOLOGY ═══
 - ACTION TITLES: Every heading block must state a complete takeaway, not a topic. "Revenue grew 23% YoY driven by APAC expansion" not "Revenue Overview"
 - THREE LAYERS per slide: (1) Action title stating the takeaway, (2) Sub-context supporting the title, (3) Visual evidence (chart, table, framework)
@@ -2082,23 +2089,46 @@ Key Points:
 ${outline.bullets.map(b => `- ${b}`).join("\n")}
 
 CRITICAL: Generate exactly 4 blocks in order: decision_summary, evidence_map, scenario_set, recommendation_panel. Never invent numbers - use "Not provided" if missing.`
-      : `Convert this outline into presentation blocks. Use visual block types where content matches the rules.
+      : `Convert this outline into a professional presentation. Each outline section becomes ONE rich slide (not multiple thin slides).
 
 Title: ${outline.title}
 Summary: ${outline.summary}
 
-Sections (each section = one or more slides, sectionIndex is 0-based):
+Sections (each section = exactly ONE slide with rich content):
 ${outline.sections.map((s, i) => `Section ${i} (sectionIndex=${i}). "${s.heading}"\n${s.points.map(p => `   - ${p}`).join("\n")}`).join("\n\n")}
 
 Key Takeaways:
 ${outline.bullets.map(b => `- ${b}`).join("\n")}
 
-IMPORTANT: Every block's content MUST include "sectionIndex" (integer, 0-based) indicating which outline section it belongs to.
-For each section, classify its intent and use the required visual block:
-- "Revenue/Performance/Growth/Metrics" sections → chart_block or stat_block (with correct sectionIndex)
-- "Strategy/Framework/Pillars/Vision" sections → three_pillars or two_by_two_matrix (with correct sectionIndex)
-- "Recommendation/Next Steps/Decision" sections → decision_next_steps (with correct sectionIndex)
-${targetSlideCount ? `\nSLIDE COUNT REQUIREMENT: Generate exactly ${targetSlideCount} content blocks. Section_dividers and heading blocks do NOT count toward this total.` : ''}`;
+CRITICAL SLIDE GROUPING RULES:
+1. Each outline section becomes exactly 2-3 blocks: one heading (action title) + one rich content block (list, table, stat_block, chart_block, comparison_table, etc.)
+2. NEVER create a separate block for each bullet point. Group all bullets from one section into a SINGLE list, table, or visual block.
+3. Total output should be ${outline.sections.length * 2 + 2} to ${outline.sections.length * 3 + 2} blocks (not 40-65 blocks).
+4. The presentation should have roughly ${outline.sections.length + 2} slides (title + sections + closing), NOT one slide per bullet.
+5. Every block's content MUST include "sectionIndex" (integer, 0-based).
+
+SLIDE PATTERN (repeat for each section):
+  { type: "heading", content: { level: 2, text: "[ACTION TITLE from section]", sectionIndex: N } }
+  { type: "[visual_block_type]", content: { [rich content combining ALL points from this section], sectionIndex: N } }
+
+For visual block selection per section:
+- Sections with metrics/numbers → stat_block or chart_block
+- Sections with comparisons → comparison_table or two_col
+- Sections with 3+ features/pillars → three_pillars or card_grid
+- Sections with steps/timeline → timeline_block
+- Sections with bullet points → list (combine ALL bullets into ONE list block)
+- Summary/recommendation sections → exec_summary or decision_next_steps
+
+WRONG (creates 65 slides):
+  heading: "Problem"
+  text: "The answer is buried"
+  text: "Slides are overloaded"
+  text: "Meetings become explanations"
+
+RIGHT (creates 1 slide):
+  heading: "Most presentations fail at the moment that matters"
+  list: { items: ["The answer is buried on slide 15", "Slides are overloaded with noise", "Meetings become explanations instead of decisions"], ordered: false, sectionIndex: 1 }
+${targetSlideCount ? `\nSLIDE COUNT: Generate content for exactly ${targetSlideCount} slides. Each slide = heading + content block.` : ''}`;
 
     // First attempt
     const systemPrompt1 = buildSystemPrompt(false, undefined, density, enableVisualBlocks, preserveWording, decisionMode, visualDensity, targetSlideCount);
