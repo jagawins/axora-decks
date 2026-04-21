@@ -55,9 +55,10 @@ function validateRequest(body: unknown): ValidationResult {
     return { valid: false, error: "topic is required and must be a non-empty string" };
   }
 
-  if (topic.length > MAX_TOPIC_LENGTH) {
-    return { valid: false, error: `topic must be ${MAX_TOPIC_LENGTH} characters or less` };
-  }
+  // Truncate oversized topics rather than rejecting — callers may pass long pasted text
+  const sanitizedTopic = topic.length > MAX_TOPIC_LENGTH
+    ? topic.slice(0, MAX_TOPIC_LENGTH)
+    : topic;
 
   const sanitizedPrompt = typeof prompt === "string" ? prompt.slice(0, MAX_PROMPT_LENGTH).trim() : "";
 
