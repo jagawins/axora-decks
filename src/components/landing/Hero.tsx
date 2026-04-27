@@ -141,7 +141,7 @@ function ABTestedHeadline() {
 
   // Control
   return (
-    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animation-delay-100">
+    <h1 className="text-[2rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-4 sm:mb-6 animate-fade-in-up animation-delay-100">
       Create stunning{" "}
       <span className="text-accent">
         <RotatingWord />
@@ -174,7 +174,7 @@ function ABTestedSubheadline() {
   }
 
   return (
-    <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
+    <p className="text-base sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
       Describe your goal. AI builds the structure, narrative, and visuals.
       No credits to count. No complex setup. Just executive-grade decks in under 2 minutes.
     </p>
