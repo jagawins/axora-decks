@@ -295,6 +295,21 @@ const Hero = () => {
               </div>
             </div>
 
+            {/* Always-visible primary CTA — critical for mobile bounce reduction */}
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3 animate-fade-in-up animation-delay-300">
+              <Link to="/auth" className="w-full sm:w-auto">
+                <Button size="lg" variant="hero" className="w-full sm:w-auto gap-2 shadow-lg shadow-accent/20 h-12 text-base">
+                  Start free
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link to="/demo" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 text-base">
+                  See live demo
+                </Button>
+              </Link>
+            </div>
+
             <p className="text-xs text-muted-foreground mt-3">
               Free to try · 3 free decks · No credit card · No credits to track
             </p>
