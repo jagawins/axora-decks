@@ -217,7 +217,7 @@ const Hero = () => {
   }, [result]);
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-24 pb-12 px-4">
+    <section className="relative md:min-h-[90vh] flex items-center justify-center overflow-hidden pt-20 sm:pt-24 pb-10 sm:pb-12 px-4">
       {/* Layered background */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-accent/8 rounded-full blur-[150px]" />
@@ -236,10 +236,11 @@ const Hero = () => {
 
       <div className="container-narrow relative z-10 max-w-5xl">
         <div className="text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-xs sm:text-sm font-medium mb-8 backdrop-blur-sm animate-fade-in-up">
-            <Zap className="h-3.5 w-3.5" />
-            <span>Smart Slides · Speech Prep · Delivery Coaching · Live Polls · Webinar-Ready</span>
+          {/* Badge — short on mobile, full on desktop */}
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-[11px] sm:text-sm font-medium mb-5 sm:mb-8 backdrop-blur-sm animate-fade-in-up">
+            <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <span className="sm:hidden">AI decks · Speech · Live polls</span>
+            <span className="hidden sm:inline">Smart Slides · Speech Prep · Delivery Coaching · Live Polls · Webinar-Ready</span>
           </div>
 
           {/* Headline (A/B tested) */}
