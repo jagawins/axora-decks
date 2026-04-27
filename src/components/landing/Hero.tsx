@@ -369,7 +369,7 @@ const Hero = () => {
           )}
 
           {/* ── Stats bar ────────────────────────── */}
-          <div className="mt-16 pt-10 border-t border-border/20 animate-fade-in-up animation-delay-400">
+          <div className="mt-10 sm:mt-16 pt-6 sm:pt-10 border-t border-border/20 animate-fade-in-up animation-delay-400">
             <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto">
               <AnimatedStat end={60} suffix="+" label="Templates" />
               <AnimatedStat end={15} suffix="+" label="Visual blocks" />
