@@ -141,7 +141,7 @@ function ABTestedHeadline() {
 
   // Control
   return (
-    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animation-delay-100">
+    <h1 className="text-[2rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-4 sm:mb-6 animate-fade-in-up animation-delay-100">
       Create stunning{" "}
       <span className="text-accent">
         <RotatingWord />
@@ -174,7 +174,7 @@ function ABTestedSubheadline() {
   }
 
   return (
-    <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
+    <p className="text-base sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
       Describe your goal. AI builds the structure, narrative, and visuals.
       No credits to count. No complex setup. Just executive-grade decks in under 2 minutes.
     </p>
@@ -217,7 +217,7 @@ const Hero = () => {
   }, [result]);
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-24 pb-12 px-4">
+    <section className="relative md:min-h-[90vh] flex items-center justify-center overflow-hidden pt-20 sm:pt-24 pb-10 sm:pb-12 px-4">
       {/* Layered background */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-accent/8 rounded-full blur-[150px]" />
@@ -236,10 +236,11 @@ const Hero = () => {
 
       <div className="container-narrow relative z-10 max-w-5xl">
         <div className="text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-xs sm:text-sm font-medium mb-8 backdrop-blur-sm animate-fade-in-up">
-            <Zap className="h-3.5 w-3.5" />
-            <span>Smart Slides · Speech Prep · Delivery Coaching · Live Polls · Webinar-Ready</span>
+          {/* Badge — short on mobile, full on desktop */}
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-[11px] sm:text-sm font-medium mb-5 sm:mb-8 backdrop-blur-sm animate-fade-in-up">
+            <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <span className="sm:hidden">AI decks · Speech · Live polls</span>
+            <span className="hidden sm:inline">Smart Slides · Speech Prep · Delivery Coaching · Live Polls · Webinar-Ready</span>
           </div>
 
           {/* Headline (A/B tested) */}
@@ -292,6 +293,21 @@ const Hero = () => {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Always-visible primary CTA — critical for mobile bounce reduction */}
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3 animate-fade-in-up animation-delay-300">
+              <Link to="/auth" className="w-full sm:w-auto">
+                <Button size="lg" variant="hero" className="w-full sm:w-auto gap-2 shadow-lg shadow-accent/20 h-12 text-base">
+                  Start free
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link to="/demo" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 text-base">
+                  See live demo
+                </Button>
+              </Link>
             </div>
 
             <p className="text-xs text-muted-foreground mt-3">
@@ -353,7 +369,7 @@ const Hero = () => {
           )}
 
           {/* ── Stats bar ────────────────────────── */}
-          <div className="mt-16 pt-10 border-t border-border/20 animate-fade-in-up animation-delay-400">
+          <div className="mt-10 sm:mt-16 pt-6 sm:pt-10 border-t border-border/20 animate-fade-in-up animation-delay-400">
             <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto">
               <AnimatedStat end={60} suffix="+" label="Templates" />
               <AnimatedStat end={15} suffix="+" label="Visual blocks" />
