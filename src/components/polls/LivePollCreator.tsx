@@ -355,11 +355,19 @@ export default function LivePollCreator() {
                     </span>
                   </div>
                   <p className="text-base font-bold">{poll.question}</p>
-                  {poll.options && poll.options.length > 0 && poll.poll_type === "multiple-choice" && (
+                  {poll.options && poll.options.length > 0 && (poll.poll_type === "multiple-choice" || poll.poll_type === "quiz") && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      {poll.options.map((o: string, i: number) => (
-                        <span key={i} className="text-xs px-2 py-1 rounded-lg bg-muted/30 border border-border/30">{o}</span>
-                      ))}
+                      {poll.options.map((o: string, i: number) => {
+                        const isCorrect = poll.poll_type === "quiz" && poll.correct_answer && o === poll.correct_answer;
+                        return (
+                          <span key={i} className={cn(
+                            "text-xs px-2 py-1 rounded-lg border inline-flex items-center gap-1",
+                            isCorrect ? "bg-green-500/10 border-green-500/30 text-green-600 font-semibold" : "bg-muted/30 border-border/30"
+                          )}>
+                            {isCorrect && <Trophy className="h-3 w-3" />}{o}
+                          </span>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
