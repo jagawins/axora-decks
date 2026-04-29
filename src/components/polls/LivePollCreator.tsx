@@ -92,9 +92,14 @@ export default function LivePollCreator() {
     if (!question.trim() || !user) return;
     setSaving(true);
     const code = generateCode();
-    const pollOptions = selectedType === "multiple-choice" ? options.filter(o => o.trim()) :
+    const cleanedOpts = options.map(o => o.trim()).filter(Boolean);
+    const pollOptions = (selectedType === "multiple-choice" || selectedType === "quiz") ? cleanedOpts :
       selectedType === "yes-no" ? ["Yes", "No", "Need more info"] :
       selectedType === "rating" ? ["1", "2", "3", "4", "5"] : [];
+
+    const correctAnswer = selectedType === "quiz"
+      ? (cleanedOpts[correctIndex] ?? cleanedOpts[0] ?? null)
+      : null;
 
     try {
       const { data, error } = await supabase
@@ -108,6 +113,7 @@ export default function LivePollCreator() {
           results: {},
           participant_count: 0,
           is_active: true,
+          correct_answer: correctAnswer,
         } as any)
         .select()
         .single();
@@ -116,8 +122,9 @@ export default function LivePollCreator() {
       setPolls(prev => [data as unknown as Poll, ...prev]);
       setQuestion("");
       setOptions(["", "", ""]);
+      setCorrectIndex(0);
       setCreating(false);
-      toast({ title: "Poll created!", description: `Code: ${code}` });
+      toast({ title: selectedType === "quiz" ? "Quiz created!" : "Poll created!", description: `Code: ${code}` });
     } catch (err: any) {
       console.error("Failed to create poll:", err);
       // Fallback: save locally if DB fails
@@ -131,12 +138,14 @@ export default function LivePollCreator() {
         participant_count: 0,
         is_active: true,
         created_at: new Date().toISOString(),
+        correct_answer: correctAnswer,
       };
       setPolls(prev => [localPoll, ...prev]);
       setQuestion("");
       setOptions(["", "", ""]);
+      setCorrectIndex(0);
       setCreating(false);
-      toast({ title: "Poll created (local)", description: `Code: ${code}. Will sync when database is ready.` });
+      toast({ title: "Created (local)", description: `Code: ${code}. Will sync when database is ready.` });
     } finally {
       setSaving(false);
     }
