@@ -52,6 +52,7 @@ export const POLL_TYPES: { id: PollType; label: string; icon: React.FC<any>; des
 export default function LivePollCreator() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,6 +64,17 @@ export default function LivePollCreator() {
   const [correctIndex, setCorrectIndex] = useState<number>(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedResults, setExpandedResults] = useState<string | null>(null);
+
+  // Auto-open creator from URL params (e.g. /dashboard?tab=live-polls&create=true&type=quiz)
+  useEffect(() => {
+    if (searchParams.get("create") === "true") {
+      setCreating(true);
+      const t = searchParams.get("type");
+      if (t === "quiz" || t === "multiple-choice" || t === "yes-no" || t === "rating" || t === "qa" || t === "wordcloud" || t === "survey") {
+        setSelectedType(t as PollType);
+      }
+    }
+  }, [searchParams]);
 
   // Load polls from Supabase
   const loadPolls = useCallback(async () => {
