@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { cn } from "@/lib/utils";
-import { BarChart3, Check, Loader2 } from "lucide-react";
+import { BarChart3, Check, Loader2, Trophy, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface PollData {
@@ -17,6 +17,7 @@ interface PollData {
   type: string;
   options: string[] | null;
   results: Record<string, number>;
+  correct_answer?: string | null;
 }
 
 export default function LivePollParticipant() {
