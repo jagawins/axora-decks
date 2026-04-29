@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,10 +15,10 @@ import {
   BarChart3, MessageSquare, Cloud, ClipboardCheck,
   Plus, Sparkles, Smartphone, Copy, Check,
   Star, Trash2, Play, ExternalLink,
-  Download, Layers, Eye, Loader2
+  Download, Layers, Eye, Loader2, Trophy
 } from "lucide-react";
 
-export type PollType = "multiple-choice" | "yes-no" | "rating" | "qa" | "wordcloud" | "survey";
+export type PollType = "multiple-choice" | "yes-no" | "rating" | "qa" | "wordcloud" | "survey" | "quiz";
 
 export interface LivePoll {
   id: string;
@@ -30,6 +30,7 @@ export interface LivePoll {
   participant_count: number;
   is_active: boolean;
   created_at: string;
+  correct_answer?: string | null;
 }
 
 type Poll = LivePoll;
@@ -45,11 +46,13 @@ export const POLL_TYPES: { id: PollType; label: string; icon: React.FC<any>; des
   { id: "qa", label: "Q&A", icon: MessageSquare, desc: "Submit and upvote questions" },
   { id: "wordcloud", label: "Word Cloud", icon: Cloud, desc: "One-word responses, live cloud" },
   { id: "survey", label: "Feedback Survey", icon: ClipboardCheck, desc: "Post-presentation feedback" },
+  { id: "quiz", label: "Quiz / Trivia", icon: Trophy, desc: "Pick the correct answer" },
 ];
 
 export default function LivePollCreator() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,8 +61,20 @@ export default function LivePollCreator() {
   const [selectedType, setSelectedType] = useState<PollType>("multiple-choice");
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", "", ""]);
+  const [correctIndex, setCorrectIndex] = useState<number>(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedResults, setExpandedResults] = useState<string | null>(null);
+
+  // Auto-open creator from URL params (e.g. /dashboard?tab=live-polls&create=true&type=quiz)
+  useEffect(() => {
+    if (searchParams.get("create") === "true") {
+      setCreating(true);
+      const t = searchParams.get("type");
+      if (t === "quiz" || t === "multiple-choice" || t === "yes-no" || t === "rating" || t === "qa" || t === "wordcloud" || t === "survey") {
+        setSelectedType(t as PollType);
+      }
+    }
+  }, [searchParams]);
 
   // Load polls from Supabase
   const loadPolls = useCallback(async () => {
@@ -89,9 +104,14 @@ export default function LivePollCreator() {
     if (!question.trim() || !user) return;
     setSaving(true);
     const code = generateCode();
-    const pollOptions = selectedType === "multiple-choice" ? options.filter(o => o.trim()) :
+    const cleanedOpts = options.map(o => o.trim()).filter(Boolean);
+    const pollOptions = (selectedType === "multiple-choice" || selectedType === "quiz") ? cleanedOpts :
       selectedType === "yes-no" ? ["Yes", "No", "Need more info"] :
       selectedType === "rating" ? ["1", "2", "3", "4", "5"] : [];
+
+    const correctAnswer = selectedType === "quiz"
+      ? (cleanedOpts[correctIndex] ?? cleanedOpts[0] ?? null)
+      : null;
 
     try {
       const { data, error } = await supabase
@@ -105,6 +125,7 @@ export default function LivePollCreator() {
           results: {},
           participant_count: 0,
           is_active: true,
+          correct_answer: correctAnswer,
         } as any)
         .select()
         .single();
@@ -113,8 +134,9 @@ export default function LivePollCreator() {
       setPolls(prev => [data as unknown as Poll, ...prev]);
       setQuestion("");
       setOptions(["", "", ""]);
+      setCorrectIndex(0);
       setCreating(false);
-      toast({ title: "Poll created!", description: `Code: ${code}` });
+      toast({ title: selectedType === "quiz" ? "Quiz created!" : "Poll created!", description: `Code: ${code}` });
     } catch (err: any) {
       console.error("Failed to create poll:", err);
       // Fallback: save locally if DB fails
@@ -128,12 +150,14 @@ export default function LivePollCreator() {
         participant_count: 0,
         is_active: true,
         created_at: new Date().toISOString(),
+        correct_answer: correctAnswer,
       };
       setPolls(prev => [localPoll, ...prev]);
       setQuestion("");
       setOptions(["", "", ""]);
+      setCorrectIndex(0);
       setCreating(false);
-      toast({ title: "Poll created (local)", description: `Code: ${code}. Will sync when database is ready.` });
+      toast({ title: "Created (local)", description: `Code: ${code}. Will sync when database is ready.` });
     } finally {
       setSaving(false);
     }
@@ -225,6 +249,7 @@ export default function LivePollCreator() {
               selectedType === "rating" ? "e.g., How confident are you in this plan?" :
               selectedType === "yes-no" ? "e.g., Should we approve this proposal?" :
               selectedType === "survey" ? "e.g., Quick feedback on today's session" :
+              selectedType === "quiz" ? "e.g., What year was the company founded?" :
               "e.g., Which direction should we pursue?"
             } value={question} onChange={e => setQuestion(e.target.value)} className="min-h-[56px]" />
           </div>
@@ -254,15 +279,30 @@ export default function LivePollCreator() {
               </div>
             </div>
           )}
-          {selectedType === "multiple-choice" && (
+          {(selectedType === "multiple-choice" || selectedType === "quiz") && (
             <div className="space-y-2">
-              <label className="text-sm font-semibold">Answer options</label>
+              <label className="text-sm font-semibold">
+                {selectedType === "quiz" ? "Answer options — tap the trophy to mark the correct answer" : "Answer options"}
+              </label>
               {options.map((opt, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-accent text-xs font-bold shrink-0">{String.fromCharCode(65 + i)}</div>
                   <Textarea placeholder={`Option ${i + 1}`} value={opt} onChange={e => { const n = [...options]; n[i] = e.target.value; setOptions(n); }} className="min-h-[36px] flex-1 text-sm" />
+                  {selectedType === "quiz" && (
+                    <button
+                      type="button"
+                      onClick={() => setCorrectIndex(i)}
+                      title={correctIndex === i ? "Correct answer" : "Mark as correct"}
+                      className={cn(
+                        "shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all",
+                        correctIndex === i ? "bg-green-500/15 text-green-500 ring-2 ring-green-500/40" : "text-muted-foreground hover:text-green-500 hover:bg-green-500/10"
+                      )}
+                    >
+                      <Trophy className="h-4 w-4" />
+                    </button>
+                  )}
                   {options.length > 2 && (
-                    <button onClick={() => setOptions(options.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+                    <button onClick={() => { setOptions(options.filter((_, j) => j !== i)); if (correctIndex === i) setCorrectIndex(0); }} className="text-muted-foreground hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
                   )}
                 </div>
               ))}
@@ -274,8 +314,8 @@ export default function LivePollCreator() {
             </div>
           )}
           <div className="flex gap-2">
-            <Button onClick={createPoll} className="gap-2 flex-1" disabled={!question.trim() || saving}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Create Poll
+            <Button onClick={createPoll} className="gap-2 flex-1" disabled={!question.trim() || saving || (selectedType === "quiz" && options.filter(o => o.trim()).length < 2)}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} {selectedType === "quiz" ? "Create Quiz" : "Create Poll"}
             </Button>
             <Button variant="ghost" onClick={() => setCreating(false)}>Cancel</Button>
           </div>
@@ -327,11 +367,19 @@ export default function LivePollCreator() {
                     </span>
                   </div>
                   <p className="text-base font-bold">{poll.question}</p>
-                  {poll.options && poll.options.length > 0 && poll.poll_type === "multiple-choice" && (
+                  {poll.options && poll.options.length > 0 && (poll.poll_type === "multiple-choice" || poll.poll_type === "quiz") && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      {poll.options.map((o: string, i: number) => (
-                        <span key={i} className="text-xs px-2 py-1 rounded-lg bg-muted/30 border border-border/30">{o}</span>
-                      ))}
+                      {poll.options.map((o: string, i: number) => {
+                        const isCorrect = poll.poll_type === "quiz" && poll.correct_answer && o === poll.correct_answer;
+                        return (
+                          <span key={i} className={cn(
+                            "text-xs px-2 py-1 rounded-lg border inline-flex items-center gap-1",
+                            isCorrect ? "bg-green-500/10 border-green-500/30 text-green-600 font-semibold" : "bg-muted/30 border-border/30"
+                          )}>
+                            {isCorrect && <Trophy className="h-3 w-3" />}{o}
+                          </span>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

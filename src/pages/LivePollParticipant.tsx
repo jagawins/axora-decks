@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { cn } from "@/lib/utils";
-import { BarChart3, Check, Loader2 } from "lucide-react";
+import { BarChart3, Check, Loader2, Trophy, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface PollData {
@@ -17,6 +17,7 @@ interface PollData {
   type: string;
   options: string[] | null;
   results: Record<string, number>;
+  correct_answer?: string | null;
 }
 
 export default function LivePollParticipant() {
@@ -33,7 +34,7 @@ export default function LivePollParticipant() {
       try {
         const { data, error: err } = await supabase
           .from("live_polls" as any)
-          .select("question, poll_type, options, results")
+          .select("question, poll_type, options, results, correct_answer")
           .eq("code", code)
           .eq("is_active", true)
           .single();
@@ -47,6 +48,7 @@ export default function LivePollParticipant() {
             type: d.poll_type,
             options: d.options as string[] | null,
             results: (d.results || {}) as Record<string, number>,
+            correct_answer: d.correct_answer ?? null,
           });
         }
       } catch (e: any) {
@@ -60,7 +62,7 @@ export default function LivePollParticipant() {
   // Determine voting options based on poll type
   const getVoteOptions = (): string[] => {
     if (!poll) return [];
-    if (poll.type === "multiple-choice" && poll.options) return poll.options;
+    if ((poll.type === "multiple-choice" || poll.type === "quiz") && poll.options) return poll.options;
     if (poll.type === "yes-no") return ["Yes", "No", "Need more info"];
     if (poll.type === "rating") return ["1", "2", "3", "4", "5"];
     return Object.keys(poll.results);
@@ -150,14 +152,18 @@ export default function LivePollParticipant() {
       {/* Poll content */}
       <main className="flex-1 max-w-lg mx-auto w-full px-4 py-6 space-y-6">
         <div>
-          <p className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">Live Poll</p>
+          <p className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">
+            {poll.type === "quiz" ? "Live Quiz" : "Live Poll"}
+          </p>
           <h1 className="text-xl sm:text-2xl font-bold">{poll.question}</h1>
         </div>
 
         {/* Voting options */}
         {!voted ? (
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">Tap to vote:</p>
+            <p className="text-sm text-muted-foreground">
+              {poll.type === "quiz" ? "Tap your answer:" : "Tap to vote:"}
+            </p>
             {voteOptions.map(opt => (
               <button key={opt} onClick={() => vote(opt)} disabled={voting}
                 className="w-full text-left p-4 rounded-2xl border-2 border-border/50 hover:border-accent/50 active:scale-[0.98] active:border-accent transition-all disabled:opacity-50">
@@ -167,26 +173,51 @@ export default function LivePollParticipant() {
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="flex items-center gap-2 mb-1">
-              <Check className="h-4 w-4 text-green-500" />
-              <span className="text-sm text-green-500 font-semibold">Vote recorded</span>
-            </div>
+            {poll.type === "quiz" && poll.correct_answer ? (
+              voted === poll.correct_answer ? (
+                <div className="flex items-center gap-2 mb-1 p-3 rounded-xl bg-green-500/10 border border-green-500/30">
+                  <Trophy className="h-5 w-5 text-green-500" />
+                  <span className="text-sm text-green-600 font-bold">Correct! Nice one.</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 mb-1 p-3 rounded-xl bg-red-500/10 border border-red-500/30">
+                  <X className="h-5 w-5 text-red-500" />
+                  <div className="text-sm">
+                    <span className="text-red-600 font-bold">Not quite.</span>
+                    <span className="text-muted-foreground"> The answer is <span className="font-semibold text-foreground">{poll.correct_answer}</span>.</span>
+                  </div>
+                </div>
+              )
+            ) : (
+              <div className="flex items-center gap-2 mb-1">
+                <Check className="h-4 w-4 text-green-500" />
+                <span className="text-sm text-green-500 font-semibold">Vote recorded</span>
+              </div>
+            )}
             {voteOptions.map(opt => {
               const count = poll.results[opt] || 0;
               const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+              const isCorrect = poll.type === "quiz" && poll.correct_answer === opt;
+              const isYour = voted === opt;
               return (
                 <div key={opt} className={cn("p-4 rounded-2xl border-2 relative overflow-hidden transition-all",
-                  voted === opt ? "border-accent bg-accent/5" : "border-border/30")}>
-                  <div className="absolute inset-y-0 left-0 bg-accent/10 transition-all duration-700" style={{ width: `${pct}%` }} />
-                  <div className="relative flex items-center justify-between">
-                    <span className={cn("text-base font-medium", voted === opt && "font-bold")}>{opt}</span>
-                    <span className="text-base font-bold text-accent">{pct}%</span>
+                  isCorrect ? "border-green-500/60 bg-green-500/5" :
+                  isYour && poll.type === "quiz" ? "border-red-500/60 bg-red-500/5" :
+                  isYour ? "border-accent bg-accent/5" : "border-border/30")}>
+                  <div className={cn("absolute inset-y-0 left-0 transition-all duration-700",
+                    isCorrect ? "bg-green-500/15" : isYour && poll.type === "quiz" ? "bg-red-500/10" : "bg-accent/10")} style={{ width: `${pct}%` }} />
+                  <div className="relative flex items-center justify-between gap-2">
+                    <span className={cn("text-base font-medium inline-flex items-center gap-2", (isYour || isCorrect) && "font-bold")}>
+                      {isCorrect && <Trophy className="h-4 w-4 text-green-500" />}
+                      {opt}
+                    </span>
+                    <span className={cn("text-base font-bold", isCorrect ? "text-green-600" : "text-accent")}>{pct}%</span>
                   </div>
                 </div>
               );
             })}
             <p className="text-xs text-muted-foreground text-center pt-2">
-              {totalVotes} votes · Results update live
+              {totalVotes} {poll.type === "quiz" ? "answers" : "votes"} · Results update live
             </p>
           </div>
         )}

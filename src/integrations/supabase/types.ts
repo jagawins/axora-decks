@@ -366,6 +366,7 @@ export type Database = {
       live_polls: {
         Row: {
           code: string
+          correct_answer: string | null
           created_at: string
           id: string
           is_active: boolean
@@ -379,6 +380,7 @@ export type Database = {
         }
         Insert: {
           code: string
+          correct_answer?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -392,6 +394,7 @@ export type Database = {
         }
         Update: {
           code?: string
+          correct_answer?: string | null
           created_at?: string
           id?: string
           is_active?: boolean

@@ -28,6 +28,7 @@ const Create = lazy(() => import("./pages/Create"));
 const Templates = lazy(() => import("./pages/Templates"));
 const ExecutiveHub = lazy(() => import("./pages/ExecutiveHub"));
 const LivePolls = lazy(() => import("./pages/LivePolls"));
+const LiveQuiz = lazy(() => import("./pages/LiveQuiz"));
 const LivePollParticipant = lazy(() => import("./pages/LivePollParticipant"));
 const Webinars = lazy(() => import("./pages/Webinars"));
 const AllHands = lazy(() => import("./pages/AllHands"));
@@ -92,6 +93,7 @@ const App = () => (
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/executive" element={<ExecutiveHub />} />
                 <Route path="/live-polls" element={<LivePolls />} />
+                <Route path="/live-quiz" element={<LiveQuiz />} />
                 <Route path="/live/:code" element={<LivePollParticipant />} />
                 <Route path="/webinars" element={<Webinars />} />
                 <Route path="/all-hands" element={<AllHands />} />
