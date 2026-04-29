@@ -93,6 +93,7 @@ const App = () => (
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/executive" element={<ExecutiveHub />} />
                 <Route path="/live-polls" element={<LivePolls />} />
+                <Route path="/live-quiz" element={<LiveQuiz />} />
                 <Route path="/live/:code" element={<LivePollParticipant />} />
                 <Route path="/webinars" element={<Webinars />} />
                 <Route path="/all-hands" element={<AllHands />} />
