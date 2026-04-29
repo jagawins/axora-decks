@@ -15,10 +15,10 @@ import {
   BarChart3, MessageSquare, Cloud, ClipboardCheck,
   Plus, Sparkles, Smartphone, Copy, Check,
   Star, Trash2, Play, ExternalLink,
-  Download, Layers, Eye, Loader2
+  Download, Layers, Eye, Loader2, Trophy
 } from "lucide-react";
 
-export type PollType = "multiple-choice" | "yes-no" | "rating" | "qa" | "wordcloud" | "survey";
+export type PollType = "multiple-choice" | "yes-no" | "rating" | "qa" | "wordcloud" | "survey" | "quiz";
 
 export interface LivePoll {
   id: string;
@@ -30,6 +30,7 @@ export interface LivePoll {
   participant_count: number;
   is_active: boolean;
   created_at: string;
+  correct_answer?: string | null;
 }
 
 type Poll = LivePoll;
