@@ -28,6 +28,7 @@ const Create = lazy(() => import("./pages/Create"));
 const Templates = lazy(() => import("./pages/Templates"));
 const ExecutiveHub = lazy(() => import("./pages/ExecutiveHub"));
 const LivePolls = lazy(() => import("./pages/LivePolls"));
+const LiveQuiz = lazy(() => import("./pages/LiveQuiz"));
 const LivePollParticipant = lazy(() => import("./pages/LivePollParticipant"));
 const Webinars = lazy(() => import("./pages/Webinars"));
 const AllHands = lazy(() => import("./pages/AllHands"));
