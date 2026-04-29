@@ -34,7 +34,7 @@ export default function LivePollParticipant() {
       try {
         const { data, error: err } = await supabase
           .from("live_polls" as any)
-          .select("question, poll_type, options, results")
+          .select("question, poll_type, options, results, correct_answer")
           .eq("code", code)
           .eq("is_active", true)
           .single();
@@ -48,6 +48,7 @@ export default function LivePollParticipant() {
             type: d.poll_type,
             options: d.options as string[] | null,
             results: (d.results || {}) as Record<string, number>,
+            correct_answer: d.correct_answer ?? null,
           });
         }
       } catch (e: any) {
