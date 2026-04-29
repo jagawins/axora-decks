@@ -60,6 +60,7 @@ export default function LivePollCreator() {
   const [selectedType, setSelectedType] = useState<PollType>("multiple-choice");
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", "", ""]);
+  const [correctIndex, setCorrectIndex] = useState<number>(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedResults, setExpandedResults] = useState<string | null>(null);
 
