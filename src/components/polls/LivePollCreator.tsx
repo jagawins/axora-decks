@@ -267,15 +267,30 @@ export default function LivePollCreator() {
               </div>
             </div>
           )}
-          {selectedType === "multiple-choice" && (
+          {(selectedType === "multiple-choice" || selectedType === "quiz") && (
             <div className="space-y-2">
-              <label className="text-sm font-semibold">Answer options</label>
+              <label className="text-sm font-semibold">
+                {selectedType === "quiz" ? "Answer options — tap the trophy to mark the correct answer" : "Answer options"}
+              </label>
               {options.map((opt, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-accent text-xs font-bold shrink-0">{String.fromCharCode(65 + i)}</div>
                   <Textarea placeholder={`Option ${i + 1}`} value={opt} onChange={e => { const n = [...options]; n[i] = e.target.value; setOptions(n); }} className="min-h-[36px] flex-1 text-sm" />
+                  {selectedType === "quiz" && (
+                    <button
+                      type="button"
+                      onClick={() => setCorrectIndex(i)}
+                      title={correctIndex === i ? "Correct answer" : "Mark as correct"}
+                      className={cn(
+                        "shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all",
+                        correctIndex === i ? "bg-green-500/15 text-green-500 ring-2 ring-green-500/40" : "text-muted-foreground hover:text-green-500 hover:bg-green-500/10"
+                      )}
+                    >
+                      <Trophy className="h-4 w-4" />
+                    </button>
+                  )}
                   {options.length > 2 && (
-                    <button onClick={() => setOptions(options.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+                    <button onClick={() => { setOptions(options.filter((_, j) => j !== i)); if (correctIndex === i) setCorrectIndex(0); }} className="text-muted-foreground hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
                   )}
                 </div>
               ))}
@@ -287,8 +302,8 @@ export default function LivePollCreator() {
             </div>
           )}
           <div className="flex gap-2">
-            <Button onClick={createPoll} className="gap-2 flex-1" disabled={!question.trim() || saving}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Create Poll
+            <Button onClick={createPoll} className="gap-2 flex-1" disabled={!question.trim() || saving || (selectedType === "quiz" && options.filter(o => o.trim()).length < 2)}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} {selectedType === "quiz" ? "Create Quiz" : "Create Poll"}
             </Button>
             <Button variant="ghost" onClick={() => setCreating(false)}>Cancel</Button>
           </div>
