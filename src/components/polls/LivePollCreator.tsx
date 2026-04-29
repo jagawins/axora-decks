@@ -237,6 +237,7 @@ export default function LivePollCreator() {
               selectedType === "rating" ? "e.g., How confident are you in this plan?" :
               selectedType === "yes-no" ? "e.g., Should we approve this proposal?" :
               selectedType === "survey" ? "e.g., Quick feedback on today's session" :
+              selectedType === "quiz" ? "e.g., What year was the company founded?" :
               "e.g., Which direction should we pursue?"
             } value={question} onChange={e => setQuestion(e.target.value)} className="min-h-[56px]" />
           </div>
