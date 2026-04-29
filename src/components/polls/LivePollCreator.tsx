@@ -46,6 +46,7 @@ export const POLL_TYPES: { id: PollType; label: string; icon: React.FC<any>; des
   { id: "qa", label: "Q&A", icon: MessageSquare, desc: "Submit and upvote questions" },
   { id: "wordcloud", label: "Word Cloud", icon: Cloud, desc: "One-word responses, live cloud" },
   { id: "survey", label: "Feedback Survey", icon: ClipboardCheck, desc: "Post-presentation feedback" },
+  { id: "quiz", label: "Quiz / Trivia", icon: Trophy, desc: "Pick the correct answer" },
 ];
 
 export default function LivePollCreator() {
