@@ -62,7 +62,7 @@ export default function LivePollParticipant() {
   // Determine voting options based on poll type
   const getVoteOptions = (): string[] => {
     if (!poll) return [];
-    if (poll.type === "multiple-choice" && poll.options) return poll.options;
+    if ((poll.type === "multiple-choice" || poll.type === "quiz") && poll.options) return poll.options;
     if (poll.type === "yes-no") return ["Yes", "No", "Need more info"];
     if (poll.type === "rating") return ["1", "2", "3", "4", "5"];
     return Object.keys(poll.results);
