@@ -37,6 +37,14 @@ const blockTypeGrid = [
 
 const Features = () => (
   <div className="min-h-screen bg-background">
+    <Helmet>
+      <title>AXIVA Features — Webinar deck, speech prep, live polls in one tool</title>
+      <meta name="description" content="AXIVA features: AI deck generation, 23 timeline styles, 25+ block types, live audience polls with QR codes, speech prep, and PPTX export." />
+      <link rel="canonical" href="https://axiva.ai/features" />
+      <meta property="og:title" content="AXIVA Features — One tool for your entire webinar" />
+      <meta property="og:description" content="AI deck generation, 23 timeline styles, live polls with QR codes, speech prep, PPTX export." />
+      <meta property="og:url" content="https://axiva.ai/features" />
+    </Helmet>
     <MarketingHeader />
     <main>
       <section className="relative pt-32 pb-20 overflow-hidden">
