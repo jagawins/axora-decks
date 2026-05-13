@@ -52,12 +52,26 @@ const GammaAlternative = () => {
     }
   ];
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>AXIVA vs Gamma: AI Executive Deck Generator for Crisp Business Presentations</title>
         <meta name="description" content="Compare AXIVA vs Gamma. See why executives choose AXIVA for structured AI decks, clean PowerPoint exports, and business-ready presentations." />
         <link rel="canonical" href="https://axiva.ai/gamma-alternative" />
+        <meta property="og:title" content="AXIVA vs Gamma — Executive AI Deck Alternative" />
+        <meta property="og:description" content="Why executives choose AXIVA over Gamma: structure, clean PPTX exports, and business-ready output." />
+        <meta property="og:url" content="https://axiva.ai/gamma-alternative" />
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
       </Helmet>
 
       <MarketingHeader />
