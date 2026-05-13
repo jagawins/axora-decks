@@ -52,12 +52,26 @@ const AIDeckGenerator = () => {
     }
   ];
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>AI Deck Generator: Build Structured Presentations in Minutes</title>
         <meta name="description" content="AXIVA is an AI deck generator built for executives. Turn raw ideas into structured presentations in minutes." />
         <link rel="canonical" href="https://axiva.ai/ai-deck-generator" />
+        <meta property="og:title" content="AI Deck Generator for Executive Presentations | AXIVA" />
+        <meta property="og:description" content="Turn raw ideas into structured executive decks in minutes with AXIVA's AI deck generator." />
+        <meta property="og:url" content="https://axiva.ai/ai-deck-generator" />
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
       </Helmet>
 
       <MarketingHeader />
