@@ -243,8 +243,27 @@ const Pricing = () => {
     return <span className="text-sm text-foreground">{val}</span>;
   };
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ_ITEMS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>AXIVA Pricing — Free, Pro $28, Team $78 per user</title>
+        <meta name="description" content="Simple AXIVA pricing. Free forever for 3 decks. Pro $28/mo unlocks unlimited decks, PPTX export, and Brand Kit. Team $78/user. 14-day free trial." />
+        <link rel="canonical" href="https://axiva.ai/pricing" />
+        <meta property="og:title" content="AXIVA Pricing — Free, Pro, and Team plans" />
+        <meta property="og:description" content="Free forever for 3 decks. Pro $28/mo unlocks unlimited generations, PPTX export, and Brand Kit. 14-day free trial." />
+        <meta property="og:url" content="https://axiva.ai/pricing" />
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
+      </Helmet>
       <MarketingHeader />
 
       <main>
