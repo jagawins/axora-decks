@@ -117,12 +117,27 @@ const sections = [
 ];
 
 const FAQ = () => {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: sections.flatMap((s) =>
+      s.items.map((it) => ({
+        "@type": "Question",
+        name: it.q,
+        acceptedAnswer: { "@type": "Answer", text: it.a },
+      })),
+    ),
+  };
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>FAQ — Axiva</title>
-        <meta name="description" content="Frequently asked questions about Axiva — AI-powered presentations for executives and founders." />
+        <title>AXIVA FAQ — Plans, exports, security, and getting started</title>
+        <meta name="description" content="Answers to common AXIVA questions: pricing, deck generation, PPTX exports, brand kit, security, and trial details." />
         <link rel="canonical" href="https://axiva.ai/faq" />
+        <meta property="og:title" content="AXIVA FAQ — Plans, exports, security" />
+        <meta property="og:description" content="Common questions about AXIVA: pricing, exports, brand kit, security, and trials." />
+        <meta property="og:url" content="https://axiva.ai/faq" />
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
       </Helmet>
 
       <MarketingHeader />
