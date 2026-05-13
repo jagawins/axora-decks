@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Brain, FileOutput, BarChart3, Timer, ExternalLink, MousePointerClick, LayoutGrid, GitBranch, Target, TrendingUp, Calendar, Layers, Image, ToggleLeft, Shield, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import MarketingHeader from "@/components/MarketingHeader";
 import Footer from "@/components/landing/Footer";
 import AIChatbot from "@/components/AIChatbot";
