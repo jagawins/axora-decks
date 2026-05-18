@@ -991,6 +991,10 @@ const Editor = () => {
     for (let i = 0; i < total; i++) {
       setPolishProgress({ current: i + 1, total });
       const block = blocks[i];
+      if (lockedSlideIndexes.has(block.order_index)) {
+        showBadge(block.id, "Locked");
+        continue;
+      }
       try {
         const refined = await aiEngine.refineBlock({
           block: { type: block.type, content: block.content, order_index: block.order_index },
@@ -1011,17 +1015,34 @@ const Editor = () => {
     setPolishing(false);
     setPolishProgress(null);
     setHasUnsavedChanges(true);
-    toast({ title: "Quick Polish complete", description: `${total} blocks refined.` });
+    const skipped = blocks.filter((b) => lockedSlideIndexes.has(b.order_index)).length;
+    toast({
+      title: "Quick Polish complete",
+      description: skipped > 0
+        ? `${total - skipped} refined · ${skipped} locked slide${skipped === 1 ? "" : "s"} skipped.`
+        : `${total} blocks refined.`,
+    });
   };
 
-  // Make it Visual – run layout pass to transform verbose blocks
-  const handleMakeItVisual = useCallback(() => {
+  // Make it Visual – run layout pass to transform verbose blocks (respects locks)
+  const handleMakeItVisual = useCallback(async () => {
     if (blocks.length === 0) return;
+    await snapshotBeforeAI(`Before Make it Visual · ${new Date().toLocaleTimeString()}`);
     const transformed = runVisualLayoutPass(blocks);
-    setBlocks(transformed);
+    // Preserve locked slides: keep originals where order_index is locked
+    const merged = transformed.map((b) =>
+      lockedSlideIndexes.has(b.order_index)
+        ? blocks.find((orig) => orig.order_index === b.order_index) ?? b
+        : b
+    );
+    setBlocks(merged);
     setHasUnsavedChanges(true);
-    toast({ title: "Layout upgraded", description: "Verbose blocks converted to visual layouts." });
-  }, [blocks, toast]);
+    const skipped = blocks.filter((b) => lockedSlideIndexes.has(b.order_index)).length;
+    toast({
+      title: "Layout upgraded",
+      description: skipped > 0 ? `${skipped} locked slide${skipped === 1 ? "" : "s"} preserved.` : "Verbose blocks converted to visual layouts.",
+    });
+  }, [blocks, toast, lockedSlideIndexes, snapshotBeforeAI]);
 
   const selectedBlock = blocks.find((b) => b.id === selectedBlockId);
 
