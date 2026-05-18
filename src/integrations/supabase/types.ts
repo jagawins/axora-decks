@@ -501,6 +501,41 @@ export type Database = {
         }
         Relationships: []
       }
+      project_versions: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          project_id: string
+          snapshot: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label?: string
+          project_id: string
+          snapshot: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          project_id?: string
+          snapshot?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_versions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           brand_kit: Json | null
@@ -562,6 +597,38 @@ export type Database = {
             columns: ["folder_id"]
             isOneToOne: false
             referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      slide_locks: {
+        Row: {
+          created_at: string
+          id: string
+          locked_by: string
+          project_id: string
+          slide_index: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          locked_by: string
+          project_id: string
+          slide_index: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          locked_by?: string
+          project_id?: string
+          slide_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slide_locks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
