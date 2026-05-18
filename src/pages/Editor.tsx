@@ -2331,6 +2331,42 @@ const BlockRenderer = ({ block, isSelected, onSelect, onUpdate, layoutBlockClass
           readOnly
         />
       )}
+
+      {projectId && user && (
+        <>
+          <VersionHistorySheet
+            open={versionsOpen}
+            onOpenChange={setVersionsOpen}
+            projectId={projectId}
+            userId={user.id}
+            currentSnapshot={{
+              blocks: blocks.map((b) => ({
+                id: b.id,
+                type: b.type,
+                content: b.content as Record<string, unknown>,
+                order_index: b.order_index,
+              })),
+              theme,
+              title: project?.title,
+            }}
+            onRestored={() => fetchProject()}
+          />
+          <SlideLocksSheet
+            open={locksOpen}
+            onOpenChange={(o) => {
+              setLocksOpen(o);
+              if (!o) void refreshLocks();
+            }}
+            projectId={projectId}
+            userId={user.id}
+            slides={blocks.map((b) => ({
+              orderIndex: b.order_index,
+              title: extractRawText(b).slice(0, 80),
+              type: b.type,
+            }))}
+          />
+        </>
+      )}
     </div>
   );
 };
