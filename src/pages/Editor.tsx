@@ -1909,6 +1909,49 @@ const Editor = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Version history sheet */}
+      {projectId && user && (
+        <VersionHistorySheet
+          open={versionsOpen}
+          onOpenChange={setVersionsOpen}
+          projectId={projectId}
+          userId={user.id}
+          currentSnapshot={{
+            blocks: blocks.map((b) => ({
+              id: b.id,
+              type: b.type,
+              content: b.content as Record<string, unknown>,
+              order_index: b.order_index,
+            })),
+            theme,
+            title: project?.title,
+          }}
+          onRestored={() => fetchProject()}
+        />
+      )}
+
+      {/* Slide locks sheet */}
+      {projectId && user && (
+        <SlideLocksSheet
+          open={locksOpen}
+          onOpenChange={(o) => {
+            setLocksOpen(o);
+            if (!o) void refreshLocks();
+          }}
+          projectId={projectId}
+          userId={user.id}
+          slides={blocks.map((b) => ({
+            orderIndex: b.order_index,
+            title:
+              (b.content as any)?.title ||
+              (b.content as any)?.text ||
+              (b.content as any)?.heading ||
+              `Slide ${b.order_index + 1}`,
+            type: b.type,
+          }))}
+        />
+      )}
     </div>
   );
 };
