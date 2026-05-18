@@ -1191,6 +1191,9 @@ const Editor = () => {
               polishing={polishing}
               onMakeItVisual={handleMakeItVisual}
               blocksCount={blocks.length}
+              onVersionHistory={() => setVersionsOpen(true)}
+              onSlideLocks={() => setLocksOpen(true)}
+              lockedSlidesCount={lockedSlideIndexes.size}
               onImportContent={() => setImportContentOpen(true)}
               onDuplicate={async () => {
                 if (!projectId || !project) return;
