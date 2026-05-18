@@ -5,7 +5,7 @@ import {
   Undo2, Star, Clock, Eye, Globe, Palette, Settings2, FileDown,
   MessageSquare, BarChart3, Copy, Trash2, BookTemplate, Share2,
   Printer, FileSpreadsheet, Loader2, Presentation, Layers, Zap,
-  LayoutTemplate, Check, Sparkles, Upload
+  LayoutTemplate, Check, Sparkles, Upload, History, Shield
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -48,6 +48,9 @@ interface EditorMoreMenuProps {
   polishing?: boolean;
   onMakeItVisual: () => void;
   blocksCount: number;
+  onVersionHistory?: () => void;
+  onSlideLocks?: () => void;
+  lockedSlidesCount?: number;
 }
 
 export function EditorMoreMenu({
@@ -74,6 +77,9 @@ export function EditorMoreMenu({
   polishing,
   onMakeItVisual,
   blocksCount,
+  onVersionHistory,
+  onSlideLocks,
+  lockedSlidesCount,
 }: EditorMoreMenuProps) {
   return (
     <DropdownMenu>
@@ -133,6 +139,25 @@ export function EditorMoreMenu({
           <Layers className="h-4 w-4 mr-2.5" />
           Make it Visual
         </DropdownMenuItem>
+
+        {onSlideLocks && (
+          <DropdownMenuItem onClick={onSlideLocks} disabled={blocksCount === 0}>
+            <Shield className="h-4 w-4 mr-2.5" />
+            Locked slides
+            {lockedSlidesCount ? (
+              <span className="ml-auto text-[11px] text-muted-foreground tabular-nums">
+                {lockedSlidesCount}
+              </span>
+            ) : null}
+          </DropdownMenuItem>
+        )}
+
+        {onVersionHistory && (
+          <DropdownMenuItem onClick={onVersionHistory}>
+            <History className="h-4 w-4 mr-2.5" />
+            Version history
+          </DropdownMenuItem>
+        )}
 
         {onImportContent && (
           <DropdownMenuItem onClick={onImportContent}>
