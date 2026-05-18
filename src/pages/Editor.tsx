@@ -983,6 +983,7 @@ const Editor = () => {
   // Quick Polish – iterate all blocks sequentially with executive refinement
   const handleQuickPolish = async () => {
     if (polishing || blocks.length === 0) return;
+    await snapshotBeforeAI(`Before Quick Polish · ${new Date().toLocaleTimeString()}`);
     setPolishing(true);
     const total = blocks.length;
     const polishInstruction = `Tighten all wording — remove filler, redundancy, and passive voice. If this is a heading and it uses a generic phrase like "Overview", "Summary", "Plan", "Introduction", "Next Steps", or "Conclusion", rewrite it as an outcome-driven headline that communicates specific value (e.g., "Revenue Leakage Risk Identified in Q3 Operations"). Strengthen the executive tone. Keep content factual and concise. Do not add new information.`;
