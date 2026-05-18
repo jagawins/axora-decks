@@ -85,6 +85,10 @@ import { BLOCK_ICONS, getBlockIcon } from "@/lib/block-icons";
 import { BrandKitPanel } from "@/components/BrandKitPanel";
 import { ExportMenu } from "@/components/ExportMenu";
 import { EditorMoreMenu } from "@/components/editor/EditorMoreMenu";
+import { VersionHistorySheet } from "@/components/editor/VersionHistorySheet";
+import { SlideLocksSheet } from "@/components/editor/SlideLocksSheet";
+import { useSlideLocks } from "@/lib/slide-locks";
+import { createSnapshot } from "@/lib/project-versions";
 import type { BrandKit } from "@/lib/brand";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -218,6 +222,29 @@ const Editor = () => {
   // Export overlay state
   const [exportOverlayOpen, setExportOverlayOpen] = useState(false);
   const [exportStage, setExportStage] = useState(0);
+
+  // Version history & slide locks
+  const [versionsOpen, setVersionsOpen] = useState(false);
+  const [locksOpen, setLocksOpen] = useState(false);
+  const { locked: lockedSlideIndexes, refresh: refreshLocks } = useSlideLocks(projectId);
+
+  // Helper: snapshot current state before any destructive AI op
+  const snapshotBeforeAI = useCallback(
+    async (label: string) => {
+      if (!projectId || !user) return;
+      await createSnapshot(projectId, user.id, label, {
+        blocks: blocks.map((b) => ({
+          id: b.id,
+          type: b.type,
+          content: b.content as Record<string, unknown>,
+          order_index: b.order_index,
+        })),
+        theme,
+        title: project?.title,
+      });
+    },
+    [projectId, user, blocks, theme, project?.title]
+  );
 
   // Save progress prompt - beforeunload
   useEffect(() => {
