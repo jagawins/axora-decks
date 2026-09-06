@@ -381,31 +381,57 @@ export default function Create() {
     }
   };
 
+  const promptChars = prompt.trim().length;
+  const promptTooLong = promptChars > MAX_PROMPT_LENGTH;
+
+  const currentSettings = () => ({
+    outputType,
+    cardsCount,
+    theme,
+    language,
+    density,
+    visualsMode,
+    useBrandKit,
+  });
+
+  /** A project we already created for this brief, reused on retry. */
+  const pendingProjectRef = useRef<string | null>(null);
+
   const handleGenerate = async () => {
+    setBriefNotice(null);
     if (!prompt.trim()) {
       toast({ title: "Please enter a prompt", variant: "destructive" });
       return;
     }
+    if (promptTooLong) {
+      setBriefNotice(
+        `Your brief is ${promptChars.toLocaleString()} characters. Please shorten it to ${MAX_PROMPT_LENGTH.toLocaleString()} or fewer.`
+      );
+      return;
+    }
+
+    // Always persist the brief before generating, so a failure never loses it.
+    const saved = saveCreateDraft(prompt, currentSettings());
 
     if (!user) {
-      // Keep the brief and the chosen settings, then send them to sign-up.
-      saveCreateDraft(prompt, {
-        outputType,
-        cardsCount,
-        theme,
-        language,
-        density,
-        visualsMode,
-        useBrandKit,
-      });
+      if (!saved.ok) {
+        // We cannot retain the brief across the sign-in hand-off, so we do not
+        // pretend to: keep the visitor here with a real next step.
+        setBriefNotice(
+          saved.reason === "storage"
+            ? "This browser is blocking storage, so we cannot keep your brief while you sign in. Copy your brief first, or open AXIVA in a normal (non-private) window."
+            : "We could not keep your brief. Please check it and try again."
+        );
+        return;
+      }
       trackProductEvent("create_intent_stored", {
         source: "create_page",
-        prompt_length: prompt.trim().length,
+        prompt_length: promptChars,
         signed_in: false,
       });
       toast({
         title: "Create a free account to continue",
-        description: "Your brief is saved and will be waiting for you.",
+        description: "Your brief is saved in this tab and will be waiting for you.",
       });
       navigate("/auth?mode=signup&next=%2Fcreate");
       return;
@@ -438,15 +464,30 @@ export default function Create() {
         projectInsert.brand_kit = brandKit;
       }
 
-      const { data: newProject, error: projectError } = await supabase
-        .from("projects")
-        .insert(projectInsert)
-        .select()
-        .single();
-
-      if (projectError || !newProject) {
-        throw new Error("Failed to create project");
+      // Reuse the project created by a previous failed attempt instead of
+      // leaving empty decks behind on every retry.
+      let projectId = pendingProjectRef.current;
+      if (projectId) {
+        const { data: existing } = await supabase
+          .from("projects")
+          .select("id")
+          .eq("id", projectId)
+          .maybeSingle();
+        if (!existing) projectId = null;
       }
+      if (!projectId) {
+        const { data: newProject, error: projectError } = await supabase
+          .from("projects")
+          .insert(projectInsert)
+          .select()
+          .single();
+
+        if (projectError || !newProject) {
+          throw new Error("We could not start your deck. Please try again.");
+        }
+        projectId = newProject.id;
+      }
+      pendingProjectRef.current = projectId;
 
       // Build enhanced prompt with density constraints
       const densityInstructions = getDensityInstructions(density);
@@ -475,11 +516,22 @@ Create exactly ${cardsCount} slides/cards.`;
         topic: spec.prompt,
         prompt: enhancedPrompt,
         tone: "executive",
+        slideCount: cardsCount,
       });
 
-      if (result.blocks.length > 0) {
+      const validBlocks = (result.blocks ?? []).filter(
+        (b) => b && typeof b.type === "string" && b.content && typeof b.content === "object"
+      );
+
+      if (validBlocks.length === 0) {
+        throw new Error(
+          "The generator did not return any slides. Your brief is kept — please try again."
+        );
+      }
+
+      {
         // Process and normalize blocks
-        let processedBlocks = result.blocks.slice(0, cardsCount).map((block, index) => {
+        let processedBlocks = validBlocks.slice(0, cardsCount).map((block, index) => {
           let sanitized = sanitizeContent(block.content);
           sanitized = normalizeBlockContent(block.type, sanitized);
 
@@ -495,7 +547,7 @@ Create exactly ${cardsCount} slides/cards.`;
           }
 
           return {
-            project_id: newProject.id,
+            project_id: projectId,
             type: block.type,
             content: sanitized,
             order_index: index,
@@ -503,20 +555,30 @@ Create exactly ${cardsCount} slides/cards.`;
         });
 
         // Resolve images if needed
-        processedBlocks = await resolveImages(processedBlocks, newProject.id);
+        processedBlocks = await resolveImages(processedBlocks, projectId);
 
-        await supabase.from("blocks").insert(processedBlocks as any);
+        const { error: insertError } = await supabase
+          .from("blocks")
+          .insert(processedBlocks as any);
+
+        if (insertError) {
+          throw new Error(
+            "Your slides could not be saved. Your brief is kept — please try again."
+          );
+        }
       }
 
-      // The deck is persisted: only now is it safe to discard the saved brief.
+      // Slides are really persisted: only now is it safe to discard the brief.
+      pendingProjectRef.current = null;
       clearCreateDraft();
       toast({ title: "Deck created!", description: "Your AI-generated deck is ready." });
       const elapsed = genStartTime ? Math.round((performance.now() - genStartTime) / 1000 * 10) / 10 : null;
       setGenElapsed(elapsed);
       
-      navigate(`/preview/${newProject.id}?new=1&speed=${elapsed}`);
+      navigate(`/preview/${projectId}?new=1&speed=${elapsed}`);
     } catch (error) {
       console.error("Generation error:", error);
+      // The brief stays saved for a retry; nothing is cleared on failure.
       toast({
         title: "Generation failed",
         description: error instanceof Error ? error.message : "Please try again.",
