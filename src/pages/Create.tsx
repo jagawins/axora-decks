@@ -802,19 +802,19 @@ Create exactly ${cardsCount} slides/cards.`;
                     leave this page. Copy it somewhere safe first.
                   </p>
                 )}
-                <div className="flex flex-wrap gap-2">
+                <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
                   {EXAMPLE_PROMPTS.slice(0, 3).map((example) => (
                     <button
                       key={example}
                       onClick={() => handleExampleClick(example)}
                       disabled={generating}
                       className={cn(
-                        "min-h-[36px] rounded-full border border-border/50 px-3 py-1.5 text-xs",
+                        "min-h-[36px] shrink-0 rounded-full border border-border/50 px-3 py-1.5 text-xs",
                         "bg-muted/30 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground",
                         "disabled:opacity-50"
                       )}
                     >
-                      {example.length > 40 ? example.slice(0, 40) + "…" : example}
+                      {example.length > 28 ? example.slice(0, 28) + "…" : example}
                     </button>
                   ))}
                 </div>
