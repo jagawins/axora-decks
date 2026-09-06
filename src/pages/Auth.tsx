@@ -168,7 +168,7 @@ const Auth = () => {
     e.preventDefault();
     if (!validateEmail()) return;
     setIsLoading(true);
-    const { error } = await signInWithMagicLink(email);
+    const { error } = await signInWithMagicLink(email, nextPath || (draft ? '/create' : undefined));
     setIsLoading(false);
     if (error) {
       toast({ title: 'Magic link failed', description: error.message, variant: 'destructive' });

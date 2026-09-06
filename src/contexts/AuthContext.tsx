@@ -11,7 +11,7 @@ interface AuthContextType {
   signInWithGoogle: (returnPath?: string) => Promise<{ error: Error | null }>;
   signInWithApple: (returnPath?: string) => Promise<{ error: Error | null }>;
   signInWithMicrosoft: (returnPath?: string) => Promise<{ error: Error | null }>;
-  signInWithMagicLink: (email: string) => Promise<{ error: Error | null }>;
+  signInWithMagicLink: (email: string, returnPath?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -103,10 +103,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return { error: error as Error | null };
   };
 
-  const signInWithMagicLink = async (email: string) => {
+  const signInWithMagicLink = async (email: string, returnPath?: string) => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/dashboard` }
+      options: { emailRedirectTo: oauthRedirect(returnPath) }
     });
     return { error: error as Error | null };
   };
