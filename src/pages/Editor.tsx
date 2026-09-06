@@ -1878,30 +1878,6 @@ const Editor = () => {
         onClose={() => setShowInviteTeam(false)}
       />
 
-      {/* Export Polish Overlay */}
-      <Dialog open={exportOverlayOpen} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-sm text-center" onPointerDownOutside={(e) => e.preventDefault()}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-center gap-2">
-              <Loader2 className="h-5 w-5 animate-spin text-accent" />
-              Preparing Export
-            </DialogTitle>
-            <DialogDescription>
-              {exportStage === 0 && "Optimizing slide formatting…"}
-              {exportStage === 1 && "Aligning spacing…"}
-              {exportStage === 2 && "Applying consistent typography…"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-accent rounded-full transition-all duration-700"
-                style={{ width: `${((exportStage + 1) / 3) * 100}%` }}
-              />
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Version history sheet */}
       {projectId && user && (
