@@ -466,6 +466,8 @@ Create exactly ${cardsCount} slides/cards.`;
         await supabase.from("blocks").insert(processedBlocks as any);
       }
 
+      // The deck is persisted: only now is it safe to discard the saved brief.
+      clearCreateDraft();
       toast({ title: "Deck created!", description: "Your AI-generated deck is ready." });
       const elapsed = genStartTime ? Math.round((performance.now() - genStartTime) / 1000 * 10) / 10 : null;
       setGenElapsed(elapsed);
