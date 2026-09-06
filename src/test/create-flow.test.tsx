@@ -137,17 +137,96 @@ afterEach(() => {
 
 const generateButton = () => screen.getByRole("button", { name: /generate deck/i });
 
-/** Opens the "start from scratch" form and returns the brief field. */
-const openBrief = async (user: ReturnType<typeof userEvent.setup>) => {
-  const existing = document.getElementById("prompt") as HTMLTextAreaElement | null;
-  if (existing) return existing;
-  await user.click(screen.getByRole("button", { name: /start from scratch/i }));
+/**
+ * Returns the brief field. It must already be present: /create opens straight
+ * onto the usable form, with no mandatory entry click.
+ */
+const openBrief = async (_user?: ReturnType<typeof userEvent.setup>) => {
   return (await waitFor(() => {
     const el = document.getElementById("prompt") as HTMLTextAreaElement | null;
     if (!el) throw new Error("brief field not shown");
     return el;
   })) as HTMLTextAreaElement;
 };
+
+describe("Create: the brief is immediately usable", () => {
+  it("shows the brief field and one primary action without any entry click", async () => {
+    renderCreate();
+    expect(document.getElementById("prompt")).toBeTruthy();
+    expect(generateButton()).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /start from scratch/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /back to options/i })).toBeNull();
+    expect(generateMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps Customize closed but keyboard reachable, and other ways to create available", async () => {
+    const user = userEvent.setup();
+    renderCreate();
+    const customize = screen.getByRole("button", { name: /^customize$/i });
+    expect(customize).toHaveAttribute("aria-expanded", "false");
+    expect(document.getElementById("cards-count")).toBeNull();
+
+    customize.focus();
+    await user.keyboard("{Enter}");
+    await waitFor(() => expect(customize).toHaveAttribute("aria-expanded", "true"));
+    expect(document.getElementById("cards-count")).toBeTruthy();
+
+    const more = screen.getByRole("button", { name: /more ways to create/i });
+    expect(more).toHaveAttribute("aria-expanded", "false");
+    await user.click(more);
+    expect(await screen.findByRole("button", { name: /research mode/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /use a template/i })).toBeInTheDocument();
+  });
+
+  it("states the free-plan limits and the Pro export requirement next to the action", async () => {
+    renderCreate();
+    expect(screen.getByText(/10 decks and 10 AI generations/i)).toBeInTheDocument();
+    expect(screen.getByText(/require Pro/i)).toBeInTheDocument();
+  });
+});
+
+describe("Create: configuration presets", () => {
+  it("never overwrites the brief and changes the visible summary", async () => {
+    const user = userEvent.setup();
+    renderCreate();
+    const field = await openBrief();
+    await user.type(field, "Our strategy for next year");
+
+    // Executive update is the recommended default state.
+    expect(screen.getByRole("button", { name: /executive update/i })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+
+    await user.click(screen.getByRole("button", { name: /strategy review/i }));
+    expect(field.value).toBe("Our strategy for next year");
+    await waitFor(() => expect(screen.getByText("8 slides")).toBeInTheDocument());
+  });
+
+  it("sends the preset slide count to the generation engine", async () => {
+    const user = userEvent.setup();
+    generateMock.mockResolvedValue(validBlocks);
+    renderCreate();
+    await user.type(await openBrief(), "Strategy review for the exec team");
+    await user.click(screen.getByRole("button", { name: /strategy review/i }));
+    await user.click(generateButton());
+    await waitFor(() => expect(generateMock).toHaveBeenCalled());
+    expect(generateMock.mock.calls[0][0]).toMatchObject({ slideCount: 8 });
+  });
+
+  it("shows Custom for a restored draft whose settings match no preset", async () => {
+    saveCreateDraft("Restored custom brief", { cardsCount: 15, density: "plenty" });
+    renderCreate();
+    const field = await openBrief();
+    await waitFor(() => expect(field.value).toBe("Restored custom brief"));
+    expect(screen.getByText(/^Custom:$/)).toBeInTheDocument();
+    expect(screen.getByText("15 slides")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /executive update/i })).toHaveAttribute(
+      "aria-pressed",
+      "false"
+    );
+  });
+});
 
 describe("Create: generation failures keep the brief", () => {
   it("does not navigate or clear the draft when the block insert fails", async () => {
