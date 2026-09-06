@@ -41,15 +41,22 @@ const MicrosoftIcon = () => (
 
 type AuthMode = 'signin' | 'signup' | 'magic';
 
+const NEW_SIGNUP_FLAG = 'axiva_new_signup';
+
 const Auth = () => {
-  const [mode, setMode] = useState<AuthMode>('signin');
+  const [searchParams] = useSearchParams();
+  const requestedMode: AuthMode = searchParams.get('mode') === 'signup' ? 'signup' : 'signin';
+  const [mode, setMode] = useState<AuthMode>(requestedMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [magicSent, setMagicSent] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
-  const [searchParams] = useSearchParams();
+
+  // Validated, same-origin destination only. Empty string means "decide from context".
+  const nextPath = safeInternalPath(searchParams.get('next'), '');
+  const draft = readCreateDraft();
 
   const { signIn, signUp, signInWithGoogle, signInWithApple, signInWithMicrosoft, signInWithMagicLink, user, loading } = useAuth();
   const navigate = useNavigate();
@@ -62,9 +69,27 @@ const Auth = () => {
     }
   }, [searchParams]);
 
+  // Single redirect owner: submit handlers never navigate on success.
   useEffect(() => {
-    if (!loading && user) navigate('/dashboard');
-  }, [user, loading, navigate]);
+    if (loading || !user) return;
+    let isNewSignup = false;
+    try {
+      isNewSignup = sessionStorage.getItem(NEW_SIGNUP_FLAG) === '1';
+      if (isNewSignup) sessionStorage.removeItem(NEW_SIGNUP_FLAG);
+    } catch { /* storage may be unavailable */ }
+
+    if (nextPath) {
+      if (draft) trackProductEvent('auth_return_with_draft', { source: 'next_param' });
+      navigate(nextPath, { replace: true });
+      return;
+    }
+    if (draft) {
+      trackProductEvent('auth_return_with_draft', { source: 'draft' });
+      navigate('/create', { replace: true });
+      return;
+    }
+    navigate(isNewSignup ? '/onboarding' : '/dashboard', { replace: true });
+  }, [user, loading, navigate, nextPath, draft]);
 
   // Track auth page impression for A/B testing
   useEffect(() => {
