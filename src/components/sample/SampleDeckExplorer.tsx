@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import SampleSlideRenderer from "@/components/sample/SampleSlideRenderer";
 import { SAMPLE_DECKS, type SampleDeck } from "@/data/sample-decks";
 import { trackProductEvent } from "@/lib/product-events";
+
 
 interface Props {
   /** Controlled deck id. When omitted the explorer manages its own selection. */
