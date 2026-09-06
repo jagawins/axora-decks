@@ -207,9 +207,9 @@ const Pricing = () => {
 
           {/* A/B tested social proof */}
           {socialVariant === "company_logos" ? (
-            <p className="text-sm text-muted-foreground mb-6">Trusted by teams at consulting firms, startups, and Fortune 500 companies</p>
+            <p className="text-sm text-muted-foreground mb-6">Every plan includes the AI generation engine. Cancel any time.</p>
           ) : socialVariant === "user_count" ? (
-            <p className="text-sm text-accent font-medium mb-6">Join 2,400+ executives already using AXIVA to win the room</p>
+            <p className="text-sm text-muted-foreground mb-6">Start free, upgrade when you need PowerPoint export and brand kits.</p>
           ) : null}
           
           {/* Billing toggle */}
