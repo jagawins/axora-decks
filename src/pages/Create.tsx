@@ -346,8 +346,26 @@ export default function Create() {
     }
 
     if (!user) {
-      toast({ title: "Please sign in to create", variant: "destructive" });
-      navigate("/auth");
+      // Keep the brief and the chosen settings, then send them to sign-up.
+      saveCreateDraft(prompt, {
+        outputType,
+        cardsCount,
+        theme,
+        language,
+        density,
+        visualsMode,
+        useBrandKit,
+      });
+      trackProductEvent("create_intent_stored", {
+        source: "create_page",
+        prompt_length: prompt.trim().length,
+        signed_in: false,
+      });
+      toast({
+        title: "Create a free account to continue",
+        description: "Your brief is saved and will be waiting for you.",
+      });
+      navigate("/auth?mode=signup&next=%2Fcreate");
       return;
     }
 
