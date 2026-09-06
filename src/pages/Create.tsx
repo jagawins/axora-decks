@@ -27,6 +27,13 @@ import { sanitizeContent, sanitizeListItems } from "@/lib/sanitize";
 import { THEMES, DEFAULT_THEME, type ThemeId } from "@/lib/themes";
 import { Switch } from "@/components/ui/switch";
 import { type BrandKit, isBrandKitConfigured } from "@/lib/brand";
+import {
+  readCreateDraft,
+  readLegacyPrompt,
+  clearCreateDraft,
+  saveCreateDraft,
+} from "@/lib/create-draft";
+import { trackProductEvent } from "@/lib/product-events";
 
 // Types
 type OutputType = "presentation" | "social";
