@@ -30,6 +30,10 @@ export default function SampleDeckExplorer({
   compact = false,
   className,
 }: Props) {
+  const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const tabId = (id: string) => `sample-tab-${uid}-${id}`;
+  const panelId = `sample-deck-panel-${uid}`;
+
   const [internalDeckId, setInternalDeckId] = useState(deckId ?? decks[0].id);
   const activeDeckId = deckId ?? internalDeckId;
   const deck = useMemo(
@@ -38,7 +42,7 @@ export default function SampleDeckExplorer({
   );
 
   const [index, setIndex] = useState(0);
-  const rootRef = useRef<HTMLDivElement>(null);
+  const tablistRef = useRef<HTMLDivElement>(null);
   const total = deck.slides.length;
   const slide = deck.slides[Math.min(index, total - 1)];
 
@@ -70,41 +74,49 @@ export default function SampleDeckExplorer({
     [total, deck.id]
   );
 
-  // Arrow-key navigation, but never while the visitor is typing.
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-      const target = e.target as HTMLElement | null;
-      if (target) {
-        const tag = target.tagName;
-        if (
-          tag === "INPUT" ||
-          tag === "TEXTAREA" ||
-          tag === "SELECT" ||
-          target.isContentEditable
-        ) {
-          return;
-        }
+  /** Standard tab-list keyboard behaviour: arrows move between decks. */
+  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+    if (!keys.includes(e.key)) return;
+    e.preventDefault();
+    const current = decks.findIndex((d) => d.id === deck.id);
+    let target = current;
+    if (e.key === "ArrowRight") target = (current + 1) % decks.length;
+    if (e.key === "ArrowLeft") target = (current - 1 + decks.length) % decks.length;
+    if (e.key === "Home") target = 0;
+    if (e.key === "End") target = decks.length - 1;
+    const next = decks[target];
+    if (!next) return;
+    selectDeck(next.id);
+    const el = tablistRef.current?.querySelector<HTMLButtonElement>(`#${CSS.escape(tabId(next.id))}`);
+    el?.focus();
+  };
+
+  /**
+   * Slide arrows only act when focus is inside the slide region, so they never
+   * hijack page, menu or text-input navigation.
+   */
+  const handleSlideKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    const target = e.target as HTMLElement | null;
+    if (target) {
+      const tag = target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target.isContentEditable) {
+        return;
       }
-      // Only respond when this explorer is on screen and focused within, or when it
-      // is the only explorer (compact panels are skipped to avoid double handling).
-      const root = rootRef.current;
-      if (!root) return;
-      if (compact && !root.contains(document.activeElement)) return;
-      e.preventDefault();
-      go(e.key === "ArrowRight" ? index + 1 : index - 1);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [go, index, compact]);
+    }
+    e.preventDefault();
+    go(e.key === "ArrowRight" ? index + 1 : index - 1);
+  };
 
   const atStart = index === 0;
   const atEnd = index === total - 1;
 
   return (
-    <div ref={rootRef} className={cn("w-full", className)}>
+    <div className={cn("w-full", className)}>
       {showDeckTabs && (
         <div
+          ref={tablistRef}
           role="tablist"
           aria-label="Sample decks"
           className="mb-4 flex flex-wrap gap-2"
@@ -116,9 +128,11 @@ export default function SampleDeckExplorer({
                 key={d.id}
                 role="tab"
                 type="button"
-                id={`sample-tab-${d.id}`}
+                id={tabId(d.id)}
                 aria-selected={selected}
-                aria-controls="sample-deck-panel"
+                aria-controls={panelId}
+                tabIndex={selected ? 0 : -1}
+                onKeyDown={handleTabKeyDown}
                 onClick={() => selectDeck(d.id)}
                 className={cn(
                   "min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-colors",
@@ -136,11 +150,14 @@ export default function SampleDeckExplorer({
       )}
 
       <div
-        id="sample-deck-panel"
+        id={panelId}
         role="tabpanel"
-        aria-labelledby={showDeckTabs ? `sample-tab-${deck.id}` : undefined}
+        aria-labelledby={showDeckTabs ? tabId(deck.id) : undefined}
+        tabIndex={showDeckTabs ? 0 : undefined}
+        onKeyDown={handleSlideKeyDown}
         className="rounded-2xl border border-border/60 bg-card/40 p-3 sm:p-4"
       >
+
         {/* Deck meta */}
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-1">
           <div className="min-w-0">
