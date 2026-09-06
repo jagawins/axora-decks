@@ -9,6 +9,8 @@ import { Mail, Lock, User, ArrowRight, Loader2, Sparkles, CheckCircle2 } from 'l
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { getVariant, trackABEvent } from '@/lib/ab-testing';
+import { readCreateDraft, safeInternalPath } from '@/lib/create-draft';
+import { trackProductEvent } from '@/lib/product-events';
 import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
 
 const emailSchema = z.string().email('Please enter a valid email address');
