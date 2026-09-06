@@ -471,12 +471,33 @@ export default function Create() {
       // leaving empty decks behind on every retry.
       let projectId = pendingProjectRef.current;
       if (projectId) {
-        const { data: existing } = await supabase
+        const { data: existing, error: lookupError } = await supabase
           .from("projects")
           .select("id")
           .eq("id", projectId)
           .maybeSingle();
-        if (!existing) projectId = null;
+        // A lookup that failed (offline, transient error) tells us nothing:
+        // stop rather than risk creating a duplicate deck.
+        if (lookupError) {
+          throw new Error("We could not reach your decks. Please try again.");
+        }
+        if (!existing) {
+          projectId = null;
+        } else {
+          // Settings may have changed since the failed attempt: keep the
+          // existing deck's metadata in step with the current choices.
+          const { error: updateError } = await supabase
+            .from("projects")
+            .update({
+              title: projectInsert.title,
+              theme: projectInsert.theme,
+              brand_kit: useBrandKit && brandKit ? brandKit : null,
+            })
+            .eq("id", projectId);
+          if (updateError) {
+            throw new Error("We could not update your deck settings. Please try again.");
+          }
+        }
       }
       if (!projectId) {
         const { data: newProject, error: projectError } = await supabase
