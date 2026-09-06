@@ -83,7 +83,7 @@ const Hero = () => {
       // We cannot carry the brief to the next page, so we stay here and say so
       // rather than claiming it was saved.
       setError(
-        saved.reason === "storage"
+        "reason" in saved && saved.reason === "storage"
           ? "This browser is blocking storage, so we cannot carry your brief to the next step. Copy it first, then continue — or open AXIVA in a normal (non-private) window."
           : "We could not keep your brief. Please check it and try again."
       );

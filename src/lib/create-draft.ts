@@ -192,9 +192,9 @@ export function saveCreateDraft(
   prompt: string,
   settings: CreateDraftSettings = {}
 ): SaveDraftResult {
-  const cleaned = cleanPromptText(prompt).trim();
-  if (!cleaned) return { ok: false, reason: "empty" };
-  if (cleaned.length > MAX_PROMPT_LENGTH) return { ok: false, reason: "too_long" };
+  const cleaned = cleanPromptText(prompt);
+  if (!cleaned.trim()) return { ok: false, reason: "empty" };
+  if (cleaned.trim().length > MAX_PROMPT_LENGTH) return { ok: false, reason: "too_long" };
   const draft: CreateDraft = {
     version: 1,
     prompt: cleaned,
@@ -241,7 +241,8 @@ export function clearCreateDraft(): void {
 
 /** Compatibility: older builds stored only a bare prompt string. */
 export function readLegacyPrompt(): string | null {
-  return normalisePrompt(safeRead(LEGACY_PROMPT_KEY));
+  const value = normalisePrompt(safeRead(LEGACY_PROMPT_KEY));
+  return value ? value.trim() : null;
 }
 
 /**

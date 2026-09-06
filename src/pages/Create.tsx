@@ -418,7 +418,7 @@ export default function Create() {
         // We cannot retain the brief across the sign-in hand-off, so we do not
         // pretend to: keep the visitor here with a real next step.
         setBriefNotice(
-          saved.reason === "storage"
+          "reason" in saved && saved.reason === "storage"
             ? "This browser is blocking storage, so we cannot keep your brief while you sign in. Copy your brief first, or open AXIVA in a normal (non-private) window."
             : "We could not keep your brief. Please check it and try again."
         );
