@@ -220,19 +220,21 @@ const Auth = () => {
             <img src={axivaWordmark} alt="AXIVA" className="h-8" />
           </a>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {mode === 'signup' 
+            {mode === 'signup'
               ? (getVariant("signup_cta") === "no_credit_card" ? "Start free, no credit card needed"
-                : getVariant("signup_cta") === "instant_deck" ? "Create your first deck in 60 seconds"
                 : "Create your account")
               : mode === 'magic' ? 'Sign in with email' : 'Welcome back'}
           </h1>
           <p className="text-muted-foreground text-center">
-            {mode === 'signup' 
-              ? (getVariant("signup_cta") === "no_credit_card" ? "98 executive templates. AI deck generation. Speech coaching. All free to start."
-                : getVariant("signup_cta") === "instant_deck" ? "Describe your topic. AI builds the structure, narrative, and visuals."
-                : "Start creating executive-grade presentations")
-              : mode === 'magic' ? "We'll send you a magic link" : 'Sign in to continue to your dashboard'}
+            {mode === 'signup'
+              ? "Describe what you need to present and AXIVA structures the deck."
+              : mode === 'magic' ? "We'll send you a magic link" : 'Sign in to continue'}
           </p>
+          {draft && (
+            <p className="mt-4 rounded-lg border border-accent/30 bg-accent/5 px-4 py-2.5 text-center text-sm text-foreground">
+              Your brief is saved. We'll take you straight back to it.
+            </p>
+          )}
         </div>
 
         <div className="bg-card/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/40 p-8">
