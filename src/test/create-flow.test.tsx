@@ -15,6 +15,7 @@ import {
   saveCreateDraft,
   readCreateDraft,
   DRAFT_STORAGE_KEY,
+  MAX_PROMPT_LENGTH,
 } from "@/lib/create-draft";
 
 /* ── mocks ─────────────────────────────────────────────────────── */
@@ -93,10 +94,10 @@ vi.mock("@/integrations/supabase/client", () => {
 
 import Create from "@/pages/Create";
 
-const renderCreate = () =>
+const renderCreate = (entry = "/create") =>
   render(
     <HelmetProvider>
-      <MemoryRouter initialEntries={["/create"]}>
+      <MemoryRouter initialEntries={[entry]}>
         <Create />
       </MemoryRouter>
     </HelmetProvider>
@@ -258,6 +259,26 @@ describe("Create: draft durability", () => {
     } finally {
       Object.defineProperty(window, "sessionStorage", { configurable: true, value: real });
     }
+  });
+
+  it("keeps an over-limit URL brief in full, blocks generation and does not store it", async () => {
+    const long = "L".repeat(MAX_PROMPT_LENGTH + 250);
+    renderCreate(`/create?prompt=${encodeURIComponent(long)}`);
+    const field = await waitFor(() => document.getElementById("prompt") as HTMLTextAreaElement);
+    // Nothing is truncated away.
+    expect(field.value.length).toBe(long.length);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/longer than/i);
+    expect(generateButton()).toBeDisabled();
+    await waitFor(() => expect(window.sessionStorage.getItem(DRAFT_STORAGE_KEY)).toBeNull());
+    expect(generateMock).not.toHaveBeenCalled();
+  });
+
+  it("restores a brief with edge whitespace exactly", async () => {
+    const brief = "   First line\n\t";
+    saveCreateDraft(brief);
+    renderCreate();
+    const field = await waitFor(() => document.getElementById("prompt") as HTMLTextAreaElement);
+    await waitFor(() => expect(field.value).toBe(brief));
   });
 
   it("never writes the brief into the URL", async () => {
