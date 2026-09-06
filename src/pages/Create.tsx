@@ -624,6 +624,14 @@ Create exactly ${cardsCount} slides/cards.`;
                 We brought your brief back — edit it or generate when you're ready.
               </p>
             )}
+            {briefNotice && (
+              <p
+                role="alert"
+                className="mx-auto mt-5 max-w-xl rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-2.5 text-sm text-foreground"
+              >
+                {briefNotice}
+              </p>
+            )}
           </div>
 
           {/* Mode Toggle — shown before entry cards or when scratch is active */}
@@ -855,9 +863,27 @@ Create exactly ${cardsCount} slides/cards.`;
                   placeholder="Describe your presentation topic, key points, or paste your notes..."
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="min-h-[120px] bg-muted/50 resize-none"
+                  aria-describedby="prompt-counter"
+                  aria-invalid={promptTooLong || undefined}
+                  className="min-h-[120px] bg-muted/50 resize-y"
                   disabled={generating}
                 />
+                <p
+                  id="prompt-counter"
+                  className={cn(
+                    "text-xs",
+                    promptTooLong ? "text-destructive" : "text-muted-foreground"
+                  )}
+                >
+                  {promptChars.toLocaleString()} / {MAX_PROMPT_LENGTH.toLocaleString()} characters
+                  {promptTooLong ? " — please shorten your brief before generating." : ""}
+                </p>
+                {!storageAvailable && (
+                  <p className="text-xs text-muted-foreground">
+                    This browser is blocking storage, so your brief cannot be kept if you
+                    leave this page. Copy it somewhere safe first.
+                  </p>
+                )}
               </div>
 
               {/* Example Prompts */}
@@ -889,7 +915,7 @@ Create exactly ${cardsCount} slides/cards.`;
                 size="lg"
                 className="w-full"
                 onClick={handleGenerate}
-                disabled={!prompt.trim() || generating}
+                disabled={!prompt.trim() || promptTooLong || generating}
               >
                 {generating ? (
                   <>
