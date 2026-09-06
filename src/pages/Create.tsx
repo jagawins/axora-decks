@@ -786,7 +786,7 @@ Create exactly ${cardsCount} slides/cards.`;
                   onChange={(e) => setPrompt(e.target.value)}
                   aria-describedby="prompt-counter"
                   aria-invalid={promptTooLong || undefined}
-                  className="min-h-[150px] resize-y bg-muted/50 text-base"
+                  className="min-h-[112px] resize-y overflow-y-auto bg-muted/50 text-base sm:min-h-[132px]"
                   disabled={generating}
                 />
                 <p
