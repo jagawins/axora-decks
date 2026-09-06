@@ -1021,33 +1021,6 @@ Create exactly ${cardsCount} slides/cards.`;
                 </div>
               </div>
 
-              {/* 5. One primary action + commercial truth */}
-              <div className="space-y-3">
-                <Button
-                  variant="hero"
-                  size="lg"
-                  className="w-full"
-                  onClick={handleGenerate}
-                  disabled={!prompt.trim() || promptTooLong || generating}
-                >
-                  {generating ? (
-                    <>
-                      <Loader2 className="h-5 w-5 animate-spin mr-2" aria-hidden="true" />
-                      Generating… <GenerationTimer startTime={genStartTime} />
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-5 w-5 mr-2" aria-hidden="true" />
-                      {user ? "Generate deck" : "Continue — set up a free account"}
-                    </>
-                  )}
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  {user
-                    ? `Your free plan includes ${FREE_PROJECT_LIMIT} decks and ${FREE_GENERATION_LIMIT} AI generations a month. No card needed to generate. PowerPoint and PDF export require Pro.`
-                    : `Free to try: ${FREE_PROJECT_LIMIT} decks and ${FREE_GENERATION_LIMIT} AI generations a month, no card needed. PowerPoint and PDF export require Pro.`}
-                </p>
-              </div>
 
               {/* 6. Everything else stays reachable */}
               <div className="border-t border-border/50 pt-4">
