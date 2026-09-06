@@ -186,13 +186,42 @@ export default function Create() {
   const [genElapsed, setGenElapsed] = useState<number | null>(null);
   const [searchParams] = useSearchParams();
 
-  // Auto-fill prompt from URL parameter (from Speech Prep, Timeline, Smart Slides, etc.)
+  const [restoredBrief, setRestoredBrief] = useState(false);
+
+  // Prompt sources, in priority order:
+  // 1. URL ?prompt= (Speech Prep, Timeline, Smart Slides, template links)
+  // 2. A saved creation draft from the homepage brief (survives sign-in / reload)
+  // 3. The legacy prefill key written by older builds
   useEffect(() => {
     const urlPrompt = searchParams.get("prompt");
     if (urlPrompt) {
       setPrompt(urlPrompt);
       setActiveEntry("scratch");
+      return;
     }
+    const draft = readCreateDraft();
+    if (draft) {
+      setPrompt(draft.prompt);
+      setActiveEntry("scratch");
+      setRestoredBrief(true);
+      const s = draft.settings;
+      if (s.outputType) setOutputType(s.outputType);
+      if (s.cardsCount) setCardsCount(s.cardsCount);
+      if (s.theme) setTheme(s.theme as ThemeId);
+      if (s.language) setLanguage(s.language);
+      if (s.density) setDensity(s.density);
+      if (s.visualsMode) setVisualsMode(s.visualsMode);
+      trackProductEvent("create_draft_restored", { source: "create_page" });
+      return;
+    }
+    const legacy = readLegacyPrompt();
+    if (legacy) {
+      setPrompt(legacy);
+      setActiveEntry("scratch");
+      setRestoredBrief(true);
+    }
+    // Runs once per search-param change; restoring must not fight user edits.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
   const [useBrandKit, setUseBrandKit] = useState(false);
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
