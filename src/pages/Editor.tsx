@@ -1165,6 +1165,15 @@ const Editor = () => {
               Agent
             </Button>
 
+            {/* Direct, clearly labeled export entry point (same handlers, same gates) */}
+            <ExportMenu
+              onPrintPDF={exportPdf}
+              onExportPPTX={exportPptx}
+              pptxLoading={pptxLoading}
+              onShareLink={() => setShareDialogOpen(true)}
+              onPresenterView={() => navigate(`/present/${projectId}`)}
+            />
+
             {/* Gamma-style consolidated menu */}
             <EditorMoreMenu
               projectTitle={project?.title}
