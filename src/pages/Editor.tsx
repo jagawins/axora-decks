@@ -1058,8 +1058,8 @@ const Editor = () => {
     <div className="min-h-screen-safe bg-background flex flex-col">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50 safe-area-top">
-        <div className="flex h-14 items-center justify-between px-2 sm:px-4">
-          <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex h-14 items-center justify-between gap-2 px-2 sm:px-4">
+          <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-4">
             <Button variant="ghost" size="icon" className="shrink-0" aria-label="Back to my decks" onClick={() => {
               if (hasUnsavedChanges && !window.confirm("You have unsaved changes. Leave anyway?")) return;
               navigate("/dashboard");
