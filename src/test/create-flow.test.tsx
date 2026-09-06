@@ -15,6 +15,7 @@ import {
   saveCreateDraft,
   readCreateDraft,
   DRAFT_STORAGE_KEY,
+  MAX_PROMPT_LENGTH,
 } from "@/lib/create-draft";
 
 /* ── mocks ─────────────────────────────────────────────────────── */
@@ -46,6 +47,9 @@ vi.mock("@/lib/ai-engine", () => ({
 let blocksInsertError: { message: string } | null = null;
 const blocksInsertCalls: unknown[][] = [];
 const projectInserts: unknown[] = [];
+const projectUpdates: unknown[] = [];
+let projectLookupError: { message: string } | null = null;
+let projectUpdateError: { message: string } | null = null;
 
 vi.mock("@/integrations/supabase/client", () => {
   const client = {
@@ -60,8 +64,12 @@ vi.mock("@/integrations/supabase/client", () => {
               }),
             };
           },
+          update: (payload: unknown) => {
+            projectUpdates.push(payload);
+            return { eq: async () => ({ error: projectUpdateError }) };
+          },
           select: () => ({
-            eq: () => ({ maybeSingle: async () => ({ data: { id: "project-1" }, error: null }) }),
+            eq: () => ({ maybeSingle: async () => ({ data: { id: "project-1" }, error: projectLookupError }) }),
             // profiles brand_kit lookup
             single: async () => ({ data: null, error: null }),
           }),
@@ -93,10 +101,10 @@ vi.mock("@/integrations/supabase/client", () => {
 
 import Create from "@/pages/Create";
 
-const renderCreate = () =>
+const renderCreate = (entry = "/create") =>
   render(
     <HelmetProvider>
-      <MemoryRouter initialEntries={["/create"]}>
+      <MemoryRouter initialEntries={[entry]}>
         <Create />
       </MemoryRouter>
     </HelmetProvider>
@@ -117,6 +125,9 @@ beforeEach(() => {
   blocksInsertError = null;
   blocksInsertCalls.length = 0;
   projectInserts.length = 0;
+  projectUpdates.length = 0;
+  projectLookupError = null;
+  projectUpdateError = null;
 });
 
 afterEach(() => {
@@ -190,6 +201,29 @@ describe("Create: generation failures keep the brief", () => {
     await user.click(generateButton());
     await waitFor(() => expect(generateMock).toHaveBeenCalledTimes(2));
     expect(projectInserts.length).toBe(1);
+    // Retry refreshes the existing deck's metadata rather than duplicating it.
+    expect(projectUpdates.length).toBe(1);
+  });
+
+  it("does not create a duplicate deck when the pending-project lookup errors", async () => {
+    const user = userEvent.setup();
+    generateMock.mockResolvedValue({ blocks: [] });
+
+    renderCreate();
+    await user.type(await openBrief(user), "Board review");
+    await user.click(generateButton());
+    await waitFor(() => expect(projectInserts.length).toBe(1));
+
+    projectLookupError = { message: "network error" };
+    await user.click(generateButton());
+    await waitFor(() =>
+      expect(toastMock).toHaveBeenCalledWith(
+        expect.objectContaining({ title: expect.stringMatching(/failed/i) })
+      )
+    );
+    expect(projectInserts.length).toBe(1);
+    expect(generateMock).toHaveBeenCalledTimes(1);
+    expect(readCreateDraft()?.prompt).toBe("Board review");
   });
 
   it("passes the chosen card count to the generator", async () => {
@@ -258,6 +292,26 @@ describe("Create: draft durability", () => {
     } finally {
       Object.defineProperty(window, "sessionStorage", { configurable: true, value: real });
     }
+  });
+
+  it("keeps an over-limit URL brief in full, blocks generation and does not store it", async () => {
+    const long = "L".repeat(MAX_PROMPT_LENGTH + 250);
+    renderCreate(`/create?prompt=${encodeURIComponent(long)}`);
+    const field = await waitFor(() => document.getElementById("prompt") as HTMLTextAreaElement);
+    // Nothing is truncated away.
+    expect(field.value.length).toBe(long.length);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/longer than/i);
+    expect(generateButton()).toBeDisabled();
+    await waitFor(() => expect(window.sessionStorage.getItem(DRAFT_STORAGE_KEY)).toBeNull());
+    expect(generateMock).not.toHaveBeenCalled();
+  });
+
+  it("restores a brief with edge whitespace exactly", async () => {
+    const brief = "   First line\n\t";
+    saveCreateDraft(brief);
+    renderCreate();
+    const field = await waitFor(() => document.getElementById("prompt") as HTMLTextAreaElement);
+    await waitFor(() => expect(field.value).toBe(brief));
   });
 
   it("never writes the brief into the URL", async () => {

@@ -104,6 +104,22 @@ describe("create draft round trip", () => {
     expect(readCreateDraft()!.prompt.length).toBeGreaterThan(4000);
   });
 
+  it("round-trips edge whitespace verbatim on save and read", () => {
+    const brief = "   First line\n\t";
+    expect(saveCreateDraft(brief)).toEqual({ ok: true });
+    expect(readCreateDraft()?.prompt).toBe(brief);
+  });
+
+  it("counts padding towards the limit so whitespace cannot evade the bound", () => {
+    const padded = " ".repeat(MAX_PROMPT_LENGTH) + "brief";
+    expect(saveCreateDraft(padded)).toEqual({ ok: false, reason: "too_long" });
+    expect(readCreateDraft()).toBeNull();
+  });
+
+  it("still treats whitespace-only briefs as empty", () => {
+    expect(saveCreateDraft("   \n\t ")).toEqual({ ok: false, reason: "empty" });
+  });
+
   it("reading never clears the draft, so a failed generation keeps the brief", () => {
     saveCreateDraft("Strategy review");
     expect(readCreateDraft()?.prompt).toBe("Strategy review");

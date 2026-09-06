@@ -132,18 +132,25 @@ export function cleanPromptText(raw: unknown): string {
   return raw.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "");
 }
 
-/** Length used for validation and for the visible counter. */
+/**
+ * Length used for validation and for the visible counter.
+ * Counts the FULL cleaned text, so padding cannot slip past the bound.
+ */
 export function promptLength(raw: string): number {
-  return cleanPromptText(raw).trim().length;
+  return cleanPromptText(raw).length;
 }
 
 export function isPromptWithinLimit(raw: string): boolean {
   return promptLength(raw) <= MAX_PROMPT_LENGTH;
 }
 
+/**
+ * Trimming is used ONLY to decide whether the brief is empty. The text itself
+ * is preserved verbatim, so '   First line\n\t' round trips unchanged.
+ */
 function normalisePrompt(raw: unknown): string | null {
-  const cleaned = cleanPromptText(raw).trim();
-  if (!cleaned) return null;
+  const cleaned = cleanPromptText(raw);
+  if (!cleaned.trim()) return null;
   if (cleaned.length > MAX_PROMPT_LENGTH) return null; // reject, never truncate
   return cleaned;
 }
@@ -194,7 +201,7 @@ export function saveCreateDraft(
 ): SaveDraftResult {
   const cleaned = cleanPromptText(prompt);
   if (!cleaned.trim()) return { ok: false, reason: "empty" };
-  if (cleaned.trim().length > MAX_PROMPT_LENGTH) return { ok: false, reason: "too_long" };
+  if (cleaned.length > MAX_PROMPT_LENGTH) return { ok: false, reason: "too_long" };
   const draft: CreateDraft = {
     version: 1,
     prompt: cleaned,
