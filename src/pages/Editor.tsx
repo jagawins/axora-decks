@@ -219,9 +219,6 @@ const Editor = () => {
   const [sharePasscode, setSharePasscode] = useState("");
   const [viewAnalytics, setViewAnalytics] = useState<{ total: number; unique: number; topSlides: { index: number; avgTime: number }[] } | null>(null);
 
-  // Export overlay state
-  const [exportOverlayOpen, setExportOverlayOpen] = useState(false);
-  const [exportStage, setExportStage] = useState(0);
 
   // Version history & slide locks
   const [versionsOpen, setVersionsOpen] = useState(false);
@@ -843,14 +840,10 @@ const Editor = () => {
       return;
     }
 
-    setExportOverlayOpen(true);
-    setExportStage(0);
-    setTimeout(() => setExportStage(1), 1000);
-    setTimeout(() => setExportStage(2), 2000);
-    setTimeout(() => {
-      setExportOverlayOpen(false);
-      window.open(`/print/${projectId}`, "_blank", "noopener,noreferrer");
-    }, 3000);
+    // Open the existing print route synchronously from the click so the
+    // browser's popup rules treat it as user-initiated. The browser's own
+    // print/save dialog then needs additional actions from the person.
+    window.open(`/print/${projectId}`, "_blank", "noopener,noreferrer");
   };
 
   const exportPptx = async () => {
@@ -1065,19 +1058,20 @@ const Editor = () => {
     <div className="min-h-screen-safe bg-background flex flex-col">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50 safe-area-top">
-        <div className="flex h-14 items-center justify-between px-2 sm:px-4">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Button variant="ghost" size="icon" onClick={() => {
+        <div className="flex h-14 items-center justify-between gap-2 px-2 sm:px-4">
+          <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-4">
+            <Button variant="ghost" size="icon" className="shrink-0" aria-label="Back to my decks" onClick={() => {
               if (hasUnsavedChanges && !window.confirm("You have unsaved changes. Leave anyway?")) return;
               navigate("/dashboard");
             }}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
               <img src={axivaWordmark} alt="AXIVA" className="h-4 w-auto hidden sm:block" />
               <span className="text-muted-foreground hidden sm:inline">|</span>
               <input
-                className="font-semibold truncate max-w-[120px] sm:max-w-[200px] text-sm sm:text-base bg-transparent border-none outline-none focus:ring-1 focus:ring-primary/50 rounded px-1 -mx-1 cursor-text"
+                aria-label="Deck title"
+                className="w-full font-semibold truncate max-w-[110px] sm:max-w-[200px] text-sm sm:text-base bg-transparent border-none outline-none focus:ring-1 focus:ring-primary/50 rounded px-1 -mx-1 cursor-text"
                 value={project?.title || ""}
                 placeholder="Untitled"
                 onChange={(e) => {
@@ -1172,6 +1166,15 @@ const Editor = () => {
               Agent
             </Button>
 
+            {/* Direct, clearly labeled export entry point (same handlers, same gates) */}
+            <ExportMenu
+              onPrintPDF={exportPdf}
+              onExportPPTX={exportPptx}
+              pptxLoading={pptxLoading}
+              onShareLink={() => setShareDialogOpen(true)}
+              onPresenterView={() => navigate(`/present/${projectId}`)}
+            />
+
             {/* Gamma-style consolidated menu */}
             <EditorMoreMenu
               projectTitle={project?.title}
@@ -1242,13 +1245,26 @@ const Editor = () => {
           </div>
 
           {/* Mobile header actions */}
-          <div className="flex md:hidden items-center gap-1">
-            <Button variant="hero" size="sm" onClick={handleSave} disabled={saving || !hasUnsavedChanges}>
+          <div className="flex md:hidden shrink-0 items-center gap-1">
+            <Button
+              variant="hero"
+              size="sm"
+              onClick={handleSave}
+              disabled={saving || !hasUnsavedChanges}
+              aria-label="Save deck"
+            >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             </Button>
+            <ExportMenu
+              onPrintPDF={exportPdf}
+              onExportPPTX={exportPptx}
+              pptxLoading={pptxLoading}
+              onShareLink={() => setShareDialogOpen(true)}
+              onPresenterView={() => navigate(`/present/${projectId}`)}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label="More deck actions">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -1268,10 +1284,6 @@ const Editor = () => {
                 <DropdownMenuItem onClick={() => navigate(`/preview/${projectId}`)}>
                   <Play className="h-4 w-4 mr-2" />
                   Preview
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportPdf}>
-                  <FileDown className="h-4 w-4 mr-2" />
-                  Export PDF
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setShareDialogOpen(true)}>
                   <Share2 className="h-4 w-4 mr-2" />
@@ -1885,30 +1897,6 @@ const Editor = () => {
         onClose={() => setShowInviteTeam(false)}
       />
 
-      {/* Export Polish Overlay */}
-      <Dialog open={exportOverlayOpen} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-sm text-center" onPointerDownOutside={(e) => e.preventDefault()}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-center gap-2">
-              <Loader2 className="h-5 w-5 animate-spin text-accent" />
-              Preparing Export
-            </DialogTitle>
-            <DialogDescription>
-              {exportStage === 0 && "Optimizing slide formatting…"}
-              {exportStage === 1 && "Aligning spacing…"}
-              {exportStage === 2 && "Applying consistent typography…"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-accent rounded-full transition-all duration-700"
-                style={{ width: `${((exportStage + 1) / 3) * 100}%` }}
-              />
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Version history sheet */}
       {projectId && user && (

@@ -786,7 +786,7 @@ Create exactly ${cardsCount} slides/cards.`;
                   onChange={(e) => setPrompt(e.target.value)}
                   aria-describedby="prompt-counter"
                   aria-invalid={promptTooLong || undefined}
-                  className="min-h-[150px] resize-y bg-muted/50 text-base"
+                  className="min-h-[112px] resize-y overflow-y-auto bg-muted/50 text-base sm:min-h-[132px]"
                   disabled={generating}
                 />
                 <p
@@ -802,25 +802,68 @@ Create exactly ${cardsCount} slides/cards.`;
                     leave this page. Copy it somewhere safe first.
                   </p>
                 )}
-                <div className="flex flex-wrap gap-2">
+                <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
                   {EXAMPLE_PROMPTS.slice(0, 3).map((example) => (
                     <button
                       key={example}
                       onClick={() => handleExampleClick(example)}
                       disabled={generating}
                       className={cn(
-                        "min-h-[36px] rounded-full border border-border/50 px-3 py-1.5 text-xs",
+                        "min-h-[36px] shrink-0 rounded-full border border-border/50 px-3 py-1.5 text-xs",
                         "bg-muted/30 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground",
                         "disabled:opacity-50"
                       )}
                     >
-                      {example.length > 40 ? example.slice(0, 40) + "…" : example}
+                      {example.length > 28 ? example.slice(0, 28) + "…" : example}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* 2. Optional presets */}
+              {/* 2. Concise settings summary, always visible */}
+              <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border/40 bg-muted/30 p-3">
+                <span className="text-xs font-medium text-muted-foreground">
+                  {activePreset
+                    ? CREATE_PRESETS.find((p) => p.id === activePreset)?.label
+                    : "Custom"}
+                  :
+                </span>
+                {summaryChips.map((chip) => (
+                  <Badge key={chip} variant="secondary" className="text-xs">
+                    {chip}
+                  </Badge>
+                ))}
+              </div>
+
+              {/* 3. The single primary action, before anything optional */}
+              <div className="space-y-3">
+                <Button
+                  variant="hero"
+                  size="lg"
+                  className="w-full"
+                  onClick={handleGenerate}
+                  disabled={!prompt.trim() || promptTooLong || generating}
+                >
+                  {generating ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" aria-hidden="true" />
+                      Generating… <GenerationTimer startTime={genStartTime} />
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-5 w-5 mr-2" aria-hidden="true" />
+                      {user ? "Generate deck" : "Continue — set up a free account"}
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Free plan: {FREE_PROJECT_LIMIT} decks and {FREE_GENERATION_LIMIT} AI
+                  generations a month, no card needed to generate. PowerPoint and PDF export
+                  require Pro.
+                </p>
+              </div>
+
+              {/* 4. Optional presets */}
               <div className="space-y-3">
                 <p className="text-sm font-medium text-foreground" id="preset-label">
                   Shape it like a…{" "}
@@ -855,20 +898,6 @@ Create exactly ${cardsCount} slides/cards.`;
                 </div>
               </div>
 
-              {/* 3. Always-visible summary of what will be built */}
-              <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border/40 bg-muted/30 p-3">
-                <span className="text-xs font-medium text-muted-foreground">
-                  {activePreset
-                    ? CREATE_PRESETS.find((p) => p.id === activePreset)?.label
-                    : "Custom"}
-                  :
-                </span>
-                {summaryChips.map((chip) => (
-                  <Badge key={chip} variant="secondary" className="text-xs">
-                    {chip}
-                  </Badge>
-                ))}
-              </div>
 
               {/* 4. Detailed controls, closed by default */}
               <div>
@@ -1021,33 +1050,6 @@ Create exactly ${cardsCount} slides/cards.`;
                 </div>
               </div>
 
-              {/* 5. One primary action + commercial truth */}
-              <div className="space-y-3">
-                <Button
-                  variant="hero"
-                  size="lg"
-                  className="w-full"
-                  onClick={handleGenerate}
-                  disabled={!prompt.trim() || promptTooLong || generating}
-                >
-                  {generating ? (
-                    <>
-                      <Loader2 className="h-5 w-5 animate-spin mr-2" aria-hidden="true" />
-                      Generating… <GenerationTimer startTime={genStartTime} />
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-5 w-5 mr-2" aria-hidden="true" />
-                      {user ? "Generate deck" : "Continue — set up a free account"}
-                    </>
-                  )}
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  {user
-                    ? `Your free plan includes ${FREE_PROJECT_LIMIT} decks and ${FREE_GENERATION_LIMIT} AI generations a month. No card needed to generate. PowerPoint and PDF export require Pro.`
-                    : `Free to try: ${FREE_PROJECT_LIMIT} decks and ${FREE_GENERATION_LIMIT} AI generations a month, no card needed. PowerPoint and PDF export require Pro.`}
-                </p>
-              </div>
 
               {/* 6. Everything else stays reachable */}
               <div className="border-t border-border/50 pt-4">
