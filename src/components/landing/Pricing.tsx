@@ -16,8 +16,8 @@ const plans = [
     yearlyPrice: "$0",
     description: "Perfect for trying AXIVA",
     features: [
-      "3 projects",
-      "Basic AI generation",
+      "10 projects",
+      "10 AI deck generations per month",
       "Standard block types",
       "Web sharing links",
       "Community support"

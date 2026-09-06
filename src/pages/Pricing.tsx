@@ -19,7 +19,7 @@ const FEATURE_CATEGORIES = [
   {
     category: "AI Generation",
     features: [
-      { name: "Full deck generations", free: "3 total", pro: "Unlimited", team: "Unlimited", enterprise: "Unlimited" },
+      { name: "Full deck generations", free: "10 per month", pro: "Unlimited", team: "Unlimited", enterprise: "Unlimited" },
       { name: "AI block refinements", free: "Unlimited", pro: "Unlimited", team: "Unlimited", enterprise: "Unlimited" },
       { name: "AI image generation", free: false, pro: true, team: true, enterprise: true },
       { name: "Smart content structuring (MECE)", free: true, pro: true, team: true, enterprise: true },
@@ -131,7 +131,7 @@ const Pricing = () => {
       yearlyPrice: "$0",
       period: "forever",
       highlights: [
-        "3 full deck generations",
+        "10 AI deck generations per month",
         "10 projects",
         "25+ block types",
         "PNG & web link export",
@@ -257,10 +257,10 @@ const Pricing = () => {
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>AXIVA Pricing — Free, Pro $28, Team $78 per user</title>
-        <meta name="description" content="Simple AXIVA pricing. Free forever for 3 decks. Pro $28/mo unlocks unlimited decks, PPTX export, and Brand Kit. Team $78/user. 14-day free trial." />
+        <meta name="description" content="Simple AXIVA pricing. Free plan includes 10 projects and 10 AI deck generations per month. Pro $28/mo unlocks unlimited decks, PPTX export, and Brand Kit. Team $78/user. 14-day free trial." />
         <link rel="canonical" href="https://axiva.ai/pricing" />
         <meta property="og:title" content="AXIVA Pricing — Free, Pro, and Team plans" />
-        <meta property="og:description" content="Free forever for 3 decks. Pro $28/mo unlocks unlimited generations, PPTX export, and Brand Kit. 14-day free trial." />
+        <meta property="og:description" content="Free plan includes 10 projects and 10 AI deck generations per month. Pro $28/mo unlocks unlimited generations, PPTX export, and Brand Kit. 14-day free trial." />
         <meta property="og:url" content="https://axiva.ai/pricing" />
         <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
       </Helmet>
