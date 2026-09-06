@@ -1,392 +1,194 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Loader2, Zap, FileText, BarChart3, Target } from "lucide-react";
-import { Link } from "react-router-dom";
-import { getVariant, trackABEvent } from "@/lib/ab-testing";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/contexts/AuthContext";
+import SampleDeckExplorer from "@/components/sample/SampleDeckExplorer";
+import { saveCreateDraft, MAX_PROMPT_LENGTH } from "@/lib/create-draft";
+import { trackProductEvent } from "@/lib/product-events";
+import { trackABEvent } from "@/lib/ab-testing";
 
-/* ── Rotating word animation ───────────────────────────────── */
-const ROTATING_WORDS = ["board decks", "pitch decks", "strategy docs", "investor updates", "GTM plans"];
-
-function RotatingWord() {
-  const [index, setIndex] = useState(0);
-  const [fade, setFade] = useState(true);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFade(false);
-      setTimeout(() => {
-        setIndex((i) => (i + 1) % ROTATING_WORDS.length);
-        setFade(true);
-      }, 300);
-    }, 2800);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <span
-      className={`inline-block transition-all duration-300 ${
-        fade ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-      }`}
-    >
-      {ROTATING_WORDS[index]}
-    </span>
-  );
-}
-
-/* ── Prompt chips ──────────────────────────────────────────── */
-const PROMPT_CHIPS = [
-  { label: "Board update for Q4", icon: BarChart3 },
-  { label: "Series A pitch deck", icon: Target },
-  { label: "Product roadmap review", icon: FileText },
+/** Starters fill the brief field with a real, editable starting point. */
+const STARTERS: { id: string; label: string; text: string }[] = [
+  {
+    id: "board_update",
+    label: "Board update",
+    text:
+      "Quarterly board update. We finished ahead of plan and I need approval to shift spend from mid-market into enterprise next year. Cover the recommendation, the evidence behind it, the risks, and what happens if the board approves.",
+  },
+  {
+    id: "investor_pitch",
+    label: "Investor pitch",
+    text:
+      "Series A pitch. We are raising to expand a product that already works in one segment into three more. Make the ask explicit, show traction and retention, name the risks honestly, and end with the process from here.",
+  },
+  {
+    id: "strategy_review",
+    label: "Strategy review",
+    text:
+      "Strategy review for the executive committee. We must choose between concentrating on regulated verticals or continuing a broad mid-market motion. Give a clear recommendation, the evidence for it, what we are giving up, and the first thirty days.",
+  },
 ];
 
-/* ── Demo outlines ─────────────────────────────────────────── */
-const DEMO_OUTLINES: Record<string, { title: string; slides: { label: string; headline: string; detail: string; color: string }[] }> = {
-  "Board update for Q4": {
-    title: "Q4 2025 Board Update",
-    slides: [
-      { label: "Cover", headline: "Q4 2025 Board Update", detail: "Executive Summary, Confidential", color: "#3B82F6" },
-      { label: "Financials", headline: "Revenue hit $34.2M", detail: "Exceeded forecast by 12% · Gross margin 72%", color: "#10B981" },
-      { label: "Strategy", headline: "3 milestones delivered", detail: "Enterprise launch · SOC 2 · Partnership signed", color: "#8B5CF6" },
-      { label: "Outlook", headline: "Targeting $52M ARR", detail: "28 new hires · $4M infrastructure investment", color: "#F59E0B" },
-    ],
-  },
-  "Series A pitch deck": {
-    title: "MedConnect, Series A",
-    slides: [
-      { label: "Cover", headline: "MedConnect", detail: "AI Clinical Copilot · Series A · $15M", color: "#EC4899" },
-      { label: "Problem", headline: "2+ hours/day lost", detail: "$150B annual waste from EHR fragmentation", color: "#EF4444" },
-      { label: "Traction", headline: "$2.4M ARR · 340% YoY", detail: "127 clinics · 94% net revenue retention", color: "#10B981" },
-      { label: "The Ask", headline: "Raising $15M", detail: "Sales 45% · Product 35% · Ops 20%", color: "#6366F1" },
-    ],
-  },
-  "Product roadmap review": {
-    title: "CloudSync, Product Roadmap",
-    slides: [
-      { label: "Cover", headline: "2025 Product Roadmap", detail: "CloudSync · Engineering Review", color: "#06B6D4" },
-      { label: "Q1 Shipped", headline: "Real-time sync engine", detail: "3x faster · 99.99% uptime", color: "#10B981" },
-      { label: "Q2 Focus", headline: "Enterprise security", detail: "SSO · RBAC · Audit logs · SOC 2", color: "#F59E0B" },
-      { label: "H2 Vision", headline: "AI data mesh", detail: "Auto-schema · Smart conflict resolution", color: "#8B5CF6" },
-    ],
-  },
-};
-
-/* ── Animated stat counter ─────────────────────────────────── */
-function AnimatedStat({ end, suffix, label }: { end: number; suffix: string; label: string }) {
-  const [value, setValue] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const started = useRef(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started.current) {
-          started.current = true;
-          const steps = 40;
-          const stepVal = end / steps;
-          let current = 0;
-          const timer = setInterval(() => {
-            current += stepVal;
-            if (current >= end) { setValue(end); clearInterval(timer); }
-            else { setValue(Math.floor(current)); }
-          }, 40);
-        }
-      },
-      { threshold: 0.3 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [end]);
-
-  return (
-    <div ref={ref} className="text-center">
-      <div className="text-2xl sm:text-3xl font-bold text-foreground tabular-nums">
-        {value.toLocaleString()}{suffix}
-      </div>
-      <div className="text-xs sm:text-sm text-muted-foreground mt-1">{label}</div>
-    </div>
-  );
-}
-
-/* ── Main Hero Component ───────────────────────────────────── */
-/* ── A/B Tested Hero Headline ───────────────────────────── */
-function ABTestedHeadline() {
-  const variant = getVariant("hero_headline");
+const Hero = () => {
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  const [brief, setBrief] = useState("");
+  const startedRef = useRef(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     trackABEvent("hero_headline", "impression");
   }, []);
 
-  if (variant === "webinar_angle") {
-    return (
-      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animation-delay-100">
-        One tool for your{" "}
-        <span className="text-accent">entire presentation</span>
-        <br className="hidden sm:block" />
-        with deck, speech, polls, and results
-      </h1>
-    );
-  }
-
-  if (variant === "coaching_angle") {
-    return (
-      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 animate-fade-in-up animation-delay-100">
-        The only tool that helps you{" "}
-        <span className="text-accent">deliver</span>
-        <br className="hidden sm:block" />
-        not just create slides
-      </h1>
-    );
-  }
-
-  // Control
-  return (
-    <h1 className="text-[2rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-4 sm:mb-6 animate-fade-in-up animation-delay-100">
-      Create stunning{" "}
-      <span className="text-accent">
-        <RotatingWord />
-      </span>
-      <br className="hidden sm:block" />
-      in minutes, not hours
-    </h1>
-  );
-}
-
-function ABTestedSubheadline() {
-  const variant = getVariant("hero_headline");
-
-  if (variant === "webinar_angle") {
-    return (
-      <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
-        Write your speech. Generate your deck. Run live audience polls with QR codes.
-        Track what landed. Replace PowerPoint + Slido with one workflow.
-      </p>
-    );
-  }
-
-  if (variant === "coaching_angle") {
-    return (
-      <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
-        Speech prep with vocal coaching. AI deck generation. Live polls with QR codes.
-        Delivery tips from Vinh Giang and Simon Sinek, built into your workflow.
-      </p>
-    );
-  }
-
-  return (
-    <p className="text-base sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
-      Describe your goal. AI builds the structure, narrative, and visuals.
-      No credits to count. No complex setup. Just executive-grade decks in under 2 minutes.
-    </p>
-  );
-}
-
-const Hero = () => {
-  const [prompt, setPrompt] = useState("");
-  const [generating, setGenerating] = useState(false);
-  const [result, setResult] = useState<typeof DEMO_OUTLINES[string] | null>(null);
-  const [visibleSlides, setVisibleSlides] = useState(0);
-  const resultRef = useRef<HTMLDivElement>(null);
-
-  const handleGenerate = (text?: string) => {
-    const topic = text || prompt.trim();
-    if (!topic) return;
-    setPrompt(topic);
-    setGenerating(true);
-    setResult(null);
-    setVisibleSlides(0);
-
-    const match = DEMO_OUTLINES[topic] || DEMO_OUTLINES["Board update for Q4"];
-    setTimeout(() => {
-      setGenerating(false);
-      setResult(match);
-      sessionStorage.setItem("axiva_prefill_prompt", topic);
-    }, 2000);
+  const noteStart = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    trackProductEvent("brief_started", { source: "home_hero" });
   };
 
-  useEffect(() => {
-    if (!result || visibleSlides >= result.slides.length) return;
-    const timer = setTimeout(() => setVisibleSlides((v) => v + 1), 350);
-    return () => clearTimeout(timer);
-  }, [result, visibleSlides]);
+  const applyStarter = (starter: (typeof STARTERS)[number]) => {
+    noteStart();
+    setBrief(starter.text);
+    trackProductEvent("brief_started", { source: "home_hero", starter: starter.id });
+    textareaRef.current?.focus();
+  };
 
-  useEffect(() => {
-    if (result && resultRef.current) {
-      resultRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = brief.trim();
+    if (!text) {
+      textareaRef.current?.focus();
+      return;
     }
-  }, [result]);
+    saveCreateDraft(text);
+    trackProductEvent("create_intent_stored", {
+      source: "home_hero",
+      prompt_length: text.length,
+      signed_in: !!user,
+    });
+    trackProductEvent("brief_submitted", { source: "home_hero" });
+    trackABEvent("hero_headline", "click", "brief_submit");
+    if (user) {
+      navigate("/create");
+    } else {
+      navigate("/auth?mode=signup&next=%2Fcreate");
+    }
+  };
 
   return (
-    <section className="relative md:min-h-[90vh] flex items-center justify-center overflow-hidden pt-20 sm:pt-24 pb-10 sm:pb-12 px-4">
-      {/* Layered background */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-accent/8 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/4 left-[15%] w-[400px] h-[400px] bg-[#6366F1]/6 rounded-full blur-[100px]" />
-        <div className="absolute top-1/3 right-[15%] w-[350px] h-[350px] bg-[#10B981]/5 rounded-full blur-[80px]" />
+    <section className="relative overflow-hidden border-b border-border/40 px-4 pb-14 pt-24 sm:pb-20 sm:pt-28">
+      {/* Restrained background: one soft field, no multi-colour gradients */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-32 left-1/2 h-[420px] w-[900px] max-w-none -translate-x-1/2 rounded-full bg-accent/[0.07] blur-[140px]" />
       </div>
 
-      {/* Dot pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.015]"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }}
-      />
+      <div className="container-wide relative">
+        <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-14">
+          {/* ── Left column: the promise and the brief ── */}
+          <div className="max-w-xl">
+            <p className="mb-5 inline-flex items-center gap-2 border-l-2 border-accent pl-3 text-[13px] font-medium uppercase tracking-[0.16em] text-accent">
+              AI executive presentation builder
+            </p>
 
-      <div className="container-narrow relative z-10 max-w-5xl">
-        <div className="text-center">
-          {/* Badge — short on mobile, full on desktop */}
-          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-accent/20 bg-accent/5 text-accent text-[11px] sm:text-sm font-medium mb-5 sm:mb-8 backdrop-blur-sm animate-fade-in-up">
-            <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-            <span className="sm:hidden">AI decks · Speech · Live polls</span>
-            <span className="hidden sm:inline">Smart Slides · Speech Prep · Delivery Coaching · Live Polls · Webinar-Ready</span>
-          </div>
+            <h1 className="text-[2.1rem] font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
+              Make the case.
+              <br />
+              <span className="text-accent">Move the decision.</span>
+            </h1>
 
-          {/* Headline (A/B tested) */}
-          <ABTestedHeadline />
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Turn your notes into a structured deck with a clear recommendation,
+              the evidence behind it, and the next steps — then prepare to present
+              it with speaker notes and likely questions.
+            </p>
 
-          {/* Subheadline (matches headline variant */}
-          <ABTestedSubheadline />
+            <form onSubmit={handleSubmit} className="mt-8">
+              <label
+                htmlFor="hero-brief"
+                className="block text-sm font-medium text-foreground"
+              >
+                What do you need to present?
+              </label>
+              <p id="hero-brief-help" className="mt-1 text-[13px] text-muted-foreground">
+                Your audience, the decision at stake, and anything that must be included.
+              </p>
+              <Textarea
+                id="hero-brief"
+                ref={textareaRef}
+                value={brief}
+                maxLength={MAX_PROMPT_LENGTH}
+                aria-describedby="hero-brief-help"
+                onChange={(e) => {
+                  noteStart();
+                  setBrief(e.target.value);
+                }}
+                rows={4}
+                placeholder="e.g. Board update for our Q4 results — I need approval to move spend into enterprise next year."
+                className="mt-3 min-h-[112px] resize-y bg-card/60 text-base"
+              />
 
-          {/* ── Gamma-style prompt box ──────────────── */}
-          <div className="max-w-2xl mx-auto animate-fade-in-up animation-delay-300">
-            <div className="relative rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-2xl shadow-black/10 overflow-hidden">
-              <div className="flex items-center gap-3 p-4 sm:p-5">
-                <Sparkles className="h-5 w-5 text-accent shrink-0" />
-                <input
-                  type="text"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
-                  placeholder="Describe your deck, e.g. 'Q4 board update for SaaS startup'..."
-                  className="flex-1 bg-transparent text-foreground placeholder-muted-foreground/60 text-sm sm:text-base outline-none"
-                />
-                <Button
-                  onClick={() => handleGenerate()}
-                  disabled={!prompt.trim() || generating}
-                  size="sm"
-                  className="rounded-xl px-5 gap-2 shrink-0"
-                >
-                  {generating ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <>
-                      Generate
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </>
-                  )}
-                </Button>
-              </div>
-
-              {/* Quick chips */}
-              <div className="border-t border-border/30 px-4 sm:px-5 py-3 flex flex-wrap gap-2 bg-muted/20">
-                <span className="text-xs text-muted-foreground mr-1 self-center">Try:</span>
-                {PROMPT_CHIPS.map((chip) => (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="text-[13px] text-muted-foreground">Start from:</span>
+                {STARTERS.map((s) => (
                   <button
-                    key={chip.label}
-                    onClick={() => handleGenerate(chip.label)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border/50 bg-background/50 text-foreground/70 hover:border-accent/30 hover:text-accent hover:bg-accent/5 transition-all"
+                    key={s.id}
+                    type="button"
+                    onClick={() => applyStarter(s)}
+                    className="min-h-[38px] rounded-full border border-border/60 px-3.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:border-accent/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
-                    <chip.icon className="h-3 w-3" />
-                    {chip.label}
+                    {s.label}
                   </button>
                 ))}
               </div>
-            </div>
 
-            {/* Always-visible primary CTA — critical for mobile bounce reduction */}
-            <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3 animate-fade-in-up animation-delay-300">
-              <Link to="/auth" className="w-full sm:w-auto">
-                <Button size="lg" variant="hero" className="w-full sm:w-auto gap-2 shadow-lg shadow-accent/20 h-12 text-base">
-                  Start free
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                <Button
+                  type="submit"
+                  variant="hero"
+                  size="lg"
+                  className="h-12 w-full gap-2 text-base sm:w-auto"
+                >
+                  Build my deck
                   <ArrowRight className="h-4 w-4" />
                 </Button>
-              </Link>
-              <Link to="/demo" className="w-full sm:w-auto">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 text-base">
-                  See live demo
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="h-12 w-full text-base sm:w-auto"
+                >
+                  <Link to="/demo">Explore a sample deck</Link>
                 </Button>
+              </div>
+
+              <p className="mt-3 text-[13px] text-muted-foreground">
+                {loading || user
+                  ? "Your brief is carried straight into the builder."
+                  : "You will create a free account before generating — your brief is kept and carried through."}
+              </p>
+            </form>
+          </div>
+
+          {/* ── Right column: real, inspectable product proof ── */}
+          <div className="lg:pt-2">
+            <div className="mb-3 flex items-baseline justify-between gap-3">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                What the output looks like
+              </h2>
+              <Link
+                to="/demo"
+                className="text-[13px] font-medium text-accent underline-offset-4 hover:underline"
+              >
+                Open full sample
               </Link>
             </div>
-
-            <p className="text-xs text-muted-foreground mt-3">
-              Free to try · 3 free decks · No credit card · No credits to track
+            <SampleDeckExplorer compact showDeckTabs={false} />
+            <p className="mt-3 text-[13px] text-muted-foreground">
+              Sample deck with fictional companies and figures, shown to
+              demonstrate structure. Use the controls to move through the slides.
             </p>
-          </div>
-
-          {/* ── Live slide preview ────────────────── */}
-          {(generating || result) && (
-            <div ref={resultRef} className="mt-8 max-w-3xl mx-auto">
-              {generating && !result && (
-                <div className="flex items-center justify-center gap-3 py-12">
-                  <div className="relative">
-                    <div className="w-10 h-10 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
-                    <Sparkles className="h-4 w-4 text-accent absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                  </div>
-                  <span className="text-sm text-muted-foreground">Building your deck outline…</span>
-                </div>
-              )}
-
-              {result && (
-                <div className="space-y-3 text-left">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {result.slides.slice(0, visibleSlides).map((slide, i) => (
-                      <div
-                        key={i}
-                        className="rounded-xl border border-border/40 bg-card/60 backdrop-blur-sm overflow-hidden hover:border-accent/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 animate-fade-in-up"
-                        style={{ animationDelay: `${i * 80}ms` }}
-                      >
-                        <div className="h-1.5" style={{ background: slide.color }} />
-                        <div className="p-3 sm:p-4">
-                          <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: slide.color }}>
-                            {slide.label}
-                          </span>
-                          <h4 className="text-xs sm:text-sm font-bold text-foreground mt-1.5 leading-tight line-clamp-2">
-                            {slide.headline}
-                          </h4>
-                          <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 line-clamp-2">
-                            {slide.detail}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {visibleSlides >= result.slides.length && (
-                    <div className="text-center pt-4 animate-fade-in-up">
-                      <Link to="/create">
-                        <Button variant="hero" size="lg" className="group gap-2 shadow-lg shadow-accent/20">
-                          Build Full Deck
-                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ── Stats bar ────────────────────────── */}
-          <div className="mt-10 sm:mt-16 pt-6 sm:pt-10 border-t border-border/20 animate-fade-in-up animation-delay-400">
-            <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto">
-              <AnimatedStat end={60} suffix="+" label="Templates" />
-              <AnimatedStat end={15} suffix="+" label="Visual blocks" />
-              <AnimatedStat end={2} suffix=" min" label="Avg. generation" />
-            </div>
-          </div>
-
-          {/* Trust logos */}
-          <div className="mt-8 animate-fade-in-up animation-delay-400">
-            <p className="text-xs text-muted-foreground/50 mb-4 uppercase tracking-wider font-medium">
-              Trusted by leaders at
-            </p>
-            <div className="flex items-center justify-center gap-6 sm:gap-10 opacity-30 flex-wrap">
-              {["McKinsey", "BCG", "Deloitte", "Goldman", "Bain"].map((name) => (
-                <span key={name} className="text-sm sm:text-base font-semibold tracking-wide">{name}</span>
-              ))}
-            </div>
           </div>
         </div>
       </div>
