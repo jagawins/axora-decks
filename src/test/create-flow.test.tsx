@@ -126,6 +126,18 @@ afterEach(() => {
 
 const generateButton = () => screen.getByRole("button", { name: /generate deck/i });
 
+/** Opens the "start from scratch" form and returns the brief field. */
+const openBrief = async (user: ReturnType<typeof userEvent.setup>) => {
+  const existing = document.getElementById("prompt") as HTMLTextAreaElement | null;
+  if (existing) return existing;
+  await user.click(screen.getByRole("button", { name: /start from scratch/i }));
+  return (await waitFor(() => {
+    const el = document.getElementById("prompt") as HTMLTextAreaElement | null;
+    if (!el) throw new Error("brief field not shown");
+    return el;
+  })) as HTMLTextAreaElement;
+};
+
 describe("Create: generation failures keep the brief", () => {
   it("does not navigate or clear the draft when the block insert fails", async () => {
     const user = userEvent.setup();
@@ -133,8 +145,7 @@ describe("Create: generation failures keep the brief", () => {
     blocksInsertError = { message: "permission denied" };
 
     renderCreate();
-    const textarea = await screen.findByLabelText(/what.*about|prompt/i).catch(() => null) as HTMLElement | null;
-    const field = textarea ?? document.getElementById("prompt")!;
+    const field = await openBrief(user);
     await user.type(field, "Board update for Q4");
 
     await user.click(generateButton());
@@ -154,7 +165,7 @@ describe("Create: generation failures keep the brief", () => {
     generateMock.mockResolvedValue({ blocks: [] });
 
     renderCreate();
-    await user.type(document.getElementById("prompt")!, "Investor pitch narrative");
+    await user.type(await openBrief(user), "Investor pitch narrative");
     await user.click(generateButton());
 
     await waitFor(() =>
@@ -172,7 +183,7 @@ describe("Create: generation failures keep the brief", () => {
     generateMock.mockResolvedValue({ blocks: [] });
 
     renderCreate();
-    await user.type(document.getElementById("prompt")!, "Strategy review");
+    await user.type(await openBrief(user), "Strategy review");
     await user.click(generateButton());
     await waitFor(() => expect(projectInserts.length).toBe(1));
 
@@ -186,7 +197,7 @@ describe("Create: generation failures keep the brief", () => {
     generateMock.mockResolvedValue(validBlocks);
 
     renderCreate();
-    await user.type(document.getElementById("prompt")!, "Quarterly review");
+    await user.type(await openBrief(user), "Quarterly review");
     await user.click(generateButton());
 
     await waitFor(() => expect(generateMock).toHaveBeenCalled());
@@ -200,7 +211,7 @@ describe("Create: draft durability", () => {
     saveCreateDraft("Original brief", { cardsCount: 8 });
 
     const first = renderCreate();
-    const field = document.getElementById("prompt") as HTMLTextAreaElement;
+    const field = await openBrief(user);
     await waitFor(() => expect(field.value).toBe("Original brief"));
 
     await user.type(field, " — revised for the board");
@@ -212,7 +223,7 @@ describe("Create: draft durability", () => {
     // simulate a reload
     first.unmount();
     renderCreate();
-    const reloaded = document.getElementById("prompt") as HTMLTextAreaElement;
+    const reloaded = await openBrief(user);
     await waitFor(() =>
       expect(reloaded.value).toBe("Original brief — revised for the board")
     );
@@ -222,7 +233,7 @@ describe("Create: draft durability", () => {
     const brief = ["Board update.", "", "    Indented    note", "Detail: " + "z".repeat(4200)].join("\n");
     saveCreateDraft(brief);
     renderCreate();
-    const field = document.getElementById("prompt") as HTMLTextAreaElement;
+    const field = await waitFor(() => document.getElementById("prompt") as HTMLTextAreaElement);
     await waitFor(() => expect(field.value).toBe(brief));
   });
 
@@ -237,7 +248,7 @@ describe("Create: draft durability", () => {
     });
     try {
       renderCreate();
-      const field = document.getElementById("prompt") as HTMLTextAreaElement;
+      const field = await openBrief(user);
       await user.type(field, "Brief typed without storage");
       expect(field.value).toBe("Brief typed without storage");
       expect(
@@ -253,7 +264,7 @@ describe("Create: draft durability", () => {
     const user = userEvent.setup();
     generateMock.mockResolvedValue({ blocks: [] });
     renderCreate();
-    await user.type(document.getElementById("prompt")!, "Confidential brief");
+    await user.type(await openBrief(user), "Confidential brief");
     await user.click(generateButton());
     await waitFor(() => expect(generateMock).toHaveBeenCalled());
     for (const call of navigateMock.mock.calls) {
