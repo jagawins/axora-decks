@@ -515,6 +515,11 @@ Create exactly ${cardsCount} slides/cards.`;
             <p className="text-lg text-muted-foreground">
               Choose how you want to start
             </p>
+            {restoredBrief && (
+              <p className="mt-5 inline-block rounded-lg border border-accent/30 bg-accent/5 px-4 py-2.5 text-sm text-foreground">
+                We brought your brief back — edit it or generate when you're ready.
+              </p>
+            )}
           </div>
 
           {/* Mode Toggle — shown before entry cards or when scratch is active */}
