@@ -1244,13 +1244,26 @@ const Editor = () => {
           </div>
 
           {/* Mobile header actions */}
-          <div className="flex md:hidden items-center gap-1">
-            <Button variant="hero" size="sm" onClick={handleSave} disabled={saving || !hasUnsavedChanges}>
+          <div className="flex md:hidden shrink-0 items-center gap-1">
+            <Button
+              variant="hero"
+              size="sm"
+              onClick={handleSave}
+              disabled={saving || !hasUnsavedChanges}
+              aria-label="Save deck"
+            >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             </Button>
+            <ExportMenu
+              onPrintPDF={exportPdf}
+              onExportPPTX={exportPptx}
+              pptxLoading={pptxLoading}
+              onShareLink={() => setShareDialogOpen(true)}
+              onPresenterView={() => navigate(`/present/${projectId}`)}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label="More deck actions">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
