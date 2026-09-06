@@ -73,7 +73,9 @@ export function PostGenBanner({ visible, onDismiss, slideCount }: PostGenBannerP
 
   const genCount = getDeckGenCount();
   const isFirstDeck = genCount <= 1;
-  const isLastFree = genCount >= 3;
+  const freeMonthlyGenerations = SUBSCRIPTION_TIERS.free.limits.aiGenerationsPerMonth;
+  const remainingFree = Math.max(0, freeMonthlyGenerations - genCount);
+  const isLastFree = remainingFree <= 0;
 
   const handleUpgrade = async () => {
     trackABEvent("post_gen_banner", "click");
@@ -93,6 +95,8 @@ export function PostGenBanner({ visible, onDismiss, slideCount }: PostGenBannerP
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up max-w-md w-[90vw]">
       <div className="relative rounded-2xl border border-accent/20 bg-card/95 backdrop-blur-xl p-5 shadow-2xl shadow-accent/5">
         <button
+          type="button"
+          aria-label="Dismiss upgrade suggestion"
           onClick={handleDismiss}
           className="absolute top-3 right-3 p-1 rounded-full hover:bg-muted/30 text-muted-foreground hover:text-foreground transition-colors"
         >
@@ -109,8 +113,8 @@ export function PostGenBanner({ visible, onDismiss, slideCount }: PostGenBannerP
             </p>
             <p className="text-[11px] text-muted-foreground">
               {isLastFree
-                ? "This was your last free generation."
-                : `${3 - genCount} free generation${3 - genCount === 1 ? "" : "s"} remaining`
+                ? "You have used this month's free generations."
+                : `${remainingFree} free generation${remainingFree === 1 ? "" : "s"} left this month`
               }
             </p>
           </div>
