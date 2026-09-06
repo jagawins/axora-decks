@@ -35,6 +35,7 @@ import {
   isDraftStorageAvailable,
   cleanPromptText,
   MAX_PROMPT_LENGTH,
+  promptLength,
   CARD_COUNT_OPTIONS as DRAFT_CARD_COUNTS,
   LANGUAGE_OPTIONS,
 } from "@/lib/create-draft";
@@ -205,12 +206,13 @@ export default function Create() {
   useEffect(() => {
     const urlPrompt = cleanPromptText(searchParams.get("prompt") ?? "");
     if (urlPrompt.trim()) {
-      if (urlPrompt.trim().length > MAX_PROMPT_LENGTH) {
+      if (urlPrompt.length > MAX_PROMPT_LENGTH) {
         setBriefNotice(
-          `That brief is longer than the ${MAX_PROMPT_LENGTH.toLocaleString()} character limit. Shorten it and try again.`
+          `That brief is ${urlPrompt.length.toLocaleString()} characters, longer than the ${MAX_PROMPT_LENGTH.toLocaleString()} character limit. It is kept in full below — shorten it to generate.`
         );
       }
-      setPrompt(urlPrompt.slice(0, MAX_PROMPT_LENGTH));
+      // Keep the whole text visible: never silently truncate someone's brief.
+      setPrompt(urlPrompt);
       setActiveEntry("scratch");
       hydratedRef.current = true;
       return;
@@ -256,7 +258,8 @@ export default function Create() {
   useEffect(() => {
     if (!hydratedRef.current) return;
     if (!prompt.trim()) return;
-    if (prompt.trim().length > MAX_PROMPT_LENGTH) return;
+    // Over-limit briefs are never stored: the visitor must shorten first.
+    if (promptLength(prompt) > MAX_PROMPT_LENGTH) return;
     const timer = setTimeout(() => {
       saveCreateDraft(prompt, {
         outputType,
@@ -381,7 +384,7 @@ export default function Create() {
     }
   };
 
-  const promptChars = prompt.trim().length;
+  const promptChars = promptLength(prompt);
   const promptTooLong = promptChars > MAX_PROMPT_LENGTH;
 
   const currentSettings = () => ({

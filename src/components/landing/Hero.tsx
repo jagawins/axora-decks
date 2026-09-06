@@ -9,6 +9,7 @@ import {
   saveCreateDraft,
   MAX_PROMPT_LENGTH,
   isDraftStorageAvailable,
+  promptLength,
 } from "@/lib/create-draft";
 import { trackProductEvent } from "@/lib/product-events";
 import { trackABEvent } from "@/lib/ab-testing";
@@ -60,14 +61,15 @@ const Hero = () => {
     textareaRef.current?.focus();
   };
 
-  const chars = brief.trim().length;
+  // Count the full text (whitespace included) so the bound cannot be evaded.
+  const chars = promptLength(brief);
   const tooLong = chars > MAX_PROMPT_LENGTH;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const text = brief.trim();
-    if (!text) {
+    const text = brief;
+    if (!text.trim()) {
       textareaRef.current?.focus();
       return;
     }
