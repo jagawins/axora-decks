@@ -153,12 +153,12 @@ export default function SampleDeckExplorer({
           </span>
         </div>
 
-        {/* Slide surface — fixed 16:9 */}
+        {/* Slide surface — taller on phones so nothing is clipped, 16:9 from sm up */}
         <div
-          className="relative w-full overflow-hidden rounded-xl border border-white/10"
-          style={{ aspectRatio: "16 / 9", background: deck.surface }}
+          className="relative w-full overflow-hidden rounded-xl border border-white/10 aspect-[4/5] sm:aspect-video"
+          style={{ background: deck.surface }}
         >
-          <div className="absolute inset-0 motion-safe:transition-opacity motion-safe:duration-200">
+          <div className="absolute inset-0 overflow-y-auto motion-safe:transition-opacity motion-safe:duration-200">
             <SampleSlideRenderer body={slide.body} accent={deck.accent} compact={compact} />
           </div>
           <div
