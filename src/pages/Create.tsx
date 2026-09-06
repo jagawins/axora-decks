@@ -820,7 +820,50 @@ Create exactly ${cardsCount} slides/cards.`;
                 </div>
               </div>
 
-              {/* 2. Optional presets */}
+              {/* 2. Concise settings summary, always visible */}
+              <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border/40 bg-muted/30 p-3">
+                <span className="text-xs font-medium text-muted-foreground">
+                  {activePreset
+                    ? CREATE_PRESETS.find((p) => p.id === activePreset)?.label
+                    : "Custom"}
+                  :
+                </span>
+                {summaryChips.map((chip) => (
+                  <Badge key={chip} variant="secondary" className="text-xs">
+                    {chip}
+                  </Badge>
+                ))}
+              </div>
+
+              {/* 3. The single primary action, before anything optional */}
+              <div className="space-y-3">
+                <Button
+                  variant="hero"
+                  size="lg"
+                  className="w-full"
+                  onClick={handleGenerate}
+                  disabled={!prompt.trim() || promptTooLong || generating}
+                >
+                  {generating ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" aria-hidden="true" />
+                      Generating… <GenerationTimer startTime={genStartTime} />
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-5 w-5 mr-2" aria-hidden="true" />
+                      {user ? "Generate deck" : "Continue — set up a free account"}
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Free plan: {FREE_PROJECT_LIMIT} decks and {FREE_GENERATION_LIMIT} AI
+                  generations a month, no card needed to generate. PowerPoint and PDF export
+                  require Pro.
+                </p>
+              </div>
+
+              {/* 4. Optional presets */}
               <div className="space-y-3">
                 <p className="text-sm font-medium text-foreground" id="preset-label">
                   Shape it like a…{" "}
@@ -855,20 +898,6 @@ Create exactly ${cardsCount} slides/cards.`;
                 </div>
               </div>
 
-              {/* 3. Always-visible summary of what will be built */}
-              <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border/40 bg-muted/30 p-3">
-                <span className="text-xs font-medium text-muted-foreground">
-                  {activePreset
-                    ? CREATE_PRESETS.find((p) => p.id === activePreset)?.label
-                    : "Custom"}
-                  :
-                </span>
-                {summaryChips.map((chip) => (
-                  <Badge key={chip} variant="secondary" className="text-xs">
-                    {chip}
-                  </Badge>
-                ))}
-              </div>
 
               {/* 4. Detailed controls, closed by default */}
               <div>
