@@ -843,14 +843,10 @@ const Editor = () => {
       return;
     }
 
-    setExportOverlayOpen(true);
-    setExportStage(0);
-    setTimeout(() => setExportStage(1), 1000);
-    setTimeout(() => setExportStage(2), 2000);
-    setTimeout(() => {
-      setExportOverlayOpen(false);
-      window.open(`/print/${projectId}`, "_blank", "noopener,noreferrer");
-    }, 3000);
+    // Open the existing print route synchronously from the click so the
+    // browser's popup rules treat it as user-initiated. The browser's own
+    // print/save dialog then needs additional actions from the person.
+    window.open(`/print/${projectId}`, "_blank", "noopener,noreferrer");
   };
 
   const exportPptx = async () => {
