@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import SampleDeckExplorer from "@/components/sample/SampleDeckExplorer";
-import { saveCreateDraft, MAX_PROMPT_LENGTH } from "@/lib/create-draft";
+import {
+  saveCreateDraft,
+  MAX_PROMPT_LENGTH,
+  isDraftStorageAvailable,
+} from "@/lib/create-draft";
 import { trackProductEvent } from "@/lib/product-events";
 import { trackABEvent } from "@/lib/ab-testing";
 
@@ -35,6 +39,7 @@ const Hero = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [brief, setBrief] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const startedRef = useRef(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -55,14 +60,36 @@ const Hero = () => {
     textareaRef.current?.focus();
   };
 
+  const chars = brief.trim().length;
+  const tooLong = chars > MAX_PROMPT_LENGTH;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     const text = brief.trim();
     if (!text) {
       textareaRef.current?.focus();
       return;
     }
-    saveCreateDraft(text);
+    if (tooLong) {
+      setError(
+        `Your brief is ${chars.toLocaleString()} characters. Please shorten it to ${MAX_PROMPT_LENGTH.toLocaleString()} or fewer.`
+      );
+      textareaRef.current?.focus();
+      return;
+    }
+    const saved = saveCreateDraft(text);
+    if (!saved.ok) {
+      // We cannot carry the brief to the next page, so we stay here and say so
+      // rather than claiming it was saved.
+      setError(
+        saved.reason === "storage"
+          ? "This browser is blocking storage, so we cannot carry your brief to the next step. Copy it first, then continue — or open AXIVA in a normal (non-private) window."
+          : "We could not keep your brief. Please check it and try again."
+      );
+      textareaRef.current?.focus();
+      return;
+    }
     trackProductEvent("create_intent_stored", {
       source: "home_hero",
       prompt_length: text.length,
@@ -118,8 +145,8 @@ const Hero = () => {
                 id="hero-brief"
                 ref={textareaRef}
                 value={brief}
-                maxLength={MAX_PROMPT_LENGTH}
-                aria-describedby="hero-brief-help"
+                aria-describedby="hero-brief-help hero-brief-status"
+                aria-invalid={tooLong || undefined}
                 onChange={(e) => {
                   noteStart();
                   setBrief(e.target.value);
@@ -128,6 +155,26 @@ const Hero = () => {
                 placeholder="e.g. Board update for our Q4 results — I need approval to move spend into enterprise next year."
                 className="mt-3 min-h-[112px] resize-y bg-card/60 text-base"
               />
+
+              <p
+                id="hero-brief-status"
+                className={
+                  tooLong
+                    ? "mt-2 text-[13px] text-destructive"
+                    : "mt-2 text-[13px] text-muted-foreground"
+                }
+              >
+                {chars.toLocaleString()} / {MAX_PROMPT_LENGTH.toLocaleString()} characters
+              </p>
+
+              {error && (
+                <p
+                  role="alert"
+                  className="mt-3 rounded-lg border border-destructive/40 bg-destructive/5 px-3.5 py-2.5 text-[13px] text-foreground"
+                >
+                  {error}
+                </p>
+              )}
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span className="text-[13px] text-muted-foreground">Start from:</span>
@@ -165,8 +212,10 @@ const Hero = () => {
 
               <p className="mt-3 text-[13px] text-muted-foreground">
                 {loading || user
-                  ? "Your brief is carried straight into the builder."
-                  : "You will create a free account before generating — your brief is kept and carried through."}
+                  ? "Your brief is carried straight into the builder in this tab."
+                  : "You will create a free account before generating — your brief is kept in this tab and carried through."}
+                {!isDraftStorageAvailable() &&
+                  " This browser is blocking storage, so copy your brief before continuing."}
               </p>
             </form>
           </div>
