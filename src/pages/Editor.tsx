@@ -1060,17 +1060,18 @@ const Editor = () => {
       <header className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50 safe-area-top">
         <div className="flex h-14 items-center justify-between px-2 sm:px-4">
           <div className="flex items-center gap-2 sm:gap-4">
-            <Button variant="ghost" size="icon" onClick={() => {
+            <Button variant="ghost" size="icon" className="shrink-0" aria-label="Back to my decks" onClick={() => {
               if (hasUnsavedChanges && !window.confirm("You have unsaved changes. Leave anyway?")) return;
               navigate("/dashboard");
             }}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
               <img src={axivaWordmark} alt="AXIVA" className="h-4 w-auto hidden sm:block" />
               <span className="text-muted-foreground hidden sm:inline">|</span>
               <input
-                className="font-semibold truncate max-w-[120px] sm:max-w-[200px] text-sm sm:text-base bg-transparent border-none outline-none focus:ring-1 focus:ring-primary/50 rounded px-1 -mx-1 cursor-text"
+                aria-label="Deck title"
+                className="w-full font-semibold truncate max-w-[110px] sm:max-w-[200px] text-sm sm:text-base bg-transparent border-none outline-none focus:ring-1 focus:ring-primary/50 rounded px-1 -mx-1 cursor-text"
                 value={project?.title || ""}
                 placeholder="Untitled"
                 onChange={(e) => {
