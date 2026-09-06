@@ -5,6 +5,7 @@ import {
   clearCreateDraft,
   readLegacyPrompt,
   safeInternalPath,
+  isDraftStorageAvailable,
   DRAFT_STORAGE_KEY,
   LEGACY_PROMPT_KEY,
   DRAFT_TTL_MS,
@@ -23,6 +24,13 @@ describe("safeInternalPath", () => {
     expect(safeInternalPath("javascript:alert(1)")).toBe("/create");
     expect(safeInternalPath("/\\evil.example")).toBe("/create");
     expect(safeInternalPath("/%2f%2fevil.example")).toBe("/create");
+  });
+
+  it("rejects encoded control characters and encoded backslashes", () => {
+    expect(safeInternalPath("/%0Aexample", "/safe")).toBe("/safe");
+    expect(safeInternalPath("/%0D%0Aexample", "/safe")).toBe("/safe");
+    expect(safeInternalPath("/%5Cevil.example", "/safe")).toBe("/safe");
+    expect(safeInternalPath("/%25%30%41example", "/safe")).toBe("/safe");
   });
 
   it("rejects control characters and empty values", () => {
@@ -47,7 +55,9 @@ describe("create draft round trip", () => {
   });
 
   it("saves and restores the prompt with validated settings", () => {
-    expect(saveCreateDraft("Board update for Q4", { cardsCount: 12, density: "context", theme: "classic" })).toBe(true);
+    expect(
+      saveCreateDraft("Board update for Q4", { cardsCount: 12, density: "context", theme: "classic" })
+    ).toEqual({ ok: true });
     const draft = readCreateDraft();
     expect(draft?.prompt).toBe("Board update for Q4");
     expect(draft?.settings.cardsCount).toBe(12);
@@ -55,29 +65,48 @@ describe("create draft round trip", () => {
     expect(draft?.settings.theme).toBe("classic");
   });
 
-  it("drops invalid or out-of-range settings", () => {
+  it("drops settings that are not real builder options", () => {
     saveCreateDraft("Investor pitch", {
       // @ts-expect-error deliberately invalid input
       density: "extreme",
-      cardsCount: 900,
+      // 7 is a plausible number but not an offered card count
+      cardsCount: 7,
       // @ts-expect-error deliberately invalid input
       visualsMode: "lasers",
+      // @ts-expect-error deliberately invalid input
+      theme: "neon",
+      language: "kl-XX",
     });
     const draft = readCreateDraft();
     expect(draft?.settings.density).toBeUndefined();
     expect(draft?.settings.cardsCount).toBeUndefined();
     expect(draft?.settings.visualsMode).toBeUndefined();
+    expect(draft?.settings.theme).toBeUndefined();
+    expect(draft?.settings.language).toBeUndefined();
   });
 
-  it("bounds the prompt length", () => {
-    saveCreateDraft("x".repeat(MAX_PROMPT_LENGTH + 500));
-    expect(readCreateDraft()?.prompt.length).toBe(MAX_PROMPT_LENGTH);
+  it("rejects an over-limit brief instead of silently truncating it", () => {
+    const result = saveCreateDraft("x".repeat(MAX_PROMPT_LENGTH + 1));
+    expect(result).toEqual({ ok: false, reason: "too_long" });
+    expect(readCreateDraft()).toBeNull();
+  });
+
+  it("preserves a long, indented, multi-line brief exactly", () => {
+    const brief = [
+      "Board update for Q4.",
+      "",
+      "    Indented note with     wide spacing",
+      "\tTabbed line",
+      "Detail: " + "y".repeat(4500),
+    ].join("\n");
+    expect(saveCreateDraft(brief)).toEqual({ ok: true });
+    expect(readCreateDraft()?.prompt).toBe(brief);
+    expect(readCreateDraft()!.prompt.length).toBeGreaterThan(4000);
   });
 
   it("reading never clears the draft, so a failed generation keeps the brief", () => {
     saveCreateDraft("Strategy review");
     expect(readCreateDraft()?.prompt).toBe("Strategy review");
-    // simulate a failed generation: nothing calls clear
     expect(readCreateDraft()?.prompt).toBe("Strategy review");
     expect(window.sessionStorage.getItem(DRAFT_STORAGE_KEY)).toBeTruthy();
   });
@@ -104,7 +133,7 @@ describe("create draft round trip", () => {
     expect(readCreateDraft()).toBeNull();
   });
 
-  it("survives storage that is unavailable or throws", () => {
+  it("reports storage failure instead of claiming success", () => {
     const real = window.sessionStorage;
     Object.defineProperty(window, "sessionStorage", {
       configurable: true,
@@ -113,7 +142,8 @@ describe("create draft round trip", () => {
       },
     });
     try {
-      expect(saveCreateDraft("Board update")).toBe(false);
+      expect(isDraftStorageAvailable()).toBe(false);
+      expect(saveCreateDraft("Board update")).toEqual({ ok: false, reason: "storage" });
       expect(readCreateDraft()).toBeNull();
       expect(readLegacyPrompt()).toBeNull();
       expect(() => clearCreateDraft()).not.toThrow();
