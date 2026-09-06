@@ -141,8 +141,12 @@ const Auth = () => {
           trackABEvent("signup_cta", "convert", "email_signup");
           trackABEvent("hero_headline", "convert", "signup_complete");
           trackABEvent("pricing_pro_cta", "convert", "signup_complete");
-          toast({ title: 'Welcome to AXIVA!', description: 'Your account has been created.' });
-          navigate('/onboarding');
+          try { sessionStorage.setItem(NEW_SIGNUP_FLAG, '1'); } catch { /* ignore */ }
+          toast({
+            title: 'Account created',
+            description: 'If we ask you to confirm your email, check your inbox to finish.',
+          });
+          // Redirect is owned by the effect above once the session arrives.
         }
       } else {
         const { error } = await signIn(email, password);
@@ -152,9 +156,8 @@ const Auth = () => {
             description: error.message.includes('Invalid login credentials') ? 'Please check your email and password.' : error.message,
             variant: 'destructive',
           });
-        } else {
-          navigate('/dashboard');
         }
+        // Success: the redirect effect decides where to go.
       }
     } finally {
       setIsLoading(false);
