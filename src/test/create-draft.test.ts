@@ -104,14 +104,25 @@ describe("create draft round trip", () => {
     expect(readCreateDraft()).toBeNull();
   });
 
-  it("survives storage that throws", () => {
-    const spy = vi.spyOn(window.sessionStorage, "setItem").mockImplementation(() => {
-      throw new Error("storage disabled");
+  it("survives storage that is unavailable or throws", () => {
+    const real = window.sessionStorage;
+    Object.defineProperty(window, "sessionStorage", {
+      configurable: true,
+      get() {
+        throw new Error("storage disabled");
+      },
     });
-    expect(saveCreateDraft("Board update")).toBe(false);
-    expect(readCreateDraft()).toBeNull();
-    expect(() => clearCreateDraft()).not.toThrow();
-    spy.mockRestore();
+    try {
+      expect(saveCreateDraft("Board update")).toBe(false);
+      expect(readCreateDraft()).toBeNull();
+      expect(readLegacyPrompt()).toBeNull();
+      expect(() => clearCreateDraft()).not.toThrow();
+    } finally {
+      Object.defineProperty(window, "sessionStorage", {
+        configurable: true,
+        value: real,
+      });
+    }
   });
 
   it("reads the legacy prefill key for compatibility", () => {
