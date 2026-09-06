@@ -7,16 +7,38 @@
  *
  * Rules:
  * - Reading NEVER clears the draft (a failed generation must not lose the brief).
- * - Only successful project persistence, or an explicit discard, clears it.
+ * - Only successful project + block persistence, or an explicit discard, clears it.
+ * - Valid brief text is preserved EXACTLY, including blank lines and indentation.
+ * - Over-limit briefs are rejected, never silently truncated.
  * - All storage access is wrapped: storage can throw (private mode, quota, iframes).
+ * - Storage is per-tab (sessionStorage): restoration is same-tab only, never
+ *   cross-device.
  */
+
+import { THEMES, type ThemeId } from "@/lib/themes";
 
 export const DRAFT_STORAGE_KEY = "axiva_create_draft_v1";
 /** Legacy key written by older homepage builds — read for compatibility only. */
 export const LEGACY_PROMPT_KEY = "axiva_prefill_prompt";
 
-export const MAX_PROMPT_LENGTH = 4000;
+/** Single shared bound for Hero, Create and storage. */
+export const MAX_PROMPT_LENGTH = 12000;
 export const DRAFT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+/** The only card counts the builder offers. */
+export const CARD_COUNT_OPTIONS = [5, 8, 10, 12, 15, 20] as const;
+
+/** The only languages the builder offers. */
+export const LANGUAGE_OPTIONS = [
+  { value: "en-US", label: "English (US)" },
+  { value: "en-GB", label: "English (UK)" },
+  { value: "es", label: "Spanish" },
+  { value: "fr", label: "French" },
+  { value: "de", label: "German" },
+  { value: "pt", label: "Portuguese" },
+  { value: "zh", label: "Chinese" },
+  { value: "ja", label: "Japanese" },
+] as const;
 
 export type DraftDensity = "vibes" | "minimal" | "context" | "plenty";
 export type DraftVisuals = "none" | "stock" | "ai" | "hybrid";
@@ -25,7 +47,7 @@ export type DraftOutput = "presentation" | "social";
 export interface CreateDraftSettings {
   outputType?: DraftOutput;
   cardsCount?: number;
-  theme?: string;
+  theme?: ThemeId;
   language?: string;
   density?: DraftDensity;
   visualsMode?: DraftVisuals;
@@ -38,6 +60,10 @@ export interface CreateDraft {
   createdAt: number;
   settings: CreateDraftSettings;
 }
+
+export type SaveDraftResult =
+  | { ok: true }
+  | { ok: false; reason: "empty" | "too_long" | "storage" };
 
 const DENSITIES: DraftDensity[] = ["vibes", "minimal", "context", "plenty"];
 const VISUALS: DraftVisuals[] = ["none", "stock", "ai", "hybrid"];
@@ -56,6 +82,11 @@ function getStore(): Storage | null {
   } catch {
     return null;
   }
+}
+
+/** True when the brief can actually be retained across a navigation. */
+export function isDraftStorageAvailable(): boolean {
+  return getStore() !== null;
 }
 
 function safeRead(key: string): string | null {
@@ -91,17 +122,33 @@ function safeRemove(key: string): void {
 
 /* ── validation ────────────────────────────────────────────────── */
 
-function normalisePrompt(raw: unknown): string {
+/**
+ * Remove only genuinely unsafe control characters. Newlines, carriage returns
+ * and tabs are legitimate formatting and are preserved verbatim, as are runs of
+ * spaces — an indented brief must survive a round trip unchanged.
+ */
+export function cleanPromptText(raw: unknown): string {
   if (typeof raw !== "string") return "";
-  // Strip control characters, collapse runaway whitespace, bound the length.
-  const cleaned = raw
-    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
-    .replace(/[ \t]{3,}/g, "  ")
-    .trim();
-  return cleaned.slice(0, MAX_PROMPT_LENGTH);
+  return raw.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "");
 }
 
-function normaliseSettings(raw: unknown): CreateDraftSettings {
+/** Length used for validation and for the visible counter. */
+export function promptLength(raw: string): number {
+  return cleanPromptText(raw).trim().length;
+}
+
+export function isPromptWithinLimit(raw: string): boolean {
+  return promptLength(raw) <= MAX_PROMPT_LENGTH;
+}
+
+function normalisePrompt(raw: unknown): string | null {
+  const cleaned = cleanPromptText(raw).trim();
+  if (!cleaned) return null;
+  if (cleaned.length > MAX_PROMPT_LENGTH) return null; // reject, never truncate
+  return cleaned;
+}
+
+export function normaliseSettings(raw: unknown): CreateDraftSettings {
   if (!raw || typeof raw !== "object") return {};
   const input = raw as Record<string, unknown>;
   const out: CreateDraftSettings = {};
@@ -111,12 +158,15 @@ function normaliseSettings(raw: unknown): CreateDraftSettings {
   }
   if (typeof input.cardsCount === "number" && Number.isFinite(input.cardsCount)) {
     const n = Math.round(input.cardsCount);
-    if (n >= 3 && n <= 20) out.cardsCount = n;
+    if ((CARD_COUNT_OPTIONS as readonly number[]).includes(n)) out.cardsCount = n;
   }
-  if (typeof input.theme === "string" && input.theme.length > 0 && input.theme.length <= 40) {
-    out.theme = input.theme;
+  if (typeof input.theme === "string" && Object.prototype.hasOwnProperty.call(THEMES, input.theme)) {
+    out.theme = input.theme as ThemeId;
   }
-  if (typeof input.language === "string" && input.language.length > 0 && input.language.length <= 10) {
+  if (
+    typeof input.language === "string" &&
+    LANGUAGE_OPTIONS.some((l) => l.value === input.language)
+  ) {
     out.language = input.language;
   }
   if (typeof input.density === "string" && DENSITIES.includes(input.density as DraftDensity)) {
@@ -133,23 +183,30 @@ function normaliseSettings(raw: unknown): CreateDraftSettings {
 
 /* ── public API ────────────────────────────────────────────────── */
 
-/** Persist the visitor's brief and current settings. Returns false if storage is unavailable. */
+/**
+ * Persist the visitor's brief and current settings.
+ * Returns a result so callers can tell an over-long brief and an unusable
+ * storage apart — neither may be reported to the visitor as success.
+ */
 export function saveCreateDraft(
   prompt: string,
   settings: CreateDraftSettings = {}
-): boolean {
-  const cleanPrompt = normalisePrompt(prompt);
-  if (!cleanPrompt) return false;
+): SaveDraftResult {
+  const cleaned = cleanPromptText(prompt).trim();
+  if (!cleaned) return { ok: false, reason: "empty" };
+  if (cleaned.length > MAX_PROMPT_LENGTH) return { ok: false, reason: "too_long" };
   const draft: CreateDraft = {
     version: 1,
-    prompt: cleanPrompt,
+    prompt: cleaned,
     createdAt: Date.now(),
     settings: normaliseSettings(settings),
   };
   try {
-    return safeWrite(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    return safeWrite(DRAFT_STORAGE_KEY, JSON.stringify(draft))
+      ? { ok: true }
+      : { ok: false, reason: "storage" };
   } catch {
-    return false;
+    return { ok: false, reason: "storage" };
   }
 }
 
@@ -184,32 +241,42 @@ export function clearCreateDraft(): void {
 
 /** Compatibility: older builds stored only a bare prompt string. */
 export function readLegacyPrompt(): string | null {
-  const raw = safeRead(LEGACY_PROMPT_KEY);
-  const cleaned = normalisePrompt(raw);
-  return cleaned || null;
+  return normalisePrompt(safeRead(LEGACY_PROMPT_KEY));
 }
 
 /**
  * Validate an internal redirect target.
  * Accepts same-origin absolute paths only. Rejects external URLs,
- * protocol-relative URLs, backslash tricks and control characters.
+ * protocol-relative URLs, backslash tricks and control characters —
+ * including ones hidden behind percent-encoding.
  */
 export function safeInternalPath(raw: string | null | undefined, fallback = "/create"): string {
   if (typeof raw !== "string") return fallback;
   const value = raw.trim();
   if (!value) return fallback;
-  if (/[\u0000-\u001F\u007F]/.test(value)) return fallback;
-  if (value.includes("\\")) return fallback;
-  if (!value.startsWith("/")) return fallback;
-  if (value.startsWith("//")) return fallback;
-  // A second colon-scheme sneaking in via encoding
-  if (/^\/+\s*[a-z][a-z0-9+.-]*:/i.test(value)) return fallback;
-  try {
-    const decoded = decodeURIComponent(value);
-    if (decoded.includes("\\") || decoded.startsWith("//")) return fallback;
-  } catch {
-    return fallback;
-  }
   if (value.length > 512) return fallback;
+
+  const suspicious = (candidate: string): boolean =>
+    /[\u0000-\u001F\u007F]/.test(candidate) ||
+    candidate.includes("\\") ||
+    !candidate.startsWith("/") ||
+    candidate.startsWith("//") ||
+    /^\/+\s*[a-z][a-z0-9+.-]*:/i.test(candidate);
+
+  if (suspicious(value)) return fallback;
+
+  // Decode repeatedly: an attacker can double-encode a control character.
+  let decoded = value;
+  for (let i = 0; i < 3; i++) {
+    let next: string;
+    try {
+      next = decodeURIComponent(decoded);
+    } catch {
+      return fallback;
+    }
+    if (next === decoded) break;
+    decoded = next;
+    if (suspicious(decoded)) return fallback;
+  }
   return value;
 }
