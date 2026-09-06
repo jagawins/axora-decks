@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool, Palette, FlaskConical } from "lucide-react";
@@ -32,6 +32,11 @@ import {
   readLegacyPrompt,
   clearCreateDraft,
   saveCreateDraft,
+  isDraftStorageAvailable,
+  cleanPromptText,
+  MAX_PROMPT_LENGTH,
+  CARD_COUNT_OPTIONS as DRAFT_CARD_COUNTS,
+  LANGUAGE_OPTIONS,
 } from "@/lib/create-draft";
 import { trackProductEvent } from "@/lib/product-events";
 
@@ -50,19 +55,10 @@ interface GenerationSpec {
   prompt: string;
 }
 
-// Constants
-const CARD_COUNT_OPTIONS = [5, 8, 10, 12, 15, 20];
-
-const LANGUAGES = [
-  { value: "en-US", label: "English (US)" },
-  { value: "en-GB", label: "English (UK)" },
-  { value: "es", label: "Spanish" },
-  { value: "fr", label: "French" },
-  { value: "de", label: "German" },
-  { value: "pt", label: "Portuguese" },
-  { value: "zh", label: "Chinese" },
-  { value: "ja", label: "Japanese" },
-];
+// Constants — the draft module is the single source of truth for the
+// option values, so a restored draft can never apply an unknown setting.
+const CARD_COUNT_OPTIONS = DRAFT_CARD_COUNTS;
+const LANGUAGES = LANGUAGE_OPTIONS;
 
 const DENSITY_OPTIONS: { value: DensityLevel; label: string; description: string }[] = [
   { value: "vibes", label: "Just vibes", description: "Images & headings, minimal text" },
@@ -194,17 +190,29 @@ export default function Create() {
   const [searchParams] = useSearchParams();
 
   const [restoredBrief, setRestoredBrief] = useState(false);
+  const [briefNotice, setBriefNotice] = useState<string | null>(null);
 
   // Prompt sources, in priority order:
   // 1. URL ?prompt= (Speech Prep, Timeline, Smart Slides, template links)
   // 2. A saved creation draft from the homepage brief (survives sign-in / reload)
   // 3. The legacy prefill key written by older builds
   const [useBrandKit, setUseBrandKit] = useState(false);
+  /** Set once restoration has run, so autosave can never overwrite a draft first. */
+  const hydratedRef = useRef(false);
+  /** True when a restored draft explicitly asked for the brand kit to stay off. */
+  const brandKitChoiceRef = useRef<boolean | null>(null);
+
   useEffect(() => {
-    const urlPrompt = searchParams.get("prompt");
-    if (urlPrompt) {
-      setPrompt(urlPrompt);
+    const urlPrompt = cleanPromptText(searchParams.get("prompt") ?? "");
+    if (urlPrompt.trim()) {
+      if (urlPrompt.trim().length > MAX_PROMPT_LENGTH) {
+        setBriefNotice(
+          `That brief is longer than the ${MAX_PROMPT_LENGTH.toLocaleString()} character limit. Shorten it and try again.`
+        );
+      }
+      setPrompt(urlPrompt.slice(0, MAX_PROMPT_LENGTH));
       setActiveEntry("scratch");
+      hydratedRef.current = true;
       return;
     }
     const draft = readCreateDraft();
@@ -212,15 +220,19 @@ export default function Create() {
       setPrompt(draft.prompt);
       setActiveEntry("scratch");
       setRestoredBrief(true);
-      const s = draft.settings;
-      if (s.outputType) setOutputType(s.outputType);
-      if (s.cardsCount) setCardsCount(s.cardsCount);
-      if (s.theme) setTheme(s.theme as ThemeId);
-      if (s.language) setLanguage(s.language);
-      if (s.density) setDensity(s.density);
-      if (s.visualsMode) setVisualsMode(s.visualsMode);
-      if (typeof s.useBrandKit === "boolean") setUseBrandKit(s.useBrandKit);
+      const sset = draft.settings;
+      if (sset.outputType) setOutputType(sset.outputType);
+      if (sset.cardsCount) setCardsCount(sset.cardsCount);
+      if (sset.theme) setTheme(sset.theme as ThemeId);
+      if (sset.language) setLanguage(sset.language);
+      if (sset.density) setDensity(sset.density);
+      if (sset.visualsMode) setVisualsMode(sset.visualsMode);
+      if (typeof sset.useBrandKit === "boolean") {
+        brandKitChoiceRef.current = sset.useBrandKit;
+        setUseBrandKit(sset.useBrandKit);
+      }
       trackProductEvent("create_draft_restored", { source: "create_page" });
+      hydratedRef.current = true;
       return;
     }
     const legacy = readLegacyPrompt();
@@ -229,9 +241,36 @@ export default function Create() {
       setActiveEntry("scratch");
       setRestoredBrief(true);
     }
+    hydratedRef.current = true;
     // Runs once per search-param change; restoring must not fight user edits.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
+
+  const storageAvailable = useMemo(() => isDraftStorageAvailable(), []);
+
+  /**
+   * Autosave the current brief and settings, so a reload keeps the latest
+   * version rather than a stale one. Guarded on hydration so the first render
+   * can never overwrite a restored draft with empty defaults.
+   */
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    if (!prompt.trim()) return;
+    if (prompt.trim().length > MAX_PROMPT_LENGTH) return;
+    const timer = setTimeout(() => {
+      saveCreateDraft(prompt, {
+        outputType,
+        cardsCount,
+        theme,
+        language,
+        density,
+        visualsMode,
+        useBrandKit,
+      });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [prompt, outputType, cardsCount, theme, language, density, visualsMode, useBrandKit]);
+
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
   const [mobileOverlayVisible, setMobileOverlayVisible] = useState(false);
 
@@ -263,7 +302,9 @@ export default function Create() {
       .then(({ data }) => {
         if (data?.brand_kit && isBrandKitConfigured(data.brand_kit as BrandKit)) {
           setBrandKit(data.brand_kit as BrandKit);
-          setUseBrandKit(true); // default on if configured
+          // Default on when configured, but never override an explicit "off"
+          // carried in from the restored brief.
+          if (brandKitChoiceRef.current !== false) setUseBrandKit(true);
         }
       });
   }, [user]);
