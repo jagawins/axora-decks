@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool, Palette, FlaskConical } from "lucide-react";
+import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, Palette, FlaskConical, ChevronDown } from "lucide-react";
 import ResearchModeWizard from "@/components/create/ResearchModeWizard";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,13 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Badge } from "@/components/ui/badge";
-import Navbar from "@/components/landing/Navbar";
+import { SUBSCRIPTION_TIERS } from "@/lib/subscription";
+import {
+  CREATE_PRESETS,
+  BASE_DEFAULTS,
+  matchPreset,
+  type PresetId,
+} from "@/lib/create-presets";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -39,7 +45,7 @@ import {
   CARD_COUNT_OPTIONS as DRAFT_CARD_COUNTS,
   LANGUAGE_OPTIONS,
 } from "@/lib/create-draft";
-import { trackProductEvent } from "@/lib/product-events";
+import { trackProductEvent, type GenerationFailureStage } from "@/lib/product-events";
 
 // Types
 type OutputType = "presentation" | "social";
@@ -84,12 +90,9 @@ const EXAMPLE_PROMPTS = [
   "Market analysis: Electric vehicle trends 2025",
 ];
 
-const ENTRY_CARDS = [
-  { id: "scratch", icon: Sparkles, title: "Start from scratch", description: "Describe your topic and let AI create" },
-  { id: "smart", icon: Zap, title: "Create Smart Slide", description: "Slides that adapt live to audience input", href: "/create?prompt=Create+a+Smart+Slides+deck+with+live_input+blocks+for+audience+requirements+and+adaptive_blocks+that+regenerate+downstream+slides+based+on+those+inputs.+Include+voice_input+block+for+speech+recognition." },
-  { id: "template", icon: LayoutTemplate, title: "Use a template", description: "98 executive-ready templates", href: "/templates" },
-  { id: "import", icon: FileText, title: "Import content", description: "Paste notes, docs, or outlines" },
-];
+/** Free-plan truth, derived from the existing subscription configuration. */
+const FREE_PROJECT_LIMIT = SUBSCRIPTION_TIERS.free.limits.projects;
+const FREE_GENERATION_LIMIT = SUBSCRIPTION_TIERS.free.limits.aiGenerationsPerMonth;
 
 /* ── Live generation timer ──────────────────────────────── */
 function GenerationTimer({ startTime }: { startTime: number | null }) {
@@ -176,8 +179,9 @@ export default function Create() {
   const isMobile = useIsMobile();
   
   // State
-  const [activeEntry, setActiveEntry] = useState<string | null>(null);
   const [researchMode, setResearchMode] = useState(false);
+  const [showCustomize, setShowCustomize] = useState(false);
+  const [showMoreWays, setShowMoreWays] = useState(false);
   const [outputType, setOutputType] = useState<OutputType>("presentation");
   const [cardsCount, setCardsCount] = useState(10);
   const [theme, setTheme] = useState<ThemeId>(DEFAULT_THEME);
@@ -213,14 +217,12 @@ export default function Create() {
       }
       // Keep the whole text visible: never silently truncate someone's brief.
       setPrompt(urlPrompt);
-      setActiveEntry("scratch");
       hydratedRef.current = true;
       return;
     }
     const draft = readCreateDraft();
     if (draft) {
       setPrompt(draft.prompt);
-      setActiveEntry("scratch");
       setRestoredBrief(true);
       const sset = draft.settings;
       if (sset.outputType) setOutputType(sset.outputType);
@@ -240,7 +242,6 @@ export default function Create() {
     const legacy = readLegacyPrompt();
     if (legacy) {
       setPrompt(legacy);
-      setActiveEntry("scratch");
       setRestoredBrief(true);
     }
     hydratedRef.current = true;
@@ -249,6 +250,11 @@ export default function Create() {
   }, [searchParams]);
 
   const storageAvailable = useMemo(() => isDraftStorageAvailable(), []);
+
+  /** The brief form is usable on arrival: record the view, never the brief. */
+  useEffect(() => {
+    trackProductEvent("create_viewed", { source: "create_page" });
+  }, []);
 
   /**
    * Autosave the current brief and settings, so a reload keeps the latest
@@ -319,19 +325,51 @@ export default function Create() {
     setPrompt(example);
   };
 
-  const handleEntryClick = (cardId: string, href?: string) => {
-    // Smart Slide: set prompt and open scratch form directly
-    if (cardId === "smart") {
-      setPrompt("Create a Smart Slides deck with live_input blocks for capturing audience requirements (RPO, RTO, budget, headcount) and adaptive_blocks that regenerate downstream slides based on those inputs. Include a voice_input block for speech recognition.");
-      setActiveEntry("scratch");
-      return;
-    }
-    if (href) {
-      navigate(href);
-      return;
-    }
-    setActiveEntry(cardId);
+  const handleSmartSlides = () => {
+    setShowMoreWays(false);
+    setPrompt("Create a Smart Slides deck with live_input blocks for capturing audience requirements (RPO, RTO, budget, headcount) and adaptive_blocks that regenerate downstream slides based on those inputs. Include a voice_input block for speech recognition.");
   };
+
+  /** Which preset matches the current settings — null means Custom. */
+  const activePreset = matchPreset({
+    outputType,
+    cardsCount,
+    theme,
+    language,
+    density,
+    visualsMode,
+  });
+
+  /**
+   * Apply a configuration shortcut. Only settings change: the brief is never
+   * touched, and the brand-kit preference is deliberately left alone.
+   */
+  const applyPreset = (id: PresetId) => {
+    const preset = CREATE_PRESETS.find((p) => p.id === id);
+    if (!preset) return;
+    const c = preset.config;
+    setOutputType(c.outputType);
+    setCardsCount(c.cardsCount);
+    setTheme(c.theme);
+    setLanguage(c.language);
+    setDensity(c.density);
+    setVisualsMode(c.visualsMode);
+    trackProductEvent("configuration_selected", {
+      preset: id,
+      slide_count: c.cardsCount,
+      density: c.density,
+    });
+  };
+
+  /** Concise, always-visible transparency line: defaults plus anything non-default. */
+  const summaryChips = [
+    `${cardsCount} slides`,
+    THEMES[theme].label,
+    LANGUAGES.find((l) => l.value === language)?.label ?? language,
+    ...(outputType !== BASE_DEFAULTS.outputType ? ["Social cards"] : []),
+    ...(density !== BASE_DEFAULTS.density ? [selectedDensity?.label ?? density] : []),
+    ...(visualsMode !== BASE_DEFAULTS.visualsMode ? [selectedVisuals?.label ?? visualsMode] : []),
+  ];
 
   const resolveImages = async (blocks: any[], projectId: string): Promise<any[]> => {
     if (visualsMode === "none") return blocks;
@@ -407,6 +445,7 @@ export default function Create() {
       return;
     }
     if (promptTooLong) {
+      trackProductEvent("generation_failed", { stage: "validation" });
       setBriefNotice(
         `Your brief is ${promptChars.toLocaleString()} characters. Please shorten it to ${MAX_PROMPT_LENGTH.toLocaleString()} or fewer.`
       );
@@ -444,6 +483,15 @@ export default function Create() {
     setGenStartTime(performance.now());
     setGenElapsed(null);
     if (isMobile) setMobileOverlayVisible(true);
+    trackProductEvent("generation_started", {
+      preset: activePreset ?? "custom",
+      slide_count: cardsCount,
+      density,
+      signed_in: true,
+    });
+
+    /** Stage enum for failure telemetry — never a raw error message. */
+    let stage: GenerationFailureStage = "project";
 
     try {
       // Build generation spec
@@ -536,6 +584,7 @@ ${brandInstruction}
 Create exactly ${cardsCount} slides/cards.`;
 
       // Generate using existing AI engine
+      stage = "generation";
       const result = await aiEngine.generateFromPrompt({
         topic: spec.prompt,
         prompt: enhancedPrompt,
@@ -548,11 +597,13 @@ Create exactly ${cardsCount} slides/cards.`;
       );
 
       if (validBlocks.length === 0) {
+        stage = "empty_output";
         throw new Error(
           "The generator did not return any slides. Your brief is kept — please try again."
         );
       }
 
+      let persistedCount = 0;
       {
         // Process and normalize blocks
         let processedBlocks = validBlocks.slice(0, cardsCount).map((block, index) => {
@@ -581,6 +632,7 @@ Create exactly ${cardsCount} slides/cards.`;
         // Resolve images if needed
         processedBlocks = await resolveImages(processedBlocks, projectId);
 
+        stage = "persist";
         const { error: insertError } = await supabase
           .from("blocks")
           .insert(processedBlocks as any);
@@ -590,6 +642,7 @@ Create exactly ${cardsCount} slides/cards.`;
             "Your slides could not be saved. Your brief is kept — please try again."
           );
         }
+        persistedCount = processedBlocks.length;
       }
 
       // Slides are really persisted: only now is it safe to discard the brief.
@@ -598,11 +651,20 @@ Create exactly ${cardsCount} slides/cards.`;
       toast({ title: "Deck created!", description: "Your AI-generated deck is ready." });
       const elapsed = genStartTime ? Math.round((performance.now() - genStartTime) / 1000 * 10) / 10 : null;
       setGenElapsed(elapsed);
-      
-      navigate(`/preview/${projectId}?new=1&speed=${elapsed}`);
+
+      // Success is only reported once the blocks really exist.
+      trackProductEvent("generation_succeeded", {
+        preset: activePreset ?? "custom",
+        slide_count: cardsCount,
+        block_count: persistedCount,
+      });
+
+      navigate(`/preview/${projectId}?new=1`);
     } catch (error) {
       console.error("Generation error:", error);
       // The brief stays saved for a retry; nothing is cleared on failure.
+      // Only the stage enum is reported: never the message or the deck id.
+      trackProductEvent("generation_failed", { stage, slide_count: cardsCount });
       toast({
         title: "Generation failed",
         description: error instanceof Error ? error.message : "Please try again.",
@@ -618,286 +680,118 @@ Create exactly ${cardsCount} slides/cards.`;
   return (
     <>
       <Helmet>
-        <title>Create with AI | AXIVA</title>
+        <title>Write your brief | AXIVA</title>
         <meta
           name="description"
-          content="Create executive-grade presentations with AI. Generate from scratch with full control over style, length, and content density."
+          content="Describe your update and AXIVA drafts a structured deck: recommendation, evidence and next steps. Adjust slide count, theme and density whenever you want to."
         />
       </Helmet>
 
-      <Navbar />
+      {/* Restrained, page-local navigation: this page only. */}
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur-xl">
+        <nav
+          aria-label="AXIVA"
+          className="mx-auto flex h-14 w-full max-w-4xl items-center justify-between gap-3 px-4"
+        >
+          <Link to="/" className="text-base font-semibold tracking-tight text-foreground">
+            AXIVA
+          </Link>
+          <div className="flex items-center gap-1.5">
+            <Link
+              to="/demo"
+              className="rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Sample decks
+            </Link>
+            {user ? (
+              <Link
+                to="/dashboard"
+                className="rounded-lg px-3 py-2 text-sm font-medium text-foreground transition-colors hover:text-accent"
+              >
+                My decks
+              </Link>
+            ) : (
+              <Link
+                to="/auth?next=%2Fcreate"
+                className="rounded-lg px-3 py-2 text-sm font-medium text-foreground transition-colors hover:text-accent"
+              >
+                Sign in
+              </Link>
+            )}
+          </div>
+        </nav>
+      </header>
 
-      <main className="min-h-screen flex flex-col items-center px-4 pt-24 pb-16">
-        {/* Background effects */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-accent/8 rounded-full blur-[100px] opacity-50" />
-          <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-success/5 rounded-full blur-[80px]" />
-        </div>
-
-        <div className="w-full max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-10">
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground mb-4">
-              Create with AI
+      <main className="min-h-screen px-4 pb-16 pt-8">
+        <div className="mx-auto w-full max-w-3xl">
+          {/* Calm header + journey cue */}
+          <div className="mb-8">
+            <ol className="mb-4 flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
+              <li aria-current="step" className="rounded-full bg-accent/10 px-2.5 py-1 text-accent">
+                1. Brief
+              </li>
+              <li aria-hidden="true">·</li>
+              <li className="px-1 py-1">2. Create</li>
+              <li aria-hidden="true">·</li>
+              <li className="px-1 py-1">3. Review</li>
+            </ol>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Write your brief
             </h1>
-            <p className="text-lg text-muted-foreground">
-              Choose how you want to start
+            <p className="mt-2 text-base text-muted-foreground">
+              Say what you need to land. Next, AXIVA drafts the slides — then you review and edit them.
             </p>
             {restoredBrief && (
-              <p className="mt-5 inline-block rounded-lg border border-accent/30 bg-accent/5 px-4 py-2.5 text-sm text-foreground">
+              <p className="mt-4 rounded-lg border border-accent/30 bg-accent/5 px-4 py-2.5 text-sm text-foreground">
                 We brought your brief back — edit it or generate when you're ready.
               </p>
             )}
             {briefNotice && (
               <p
                 role="alert"
-                className="mx-auto mt-5 max-w-xl rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-2.5 text-sm text-foreground"
+                className="mt-4 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-2.5 text-sm text-foreground"
               >
                 {briefNotice}
               </p>
             )}
           </div>
 
-          {/* Mode Toggle — shown before entry cards or when scratch is active */}
-          {(!activeEntry || activeEntry === "scratch") && (
-            <div className="flex items-center justify-center gap-3 mb-8">
+          {researchMode ? (
+            <div className="space-y-4">
               <button
                 onClick={() => setResearchMode(false)}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                  !researchMode
-                    ? "bg-accent text-accent-foreground shadow-md"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                <Sparkles className="h-4 w-4 inline mr-1.5" />
-                Quick
+                ← Back to your brief
               </button>
-              <button
-                onClick={() => { setResearchMode(true); setActiveEntry("scratch"); }}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                  researchMode
-                    ? "bg-accent text-accent-foreground shadow-md"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
+              <ResearchModeWizard />
+            </div>
+          ) : (
+            <div className="space-y-6 rounded-2xl border border-border/60 bg-card/50 p-5 backdrop-blur-sm sm:p-7">
+              {/* 1. The brief, first */}
+              <div
+                className="space-y-3"
+                style={{
+                  paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + var(--keyboard-height, 0px))",
+                  transition: "padding-bottom 0.1s ease",
+                }}
               >
-                <FlaskConical className="h-4 w-4 inline mr-1.5" />
-                Research Mode
-              </button>
-            </div>
-          )}
-
-          {/* Entry Cards */}
-          {!activeEntry && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-              {ENTRY_CARDS.map((card) => (
-                <button
-                  key={card.id}
-                  onClick={() => handleEntryClick(card.id, card.href)}
-                  className={cn(
-                    "group p-6 rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm",
-                    "hover:border-accent/50 hover:bg-card/80 transition-all duration-200",
-                    "text-left flex flex-col items-start gap-3"
-                  )}
-                >
-                  <div className="p-2.5 rounded-lg bg-accent/10 text-accent group-hover:bg-accent group-hover:text-accent-foreground transition-colors">
-                    <card.icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">{card.title}</h3>
-                    <p className="text-sm text-muted-foreground">{card.description}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Back button when in a flow */}
-          {activeEntry && (
-            <button
-              onClick={() => { setActiveEntry(null); setResearchMode(false); }}
-              className="mb-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              ← Back to options
-            </button>
-          )}
-
-          {/* Research Mode Wizard */}
-          {activeEntry === "scratch" && researchMode && (
-            <ResearchModeWizard />
-          )}
-
-          {/* Studio Controls - shown when NOT in research mode */}
-          {(activeEntry === "scratch" || activeEntry === "quick" || activeEntry === "import") && !researchMode && (
-            <div className="space-y-8 bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 sm:p-8">
-              
-              {/* Output Type Toggle */}
-              <div className="space-y-3">
-                <Label className="text-sm font-medium">Output Type</Label>
-                <ToggleGroup
-                  type="single"
-                  value={outputType}
-                  onValueChange={(v) => v && setOutputType(v as OutputType)}
-                  className="justify-start"
-                >
-                  <ToggleGroupItem value="presentation" className="gap-2 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground">
-                    <Presentation className="h-4 w-4" />
-                    Presentation
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="social" className="gap-2 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground">
-                    <Share2 className="h-4 w-4" />
-                    Social Cards
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </div>
-
-              {/* Options Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                {/* Cards Count */}
-                <div className="space-y-2">
-                  <Label htmlFor="cards-count" className="text-sm font-medium">Cards</Label>
-                  <Select value={String(cardsCount)} onValueChange={(v) => setCardsCount(Number(v))}>
-                    <SelectTrigger id="cards-count" className="bg-muted/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CARD_COUNT_OPTIONS.map((count) => (
-                        <SelectItem key={count} value={String(count)}>
-                          {count} cards
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Theme */}
-                <div className="space-y-2">
-                  <Label htmlFor="theme" className="text-sm font-medium">Theme</Label>
-                  <Select value={theme} onValueChange={(v) => setTheme(v as ThemeId)}>
-                    <SelectTrigger id="theme" className="bg-muted/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(THEMES).map(([id, { label }]) => (
-                        <SelectItem key={id} value={id}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Language */}
-                <div className="space-y-2">
-                  <Label htmlFor="language" className="text-sm font-medium">Language</Label>
-                  <Select value={language} onValueChange={setLanguage}>
-                    <SelectTrigger id="language" className="bg-muted/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {LANGUAGES.map((lang) => (
-                        <SelectItem key={lang.value} value={lang.value}>
-                          {lang.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Density */}
-                <div className="space-y-2">
-                  <Label htmlFor="density" className="text-sm font-medium">Density</Label>
-                  <Select value={density} onValueChange={(v) => setDensity(v as DensityLevel)}>
-                    <SelectTrigger id="density" className="bg-muted/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {DENSITY_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Visuals Mode */}
-                <div className="space-y-2">
-                  <Label htmlFor="visuals" className="text-sm font-medium">Visuals</Label>
-                  <Select value={visualsMode} onValueChange={(v) => setVisualsMode(v as VisualsMode)}>
-                    <SelectTrigger id="visuals" className="bg-muted/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {VISUALS_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Preview Badge */}
-              <div className="flex flex-wrap gap-2 p-3 bg-muted/30 rounded-lg border border-border/30">
-                <Badge variant="secondary" className="text-xs">
-                  {outputType === "presentation" ? "📊 Presentation" : "📱 Social"}
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {cardsCount} cards
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {THEMES[theme].label}
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {LANGUAGES.find(l => l.value === language)?.label}
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {selectedDensity?.label}
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {selectedVisuals?.label}
-                </Badge>
-              </div>
-
-              {/* Brand Kit Toggle */}
-              {brandKit && isBrandKitConfigured(brandKit) && (
-                <div className="flex items-center justify-between p-4 rounded-xl border border-border/50 bg-muted/20">
-                  <div className="flex items-center gap-3">
-                    <Palette className="h-5 w-5 text-accent" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Use My Brand Kit</p>
-                      <p className="text-xs text-muted-foreground">
-                        Apply {brandKit.brandName ? `"${brandKit.brandName}"` : "your"} brand colors, fonts & logo
-                      </p>
-                    </div>
-                  </div>
-                  <Switch checked={useBrandKit} onCheckedChange={setUseBrandKit} />
-                </div>
-              )}
-
-              <div className="space-y-3" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + var(--keyboard-height, 0px))', transition: 'padding-bottom 0.1s ease' }}>
                 <Label htmlFor="prompt" className="text-sm font-medium">
                   What would you like to create?
                 </Label>
                 <Textarea
                   id="prompt"
-                  placeholder="Describe your presentation topic, key points, or paste your notes..."
+                  placeholder="e.g. Q4 performance update for the board: where we landed, what changed, and what I need approved."
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   aria-describedby="prompt-counter"
                   aria-invalid={promptTooLong || undefined}
-                  className="min-h-[120px] bg-muted/50 resize-y"
+                  className="min-h-[150px] resize-y bg-muted/50 text-base"
                   disabled={generating}
                 />
                 <p
                   id="prompt-counter"
-                  className={cn(
-                    "text-xs",
-                    promptTooLong ? "text-destructive" : "text-muted-foreground"
-                  )}
+                  className={cn("text-xs", promptTooLong ? "text-destructive" : "text-muted-foreground")}
                 >
                   {promptChars.toLocaleString()} / {MAX_PROMPT_LENGTH.toLocaleString()} characters
                   {promptTooLong ? " — please shorten your brief before generating." : ""}
@@ -908,23 +802,16 @@ Create exactly ${cardsCount} slides/cards.`;
                     leave this page. Copy it somewhere safe first.
                   </p>
                 )}
-              </div>
-
-              {/* Example Prompts */}
-              <div className="space-y-3">
-                <Label className="text-sm font-medium text-muted-foreground">
-                  Example prompts
-                </Label>
                 <div className="flex flex-wrap gap-2">
-                  {EXAMPLE_PROMPTS.map((example) => (
+                  {EXAMPLE_PROMPTS.slice(0, 3).map((example) => (
                     <button
                       key={example}
                       onClick={() => handleExampleClick(example)}
                       disabled={generating}
                       className={cn(
-                        "px-3 py-1.5 text-xs rounded-full border border-border/50",
-                        "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                        "transition-colors disabled:opacity-50"
+                        "min-h-[36px] rounded-full border border-border/50 px-3 py-1.5 text-xs",
+                        "bg-muted/30 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground",
+                        "disabled:opacity-50"
                       )}
                     >
                       {example.length > 40 ? example.slice(0, 40) + "…" : example}
@@ -933,26 +820,308 @@ Create exactly ${cardsCount} slides/cards.`;
                 </div>
               </div>
 
-              {/* Generate Button */}
-              <Button
-                variant="hero"
-                size="lg"
-                className="w-full"
-                onClick={handleGenerate}
-                disabled={!prompt.trim() || promptTooLong || generating}
-              >
-                {generating ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                    Generating... <GenerationTimer startTime={genStartTime} />
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-5 w-5 mr-2" />
-                    Generate Deck
-                  </>
-                )}
-              </Button>
+              {/* 2. Optional presets */}
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-foreground" id="preset-label">
+                  Shape it like a…{" "}
+                  <span className="font-normal text-muted-foreground">(optional)</span>
+                </p>
+                <div role="group" aria-labelledby="preset-label" className="grid gap-2 sm:grid-cols-3">
+                  {CREATE_PRESETS.map((p) => {
+                    const selected = activePreset === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => applyPreset(p.id)}
+                        aria-pressed={selected}
+                        disabled={generating}
+                        className={cn(
+                          "min-h-[56px] rounded-xl border px-3 py-2.5 text-left transition-colors",
+                          selected
+                            ? "border-accent bg-accent/10"
+                            : "border-border/60 bg-muted/20 hover:border-accent/50"
+                        )}
+                      >
+                        <span className="block text-sm font-medium text-foreground">{p.label}</span>
+                        <span className="block text-xs text-muted-foreground">{p.summary}</span>
+                        {p.recommended && (
+                          <span className="mt-1 inline-block text-[11px] font-medium text-accent">
+                            Recommended
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 3. Always-visible summary of what will be built */}
+              <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border/40 bg-muted/30 p-3">
+                <span className="text-xs font-medium text-muted-foreground">
+                  {activePreset
+                    ? CREATE_PRESETS.find((p) => p.id === activePreset)?.label
+                    : "Custom"}
+                  :
+                </span>
+                {summaryChips.map((chip) => (
+                  <Badge key={chip} variant="secondary" className="text-xs">
+                    {chip}
+                  </Badge>
+                ))}
+              </div>
+
+              {/* 4. Detailed controls, closed by default */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setShowCustomize((v) => !v)}
+                  aria-expanded={showCustomize}
+                  aria-controls="customize-panel"
+                  className="flex min-h-[44px] w-full items-center justify-between rounded-lg border border-border/50 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/40"
+                >
+                  Customize
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={cn("h-4 w-4 transition-transform", showCustomize && "rotate-180")}
+                  />
+                </button>
+                <div id="customize-panel" hidden={!showCustomize} className="pt-4">
+                  {showCustomize && (
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Output type</Label>
+                        <ToggleGroup
+                          type="single"
+                          value={outputType}
+                          onValueChange={(v) => v && setOutputType(v as OutputType)}
+                          className="justify-start"
+                        >
+                          <ToggleGroupItem
+                            value="presentation"
+                            className="gap-2 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
+                          >
+                            <Presentation className="h-4 w-4" aria-hidden="true" />
+                            Presentation
+                          </ToggleGroupItem>
+                          <ToggleGroupItem
+                            value="social"
+                            className="gap-2 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
+                          >
+                            <Share2 className="h-4 w-4" aria-hidden="true" />
+                            Social cards
+                          </ToggleGroupItem>
+                        </ToggleGroup>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="cards-count" className="text-sm font-medium">Slides</Label>
+                          <Select value={String(cardsCount)} onValueChange={(v) => setCardsCount(Number(v))}>
+                            <SelectTrigger id="cards-count" className="bg-muted/50">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CARD_COUNT_OPTIONS.map((count) => (
+                                <SelectItem key={count} value={String(count)}>
+                                  {count} slides
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="theme" className="text-sm font-medium">Theme</Label>
+                          <Select value={theme} onValueChange={(v) => setTheme(v as ThemeId)}>
+                            <SelectTrigger id="theme" className="bg-muted/50">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(THEMES).map(([id, { label }]) => (
+                                <SelectItem key={id} value={id}>
+                                  {label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="language" className="text-sm font-medium">Language</Label>
+                          <Select value={language} onValueChange={setLanguage}>
+                            <SelectTrigger id="language" className="bg-muted/50">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {LANGUAGES.map((lang) => (
+                                <SelectItem key={lang.value} value={lang.value}>
+                                  {lang.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="density" className="text-sm font-medium">Density</Label>
+                          <Select value={density} onValueChange={(v) => setDensity(v as DensityLevel)}>
+                            <SelectTrigger id="density" className="bg-muted/50">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {DENSITY_OPTIONS.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="visuals" className="text-sm font-medium">Visuals</Label>
+                          <Select value={visualsMode} onValueChange={(v) => setVisualsMode(v as VisualsMode)}>
+                            <SelectTrigger id="visuals" className="bg-muted/50">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {VISUALS_OPTIONS.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {brandKit && isBrandKitConfigured(brandKit) && (
+                        <div className="flex items-center justify-between rounded-xl border border-border/50 bg-muted/20 p-4">
+                          <div className="flex items-center gap-3">
+                            <Palette className="h-5 w-5 text-accent" aria-hidden="true" />
+                            <div>
+                              <p className="text-sm font-medium text-foreground">Use my brand kit</p>
+                              <p className="text-xs text-muted-foreground">
+                                Apply {brandKit.brandName ? `"${brandKit.brandName}"` : "your"} brand colors, fonts & logo
+                              </p>
+                            </div>
+                          </div>
+                          <Switch
+                            checked={useBrandKit}
+                            onCheckedChange={(v) => {
+                              brandKitChoiceRef.current = v;
+                              setUseBrandKit(v);
+                            }}
+                            aria-label="Use my brand kit"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 5. One primary action + commercial truth */}
+              <div className="space-y-3">
+                <Button
+                  variant="hero"
+                  size="lg"
+                  className="w-full"
+                  onClick={handleGenerate}
+                  disabled={!prompt.trim() || promptTooLong || generating}
+                >
+                  {generating ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" aria-hidden="true" />
+                      Generating… <GenerationTimer startTime={genStartTime} />
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-5 w-5 mr-2" aria-hidden="true" />
+                      {user ? "Generate deck" : "Continue — set up a free account"}
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  {user
+                    ? `Your free plan includes ${FREE_PROJECT_LIMIT} decks and ${FREE_GENERATION_LIMIT} AI generations a month. No card needed to generate. PowerPoint and PDF export require Pro.`
+                    : `Free to try: ${FREE_PROJECT_LIMIT} decks and ${FREE_GENERATION_LIMIT} AI generations a month, no card needed. PowerPoint and PDF export require Pro.`}
+                </p>
+              </div>
+
+              {/* 6. Everything else stays reachable */}
+              <div className="border-t border-border/50 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowMoreWays((v) => !v)}
+                  aria-expanded={showMoreWays}
+                  aria-controls="more-ways-panel"
+                  className="flex min-h-[44px] w-full items-center justify-between rounded-lg px-1 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  More ways to create
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={cn("h-4 w-4 transition-transform", showMoreWays && "rotate-180")}
+                  />
+                </button>
+                <div id="more-ways-panel" hidden={!showMoreWays} className="pt-3">
+                  {showMoreWays && (
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <button
+                        onClick={() => setResearchMode(true)}
+                        className="flex min-h-[56px] items-start gap-3 rounded-xl border border-border/60 bg-muted/20 p-3 text-left hover:border-accent/50"
+                      >
+                        <FlaskConical className="mt-0.5 h-4 w-4 text-accent" aria-hidden="true" />
+                        <span>
+                          <span className="block text-sm font-medium text-foreground">Research mode</span>
+                          <span className="block text-xs text-muted-foreground">
+                            Align, research, approve an outline, then generate
+                          </span>
+                        </span>
+                      </button>
+                      <button
+                        onClick={handleSmartSlides}
+                        className="flex min-h-[56px] items-start gap-3 rounded-xl border border-border/60 bg-muted/20 p-3 text-left hover:border-accent/50"
+                      >
+                        <Zap className="mt-0.5 h-4 w-4 text-accent" aria-hidden="true" />
+                        <span>
+                          <span className="block text-sm font-medium text-foreground">Smart Slides</span>
+                          <span className="block text-xs text-muted-foreground">
+                            Slides that adapt live to audience input
+                          </span>
+                        </span>
+                      </button>
+                      <Link
+                        to="/templates"
+                        className="flex min-h-[56px] items-start gap-3 rounded-xl border border-border/60 bg-muted/20 p-3 text-left hover:border-accent/50"
+                      >
+                        <LayoutTemplate className="mt-0.5 h-4 w-4 text-accent" aria-hidden="true" />
+                        <span>
+                          <span className="block text-sm font-medium text-foreground">Use a template</span>
+                          <span className="block text-xs text-muted-foreground">
+                            Executive-ready starting points
+                          </span>
+                        </span>
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setShowMoreWays(false);
+                          document.getElementById("prompt")?.focus();
+                        }}
+                        className="flex min-h-[56px] items-start gap-3 rounded-xl border border-border/60 bg-muted/20 p-3 text-left hover:border-accent/50"
+                      >
+                        <FileText className="mt-0.5 h-4 w-4 text-accent" aria-hidden="true" />
+                        <span>
+                          <span className="block text-sm font-medium text-foreground">Paste notes or an outline</span>
+                          <span className="block text-xs text-muted-foreground">
+                            Paste straight into the brief above
+                          </span>
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>

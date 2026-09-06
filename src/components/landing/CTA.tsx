@@ -45,7 +45,7 @@ const CTA = () => {
 
           {/* Trust notes */}
           <p className="text-sm text-muted-foreground mt-6">
-            No credit card required · Free tier forever · Export to PowerPoint
+            No credit card required · Free plan: 10 decks and 10 AI generations a month · PowerPoint and PDF export on Pro
           </p>
         </div>
       </div>
