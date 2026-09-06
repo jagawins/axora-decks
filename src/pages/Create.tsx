@@ -199,6 +199,7 @@ export default function Create() {
   // 1. URL ?prompt= (Speech Prep, Timeline, Smart Slides, template links)
   // 2. A saved creation draft from the homepage brief (survives sign-in / reload)
   // 3. The legacy prefill key written by older builds
+  const [useBrandKit, setUseBrandKit] = useState(false);
   useEffect(() => {
     const urlPrompt = searchParams.get("prompt");
     if (urlPrompt) {
@@ -218,6 +219,7 @@ export default function Create() {
       if (s.language) setLanguage(s.language);
       if (s.density) setDensity(s.density);
       if (s.visualsMode) setVisualsMode(s.visualsMode);
+      if (typeof s.useBrandKit === "boolean") setUseBrandKit(s.useBrandKit);
       trackProductEvent("create_draft_restored", { source: "create_page" });
       return;
     }
@@ -230,7 +232,6 @@ export default function Create() {
     // Runs once per search-param change; restoring must not fight user edits.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
-  const [useBrandKit, setUseBrandKit] = useState(false);
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
   const [mobileOverlayVisible, setMobileOverlayVisible] = useState(false);
 

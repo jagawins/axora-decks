@@ -8,9 +8,9 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, name?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signInWithGoogle: () => Promise<{ error: Error | null }>;
-  signInWithApple: () => Promise<{ error: Error | null }>;
-  signInWithMicrosoft: () => Promise<{ error: Error | null }>;
+  signInWithGoogle: (returnPath?: string) => Promise<{ error: Error | null }>;
+  signInWithApple: (returnPath?: string) => Promise<{ error: Error | null }>;
+  signInWithMicrosoft: (returnPath?: string) => Promise<{ error: Error | null }>;
   signInWithMagicLink: (email: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -68,28 +68,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return { error: error as Error | null };
   };
 
-  const signInWithGoogle = async () => {
+  // OAuth must return to a same-origin public URL. `/auth` re-runs the single
+  // redirect owner there, which honours a saved creation draft or `next`.
+  const oauthRedirect = (returnPath?: string) => {
+    const base = `${window.location.origin}/auth`;
+    if (!returnPath || !returnPath.startsWith('/') || returnPath.startsWith('//')) return base;
+    return `${base}?next=${encodeURIComponent(returnPath)}`;
+  };
+
+  const signInWithGoogle = async (returnPath?: string) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/dashboard` }
+      options: { redirectTo: oauthRedirect(returnPath) }
     });
     return { error: error as Error | null };
   };
 
-  const signInWithApple = async () => {
+  const signInWithApple = async (returnPath?: string) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'apple',
-      options: { redirectTo: `${window.location.origin}/dashboard` }
+      options: { redirectTo: oauthRedirect(returnPath) }
     });
     return { error: error as Error | null };
   };
 
-  const signInWithMicrosoft = async () => {
+  const signInWithMicrosoft = async (returnPath?: string) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
       options: {
         scopes: 'email',
-        redirectTo: `${window.location.origin}/dashboard`
+        redirectTo: oauthRedirect(returnPath)
       }
     });
     return { error: error as Error | null };

@@ -183,9 +183,14 @@ const Auth = () => {
     trackABEvent("hero_headline", "click", `oauth_${provider}`);
 
     setIsLoading(true);
+    // Carry the validated internal destination through the provider round trip.
+    const returnPath = nextPath || (draft ? '/create' : '');
+    const appleReturn = returnPath
+      ? `${window.location.origin}/auth?next=${encodeURIComponent(returnPath)}`
+      : `${window.location.origin}/auth`;
     if (provider === 'apple') {
       const result = await lovable.auth.signInWithOAuth('apple', {
-        redirect_uri: window.location.origin,
+        redirect_uri: appleReturn,
       });
       if (result.error) {
         toast({ title: 'Apple sign in failed', description: String(result.error), variant: 'destructive' });
@@ -194,7 +199,7 @@ const Auth = () => {
       return;
     }
     const fn = provider === 'google' ? signInWithGoogle : signInWithMicrosoft;
-    const { error } = await fn();
+    const { error } = await fn(returnPath || undefined);
     if (error) {
       toast({ title: `${provider} sign in failed`, description: error.message, variant: 'destructive' });
       setIsLoading(false);
