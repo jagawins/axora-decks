@@ -491,7 +491,7 @@ export default function Create() {
             .update({
               title: projectInsert.title,
               theme: projectInsert.theme,
-              brand_kit: useBrandKit && brandKit ? brandKit : null,
+              brand_kit: useBrandKit && brandKit ? (brandKit as any) : null,
             })
             .eq("id", projectId);
           if (updateError) {
