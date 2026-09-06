@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { lovable } from '@/integrations/lovable/index';
@@ -58,7 +58,10 @@ const Auth = () => {
 
   // Validated, same-origin destination only. Empty string means "decide from context".
   const nextPath = safeInternalPath(searchParams.get('next'), '');
-  const draft = readCreateDraft();
+  // Read once per mount: a fresh object on every render would restart the
+  // redirect effect continuously.
+  const draft = useMemo(() => readCreateDraft(), []);
+  const hasDraft = !!draft;
 
   const { signIn, signUp, signInWithGoogle, signInWithApple, signInWithMicrosoft, signInWithMagicLink, user, loading } = useAuth();
   const navigate = useNavigate();
@@ -81,17 +84,17 @@ const Auth = () => {
     } catch { /* storage may be unavailable */ }
 
     if (nextPath) {
-      if (draft) trackProductEvent('auth_return_with_draft', { source: 'next_param' });
+      if (hasDraft) trackProductEvent('auth_return_with_draft', { source: 'next_param' });
       navigate(nextPath, { replace: true });
       return;
     }
-    if (draft) {
+    if (hasDraft) {
       trackProductEvent('auth_return_with_draft', { source: 'draft' });
       navigate('/create', { replace: true });
       return;
     }
     navigate(isNewSignup ? '/onboarding' : '/dashboard', { replace: true });
-  }, [user, loading, navigate, nextPath, draft]);
+  }, [user, loading, navigate, nextPath, hasDraft]);
 
   // Track auth page impression for A/B testing
   useEffect(() => {
@@ -130,8 +133,13 @@ const Auth = () => {
     setIsLoading(true);
     try {
       if (mode === 'signup') {
-        const { error } = await signUp(email, password, name);
+        // Mark the signup intent BEFORE the call: the auth-state callback can
+        // fire before an await resolves.
+        try { sessionStorage.setItem(NEW_SIGNUP_FLAG, '1'); } catch { /* ignore */ }
+        const returnPath = nextPath || (hasDraft ? '/create' : undefined);
+        const { error } = await signUp(email, password, name, returnPath);
         if (error) {
+          try { sessionStorage.removeItem(NEW_SIGNUP_FLAG); } catch { /* ignore */ }
           toast({
             title: error.message.includes('already registered') ? 'Account exists' : 'Sign up failed',
             description: error.message.includes('already registered') ? 'An account with this email already exists.' : error.message,
@@ -141,7 +149,6 @@ const Auth = () => {
           trackABEvent("signup_cta", "convert", "email_signup");
           trackABEvent("hero_headline", "convert", "signup_complete");
           trackABEvent("pricing_pro_cta", "convert", "signup_complete");
-          try { sessionStorage.setItem(NEW_SIGNUP_FLAG, '1'); } catch { /* ignore */ }
           toast({
             title: 'Account created',
             description: 'If we ask you to confirm your email, check your inbox to finish.',
@@ -237,7 +244,7 @@ const Auth = () => {
           </p>
           {draft && (
             <p className="mt-4 rounded-lg border border-accent/30 bg-accent/5 px-4 py-2.5 text-center text-sm text-foreground">
-              Your brief is saved. We'll take you straight back to it.
+              Your brief is saved in this tab. We'll take you straight back to it.
             </p>
           )}
         </div>

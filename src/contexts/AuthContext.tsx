@@ -1,12 +1,13 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { safeInternalPath } from '@/lib/create-draft';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, name?: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, name?: string, returnPath?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: (returnPath?: string) => Promise<{ error: Error | null }>;
   signInWithApple: (returnPath?: string) => Promise<{ error: Error | null }>;
@@ -50,13 +51,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, name?: string) => {
-    const redirectUrl = `${window.location.origin}/dashboard`;
+  // OAuth and email links must return to a same-origin public URL.
+  const oauthRedirect = (returnPath?: string) => {
+    const base = `${window.location.origin}/auth`;
+    if (!returnPath) return base;
+    // One shared validator for every callback URL we construct.
+    const safe = safeInternalPath(returnPath, '');
+    if (!safe) return base;
+    return `${base}?next=${encodeURIComponent(safe)}`;
+  };
+
+  const signUp = async (email: string, password: string, name?: string, returnPath?: string) => {
+    // Email confirmation must land on the same single redirect owner as OAuth,
+    // so a saved brief or a validated `next` is honoured.
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
+        emailRedirectTo: oauthRedirect(returnPath),
         data: { full_name: name || email.split('@')[0] }
       }
     });
@@ -70,12 +82,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // OAuth must return to a same-origin public URL. `/auth` re-runs the single
   // redirect owner there, which honours a saved creation draft or `next`.
-  const oauthRedirect = (returnPath?: string) => {
-    const base = `${window.location.origin}/auth`;
-    if (!returnPath || !returnPath.startsWith('/') || returnPath.startsWith('//')) return base;
-    return `${base}?next=${encodeURIComponent(returnPath)}`;
-  };
-
   const signInWithGoogle = async (returnPath?: string) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',

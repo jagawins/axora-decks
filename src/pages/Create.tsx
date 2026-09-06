@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, PenTool, Palette, FlaskConical } from "lucide-react";
@@ -32,6 +32,11 @@ import {
   readLegacyPrompt,
   clearCreateDraft,
   saveCreateDraft,
+  isDraftStorageAvailable,
+  cleanPromptText,
+  MAX_PROMPT_LENGTH,
+  CARD_COUNT_OPTIONS as DRAFT_CARD_COUNTS,
+  LANGUAGE_OPTIONS,
 } from "@/lib/create-draft";
 import { trackProductEvent } from "@/lib/product-events";
 
@@ -50,19 +55,10 @@ interface GenerationSpec {
   prompt: string;
 }
 
-// Constants
-const CARD_COUNT_OPTIONS = [5, 8, 10, 12, 15, 20];
-
-const LANGUAGES = [
-  { value: "en-US", label: "English (US)" },
-  { value: "en-GB", label: "English (UK)" },
-  { value: "es", label: "Spanish" },
-  { value: "fr", label: "French" },
-  { value: "de", label: "German" },
-  { value: "pt", label: "Portuguese" },
-  { value: "zh", label: "Chinese" },
-  { value: "ja", label: "Japanese" },
-];
+// Constants — the draft module is the single source of truth for the
+// option values, so a restored draft can never apply an unknown setting.
+const CARD_COUNT_OPTIONS = DRAFT_CARD_COUNTS;
+const LANGUAGES = LANGUAGE_OPTIONS;
 
 const DENSITY_OPTIONS: { value: DensityLevel; label: string; description: string }[] = [
   { value: "vibes", label: "Just vibes", description: "Images & headings, minimal text" },
@@ -194,17 +190,29 @@ export default function Create() {
   const [searchParams] = useSearchParams();
 
   const [restoredBrief, setRestoredBrief] = useState(false);
+  const [briefNotice, setBriefNotice] = useState<string | null>(null);
 
   // Prompt sources, in priority order:
   // 1. URL ?prompt= (Speech Prep, Timeline, Smart Slides, template links)
   // 2. A saved creation draft from the homepage brief (survives sign-in / reload)
   // 3. The legacy prefill key written by older builds
   const [useBrandKit, setUseBrandKit] = useState(false);
+  /** Set once restoration has run, so autosave can never overwrite a draft first. */
+  const hydratedRef = useRef(false);
+  /** True when a restored draft explicitly asked for the brand kit to stay off. */
+  const brandKitChoiceRef = useRef<boolean | null>(null);
+
   useEffect(() => {
-    const urlPrompt = searchParams.get("prompt");
-    if (urlPrompt) {
-      setPrompt(urlPrompt);
+    const urlPrompt = cleanPromptText(searchParams.get("prompt") ?? "");
+    if (urlPrompt.trim()) {
+      if (urlPrompt.trim().length > MAX_PROMPT_LENGTH) {
+        setBriefNotice(
+          `That brief is longer than the ${MAX_PROMPT_LENGTH.toLocaleString()} character limit. Shorten it and try again.`
+        );
+      }
+      setPrompt(urlPrompt.slice(0, MAX_PROMPT_LENGTH));
       setActiveEntry("scratch");
+      hydratedRef.current = true;
       return;
     }
     const draft = readCreateDraft();
@@ -212,15 +220,19 @@ export default function Create() {
       setPrompt(draft.prompt);
       setActiveEntry("scratch");
       setRestoredBrief(true);
-      const s = draft.settings;
-      if (s.outputType) setOutputType(s.outputType);
-      if (s.cardsCount) setCardsCount(s.cardsCount);
-      if (s.theme) setTheme(s.theme as ThemeId);
-      if (s.language) setLanguage(s.language);
-      if (s.density) setDensity(s.density);
-      if (s.visualsMode) setVisualsMode(s.visualsMode);
-      if (typeof s.useBrandKit === "boolean") setUseBrandKit(s.useBrandKit);
+      const sset = draft.settings;
+      if (sset.outputType) setOutputType(sset.outputType);
+      if (sset.cardsCount) setCardsCount(sset.cardsCount);
+      if (sset.theme) setTheme(sset.theme as ThemeId);
+      if (sset.language) setLanguage(sset.language);
+      if (sset.density) setDensity(sset.density);
+      if (sset.visualsMode) setVisualsMode(sset.visualsMode);
+      if (typeof sset.useBrandKit === "boolean") {
+        brandKitChoiceRef.current = sset.useBrandKit;
+        setUseBrandKit(sset.useBrandKit);
+      }
       trackProductEvent("create_draft_restored", { source: "create_page" });
+      hydratedRef.current = true;
       return;
     }
     const legacy = readLegacyPrompt();
@@ -229,9 +241,36 @@ export default function Create() {
       setActiveEntry("scratch");
       setRestoredBrief(true);
     }
+    hydratedRef.current = true;
     // Runs once per search-param change; restoring must not fight user edits.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
+
+  const storageAvailable = useMemo(() => isDraftStorageAvailable(), []);
+
+  /**
+   * Autosave the current brief and settings, so a reload keeps the latest
+   * version rather than a stale one. Guarded on hydration so the first render
+   * can never overwrite a restored draft with empty defaults.
+   */
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    if (!prompt.trim()) return;
+    if (prompt.trim().length > MAX_PROMPT_LENGTH) return;
+    const timer = setTimeout(() => {
+      saveCreateDraft(prompt, {
+        outputType,
+        cardsCount,
+        theme,
+        language,
+        density,
+        visualsMode,
+        useBrandKit,
+      });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [prompt, outputType, cardsCount, theme, language, density, visualsMode, useBrandKit]);
+
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
   const [mobileOverlayVisible, setMobileOverlayVisible] = useState(false);
 
@@ -263,7 +302,9 @@ export default function Create() {
       .then(({ data }) => {
         if (data?.brand_kit && isBrandKitConfigured(data.brand_kit as BrandKit)) {
           setBrandKit(data.brand_kit as BrandKit);
-          setUseBrandKit(true); // default on if configured
+          // Default on when configured, but never override an explicit "off"
+          // carried in from the restored brief.
+          if (brandKitChoiceRef.current !== false) setUseBrandKit(true);
         }
       });
   }, [user]);
@@ -340,31 +381,57 @@ export default function Create() {
     }
   };
 
+  const promptChars = prompt.trim().length;
+  const promptTooLong = promptChars > MAX_PROMPT_LENGTH;
+
+  const currentSettings = () => ({
+    outputType,
+    cardsCount,
+    theme,
+    language,
+    density,
+    visualsMode,
+    useBrandKit,
+  });
+
+  /** A project we already created for this brief, reused on retry. */
+  const pendingProjectRef = useRef<string | null>(null);
+
   const handleGenerate = async () => {
+    setBriefNotice(null);
     if (!prompt.trim()) {
       toast({ title: "Please enter a prompt", variant: "destructive" });
       return;
     }
+    if (promptTooLong) {
+      setBriefNotice(
+        `Your brief is ${promptChars.toLocaleString()} characters. Please shorten it to ${MAX_PROMPT_LENGTH.toLocaleString()} or fewer.`
+      );
+      return;
+    }
+
+    // Always persist the brief before generating, so a failure never loses it.
+    const saved = saveCreateDraft(prompt, currentSettings());
 
     if (!user) {
-      // Keep the brief and the chosen settings, then send them to sign-up.
-      saveCreateDraft(prompt, {
-        outputType,
-        cardsCount,
-        theme,
-        language,
-        density,
-        visualsMode,
-        useBrandKit,
-      });
+      if (!saved.ok) {
+        // We cannot retain the brief across the sign-in hand-off, so we do not
+        // pretend to: keep the visitor here with a real next step.
+        setBriefNotice(
+          "reason" in saved && saved.reason === "storage"
+            ? "This browser is blocking storage, so we cannot keep your brief while you sign in. Copy your brief first, or open AXIVA in a normal (non-private) window."
+            : "We could not keep your brief. Please check it and try again."
+        );
+        return;
+      }
       trackProductEvent("create_intent_stored", {
         source: "create_page",
-        prompt_length: prompt.trim().length,
+        prompt_length: promptChars,
         signed_in: false,
       });
       toast({
         title: "Create a free account to continue",
-        description: "Your brief is saved and will be waiting for you.",
+        description: "Your brief is saved in this tab and will be waiting for you.",
       });
       navigate("/auth?mode=signup&next=%2Fcreate");
       return;
@@ -397,15 +464,30 @@ export default function Create() {
         projectInsert.brand_kit = brandKit;
       }
 
-      const { data: newProject, error: projectError } = await supabase
-        .from("projects")
-        .insert(projectInsert)
-        .select()
-        .single();
-
-      if (projectError || !newProject) {
-        throw new Error("Failed to create project");
+      // Reuse the project created by a previous failed attempt instead of
+      // leaving empty decks behind on every retry.
+      let projectId = pendingProjectRef.current;
+      if (projectId) {
+        const { data: existing } = await supabase
+          .from("projects")
+          .select("id")
+          .eq("id", projectId)
+          .maybeSingle();
+        if (!existing) projectId = null;
       }
+      if (!projectId) {
+        const { data: newProject, error: projectError } = await supabase
+          .from("projects")
+          .insert(projectInsert)
+          .select()
+          .single();
+
+        if (projectError || !newProject) {
+          throw new Error("We could not start your deck. Please try again.");
+        }
+        projectId = newProject.id;
+      }
+      pendingProjectRef.current = projectId;
 
       // Build enhanced prompt with density constraints
       const densityInstructions = getDensityInstructions(density);
@@ -434,11 +516,22 @@ Create exactly ${cardsCount} slides/cards.`;
         topic: spec.prompt,
         prompt: enhancedPrompt,
         tone: "executive",
+        slideCount: cardsCount,
       });
 
-      if (result.blocks.length > 0) {
+      const validBlocks = (result.blocks ?? []).filter(
+        (b) => b && typeof b.type === "string" && b.content && typeof b.content === "object"
+      );
+
+      if (validBlocks.length === 0) {
+        throw new Error(
+          "The generator did not return any slides. Your brief is kept — please try again."
+        );
+      }
+
+      {
         // Process and normalize blocks
-        let processedBlocks = result.blocks.slice(0, cardsCount).map((block, index) => {
+        let processedBlocks = validBlocks.slice(0, cardsCount).map((block, index) => {
           let sanitized = sanitizeContent(block.content);
           sanitized = normalizeBlockContent(block.type, sanitized);
 
@@ -454,7 +547,7 @@ Create exactly ${cardsCount} slides/cards.`;
           }
 
           return {
-            project_id: newProject.id,
+            project_id: projectId,
             type: block.type,
             content: sanitized,
             order_index: index,
@@ -462,20 +555,30 @@ Create exactly ${cardsCount} slides/cards.`;
         });
 
         // Resolve images if needed
-        processedBlocks = await resolveImages(processedBlocks, newProject.id);
+        processedBlocks = await resolveImages(processedBlocks, projectId);
 
-        await supabase.from("blocks").insert(processedBlocks as any);
+        const { error: insertError } = await supabase
+          .from("blocks")
+          .insert(processedBlocks as any);
+
+        if (insertError) {
+          throw new Error(
+            "Your slides could not be saved. Your brief is kept — please try again."
+          );
+        }
       }
 
-      // The deck is persisted: only now is it safe to discard the saved brief.
+      // Slides are really persisted: only now is it safe to discard the brief.
+      pendingProjectRef.current = null;
       clearCreateDraft();
       toast({ title: "Deck created!", description: "Your AI-generated deck is ready." });
       const elapsed = genStartTime ? Math.round((performance.now() - genStartTime) / 1000 * 10) / 10 : null;
       setGenElapsed(elapsed);
       
-      navigate(`/preview/${newProject.id}?new=1&speed=${elapsed}`);
+      navigate(`/preview/${projectId}?new=1&speed=${elapsed}`);
     } catch (error) {
       console.error("Generation error:", error);
+      // The brief stays saved for a retry; nothing is cleared on failure.
       toast({
         title: "Generation failed",
         description: error instanceof Error ? error.message : "Please try again.",
@@ -519,6 +622,14 @@ Create exactly ${cardsCount} slides/cards.`;
             {restoredBrief && (
               <p className="mt-5 inline-block rounded-lg border border-accent/30 bg-accent/5 px-4 py-2.5 text-sm text-foreground">
                 We brought your brief back — edit it or generate when you're ready.
+              </p>
+            )}
+            {briefNotice && (
+              <p
+                role="alert"
+                className="mx-auto mt-5 max-w-xl rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-2.5 text-sm text-foreground"
+              >
+                {briefNotice}
               </p>
             )}
           </div>
@@ -752,9 +863,27 @@ Create exactly ${cardsCount} slides/cards.`;
                   placeholder="Describe your presentation topic, key points, or paste your notes..."
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="min-h-[120px] bg-muted/50 resize-none"
+                  aria-describedby="prompt-counter"
+                  aria-invalid={promptTooLong || undefined}
+                  className="min-h-[120px] bg-muted/50 resize-y"
                   disabled={generating}
                 />
+                <p
+                  id="prompt-counter"
+                  className={cn(
+                    "text-xs",
+                    promptTooLong ? "text-destructive" : "text-muted-foreground"
+                  )}
+                >
+                  {promptChars.toLocaleString()} / {MAX_PROMPT_LENGTH.toLocaleString()} characters
+                  {promptTooLong ? " — please shorten your brief before generating." : ""}
+                </p>
+                {!storageAvailable && (
+                  <p className="text-xs text-muted-foreground">
+                    This browser is blocking storage, so your brief cannot be kept if you
+                    leave this page. Copy it somewhere safe first.
+                  </p>
+                )}
               </div>
 
               {/* Example Prompts */}
@@ -786,7 +915,7 @@ Create exactly ${cardsCount} slides/cards.`;
                 size="lg"
                 className="w-full"
                 onClick={handleGenerate}
-                disabled={!prompt.trim() || generating}
+                disabled={!prompt.trim() || promptTooLong || generating}
               >
                 {generating ? (
                   <>
