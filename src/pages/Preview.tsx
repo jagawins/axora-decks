@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileShareSheet } from "@/components/MobileShareSheet";
+import { trackProductEvent } from "@/lib/product-events";
 
 interface Block {
   id: string;
@@ -39,6 +40,12 @@ export default function Preview() {
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
   const [showMobileShare, setShowMobileShare] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
+
+  /** The editor is the single export entry point; no second exporter here. */
+  const openEditor = useCallback(() => {
+    trackProductEvent("edit_export_opened", { source: "preview" });
+    navigate(`/editor/${projectId}`);
+  }, [navigate, projectId]);
 
   // Inline edit state
   const [editingBlockIds, setEditingBlockIds] = useState<string[] | null>(null);
@@ -69,21 +76,8 @@ export default function Preview() {
       setBrandKit((p.brand_kit as BrandKit) || null);
       setShareToken(p.share_token ? String(p.share_token) : null);
 
-      // Show mobile share sheet on first load (from generate flow)
-      if (isMobile && searchParams.get("new") === "1") {
-        setShowMobileShare(true);
-      }
-
-      // Show speed toast if coming from generation
-      const speed = searchParams.get("speed");
-      if (speed && searchParams.get("new") === "1") {
-        setTimeout(() => {
-          toast({
-            title: `Deck generated in ${speed}s`,
-            description: `${blocksData?.length || 0} slides created. AXIVA is the fastest AI deck generator.`,
-          });
-        }, 500);
-      }
+      // The deck itself is shown first: sharing is always an explicit choice,
+      // so no sheet opens by itself on a newly generated deck.
 
       const { data: blocksData, error: be } = await supabase
         .from("blocks")
@@ -165,20 +159,26 @@ export default function Preview() {
       <header className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-3 min-w-0">
-            <Button variant="ghost" size="icon" onClick={() => navigate(`/editor/${projectId}`)}>
-              <ArrowLeft className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Edit and export this deck"
+              onClick={() => openEditor()}
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             </Button>
             <h1 className="font-semibold truncate text-sm md:text-base">{title}</h1>
           </div>
           <div className="flex items-center gap-2">
             {isMobile && shareToken && (
               <Button variant="hero" size="sm" onClick={() => setShowMobileShare(true)}>
-                <Share2 className="h-4 w-4 mr-1" />
+                <Share2 className="h-4 w-4 mr-1" aria-hidden="true" />
                 Share
               </Button>
             )}
-            <Button variant="outline" size="sm" className="hidden md:inline-flex" onClick={() => navigate(`/editor/${projectId}`)}>
-              Back to editor
+            {/* Reachable on every screen size: the editor is where export lives. */}
+            <Button variant="outline" size="sm" onClick={() => openEditor()}>
+              Edit &amp; export
             </Button>
           </div>
         </div>
@@ -202,8 +202,8 @@ export default function Preview() {
           <div className="absolute inset-y-0 right-0 w-96 bg-card border-l border-border shadow-xl z-50 flex flex-col">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
               <h3 className="font-semibold text-sm">Edit Slide</h3>
-              <Button variant="ghost" size="icon" onClick={() => setEditingBlockIds(null)}>
-                <X className="h-4 w-4" />
+              <Button variant="ghost" size="icon" aria-label="Close slide editor" onClick={() => setEditingBlockIds(null)}>
+                <X className="h-4 w-4" aria-hidden="true" />
               </Button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
