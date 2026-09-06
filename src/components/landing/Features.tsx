@@ -23,7 +23,7 @@ const features = [
   {
     icon: Target,
     title: "Speech Prep + Delivery Coaching",
-    description: "The only tool that coaches you on how to deliver, not just what to say. Vocal variety, strategic pausing, storytelling structure, and a pre-flight checklist, built right into your deck workflow.",
+    description: "Coaching on how you deliver, not only what you say: vocal variety, strategic pausing, storytelling structure, and a pre-flight checklist, inside the same deck workflow.",
     color: "#3B82F6",
     highlights: ["Vocal coaching (pace, volume, pauses)", "Story structure (head → heart → head)", "Pre-flight checklist before you present"],
   },
@@ -79,8 +79,8 @@ const Features = () => {
             Win the room, not just the slides
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Write your speech. Prep for tough questions. Run live audience polls.
-            The only tool that helps you deliver, not just create.
+            Write your speech. Prepare for the hard questions. Run live audience polls.
+            Built to help you deliver, not only to make slides.
           </p>
         </div>
 

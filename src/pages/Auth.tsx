@@ -9,6 +9,8 @@ import { Mail, Lock, User, ArrowRight, Loader2, Sparkles, CheckCircle2 } from 'l
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { getVariant, trackABEvent } from '@/lib/ab-testing';
+import { readCreateDraft, safeInternalPath } from '@/lib/create-draft';
+import { trackProductEvent } from '@/lib/product-events';
 import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
 
 const emailSchema = z.string().email('Please enter a valid email address');
@@ -41,15 +43,22 @@ const MicrosoftIcon = () => (
 
 type AuthMode = 'signin' | 'signup' | 'magic';
 
+const NEW_SIGNUP_FLAG = 'axiva_new_signup';
+
 const Auth = () => {
-  const [mode, setMode] = useState<AuthMode>('signin');
+  const [searchParams] = useSearchParams();
+  const requestedMode: AuthMode = searchParams.get('mode') === 'signup' ? 'signup' : 'signin';
+  const [mode, setMode] = useState<AuthMode>(requestedMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [magicSent, setMagicSent] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
-  const [searchParams] = useSearchParams();
+
+  // Validated, same-origin destination only. Empty string means "decide from context".
+  const nextPath = safeInternalPath(searchParams.get('next'), '');
+  const draft = readCreateDraft();
 
   const { signIn, signUp, signInWithGoogle, signInWithApple, signInWithMicrosoft, signInWithMagicLink, user, loading } = useAuth();
   const navigate = useNavigate();
@@ -62,9 +71,27 @@ const Auth = () => {
     }
   }, [searchParams]);
 
+  // Single redirect owner: submit handlers never navigate on success.
   useEffect(() => {
-    if (!loading && user) navigate('/dashboard');
-  }, [user, loading, navigate]);
+    if (loading || !user) return;
+    let isNewSignup = false;
+    try {
+      isNewSignup = sessionStorage.getItem(NEW_SIGNUP_FLAG) === '1';
+      if (isNewSignup) sessionStorage.removeItem(NEW_SIGNUP_FLAG);
+    } catch { /* storage may be unavailable */ }
+
+    if (nextPath) {
+      if (draft) trackProductEvent('auth_return_with_draft', { source: 'next_param' });
+      navigate(nextPath, { replace: true });
+      return;
+    }
+    if (draft) {
+      trackProductEvent('auth_return_with_draft', { source: 'draft' });
+      navigate('/create', { replace: true });
+      return;
+    }
+    navigate(isNewSignup ? '/onboarding' : '/dashboard', { replace: true });
+  }, [user, loading, navigate, nextPath, draft]);
 
   // Track auth page impression for A/B testing
   useEffect(() => {
@@ -114,8 +141,12 @@ const Auth = () => {
           trackABEvent("signup_cta", "convert", "email_signup");
           trackABEvent("hero_headline", "convert", "signup_complete");
           trackABEvent("pricing_pro_cta", "convert", "signup_complete");
-          toast({ title: 'Welcome to AXIVA!', description: 'Your account has been created.' });
-          navigate('/onboarding');
+          try { sessionStorage.setItem(NEW_SIGNUP_FLAG, '1'); } catch { /* ignore */ }
+          toast({
+            title: 'Account created',
+            description: 'If we ask you to confirm your email, check your inbox to finish.',
+          });
+          // Redirect is owned by the effect above once the session arrives.
         }
       } else {
         const { error } = await signIn(email, password);
@@ -125,9 +156,8 @@ const Auth = () => {
             description: error.message.includes('Invalid login credentials') ? 'Please check your email and password.' : error.message,
             variant: 'destructive',
           });
-        } else {
-          navigate('/dashboard');
         }
+        // Success: the redirect effect decides where to go.
       }
     } finally {
       setIsLoading(false);
@@ -138,7 +168,7 @@ const Auth = () => {
     e.preventDefault();
     if (!validateEmail()) return;
     setIsLoading(true);
-    const { error } = await signInWithMagicLink(email);
+    const { error } = await signInWithMagicLink(email, nextPath || (draft ? '/create' : undefined));
     setIsLoading(false);
     if (error) {
       toast({ title: 'Magic link failed', description: error.message, variant: 'destructive' });
@@ -153,9 +183,14 @@ const Auth = () => {
     trackABEvent("hero_headline", "click", `oauth_${provider}`);
 
     setIsLoading(true);
+    // Carry the validated internal destination through the provider round trip.
+    const returnPath = nextPath || (draft ? '/create' : '');
+    const appleReturn = returnPath
+      ? `${window.location.origin}/auth?next=${encodeURIComponent(returnPath)}`
+      : `${window.location.origin}/auth`;
     if (provider === 'apple') {
       const result = await lovable.auth.signInWithOAuth('apple', {
-        redirect_uri: window.location.origin,
+        redirect_uri: appleReturn,
       });
       if (result.error) {
         toast({ title: 'Apple sign in failed', description: String(result.error), variant: 'destructive' });
@@ -164,7 +199,7 @@ const Auth = () => {
       return;
     }
     const fn = provider === 'google' ? signInWithGoogle : signInWithMicrosoft;
-    const { error } = await fn();
+    const { error } = await fn(returnPath || undefined);
     if (error) {
       toast({ title: `${provider} sign in failed`, description: error.message, variant: 'destructive' });
       setIsLoading(false);
@@ -190,19 +225,21 @@ const Auth = () => {
             <img src={axivaWordmark} alt="AXIVA" className="h-8" />
           </a>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {mode === 'signup' 
+            {mode === 'signup'
               ? (getVariant("signup_cta") === "no_credit_card" ? "Start free, no credit card needed"
-                : getVariant("signup_cta") === "instant_deck" ? "Create your first deck in 60 seconds"
                 : "Create your account")
               : mode === 'magic' ? 'Sign in with email' : 'Welcome back'}
           </h1>
           <p className="text-muted-foreground text-center">
-            {mode === 'signup' 
-              ? (getVariant("signup_cta") === "no_credit_card" ? "98 executive templates. AI deck generation. Speech coaching. All free to start."
-                : getVariant("signup_cta") === "instant_deck" ? "Describe your topic. AI builds the structure, narrative, and visuals."
-                : "Start creating executive-grade presentations")
-              : mode === 'magic' ? "We'll send you a magic link" : 'Sign in to continue to your dashboard'}
+            {mode === 'signup'
+              ? "Describe what you need to present and AXIVA structures the deck."
+              : mode === 'magic' ? "We'll send you a magic link" : 'Sign in to continue'}
           </p>
+          {draft && (
+            <p className="mt-4 rounded-lg border border-accent/30 bg-accent/5 px-4 py-2.5 text-center text-sm text-foreground">
+              Your brief is saved. We'll take you straight back to it.
+            </p>
+          )}
         </div>
 
         <div className="bg-card/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/40 p-8">

@@ -25,7 +25,7 @@ const CTA = () => {
 
           {/* Subtext */}
           <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10">
-            Join strategists, board directors, and C-suite leaders who prepare polished executive decks in minutes.
+            Write your brief, get a structured recommendation, and walk into the room prepared.
           </p>
 
           {/* CTA buttons */}

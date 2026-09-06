@@ -27,6 +27,13 @@ import { sanitizeContent, sanitizeListItems } from "@/lib/sanitize";
 import { THEMES, DEFAULT_THEME, type ThemeId } from "@/lib/themes";
 import { Switch } from "@/components/ui/switch";
 import { type BrandKit, isBrandKitConfigured } from "@/lib/brand";
+import {
+  readCreateDraft,
+  readLegacyPrompt,
+  clearCreateDraft,
+  saveCreateDraft,
+} from "@/lib/create-draft";
+import { trackProductEvent } from "@/lib/product-events";
 
 // Types
 type OutputType = "presentation" | "social";
@@ -186,15 +193,45 @@ export default function Create() {
   const [genElapsed, setGenElapsed] = useState<number | null>(null);
   const [searchParams] = useSearchParams();
 
-  // Auto-fill prompt from URL parameter (from Speech Prep, Timeline, Smart Slides, etc.)
+  const [restoredBrief, setRestoredBrief] = useState(false);
+
+  // Prompt sources, in priority order:
+  // 1. URL ?prompt= (Speech Prep, Timeline, Smart Slides, template links)
+  // 2. A saved creation draft from the homepage brief (survives sign-in / reload)
+  // 3. The legacy prefill key written by older builds
+  const [useBrandKit, setUseBrandKit] = useState(false);
   useEffect(() => {
     const urlPrompt = searchParams.get("prompt");
     if (urlPrompt) {
       setPrompt(urlPrompt);
       setActiveEntry("scratch");
+      return;
     }
+    const draft = readCreateDraft();
+    if (draft) {
+      setPrompt(draft.prompt);
+      setActiveEntry("scratch");
+      setRestoredBrief(true);
+      const s = draft.settings;
+      if (s.outputType) setOutputType(s.outputType);
+      if (s.cardsCount) setCardsCount(s.cardsCount);
+      if (s.theme) setTheme(s.theme as ThemeId);
+      if (s.language) setLanguage(s.language);
+      if (s.density) setDensity(s.density);
+      if (s.visualsMode) setVisualsMode(s.visualsMode);
+      if (typeof s.useBrandKit === "boolean") setUseBrandKit(s.useBrandKit);
+      trackProductEvent("create_draft_restored", { source: "create_page" });
+      return;
+    }
+    const legacy = readLegacyPrompt();
+    if (legacy) {
+      setPrompt(legacy);
+      setActiveEntry("scratch");
+      setRestoredBrief(true);
+    }
+    // Runs once per search-param change; restoring must not fight user edits.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
-  const [useBrandKit, setUseBrandKit] = useState(false);
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
   const [mobileOverlayVisible, setMobileOverlayVisible] = useState(false);
 
@@ -310,8 +347,26 @@ export default function Create() {
     }
 
     if (!user) {
-      toast({ title: "Please sign in to create", variant: "destructive" });
-      navigate("/auth");
+      // Keep the brief and the chosen settings, then send them to sign-up.
+      saveCreateDraft(prompt, {
+        outputType,
+        cardsCount,
+        theme,
+        language,
+        density,
+        visualsMode,
+        useBrandKit,
+      });
+      trackProductEvent("create_intent_stored", {
+        source: "create_page",
+        prompt_length: prompt.trim().length,
+        signed_in: false,
+      });
+      toast({
+        title: "Create a free account to continue",
+        description: "Your brief is saved and will be waiting for you.",
+      });
+      navigate("/auth?mode=signup&next=%2Fcreate");
       return;
     }
 
@@ -412,6 +467,8 @@ Create exactly ${cardsCount} slides/cards.`;
         await supabase.from("blocks").insert(processedBlocks as any);
       }
 
+      // The deck is persisted: only now is it safe to discard the saved brief.
+      clearCreateDraft();
       toast({ title: "Deck created!", description: "Your AI-generated deck is ready." });
       const elapsed = genStartTime ? Math.round((performance.now() - genStartTime) / 1000 * 10) / 10 : null;
       setGenElapsed(elapsed);
@@ -459,6 +516,11 @@ Create exactly ${cardsCount} slides/cards.`;
             <p className="text-lg text-muted-foreground">
               Choose how you want to start
             </p>
+            {restoredBrief && (
+              <p className="mt-5 inline-block rounded-lg border border-accent/30 bg-accent/5 px-4 py-2.5 text-sm text-foreground">
+                We brought your brief back — edit it or generate when you're ready.
+              </p>
+            )}
           </div>
 
           {/* Mode Toggle — shown before entry cards or when scratch is active */}

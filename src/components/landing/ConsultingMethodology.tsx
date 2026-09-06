@@ -76,13 +76,14 @@ export default function ConsultingMethodology() {
             Consulting-Grade AI
           </div>
           <h2 className="text-2xl sm:text-4xl font-bold tracking-tight mb-4">
-            Built on BCG & McKinsey
+            Structured the way strategy decks are structured
             <br className="hidden sm:block" />
-            <span className="text-accent"> slide methodology</span>
+            <span className="text-accent"> answer first, evidence second</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
-            Other AI tools generate topic-label headings and text walls.
-            AXIVA is the only tool that enforces answer-first structure, action titles, and consulting-standard visual density by default.
+            Topic-label headings and text walls do not move a decision.
+            AXIVA applies answer-first structure, action titles and a visual-density
+            floor by default, so each slide states a point rather than a subject.
           </p>
         </div>
 
