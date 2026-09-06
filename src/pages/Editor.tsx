@@ -219,9 +219,6 @@ const Editor = () => {
   const [sharePasscode, setSharePasscode] = useState("");
   const [viewAnalytics, setViewAnalytics] = useState<{ total: number; unique: number; topSlides: { index: number; avgTime: number }[] } | null>(null);
 
-  // Export overlay state
-  const [exportOverlayOpen, setExportOverlayOpen] = useState(false);
-  const [exportStage, setExportStage] = useState(0);
 
   // Version history & slide locks
   const [versionsOpen, setVersionsOpen] = useState(false);
