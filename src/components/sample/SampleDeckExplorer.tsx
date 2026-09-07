@@ -18,6 +18,8 @@ interface Props {
   showNotes?: boolean;
   /** Tighter type + smaller frame, used in the hero */
   compact?: boolean;
+  /** Initial slide index. Defaults to the first slide for the full demo. */
+  initialSlide?: number;
   className?: string;
 }
 
@@ -28,6 +30,7 @@ export default function SampleDeckExplorer({
   showDeckTabs = true,
   showNotes = false,
   compact = false,
+  initialSlide = 0,
   className,
 }: Props) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
@@ -41,15 +44,16 @@ export default function SampleDeckExplorer({
     [decks, activeDeckId]
   );
 
-  const [index, setIndex] = useState(0);
+  const safeInitialSlide = Math.max(0, Math.min(decks[0].slides.length - 1, initialSlide));
+  const [index, setIndex] = useState(safeInitialSlide);
   const tablistRef = useRef<HTMLDivElement>(null);
   const total = deck.slides.length;
   const slide = deck.slides[Math.min(index, total - 1)];
 
-  // Reset to the first slide whenever the deck changes
+  // Reset safely whenever the deck changes.
   useEffect(() => {
-    setIndex(0);
-  }, [deck.id]);
+    setIndex(Math.max(0, Math.min(deck.slides.length - 1, initialSlide)));
+  }, [deck.id, initialSlide, deck.slides.length]);
 
   const selectDeck = useCallback(
     (id: string) => {
@@ -151,29 +155,28 @@ export default function SampleDeckExplorer({
 
       <div
         id={panelId}
-        role="tabpanel"
+        role={showDeckTabs ? "tabpanel" : "region"}
         aria-labelledby={showDeckTabs ? tabId(deck.id) : undefined}
+        aria-label={!showDeckTabs ? `${deck.title} sample deck` : undefined}
         tabIndex={showDeckTabs ? 0 : undefined}
         onKeyDown={handleSlideKeyDown}
-        className="rounded-2xl border border-border/60 bg-card/40 p-3 sm:p-4"
+        className="rounded-lg border border-border/60 bg-card/40 p-3 sm:p-4"
       >
 
         {/* Deck meta */}
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-1">
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-foreground">{deck.title}</p>
-            <p className="truncate text-xs text-muted-foreground">
-              {deck.organisation} · {deck.audience}
-            </p>
+            {!compact && <p className="truncate text-xs text-muted-foreground">{deck.organisation} · {deck.audience}</p>}
           </div>
           <span className="rounded-full border border-border/60 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Illustrative sample
+            {compact ? "Fictional sample" : "Illustrative sample"}
           </span>
         </div>
 
         {/* Slide surface — taller on phones so nothing is clipped, 16:9 from sm up */}
         <div
-          className="relative w-full overflow-hidden rounded-xl border border-white/10 aspect-[4/5] sm:aspect-video"
+          className="relative w-full overflow-hidden rounded-md border border-border/60 aspect-[4/5] sm:aspect-video"
           style={{ background: deck.surface }}
         >
           <div className="absolute inset-0 overflow-y-auto motion-safe:transition-opacity motion-safe:duration-200">
@@ -191,7 +194,7 @@ export default function SampleDeckExplorer({
             type="button"
             variant="outline"
             size="sm"
-            className="min-h-[40px] gap-1.5"
+            className="min-h-[44px] gap-1.5"
             onClick={() => go(index - 1)}
             disabled={atStart}
             aria-label="Previous slide"
@@ -208,7 +211,7 @@ export default function SampleDeckExplorer({
             type="button"
             variant="outline"
             size="sm"
-            className="min-h-[40px] gap-1.5"
+            className="min-h-[44px] gap-1.5"
             onClick={() => go(index + 1)}
             disabled={atEnd}
             aria-label="Next slide"
@@ -219,7 +222,7 @@ export default function SampleDeckExplorer({
         </div>
 
         {/* Slide selectors */}
-        <div className="mt-3 flex flex-wrap gap-2">
+        {!compact && <div className="mt-3 flex flex-wrap gap-2">
           {deck.slides.map((s, i) => (
             <button
               key={s.id}
@@ -237,7 +240,7 @@ export default function SampleDeckExplorer({
               {i + 1}. {s.label}
             </button>
           ))}
-        </div>
+        </div>}
       </div>
 
       {showNotes && (
