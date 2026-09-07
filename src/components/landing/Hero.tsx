@@ -107,7 +107,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative overflow-hidden border-b border-border/40 px-4 pb-14 pt-24 sm:pb-20 sm:pt-28">
+    <section className="relative overflow-hidden border-b border-border/40 px-4 pb-12 pt-20 sm:pb-16 sm:pt-24">
       {/* Restrained background: one soft field, no multi-colour gradients */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -top-32 left-1/2 h-[420px] w-[900px] max-w-none -translate-x-1/2 rounded-full bg-accent/[0.07] blur-[140px]" />
@@ -118,7 +118,7 @@ const Hero = () => {
           {/* ── Left column: the promise and the brief ── */}
           <div className="max-w-xl">
             <p className="mb-5 inline-flex items-center gap-2 border-l-2 border-accent pl-3 text-[13px] font-medium uppercase tracking-[0.16em] text-accent">
-              AI executive presentation builder
+              AI presentations
             </p>
 
             <h1 className="text-[2.1rem] font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
@@ -128,9 +128,7 @@ const Hero = () => {
             </h1>
 
             <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Turn your notes into a structured deck with a clear recommendation,
-              the evidence behind it, and the next steps — then prepare to present
-              it with speaker notes and likely questions.
+              Turn your notes into a clear, presentation-ready deck.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8">
@@ -140,37 +138,41 @@ const Hero = () => {
               >
                 What do you need to present?
               </label>
-              <p id="hero-brief-help" className="mt-1 text-[13px] text-muted-foreground">
-                Your audience, the decision at stake, and anything that must be included.
-              </p>
               <Textarea
                 id="hero-brief"
                 ref={textareaRef}
                 value={brief}
-                aria-describedby="hero-brief-help hero-brief-status"
+                aria-describedby={
+                  [brief ? "hero-brief-status" : "", error ? "hero-brief-error" : ""]
+                    .filter(Boolean)
+                    .join(" ") || undefined
+                }
                 aria-invalid={tooLong || undefined}
                 onChange={(e) => {
                   noteStart();
                   setBrief(e.target.value);
                 }}
                 rows={4}
-                placeholder="e.g. Board update for our Q4 results — I need approval to move spend into enterprise next year."
+                placeholder="e.g. A board update on Q4 results and next quarter’s priorities."
                 className="mt-3 min-h-[112px] resize-y bg-card/60 text-base"
               />
 
-              <p
-                id="hero-brief-status"
-                className={
-                  tooLong
-                    ? "mt-2 text-[13px] text-destructive"
-                    : "mt-2 text-[13px] text-muted-foreground"
-                }
-              >
-                {chars.toLocaleString()} / {MAX_PROMPT_LENGTH.toLocaleString()} characters
-              </p>
+              {brief && (
+                <p
+                  id="hero-brief-status"
+                  className={
+                    tooLong
+                      ? "mt-2 text-[13px] text-destructive"
+                      : "mt-2 text-[13px] text-muted-foreground"
+                  }
+                >
+                  {chars.toLocaleString()} / {MAX_PROMPT_LENGTH.toLocaleString()} characters
+                </p>
+              )}
 
               {error && (
                 <p
+                  id="hero-brief-error"
                   role="alert"
                   className="mt-3 rounded-lg border border-destructive/40 bg-destructive/5 px-3.5 py-2.5 text-[13px] text-foreground"
                 >
@@ -178,7 +180,33 @@ const Hero = () => {
                 </p>
               )}
 
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="mt-5 flex items-center gap-5">
+                <Button
+                  type="submit"
+                  variant="hero"
+                  size="lg"
+                  className="h-12 w-full gap-2 text-base sm:w-auto"
+                >
+                  Build my deck
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Link
+                  to="/demo"
+                  className="min-h-[44px] py-3 text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  View sample
+                </Link>
+              </div>
+
+              <p className="mt-3 text-[13px] text-muted-foreground">
+                {loading || user
+                  ? "Your brief carries over."
+                  : "Free account required. Your brief carries over."}
+                {!isDraftStorageAvailable() &&
+                  " This browser is blocking storage, so copy your brief before continuing."}
+              </p>
+
+              <div className="mt-4 flex flex-wrap items-center gap-2">
                 <span className="text-[13px] text-muted-foreground">Start from:</span>
                 {STARTERS.map((s) => (
                   <button
@@ -191,55 +219,12 @@ const Hero = () => {
                   </button>
                 ))}
               </div>
-
-              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                <Button
-                  type="submit"
-                  variant="hero"
-                  size="lg"
-                  className="h-12 w-full gap-2 text-base sm:w-auto"
-                >
-                  Build my deck
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="h-12 w-full text-base sm:w-auto"
-                >
-                  <Link to="/demo">Explore a sample deck</Link>
-                </Button>
-              </div>
-
-              <p className="mt-3 text-[13px] text-muted-foreground">
-                {loading || user
-                  ? "Your brief is carried straight into the builder in this tab."
-                  : "You will create a free account before generating — your brief is kept in this tab and carried through."}
-                {!isDraftStorageAvailable() &&
-                  " This browser is blocking storage, so copy your brief before continuing."}
-              </p>
             </form>
           </div>
 
           {/* ── Right column: real, inspectable product proof ── */}
           <div className="lg:pt-2">
-            <div className="mb-3 flex items-baseline justify-between gap-3">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                What the output looks like
-              </h2>
-              <Link
-                to="/demo"
-                className="text-[13px] font-medium text-accent underline-offset-4 hover:underline"
-              >
-                Open full sample
-              </Link>
-            </div>
-            <SampleDeckExplorer compact showDeckTabs={false} />
-            <p className="mt-3 text-[13px] text-muted-foreground">
-              Sample deck with fictional companies and figures, shown to
-              demonstrate structure. Use the controls to move through the slides.
-            </p>
+            <SampleDeckExplorer compact showDeckTabs={false} initialSlide={2} />
           </div>
         </div>
       </div>

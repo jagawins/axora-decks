@@ -1,7 +1,38 @@
 import { Link } from "react-router-dom";
 import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
 
-const Footer = () => {
+interface FooterProps {
+  compact?: boolean;
+}
+
+const compactLinks = [
+  ["Features", "/features"],
+  ["Pricing", "/pricing"],
+  ["About", "/about"],
+  ["Contact", "/contact"],
+  ["Privacy", "/privacy"],
+  ["Terms", "/terms"],
+] as const;
+
+const Footer = ({ compact = false }: FooterProps) => {
+  if (compact) {
+    return (
+      <footer className="border-t border-border py-8 pb-safe">
+        <div className="container-wide flex flex-col items-center gap-6 px-4 md:flex-row md:justify-between">
+          <img src={axivaWordmark} alt="AXIVA" className="h-5 w-auto" />
+          <nav aria-label="Footer" className="flex flex-wrap justify-center gap-x-5 gap-y-3">
+            {compactLinks.map(([label, to]) => (
+              <Link key={to} to={to} className="text-sm text-muted-foreground hover:text-accent">
+                {label}
+              </Link>
+            ))}
+          </nav>
+          <p className="text-xs text-muted-foreground">© 2025-26 AXIVA. All rights reserved.</p>
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer className="border-t border-border py-12 md:py-16 pb-safe">
       <div className="container-wide">
