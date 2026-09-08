@@ -101,8 +101,8 @@ export default function ExampleDecks() {
                   aria-label={`Open the ${deck.title} sample deck`}
                 >
                   <div
-                    className="relative w-full overflow-hidden border-b border-white/10"
-                    style={{ aspectRatio: "16 / 9", background: deck.surface }}
+                    className="sample-dark relative w-full overflow-hidden border-b border-[hsl(var(--sample-border))]"
+                    style={{ aspectRatio: "16 / 9", background: deck.surface, "--sample-deck-accent": deck.accent } as React.CSSProperties}
                   >
                     <SampleSlideRenderer body={cover.body} accent={deck.accent} compact />
                   </div>
