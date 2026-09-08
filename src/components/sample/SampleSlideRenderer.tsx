@@ -13,7 +13,7 @@ const SEVERITY_LABEL: Record<string, string> = {
   low: "Low",
 };
 
-export default function SampleSlideRenderer({ body, accent, compact }: Props) {
+export default function SampleSlideRenderer({ body, compact }: Props) {
   const pad = compact ? "p-5 sm:p-6" : "p-6 sm:p-9";
   const h = compact
     ? "text-base sm:text-lg font-semibold tracking-tight"
