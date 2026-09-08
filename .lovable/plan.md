@@ -1,28 +1,30 @@
-# Homepage simplification
+# Light-mode theme and sample contrast correction
 
 ## Scope
-- Keep the existing header, skip link, semantic main area, canonical metadata, chatbot, and all brief submission behavior.
-- Reduce the homepage to four focused sections: the existing interactive hero, a compact three-step strip, a compact pricing strip, and a compact footer.
-- Leave the removed homepage sections and all dedicated pages available elsewhere; do not publish.
+- Keep AXIVA’s existing dark mode and all authored presentation themes/exports unchanged.
+- Correct the shared light-mode palette, public sample rendering, input visibility, and compact sample sizing only.
+- Do not publish or change product behavior, copy, billing, authentication, or backend logic.
 
 ## Implementation
-1. **Hero and product proof**
-   - Shorten the eyebrow, supporting copy, placeholder, account note, and secondary sample link exactly as requested.
-   - Keep the textarea label, validation, storage-failure gate, draft preservation, account routing, and analytics unchanged.
-   - Show the character count only after input, with accurate accessible descriptions.
-   - Put the primary action before starter chips so it remains prominent on small screens.
-   - In compact sample mode only, remove duplicate metadata and slide selector buttons, use one “Fictional sample” badge, retain the title, readable slide surface, count, keyboard handling, and accessible previous/next controls.
+1. **Shared light-mode tokens**
+   - Replace the purple light palette with the requested neutral surfaces, navy/slate text, and one deep-blue brand family.
+   - Align primary, accent, ring, sidebar, block accents, gradients, and glows while retaining semantic success, warning, and destructive roles.
+   - Strengthen the shared input boundary and keep the ordinary decorative border lighter; preserve a clear blue focus ring.
+   - Set the native control color scheme from the active theme.
 
-2. **Compact homepage sections**
-   - Replace the large three-step presentation with a short “From notes to presentation” strip and a quiet link to the existing explanation page.
-   - Add a homepage-only pricing strip that reads Free and Pro prices from the existing subscription configuration and links to the full pricing page.
-   - Add a compact footer option with only the wordmark, copyright, and six requested links; preserve the existing footer as the default everywhere else.
+2. **Adaptive public sample surface**
+   - Add scoped sample color tokens for surface, heading, body, muted notes, separators, cards, and values in light and dark modes.
+   - Replace hardcoded white-alpha sample text across cover, recommendation, evidence, metrics, risks, and next-steps layouts.
+   - Keep each deck’s accent in dark mode, use the accessible shared deep blue for sample values in light mode, and leave user-created deck styling untouched.
+   - Confirm every `SampleSlideRenderer` call site uses the matching scoped sample surface.
 
-3. **Homepage composition and metadata**
-   - Remove only the homepage imports/rendering for the long gallery, methodology, feature, FAQ, founder, full pricing, and repeated CTA sections.
-   - Shorten homepage description and social description to reflect the focused page.
+3. **Compact preview sizing**
+   - Make the compact hero slide content-aware with enough minimum height for the four evidence rows and footnote at phone and desktop widths.
+   - Avoid an internal scrollbar in compact mode; retain bounded scrolling for the full `/demo` explorer where long content requires it.
 
 ## Validation
-- Run the existing regression test suite once, the application TypeScript check using `tsgo -p tsconfig.app.json`, and the production build.
-- Use the actual homepage at 390×844 and 1440×900 to check overflow, CTA visibility, sample readability, and starter/sample/pricing link destinations.
-- Report browser observations separately from source/test validation; do not claim an unmeasured word reduction.
+- Run `tsgo -p tsconfig.app.json` and the production build.
+- In the actual app, use the real theme toggle and check light/dark after transitions at 390×844 and 1440×900 on `/` and `/demo`.
+- Check light-mode desktop/mobile header menus and `/pricing` for token regressions.
+- Measure rendered contrast for main text, muted text, placeholder, primary CTA, and sample values/notes in both themes, targeting 4.5:1 for normal text.
+- Report this as focused route/control validation, not an app-wide accessibility certification; save without publishing.
