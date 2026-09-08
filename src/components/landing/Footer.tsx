@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
-import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
+import axivaWordmarkDark from "@/assets/axiva-wordmark-dark.svg";
+import axivaWordmarkLight from "@/assets/axiva-wordmark.svg";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface FooterProps {
   compact?: boolean;
@@ -15,6 +17,9 @@ const compactLinks = [
 ] as const;
 
 const Footer = ({ compact = false }: FooterProps) => {
+  const { theme } = useTheme();
+  const axivaWordmark = theme === "light" ? axivaWordmarkLight : axivaWordmarkDark;
+
   if (compact) {
     return (
       <footer className="border-t border-border py-8 pb-safe">

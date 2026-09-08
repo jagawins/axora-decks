@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -101,8 +101,8 @@ export default function ExampleDecks() {
                   aria-label={`Open the ${deck.title} sample deck`}
                 >
                   <div
-                    className="relative w-full overflow-hidden border-b border-white/10"
-                    style={{ aspectRatio: "16 / 9", background: deck.surface }}
+                    className="sample-dark relative w-full overflow-hidden border-b border-[hsl(var(--sample-border))]"
+                    style={{ aspectRatio: "16 / 9", background: deck.surface, "--sample-deck-accent": deck.accent } as CSSProperties}
                   >
                     <SampleSlideRenderer body={cover.body} accent={deck.accent} compact />
                   </div>

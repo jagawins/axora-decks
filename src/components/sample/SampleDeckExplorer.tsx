@@ -174,17 +174,23 @@ export default function SampleDeckExplorer({
           </span>
         </div>
 
-        {/* Slide surface — taller on phones so nothing is clipped, 16:9 from sm up */}
+        {/* Public sample surface follows the page theme, not an authored deck theme. */}
         <div
-          className="relative w-full overflow-hidden rounded-md border border-border/60 aspect-[4/5] sm:aspect-video"
-          style={{ background: deck.surface }}
+          className={cn(
+            "sample-public relative w-full rounded-md border border-[hsl(var(--sample-border))] bg-[hsl(var(--sample-surface))]",
+            compact ? "min-h-[400px] overflow-visible sm:min-h-[370px]" : "aspect-[4/5] overflow-hidden sm:aspect-video"
+          )}
+          style={{ "--sample-deck-accent": deck.accent } as React.CSSProperties}
         >
-          <div className="absolute inset-0 overflow-y-auto motion-safe:transition-opacity motion-safe:duration-200">
+          <div className={cn(
+            "motion-safe:transition-opacity motion-safe:duration-200",
+            compact ? "min-h-[inherit]" : "absolute inset-0 overflow-y-auto"
+          )}>
             <SampleSlideRenderer body={slide.body} accent={deck.accent} compact={compact} />
           </div>
           <div
             className="absolute inset-x-0 bottom-0 h-[2px]"
-            style={{ background: `linear-gradient(90deg, transparent, ${deck.accent}80, transparent)` }}
+            style={{ background: "linear-gradient(90deg, transparent, var(--sample-accent), transparent)" }}
           />
         </div>
 
