@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795281694133,
+      "tag": "0000_harden_email_functions_and_open_policies",
+      "breakpoints": true
+    }
+  ]
+}
