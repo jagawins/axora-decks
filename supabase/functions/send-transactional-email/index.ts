@@ -30,9 +30,8 @@ function generateToken(): string {
     .join('')
 }
 
-// Auth note: this function uses verify_jwt = true in config.toml, so Supabase's
-// gateway validates the caller's JWT (anon or service_role) before the request
-// reaches this code. No in-function auth check is needed.
+// Auth note: verify_jwt also accepts the public anon key, so callers are
+// checked explicitly in the handler below.
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -52,6 +51,28 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     )
+  }
+
+  // Caller authorization. The gateway accepts the public anon key, so we must
+  // check here: server code (service role) may send any template; signed-in
+  // users may only send owner-bound templates; everyone else is rejected.
+  const authHeader = req.headers.get('Authorization') ?? ''
+  const bearer = authHeader.replace(/^Bearer\s+/i, '')
+  const isServiceCaller = bearer.length > 0 && bearer === supabaseServiceKey
+  if (!isServiceCaller) {
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    const authClient = createClient(supabaseUrl, anonKey)
+    const { data: claimsData, error: claimsError } = bearer
+      ? await authClient.auth.getClaims(bearer)
+      : { data: null, error: new Error('missing token') }
+    const sub = (claimsData as any)?.claims?.sub
+    const role = (claimsData as any)?.claims?.role
+    if (claimsError || !sub || role !== 'authenticated') {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
   }
 
   // Parse request body
@@ -108,7 +129,24 @@ Deno.serve(async (req) => {
   // Resolve effective recipient: template-level `to` takes precedence over
   // the caller-provided recipientEmail. This allows notification templates
   // to always send to a fixed address (e.g., site owner from env var).
-  const effectiveRecipient = template.to || recipientEmail
+  // Non-server callers may only use templates with a fixed recipient, so they
+  // can never choose who receives an email.
+  if (!isServiceCaller && !template.userSendable) {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+  if (!isServiceCaller) {
+    for (const k of Object.keys(templateData)) {
+      const v = templateData[k]
+      templateData[k] = typeof v === 'string' ? v.slice(0, 2000) : ''
+    }
+  }
+
+  const effectiveRecipient = isServiceCaller
+    ? (template.to || recipientEmail)
+    : template.to
 
   if (!effectiveRecipient) {
     return new Response(

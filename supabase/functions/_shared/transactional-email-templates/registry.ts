@@ -5,6 +5,8 @@ export interface TemplateEntry {
   component: React.ComponentType<any>
   subject: string | ((data: Record<string, any>) => string)
   to?: string
+  /** Signed-in users may trigger this template (recipient must be fixed via `to`). */
+  userSendable?: boolean
   displayName?: string
   previewData?: Record<string, any>
 }

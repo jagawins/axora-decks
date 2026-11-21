@@ -42,6 +42,8 @@ const CancellationFeedbackEmail = ({ reason, followUp, feedback }: CancellationF
 export const template = {
   component: CancellationFeedbackEmail,
   subject: 'User Cancellation Feedback',
+  to: 'jag@axiva.ai',
+  userSendable: true,
   displayName: 'Cancellation feedback',
   previewData: { reason: 'Too expensive', followUp: 'Would prefer $15/mo', feedback: 'Great product but price is high' },
 } satisfies TemplateEntry
