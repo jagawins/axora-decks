@@ -18,7 +18,7 @@
  * - AdaptiveBlock: a block that regenerates when variables change
  */
 
-import { useState, useCallback, createContext, useContext } from "react";
+import { useState, useCallback, useRef, createContext, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -302,15 +302,93 @@ export function VoiceInputBlock({ payload }: { payload: VoiceInputPayload }) {
   const [extracting, setExtracting] = useState(false);
   const [extracted, setExtracted] = useState<Record<string, string>>({});
   const [supported, setSupported] = useState(true);
+  const [useProTranscription, setUseProTranscription] = useState(true);
+  const [transcribing, setTranscribing] = useState(false);
 
-  // Check browser support
+  // Refs for audio recording (Pro mode) and browser speech (Free mode)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recognitionRef = useState<any>(null);
+
   const SpeechRecognition = typeof window !== "undefined"
     ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     : null;
 
-  const recognitionRef = useState<any>(null);
+  // ── Pro mode: record audio + OpenAI Transcribe ──
+  const startProListening = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+          ? "audio/webm;codecs=opus"
+          : "audio/webm",
+      });
+      audioChunksRef.current = [];
 
-  const startListening = () => {
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        // Stop all tracks
+        stream.getTracks().forEach(t => t.stop());
+
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        if (audioBlob.size < 1000) {
+          setTranscript(prev => prev || "(No audio captured. Speak closer to the microphone.)");
+          return;
+        }
+
+        // Send to OpenAI via edge function
+        setTranscribing(true);
+        try {
+          const formData = new FormData();
+          formData.append("audio", audioBlob, "recording.webm");
+          formData.append("language", "en");
+          // Add context about what variables we're looking for
+          const contextHint = targetVariables
+            .map(v => `${v.label}: ${v.hint || v.key}`)
+            .join(", ");
+          formData.append("context", `Business presentation. Listen for: ${contextHint}`);
+
+          const { data, error } = await supabase.functions.invoke("transcribe-audio", {
+            body: formData,
+          });
+
+          if (error) throw error;
+          if (data?.text) {
+            setTranscript(prev => (prev ? prev + " " : "") + data.text);
+          }
+        } catch (err) {
+          console.error("Pro transcription failed, falling back:", err);
+          // Don't clear transcript, keep what we have
+        } finally {
+          setTranscribing(false);
+        }
+      };
+
+      // Record in 30-second chunks for interim processing
+      mediaRecorder.start(30000);
+      mediaRecorderRef.current = mediaRecorder;
+      setListening(true);
+    } catch (err) {
+      console.error("Microphone access denied:", err);
+      setSupported(false);
+    }
+  };
+
+  const stopProListening = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+    mediaRecorderRef.current = null;
+    setListening(false);
+  };
+
+  // ── Free mode: browser Web Speech API ──
+  const startBrowserListening = () => {
     if (!SpeechRecognition) {
       setSupported(false);
       return;
@@ -344,7 +422,6 @@ export function VoiceInputBlock({ payload }: { payload: VoiceInputPayload }) {
     };
 
     recognition.onend = () => {
-      // Auto-restart if still in listening mode
       if (listening) {
         try { recognition.start(); } catch {}
       }
@@ -359,11 +436,23 @@ export function VoiceInputBlock({ payload }: { payload: VoiceInputPayload }) {
     }
   };
 
-  const stopListening = () => {
-    if (recognitionRef[0]) {
-      recognitionRef[0].stop();
+  const startListening = () => {
+    if (useProTranscription) {
+      startProListening();
+    } else {
+      startBrowserListening();
     }
-    setListening(false);
+  };
+
+  const stopListening = () => {
+    if (useProTranscription) {
+      stopProListening();
+    } else {
+      if (recognitionRef[0]) {
+        recognitionRef[0].stop();
+      }
+      setListening(false);
+    }
   };
 
   const extractVariables = async () => {
@@ -462,6 +551,32 @@ No other text. No explanations. Just the key: value pairs that were actually men
       </div>
 
       {description && <p className="text-sm text-muted-foreground">{description}</p>}
+
+      {/* Pro/Free toggle */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setUseProTranscription(true)}
+          className={cn("text-[10px] px-2.5 py-1 rounded-full border transition-all",
+            useProTranscription ? "border-violet-500/40 bg-violet-500/10 text-violet-500 font-bold" : "border-border/30 text-muted-foreground")}
+        >
+          Pro (OpenAI Transcribe)
+        </button>
+        <button
+          onClick={() => setUseProTranscription(false)}
+          className={cn("text-[10px] px-2.5 py-1 rounded-full border transition-all",
+            !useProTranscription ? "border-violet-500/40 bg-violet-500/10 text-violet-500 font-bold" : "border-border/30 text-muted-foreground")}
+        >
+          Free (Browser Speech)
+        </button>
+      </div>
+
+      {/* Transcribing indicator */}
+      {transcribing && (
+        <div className="flex items-center gap-2 text-xs text-violet-500">
+          <Loader2 className="h-3 w-3 animate-spin" />
+          Transcribing with OpenAI...
+        </div>
+      )}
 
       {/* Transcript */}
       {transcript && (
