@@ -118,17 +118,17 @@ const Hero = () => {
           {/* ── Left column: the promise and the brief ── */}
           <div className="max-w-xl">
             <p className="mb-5 inline-flex items-center gap-2 border-l-2 border-accent pl-3 text-[13px] font-medium uppercase tracking-[0.16em] text-accent">
-              AI presentations
+              Voice-Powered AI Presentations
             </p>
 
             <h1 className="text-[2.1rem] font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
-              Make the case.
+              Speak it. Build it.
               <br />
-              <span className="text-accent">Move the decision.</span>
+              <span className="text-accent">Present it.</span>
             </h1>
 
             <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Turn your notes into a clear, presentation-ready deck.
+              Describe your deck in one sentence or speak it aloud. AI builds consulting-grade slides with voice recognition, live polls, and speech coaching. Under 15 seconds.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8">

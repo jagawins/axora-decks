@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const CURRENT_VERSION = "2026.04";
+const CURRENT_VERSION = "2026.11";
 const STORAGE_KEY = "axiva_whats_new_dismissed";
 
 interface Feature {
@@ -38,8 +38,8 @@ const FEATURES: Feature[] = [
   {
     icon: Zap,
     badge: "NEW",
-    title: "Smart Slides",
-    description: "Slides that adapt in real-time. Type audience inputs or use voice recognition. Downstream slides regenerate with AI.",
+    title: "Voice-Powered Smart Slides",
+    description: "Speak naturally during your meeting. OpenAI-powered transcription captures what the audience says with 96% accuracy. Slides adapt in real-time. No 'I'll get back to you.'",
     color: "#F59E0B",
     cta: "Create Smart Slide",
     href: "/create?prompt=Create+a+Smart+Slides+deck+with+live_input+and+adaptive_blocks",

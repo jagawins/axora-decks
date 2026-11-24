@@ -10,6 +10,45 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "voice-powered-presentations-openai-transcribe-2026",
+    title: "Voice-Powered Presentations: How AXIVA Uses OpenAI to Understand What Your Audience Says",
+    excerpt: "Your deck now listens. OpenAI GPT Transcribe captures audience speech with 96% accuracy, even in noisy conference rooms. Downstream slides adapt in real-time. This changes how meetings work.",
+    category: "Product",
+    publishedAt: "2026-11-24",
+    author: "Jag Mariappan",
+    content: `# Voice-powered presentations are here
+
+We just shipped the most requested upgrade to Smart Slides: OpenAI-powered voice transcription.
+
+## What changed
+
+AXIVA's Smart Slides already let you type audience inputs during a presentation and watch downstream slides adapt. Now you can speak instead of type.
+
+Click "Start Listening" on a Voice Input block. OpenAI's GPT Transcribe model captures everything the audience says with 96% accuracy, even in noisy conference rooms. It handles technical jargon (RPO, RTO, SaaS, ARR) without breaking.
+
+When the customer says "our RPO needs to be under 15 minutes and our budget is around 50K per month," the system captures both values. Click "Extract values" and AI parses the transcript for the specific parameters you told it to listen for. Downstream slides regenerate with those exact numbers.
+
+## Why this matters
+
+Every sales engineer, solution architect, and consultant has said "I'll run the numbers and get back to you." That sentence kills deals. The follow-up email takes three days. By then, the urgency is gone.
+
+Voice-powered Smart Slides eliminate that moment. The deck listens to the conversation and adapts while you present. The customer sees their specific requirements reflected in the architecture, pricing, and timeline slides before the meeting ends.
+
+## How it works
+
+The voice input uses OpenAI's GPT Transcribe model (gpt-4o-transcribe). Audio is recorded in the browser using the MediaRecorder API, sent to our edge function, and transcribed server-side. No audio is stored. The transcript is processed by Claude to extract key-value pairs, which update the shared variable context across all slides.
+
+Pro users get OpenAI transcription. Free users can still use the browser's built-in Speech API as a fallback.
+
+## Who this is for
+
+Anyone who presents configurable solutions. Datacenter architects sizing infrastructure. Sales teams adjusting pricing. Consultants building recommendations. Financial advisors modeling scenarios. If your presentation includes numbers that change based on what the audience needs, this feature turns your deck into a live configuration tool.
+
+## No competitor has this
+
+Gamma generates static slides. Beautiful.ai has smart design but no voice input. PowerPoint Copilot helps you create slides but cannot listen to your meeting and adapt them. AXIVA is the first presentation tool where the deck understands what the audience says and responds in real-time.`,
+  },
+  {
     slug: "smart-slides-live-adaptive-presentations-2026",
     title: "Smart Slides: Your Presentation Now Adapts to What the Audience Says",
     excerpt: "Someone asks about RPO during your datacenter pitch. By slide 6, the architecture has already adapted. No 'I'll get back to you.' AXIVA's Smart Slides use live input and voice recognition to regenerate downstream slides in real-time.",

@@ -43,8 +43,8 @@ const features = [
   },
   {
     icon: MousePointerClick,
-    title: "Smart Slides (Live Adaptive)",
-    description: "Slides that adapt in real-time. Type audience inputs or use voice recognition during your presentation. Downstream slides regenerate with AI. No 'I'll get back to you.'",
+    title: "Voice-Powered Smart Slides",
+    description: "Speak naturally during your presentation. OpenAI-powered voice recognition captures audience requirements. Downstream slides regenerate with AI in real-time. No 'I'll get back to you.'",
     color: "#EF4444",
     highlights: ["Type or speak audience requirements live", "AI regenerates downstream slides instantly", "Voice recognition extracts key parameters"],
   },

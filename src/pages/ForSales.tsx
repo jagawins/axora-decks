@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, TrendingUp, BarChart3, Mic, Zap } from "lucide-react";
 
 const FEATURES = [
-  { icon: Zap, title: "Smart Slides for live demos", desc: "Customer shares their requirements. Your deck adapts in real-time. Pricing, architecture, and ROI slides regenerate on the spot. No 'I'll get back to you.'" },
+  { icon: Zap, title: "Voice-powered live demos", desc: "Customer speaks their requirements. OpenAI transcription captures every detail with 96% accuracy. Your deck adapts in real-time. Pricing, architecture, and ROI slides regenerate on the spot." },
   { icon: BarChart3, title: "Live polls during pitches", desc: "Ask 'How important is feature X to your team?' See results instantly. Use the data to pivot your pitch in real-time." },
   { icon: Mic, title: "Speech prep before big meetings", desc: "AI writes your talking points with delivery coaching. Vocal tips, objection handling, and a pre-flight checklist." },
   { icon: TrendingUp, title: "Battle cards and enablement", desc: "AI generates competitive battlecards, objection handling guides, and customer case studies from your product data." },

@@ -16,7 +16,7 @@ const GammaAlternative = () => {
     { feature: "Smart Slides (adapt in real-time)", axor: true, gamma: false },
     { feature: "Executive tone control", axor: true, gamma: "partial" },
     { feature: "PowerPoint-ready output", axor: true, gamma: "inconsistent" },
-    { feature: "Voice-triggered adaptation", axor: true, gamma: false },
+    { feature: "OpenAI voice transcription (96% accuracy)", axor: true, gamma: false },
     { feature: "Designed for executives", axor: true, gamma: false },
     { feature: "AI refinement per block", axor: true, gamma: "limited" },
   ];

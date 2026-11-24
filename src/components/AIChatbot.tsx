@@ -24,7 +24,7 @@ ABOUT AXIVA:
 - Generates decks from one sentence using consulting methodology (answer-first structure)
 - Speech prep with delivery coaching (vocal tips, story structure, body language)
 - Live audience polls with QR codes (replaces Slido)
-- Smart Slides that adapt in real-time based on audience input and voice recognition
+- Voice-Powered Smart Slides: OpenAI GPT Transcribe captures audience speech with 96% accuracy, even in noisy rooms. Slides adapt in real-time based on what the audience says. Pro feature.
 - 98 executive templates across 6 categories
 - 23 timeline styles
 - PPTX and PDF export

@@ -6,7 +6,8 @@
 
 - AI deck generation from one sentence using answer-first consulting methodology
 - Smart Slides: live adaptive presentations where slides regenerate based on audience input during the meeting
-- Voice-triggered slide adaptation using browser speech recognition
+- Voice-powered presentations: OpenAI GPT Transcribe (96%+ accuracy) captures audience speech in real-time, even in noisy rooms
+- Voice-triggered slide adaptation: downstream slides regenerate based on what the audience says
 - Speech prep with delivery coaching (vocal tips, story structure, body language)
 - Live audience polls with QR codes and real-time results (replaces Slido)
 - Q&A readiness with anticipated question generator and message maps
