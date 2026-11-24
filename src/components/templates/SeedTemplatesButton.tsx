@@ -1,3 +1,4 @@
+import { invokeSignedIn } from "@/lib/supabase-function-client";
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Database } from 'lucide-react';
@@ -17,7 +18,7 @@ export function SeedTemplatesButton({ onSeeded }: SeedTemplatesButtonProps) {
     setSeeding(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('seed-templates', {
+      const { data, error } = await invokeSignedIn('seed-templates', {
         body: seedData,
       });
 

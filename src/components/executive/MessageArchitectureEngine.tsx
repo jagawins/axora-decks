@@ -5,6 +5,7 @@
  * Plain language, not jargon.
  */
 
+import { invokeSignedIn } from "@/lib/supabase-function-client";
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -122,7 +123,7 @@ NEXT STEPS: ${ask}`;
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke("generate-outline", {
+      const { data, error } = await invokeSignedIn("generate-outline", {
         body: {
           topic: "Executive speech",
           prompt: `You are an elite executive speech coach. Generate a complete, ready-to-deliver speech based on this context:

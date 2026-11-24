@@ -18,7 +18,7 @@ function safeJsonParse(text: string): Record<string, unknown> | null {
 
 export async function invokeFunction<T>(
   functionName: string,
-  body?: Record<string, unknown>,
+  body?: any,
   options?: { headers?: Record<string, string> }
 ): Promise<FunctionResponse<T>> {
   try {
@@ -135,4 +135,21 @@ export async function invokeFunction<T>(
 
     return { data: null, error: error?.message ?? "Unknown error", status: 500 };
   }
+}
+
+/**
+ * Drop-in replacement for `supabase.functions.invoke` for signed-in calls:
+ * refreshes an expiring session first and turns non-2xx replies into an
+ * Error carrying the function's real (or a friendly) reason.
+ */
+export async function invokeSignedIn<T = any>(
+  functionName: string,
+  options?: { body?: any; headers?: Record<string, string> }
+): Promise<{ data: T | null; error: Error | null }> {
+  const res = await invokeFunction<T>(functionName, options?.body, { headers: options?.headers });
+  if (res.error) {
+    // Keep body-level errors (status 400 from a 200 reply) visible to callers that read data.error
+    return { data: null, error: new Error(res.error) };
+  }
+  return { data: res.data, error: null };
 }

@@ -9,6 +9,7 @@
  * 5. Updated description mentioning image generation
  */
 
+import { invokeSignedIn } from "@/lib/supabase-function-client";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -182,7 +183,7 @@ export default function SocialContentGenerator() {
       const styleInfo = STYLES.find(s => s.id === style);
       const accent = ACCENT_COLORS[style];
 
-      const { data, error } = await supabase.functions.invoke("generate-outline", {
+      const { data, error } = await invokeSignedIn("generate-outline", {
         body: {
           topic,
           prompt: platform === "linkedin"

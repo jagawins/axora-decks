@@ -1,3 +1,4 @@
+import { invokeSignedIn } from "@/lib/supabase-function-client";
 import { useState, useRef } from "react";
 import { X, Upload, Loader2, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -48,7 +49,7 @@ export default function FileUploadPills({
         const formData = new FormData();
         formData.append("file", file);
 
-        const { data, error } = await supabase.functions.invoke("parse-file", {
+        const { data, error } = await invokeSignedIn("parse-file", {
           body: formData,
         });
 

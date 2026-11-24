@@ -1,3 +1,4 @@
+import { invokeSignedIn } from "@/lib/supabase-function-client";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -387,7 +388,7 @@ export default function Create() {
     if (imageBlocks.length === 0) return blocks;
 
     try {
-      const { data, error } = await supabase.functions.invoke("resolve-images", {
+      const { data, error } = await invokeSignedIn("resolve-images", {
         body: {
           images: imageBlocks.map(block => ({
             blockIndex: block.originalIndex,

@@ -2,6 +2,7 @@
  * EditorToolset – Gamma-style right-side vertical icon toolbar
  * with expandable panels for blocks, images, themes, and charts.
  */
+import { invokeSignedIn } from "@/lib/supabase-function-client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -109,7 +110,7 @@ const EditorToolset = ({
     if (!imageQuery.trim()) return;
     setImageSearching(true);
     try {
-      const { data, error } = await supabase.functions.invoke("image-search", {
+      const { data, error } = await invokeSignedIn("image-search", {
         body: { query: imageQuery.trim(), count: 8 },
       });
       if (error) throw error;

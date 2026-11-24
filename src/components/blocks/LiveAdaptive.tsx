@@ -18,6 +18,7 @@
  * - AdaptiveBlock: a block that regenerates when variables change
  */
 
+import { invokeSignedIn } from "@/lib/supabase-function-client";
 import { useState, useCallback, useRef, createContext, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -181,7 +182,7 @@ export function AdaptiveBlock({ payload }: { payload: AdaptiveBlockPayload }) {
         .map(key => `${key}: ${getVariable(key) || "(not set)"}`)
         .join("\n");
 
-      const { data, error } = await supabase.functions.invoke("generate-outline", {
+      const { data, error } = await invokeSignedIn("generate-outline", {
         body: {
           topic: "Adaptive slide content",
           prompt: `Based on these live inputs from the audience:\n\n${context}\n\n${basePrompt}\n\nGenerate concise, specific content. Use actual numbers from the inputs. No placeholder text. Be direct and actionable.`,
@@ -353,7 +354,7 @@ export function VoiceInputBlock({ payload }: { payload: VoiceInputPayload }) {
             .join(", ");
           formData.append("context", `Business presentation. Listen for: ${contextHint}`);
 
-          const { data, error } = await supabase.functions.invoke("transcribe-audio", {
+          const { data, error } = await invokeSignedIn("transcribe-audio", {
             body: formData,
           });
 
@@ -464,7 +465,7 @@ export function VoiceInputBlock({ payload }: { payload: VoiceInputPayload }) {
         .map(v => `- "${v.key}" (${v.label}): ${v.hint || "any relevant value"}`)
         .join("\n");
 
-      const { data, error } = await supabase.functions.invoke("generate-outline", {
+      const { data, error } = await invokeSignedIn("generate-outline", {
         body: {
           topic: "Variable extraction",
           prompt: `Extract specific values from this meeting transcript. Return ONLY the key-value pairs as a simple list, one per line, in format "key: value". If a value was not mentioned, skip it.

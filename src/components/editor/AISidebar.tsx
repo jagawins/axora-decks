@@ -1,3 +1,4 @@
+import { invokeSignedIn } from "@/lib/supabase-function-client";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -69,7 +70,7 @@ const AISidebar = ({ open, onToggle, blocks, onScoreUpdate, autoTriggerMode }: A
     setAnalysis(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke("analyze-document", {
+      const { data, error } = await invokeSignedIn("analyze-document", {
         body: {
           blocks: blocks.map((b) => ({ type: b.type, content: b.content })),
           mode,

@@ -1,3 +1,4 @@
+import { invokeSignedIn } from "@/lib/supabase-function-client";
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -561,7 +562,7 @@ const Editor = () => {
 
     try {
       // Call refine-block with templateId instead of instruction
-      const { data, error } = await supabase.functions.invoke("refine-block", {
+      const { data, error } = await invokeSignedIn("refine-block", {
         body: {
           block: {
             type: block.type,

@@ -1,3 +1,4 @@
+import { invokeSignedIn } from "@/lib/supabase-function-client";
 import { useState, useCallback } from "react";
 import { Search, Lock, Unlock, Image, Loader2, ChevronDown, Wand2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,7 @@ function ImagePickerSlot({ slot, onUpdate }: ImagePickerSlotProps) {
     setSearching(true);
     setResults([]);
     try {
-      const { data, error } = await supabase.functions.invoke("image-search", {
+      const { data, error } = await invokeSignedIn("image-search", {
         body: { q: query.trim(), source },
       });
       if (!error && data?.results) {
@@ -63,7 +64,7 @@ function ImagePickerSlot({ slot, onUpdate }: ImagePickerSlotProps) {
 
       const style = source === "ai-infographic" ? "infographic" : undefined;
 
-      const { data, error } = await supabase.functions.invoke("image-generate", {
+      const { data, error } = await invokeSignedIn("image-generate", {
         body: { prompt, style, quality: effectiveQuality },
       });
       if (!error && data?.url) {
