@@ -2,7 +2,7 @@ import { invokeSignedIn } from "@/lib/supabase-function-client";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, Palette, FlaskConical, ChevronDown, Mic } from "lucide-react";
+import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, Palette, FlaskConical, ChevronDown, Mic, MicOff } from "lucide-react";
 import ResearchModeWizard from "@/components/create/ResearchModeWizard";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -191,6 +191,10 @@ export default function Create() {
   const [visualsMode, setVisualsMode] = useState<VisualsMode>("stock");
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [voiceRecording, setVoiceRecording] = useState(false);
+  const [voiceTranscribing, setVoiceTranscribing] = useState(false);
+  const voiceRecorderRef = useRef<MediaRecorder | null>(null);
+  const voiceChunksRef = useRef<Blob[]>([]);
   const [genStartTime, setGenStartTime] = useState<number | null>(null);
   const [genElapsed, setGenElapsed] = useState<number | null>(null);
   const [searchParams] = useSearchParams();
@@ -334,6 +338,63 @@ export default function Create() {
   const handleVoiceSlide = () => {
     setShowMoreWays(false);
     setPrompt("Create a Voice Slide presentation with voice_input blocks that use OpenAI-powered transcription to capture what the audience says in real-time. Include adaptive_blocks on downstream slides that regenerate based on the captured voice input. The presentation should listen to the audience and adapt its architecture, pricing, and recommendations slides automatically.");
+  };
+
+  // ── Voice recording for the prompt input ──
+  const startVoiceRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+          ? "audio/webm;codecs=opus" : "audio/webm",
+      });
+      voiceChunksRef.current = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) voiceChunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(voiceChunksRef.current, { type: "audio/webm" });
+        if (blob.size < 500) return;
+
+        setVoiceTranscribing(true);
+        try {
+          const formData = new FormData();
+          formData.append("audio", blob, "voice-brief.webm");
+          formData.append("language", "en");
+          formData.append("context", "Executive presentation creation. The user is describing what deck they want to create.");
+
+          const { data, error } = await supabase.functions.invoke("transcribe-audio", {
+            body: formData,
+          });
+
+          if (error) throw error;
+          if (data?.text) {
+            setPrompt(prev => (prev ? prev + " " : "") + data.text);
+          }
+        } catch (err) {
+          console.error("Voice transcription failed:", err);
+        } finally {
+          setVoiceTranscribing(false);
+        }
+      };
+
+      recorder.start();
+      voiceRecorderRef.current = recorder;
+      setVoiceRecording(true);
+    } catch {
+      console.error("Microphone access denied");
+    }
+  };
+
+  const stopVoiceRecording = () => {
+    if (voiceRecorderRef.current && voiceRecorderRef.current.state !== "inactive") {
+      voiceRecorderRef.current.stop();
+    }
+    voiceRecorderRef.current = null;
+    setVoiceRecording(false);
   };
 
   /** Which preset matches the current settings — null means Custom. */
@@ -785,23 +846,69 @@ Create exactly ${cardsCount} slides/cards.`;
                 <Label htmlFor="prompt" className="text-sm font-medium">
                   What would you like to create?
                 </Label>
-                <Textarea
-                  id="prompt"
-                  placeholder="e.g. Q4 performance update for the board: where we landed, what changed, and what I need approved."
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  aria-describedby="prompt-counter"
-                  aria-invalid={promptTooLong || undefined}
-                  className="min-h-[112px] resize-y overflow-y-auto bg-muted/50 text-base sm:min-h-[132px]"
-                  disabled={generating}
-                />
-                <p
-                  id="prompt-counter"
-                  className={cn("text-xs", promptTooLong ? "text-destructive" : "text-muted-foreground")}
-                >
-                  {promptChars.toLocaleString()} / {MAX_PROMPT_LENGTH.toLocaleString()} characters
-                  {promptTooLong ? " — please shorten your brief before generating." : ""}
-                </p>
+                <div className="relative">
+                  <Textarea
+                    id="prompt"
+                    placeholder={voiceRecording ? "🎙️ Listening... speak your deck brief now" : voiceTranscribing ? "✨ Transcribing your voice..." : "e.g. Q4 performance update for the board: where we landed, what changed, and what I need approved."}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    aria-describedby="prompt-counter"
+                    aria-invalid={promptTooLong || undefined}
+                    className={cn(
+                      "min-h-[112px] resize-y overflow-y-auto bg-muted/50 text-base sm:min-h-[132px] pr-14",
+                      voiceRecording && "ring-2 ring-red-500/50 border-red-500/50"
+                    )}
+                    disabled={generating || voiceTranscribing}
+                  />
+                  {/* Microphone button */}
+                  <button
+                    type="button"
+                    onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+                    disabled={generating || voiceTranscribing}
+                    className={cn(
+                      "absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full transition-all",
+                      voiceRecording
+                        ? "bg-red-500 text-white shadow-lg shadow-red-500/30 animate-pulse"
+                        : voiceTranscribing
+                        ? "bg-muted text-muted-foreground cursor-wait"
+                        : "bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:shadow-md"
+                    )}
+                    title={voiceRecording ? "Stop recording" : voiceTranscribing ? "Transcribing..." : "Speak your brief"}
+                  >
+                    {voiceTranscribing ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : voiceRecording ? (
+                      <MicOff className="h-5 w-5" />
+                    ) : (
+                      <Mic className="h-5 w-5" />
+                    )}
+                  </button>
+                  {/* Recording indicator */}
+                  {voiceRecording && (
+                    <div className="absolute right-14 top-3 flex items-center gap-2 rounded-full bg-red-500/10 px-3 py-2">
+                      <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                      <span className="text-xs font-medium text-red-500">Recording</span>
+                    </div>
+                  )}
+                  {voiceTranscribing && (
+                    <div className="absolute right-14 top-3 flex items-center gap-2 rounded-full bg-accent/10 px-3 py-2">
+                      <Sparkles className="h-3 w-3 text-accent animate-pulse" />
+                      <span className="text-xs font-medium text-accent">Transcribing</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center justify-between">
+                  <p
+                    id="prompt-counter"
+                    className={cn("text-xs", promptTooLong ? "text-destructive" : "text-muted-foreground")}
+                  >
+                    {promptChars.toLocaleString()} / {MAX_PROMPT_LENGTH.toLocaleString()} characters
+                    {promptTooLong ? " — please shorten your brief before generating." : ""}
+                  </p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Mic className="h-3 w-3" /> Tap mic to speak your brief
+                  </p>
+                </div>
                 {!storageAvailable && (
                   <p className="text-xs text-muted-foreground">
                     This browser is blocking storage, so your brief cannot be kept if you
