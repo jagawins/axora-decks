@@ -22,17 +22,48 @@ export async function invokeFunction<T>(
   options?: { headers?: Record<string, string> }
 ): Promise<FunctionResponse<T>> {
   try {
+    // Make sure a fresh signed-in token is sent; an expired session would
+    // otherwise fall back to the public key and the function returns 401.
+    if (!options?.headers?.Authorization) {
+      const { data: sess } = await supabase.auth.getSession();
+      const expiresAt = sess.session?.expires_at ?? 0;
+      if (sess.session && expiresAt * 1000 < Date.now() + 60_000) {
+        await supabase.auth.refreshSession();
+      }
+    }
+
     const { data, error } = await supabase.functions.invoke(functionName, {
       body,
       headers: options?.headers,
     });
 
-    // Handle Supabase SDK error object (not thrown)
+    // Handle Supabase SDK error object (not thrown): read the real response
     if (error) {
+      const ctx = (error as { context?: Response }).context;
+      const status = ctx?.status ?? 500;
+      let message: string | undefined;
+      let requestId: string | undefined;
+      if (ctx && typeof ctx.text === "function") {
+        try {
+          const parsed = safeJsonParse(await ctx.text());
+          message = (parsed?.error as string) || (parsed?.message as string) || undefined;
+          requestId = parsed?.requestId as string | undefined;
+        } catch {
+          /* body already read or unavailable */
+        }
+      }
+      if (status === 401) {
+        message = "Your sign-in has expired. Please sign in again — your brief is kept.";
+      } else if (status === 429) {
+        message = message || "Too many requests right now. Please wait a moment and try again.";
+      } else if (status === 402) {
+        message = message || "AI usage limit reached. Please try again later.";
+      }
       return {
         data: null,
-        error: error.message ?? "Function invocation failed",
-        status: 500,
+        error: message ?? error.message ?? "Function invocation failed",
+        status,
+        requestId,
       };
     }
 
