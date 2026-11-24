@@ -366,15 +366,38 @@ const EditorToolset = ({
                   ))}
 
                   <div className="border-t border-border/30 pt-2 mt-2">
-                    <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-2">Smart Slides</p>
-                    <p className="text-[9px] text-muted-foreground mb-2">Slides that adapt in real-time based on what the audience says.</p>
+                    <p className="text-[10px] font-bold text-red-500 uppercase tracking-wider mb-1">Voice Slides <span className="text-[8px] ml-1 px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-500">NEW</span></p>
+                    <p className="text-[9px] text-muted-foreground mb-2">OpenAI-powered. Your deck listens and adapts.</p>
                     {[
-                      { type: "live_input" as BlockType, label: "Live Input", desc: "Capture requirements during meeting (text, number, select)" },
-                      { type: "voice_input" as BlockType, label: "Voice Input", desc: "Speech recognition extracts key parameters" },
+                      { type: "voice_input" as BlockType, label: "Voice Input", desc: "OpenAI transcription captures audience speech (96% accuracy)", color: "bg-red-500" },
+                      { type: "adaptive_block" as BlockType, label: "Voice-Adaptive Block", desc: "Slide regenerates based on what was spoken", color: "bg-red-500" },
+                    ].map(({ type, label, desc, color }) => (
+                      <button
+                        key={label}
+                        onClick={() => {
+                          onAddBlock(type);
+                          setActivePanel(null);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-all text-left"
+                      >
+                        <div className={`w-1.5 h-1.5 rounded-full ${color} shrink-0`} />
+                        <div>
+                          <p className="text-xs font-medium">{label}</p>
+                          <p className="text-[9px] text-muted-foreground">{desc}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="border-t border-border/30 pt-2 mt-2">
+                    <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-2">Smart Slides</p>
+                    <p className="text-[9px] text-muted-foreground mb-2">Type-based input that adapts downstream slides.</p>
+                    {[
+                      { type: "live_input" as BlockType, label: "Live Input", desc: "Capture requirements by typing (text, number, select)" },
                       { type: "adaptive_block" as BlockType, label: "Adaptive Block", desc: "Downstream slide that regenerates from inputs" },
                     ].map(({ type, label, desc }) => (
                       <button
-                        key={label}
+                        key={`smart-${label}`}
                         onClick={() => {
                           onAddBlock(type);
                           setActivePanel(null);

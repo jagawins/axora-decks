@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, Palette, FlaskConical, ChevronDown } from "lucide-react";
+import { Sparkles, Loader2, Presentation, Share2, Image, ImageOff, Wand2, LayoutTemplate, FileText, Zap, Palette, FlaskConical, ChevronDown, Mic } from "lucide-react";
 import ResearchModeWizard from "@/components/create/ResearchModeWizard";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -328,6 +328,11 @@ export default function Create() {
   const handleSmartSlides = () => {
     setShowMoreWays(false);
     setPrompt("Create a Smart Slides deck with live_input blocks for capturing audience requirements (RPO, RTO, budget, headcount) and adaptive_blocks that regenerate downstream slides based on those inputs. Include a voice_input block for speech recognition.");
+  };
+
+  const handleVoiceSlide = () => {
+    setShowMoreWays(false);
+    setPrompt("Create a Voice Slide presentation with voice_input blocks that use OpenAI-powered transcription to capture what the audience says in real-time. Include adaptive_blocks on downstream slides that regenerate based on the captured voice input. The presentation should listen to the audience and adapt its architecture, pricing, and recommendations slides automatically.");
   };
 
   /** Which preset matches the current settings — null means Custom. */
@@ -1090,6 +1095,18 @@ Create exactly ${cardsCount} slides/cards.`;
                           <span className="block text-sm font-medium text-foreground">Smart Slides</span>
                           <span className="block text-xs text-muted-foreground">
                             Slides that adapt live to audience input
+                          </span>
+                        </span>
+                      </button>
+                      <button
+                        onClick={handleVoiceSlide}
+                        className="flex min-h-[56px] items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-500/[0.04] p-3 text-left hover:border-amber-500/60 hover:bg-amber-500/[0.08] transition-all"
+                      >
+                        <Mic className="mt-0.5 h-4 w-4 text-amber-500" aria-hidden="true" />
+                        <span>
+                          <span className="block text-sm font-medium text-foreground">Voice Slide <span className="text-[9px] ml-1 px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 font-bold uppercase">New</span></span>
+                          <span className="block text-xs text-muted-foreground">
+                            Speak naturally. AI transcribes and adapts slides.
                           </span>
                         </span>
                       </button>

@@ -36,16 +36,24 @@ interface Feature {
 
 const FEATURES: Feature[] = [
   {
-    icon: Zap,
+    icon: Mic,
     badge: "NEW",
-    title: "Voice-Powered Smart Slides",
-    description: "Speak naturally during your meeting. OpenAI-powered transcription captures what the audience says with 96% accuracy. Slides adapt in real-time. No 'I'll get back to you.'",
+    title: "Voice Slides",
+    description: "Your deck now listens. OpenAI-powered transcription captures what the audience says with 96% accuracy, even in noisy rooms. Downstream slides adapt in real-time. No 'I'll get back to you.'",
+    color: "#EF4444",
+    cta: "Create Voice Slide",
+    href: "/create?prompt=Create+a+Voice+Slide+presentation+with+voice_input+blocks+that+use+OpenAI+transcription",
+  },
+  {
+    icon: Zap,
+    title: "Smart Slides",
+    description: "Type audience inputs during your presentation. Downstream slides regenerate with AI based on the values you enter.",
     color: "#F59E0B",
     cta: "Create Smart Slide",
     href: "/create?prompt=Create+a+Smart+Slides+deck+with+live_input+and+adaptive_blocks",
   },
   {
-    icon: Mic,
+    icon: Presentation,
     title: "Speech Prep + Delivery Coaching",
     description: "Write your speech, get vocal tips, story structure, and a pre-flight checklist. The only tool that coaches you on delivery.",
     color: "#3B82F6",
@@ -248,11 +256,12 @@ export default function WhatsNew() {
             {/* "No competitor has this" callout */}
             <div className="relative z-10 mt-4 text-center">
               <p className="text-[10px] text-muted-foreground">
-                {activeFeature === 0 ? "No competitor has real-time adaptive slides" :
-                 activeFeature === 1 ? "No competitor has delivery coaching built in" :
-                 activeFeature === 2 ? "Replaces Slido as a separate tool" :
-                 activeFeature === 3 ? "Replaces PowerPoint + Slido + speaker notes" :
-                 activeFeature === 4 ? "All templates are AI-customizable" :
+                {activeFeature === 0 ? "No competitor has voice-powered slide adaptation" :
+                 activeFeature === 1 ? "No competitor has real-time adaptive slides" :
+                 activeFeature === 2 ? "No competitor has delivery coaching built in" :
+                 activeFeature === 3 ? "Replaces Slido as a separate tool" :
+                 activeFeature === 4 ? "Replaces PowerPoint + Slido + speaker notes" :
+                 activeFeature === 5 ? "All templates are AI-customizable" :
                  "Every share is free marketing for you"}
               </p>
             </div>
