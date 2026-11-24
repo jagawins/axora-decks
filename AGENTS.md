@@ -1,0 +1,1 @@
+- Signed-in edge function calls go through `invokeFunction`/`invokeSignedIn` in src/lib/supabase-function-client.ts — they refresh expiring sessions and surface the real error instead of "non-2xx".
