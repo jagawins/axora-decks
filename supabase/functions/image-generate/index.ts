@@ -46,7 +46,7 @@ serve(async (req) => {
 
     const isPro = quality === "pro";
     const model = isPro
-      ? "google/gemini-3-pro-image-preview"
+      ? "google/gemini-3-pro-image"
       : "google/gemini-2.5-flash-image";
 
     const styleHint = style === "illustration"
