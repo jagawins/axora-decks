@@ -15,6 +15,13 @@
       "when": 1795573437958,
       "tag": "0001_meeting_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795573898179,
+      "tag": "0002_restrict_selected_cache_and_vote_access",
+      "breakpoints": true
     }
   ]
 }
