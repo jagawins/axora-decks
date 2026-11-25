@@ -395,7 +395,7 @@ export default function MeetingNotes() {
         .limit(50);
 
       if (error) throw error;
-      setMeetings((data as MeetingNote[]) || []);
+      setMeetings((data as unknown as MeetingNote[]) || []);
     } catch (err) {
       console.error("Failed to load meetings:", err);
     } finally {
