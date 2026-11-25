@@ -122,9 +122,9 @@ export default function SocialProof() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 max-w-4xl mx-auto">
           {[
             { value: "< 15s", label: "Deck generation time" },
+            { value: "96%", label: "Transcription accuracy" },
             { value: "98", label: "Executive templates" },
-            { value: "3s", label: "Live poll creation" },
-            { value: "0", label: "Follow-up emails needed" },
+            { value: "1-click", label: "Meeting to deck" },
           ].map((stat) => (
             <div
               key={stat.label}

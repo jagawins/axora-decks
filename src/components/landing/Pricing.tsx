@@ -39,6 +39,7 @@ const plans = [
       "PDF & PowerPoint export",
       "Speech Prep + Delivery Coaching (voice, story, presence)",
       "Voice-Powered Smart Slides: OpenAI transcription adapts slides in real-time",
+      "Meeting Notes: record, transcribe, AI-summarize, create deck from transcript",
       "Webinar-Ready (deck + speech + polls + results in one tool)",
       "Live Audience Polls (QR code, AI-suggested, real-time)",
       "23 Timeline Styles (Gantt, scenarios, S-curve...)",

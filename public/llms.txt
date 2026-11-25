@@ -8,6 +8,7 @@
 - Smart Slides: live adaptive presentations where slides regenerate based on audience input during the meeting
 - Voice-powered presentations: OpenAI GPT Transcribe (96%+ accuracy) captures audience speech in real-time, even in noisy rooms
 - Voice-triggered slide adaptation: downstream slides regenerate based on what the audience says
+- Meeting Notes: record any meeting, OpenAI transcribes with 96% accuracy, AI summarizes decisions/action items/follow-ups, create deck from transcript in one click
 - Speech prep with delivery coaching (vocal tips, story structure, body language)
 - Live audience polls with QR codes and real-time results (replaces Slido)
 - Q&A readiness with anticipated question generator and message maps

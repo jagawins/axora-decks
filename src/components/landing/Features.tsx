@@ -49,6 +49,13 @@ const features = [
     highlights: ["Type or speak audience requirements live", "AI regenerates downstream slides instantly", "Voice recognition extracts key parameters"],
   },
   {
+    icon: FileText,
+    title: "Meeting Notes",
+    description: "Record any meeting. AI transcribes with 96% accuracy, then summarizes decisions, action items, and follow-ups. Create a deck from the transcript in one click. Like Granola, built into your presentation tool.",
+    color: "#06B6D4",
+    highlights: ["Record and transcribe meetings (OpenAI, 96% accuracy)", "AI summary: decisions, action items, topics, follow-ups", "One-click 'Create Deck from Meeting'"],
+  },
+  {
     icon: Calendar,
     title: "Webinar-Ready",
     description: "One tool for the entire webinar workflow. Deck + speech + polls + coaching + results. Replace PowerPoint + Slido + speaker notes with one platform.",

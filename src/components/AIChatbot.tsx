@@ -25,6 +25,7 @@ ABOUT AXIVA:
 - Speech prep with delivery coaching (vocal tips, story structure, body language)
 - Live audience polls with QR codes (replaces Slido)
 - Voice-Powered Smart Slides: OpenAI GPT Transcribe captures audience speech with 96% accuracy, even in noisy rooms. Slides adapt in real-time based on what the audience says. Pro feature.
+- Meeting Notes: Record any meeting, OpenAI transcribes with 96% accuracy, AI summarizes with decisions/action items/follow-ups. Create a deck from the transcript in one click. Like Granola, built into your presentation tool. Dashboard > Meeting Notes.
 - 98 executive templates across 6 categories
 - 23 timeline styles
 - PPTX and PDF export

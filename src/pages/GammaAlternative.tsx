@@ -17,6 +17,7 @@ const GammaAlternative = () => {
     { feature: "Executive tone control", axor: true, gamma: "partial" },
     { feature: "PowerPoint-ready output", axor: true, gamma: "inconsistent" },
     { feature: "OpenAI voice transcription (96% accuracy)", axor: true, gamma: false },
+    { feature: "Meeting Notes (record, transcribe, summarize, create deck)", axor: true, gamma: false },
     { feature: "Designed for executives", axor: true, gamma: false },
     { feature: "AI refinement per block", axor: true, gamma: "limited" },
   ];

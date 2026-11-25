@@ -10,6 +10,65 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "meeting-notes-record-transcribe-summarize-2026",
+    title: "Meeting Notes: Record, Transcribe, and Summarize Any Meeting Inside AXIVA",
+    excerpt: "AXIVA now records your meetings, transcribes with 96% accuracy via OpenAI, and generates AI summaries with decisions, action items, and follow-ups. Then create a deck from the transcript in one click.",
+    category: "Product",
+    publishedAt: "2026-11-24",
+    author: "Jag Mariappan",
+    content: `# Your presentation tool now takes meeting notes
+
+We just shipped Meeting Notes, the feature that turns AXIVA from a tool you use after meetings into a tool that's in the meeting with you.
+
+## The problem
+
+After every meeting, the same thing happens. Someone says "I'll send a recap." That recap takes a day. It misses half the decisions. The action items are vague. And three days later, you're in another meeting re-discussing the same things because nobody remembers what was actually decided.
+
+Tools like Granola and Wispr Flow solve this for note-taking. But then you still need a separate tool for the presentation that follows.
+
+## What we built
+
+Meeting Notes in AXIVA does three things:
+
+**1. Record** Hit the microphone button. AXIVA records your meeting through your browser. No app to install, no bot joining your call.
+
+**2. Transcribe** OpenAI's GPT Transcribe processes the audio with 96% accuracy, even in noisy conference rooms. It handles technical jargon, accents, and cross-talk.
+
+**3. Summarize** AI generates a structured summary with:
+- **Decisions** made during the meeting
+- **Action items** with owners and deadlines
+- **Topics** discussed
+- **Follow-ups** that need attention
+- **Key quotes** worth remembering
+- **Sentiment** of the overall meeting
+
+## The killer feature: Create Deck from Meeting
+
+One click on "Create Deck from Meeting" takes the transcript and builds a full presentation from it. The deck captures what was actually discussed, not what someone remembers three hours later.
+
+Client shared requirements in the call? The deck has them. Board made three decisions? They're on slide 4. Five action items assigned? They're structured on the final slide with owners and deadlines.
+
+## Auto-generated titles
+
+Leave the meeting title blank. After transcription, AI generates a title from the content: "Q3 Revenue Review with Sales Team" or "Product Launch Planning Session." No more "Meeting Notes 11/24."
+
+## Full-text search
+
+Search across all your past meetings. "What did we decide about pricing in Q2?" Find the meeting, read the transcript, check the decision.
+
+## Why this matters
+
+No presentation tool has this. Gamma doesn't. Beautiful.ai doesn't. PowerPoint Copilot doesn't. Google Slides doesn't.
+
+AXIVA is the only tool where the meeting and the presentation live in the same place. The only tool where the follow-up deck is built from what was actually said, not what someone scribbled on a notepad.
+
+Try it free at [axiva.ai](https://axiva.ai). Dashboard > Meeting Notes.
+
+## What's next
+
+Calendar integration is in progress. Soon AXIVA will detect your current meeting from your calendar and auto-link the notes to the event.`,
+  },
+  {
     slug: "voice-powered-presentations-openai-transcribe-2026",
     title: "Voice-Powered Presentations: How AXIVA Uses OpenAI to Understand What Your Audience Says",
     excerpt: "Your deck now listens. OpenAI GPT Transcribe captures audience speech with 96% accuracy, even in noisy conference rooms. Downstream slides adapt in real-time. This changes how meetings work.",

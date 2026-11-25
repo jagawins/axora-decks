@@ -4,13 +4,14 @@ import Navbar from "@/components/landing/Navbar";
 import MarketingFooter from "@/components/MarketingFooter";
 import AIChatbot from "@/components/AIChatbot";
 import { Button } from "@/components/ui/button";
-import { Sparkles, TrendingUp, BarChart3, Mic, Zap } from "lucide-react";
+import { Sparkles, TrendingUp, BarChart3, Mic, Zap, FileText } from "lucide-react";
 
 const FEATURES = [
   { icon: Zap, title: "Voice-powered live demos", desc: "Customer speaks their requirements. OpenAI transcription captures every detail with 96% accuracy. Your deck adapts in real-time. Pricing, architecture, and ROI slides regenerate on the spot." },
   { icon: BarChart3, title: "Live polls during pitches", desc: "Ask 'How important is feature X to your team?' See results instantly. Use the data to pivot your pitch in real-time." },
   { icon: Mic, title: "Speech prep before big meetings", desc: "AI writes your talking points with delivery coaching. Vocal tips, objection handling, and a pre-flight checklist." },
   { icon: TrendingUp, title: "Battle cards and enablement", desc: "AI generates competitive battlecards, objection handling guides, and customer case studies from your product data." },
+  { icon: FileText, title: "Meeting Notes to follow-up deck", desc: "Record the sales call. AI transcribes and summarizes decisions, action items, next steps. One click creates the follow-up deck from the actual conversation. No more 'I'll send a recap.'" },
 ];
 
 export default function ForSales() {

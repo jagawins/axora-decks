@@ -128,7 +128,7 @@ const Hero = () => {
             </h1>
 
             <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Describe your deck in one sentence or speak it aloud. AI builds consulting-grade slides with voice recognition, live polls, and speech coaching. Under 15 seconds.
+              Describe your deck in one sentence or speak it aloud. AI builds consulting-grade slides with voice recognition, live polls, meeting transcription, and speech coaching. Under 15 seconds.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8">

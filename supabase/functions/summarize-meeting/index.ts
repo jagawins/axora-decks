@@ -60,9 +60,12 @@ serve(async (req) => {
         ? transcript.slice(0, maxChars) + "\n\n[Transcript truncated]"
         : transcript;
 
+    const needsTitle = !title || title === "Untitled Meeting" || title.trim() === "";
+
     const systemPrompt = `You are an expert executive assistant that creates structured meeting summaries.
 
 Given a meeting transcript, produce a JSON object with these fields:
+- "title": a concise, descriptive title for this meeting (5-8 words max, like "Q3 Revenue Review with Sales Team" or "Product Launch Planning Session")${needsTitle ? " — THIS IS REQUIRED since no title was provided" : " — use the provided title if appropriate, or suggest a better one"}
 - "overview": 2-3 sentence high-level summary of what the meeting was about and its outcome
 - "decisions": array of strings — specific decisions that were made (empty array if none)
 - "action_items": array of objects with { "owner": string, "task": string, "deadline": string|null } — concrete next steps assigned to specific people
@@ -171,16 +174,22 @@ ${truncated}`;
           },
         );
 
+        // Build update payload — include auto-generated title if needed
+        const updatePayload: Record<string, unknown> = {
+          summary,
+          status: "complete",
+          updated_at: new Date().toISOString(),
+        };
+        if (needsTitle && summary.title) {
+          updatePayload.title = summary.title;
+        }
+
         await supabase
           .from("meeting_notes")
-          .update({
-            summary,
-            status: "complete",
-            updated_at: new Date().toISOString(),
-          })
+          .update(updatePayload)
           .eq("id", meeting_id);
 
-        console.log(`Updated meeting ${meeting_id} with summary`);
+        console.log(`Updated meeting ${meeting_id} with summary${needsTitle && summary.title ? ` (auto-title: "${summary.title}")` : ""}`);
       } catch (err) {
         console.error("Failed to update meeting record:", err);
         // Don't fail the whole request — still return the summary
@@ -192,6 +201,7 @@ ${truncated}`;
     return new Response(
       JSON.stringify({
         summary,
+        generated_title: needsTitle && summary.title ? summary.title : null,
         duration_ms: elapsed,
         model: "claude-haiku-4-5-20251001",
       }),
