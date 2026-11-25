@@ -8,6 +8,13 @@
       "when": 1795281694133,
       "tag": "0000_harden_email_functions_and_open_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795573437958,
+      "tag": "0001_meeting_notes",
+      "breakpoints": true
     }
   ]
 }

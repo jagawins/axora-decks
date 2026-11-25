@@ -408,6 +408,54 @@ export type Database = {
         }
         Relationships: []
       }
+      meeting_notes: {
+        Row: {
+          created_at: string | null
+          duration_seconds: number | null
+          error_message: string | null
+          id: string
+          is_favorite: boolean | null
+          recorded_at: string | null
+          status: string
+          summary: Json | null
+          tags: string[] | null
+          title: string
+          transcript: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          error_message?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          recorded_at?: string | null
+          status?: string
+          summary?: Json | null
+          tags?: string[] | null
+          title?: string
+          transcript?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          error_message?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          recorded_at?: string | null
+          status?: string
+          summary?: Json | null
+          tags?: string[] | null
+          title?: string
+          transcript?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       newsletter_broadcasts: {
         Row: {
           body_html: string

@@ -9,6 +9,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { authenticatedMeetingUser } from "./auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,6 +42,22 @@ serve(async (req) => {
   }
 
   try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } } },
+    );
+    const userId = await authenticatedMeetingUser(
+      req.headers.get("Authorization"),
+      (token) => supabase.auth.getUser(token),
+    );
+    if (!userId) {
+      return new Response(JSON.stringify({ error: "Please sign in to summarize a meeting" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { transcript, title, meeting_id } = await req.json();
 
     if (!transcript || typeof transcript !== "string") {
@@ -163,17 +180,6 @@ ${truncated}`;
     // If meeting_id provided, update the record in Supabase
     if (meeting_id) {
       try {
-        const authHeader = req.headers.get("Authorization");
-        const supabase = createClient(
-          Deno.env.get("SUPABASE_URL") ?? "",
-          Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-          {
-            global: {
-              headers: { Authorization: authHeader ?? "" },
-            },
-          },
-        );
-
         // Build update payload — include auto-generated title if needed
         const updatePayload: Record<string, unknown> = {
           summary,
@@ -184,10 +190,19 @@ ${truncated}`;
           updatePayload.title = summary.title;
         }
 
-        await supabase
+        const { data: saved, error: saveError } = await supabase
           .from("meeting_notes")
           .update(updatePayload)
-          .eq("id", meeting_id);
+          .eq("id", meeting_id)
+          .eq("user_id", userId)
+          .select("id")
+          .single();
+        if (saveError || !saved) {
+          return new Response(JSON.stringify({ error: "Summary generated but could not be saved", summary }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
 
         console.log(`Updated meeting ${meeting_id} with summary${needsTitle && summary.title ? ` (auto-title: "${summary.title}")` : ""}`);
       } catch (err) {

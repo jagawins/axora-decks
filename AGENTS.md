@@ -1,1 +1,2 @@
 - Signed-in edge function calls go through `invokeFunction`/`invokeSignedIn` in src/lib/supabase-function-client.ts — they refresh expiring sessions and surface the real error instead of "non-2xx".
+- Meeting summaries validate the signed-in user through a separately testable server-side helper before any AI call, preventing anonymous use of the paid service.
