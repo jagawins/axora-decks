@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Mic, MicOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import SampleDeckExplorer from "@/components/sample/SampleDeckExplorer";
 import {
   saveCreateDraft,
@@ -43,6 +45,62 @@ const Hero = () => {
   const [error, setError] = useState<string | null>(null);
   const startedRef = useRef(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Voice input state
+  const [voiceRecording, setVoiceRecording] = useState(false);
+  const [voiceTranscribing, setVoiceTranscribing] = useState(false);
+  const voiceRecorderRef = useRef<MediaRecorder | null>(null);
+  const voiceChunksRef = useRef<Blob[]>([]);
+
+  const startVoiceRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+          ? "audio/webm;codecs=opus" : "audio/webm",
+      });
+      voiceChunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) voiceChunksRef.current.push(e.data);
+      };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(voiceChunksRef.current, { type: "audio/webm" });
+        if (blob.size < 500) return;
+        setVoiceTranscribing(true);
+        try {
+          const formData = new FormData();
+          formData.append("audio", blob, "hero-voice.webm");
+          formData.append("language", "en");
+          formData.append("context", "Executive presentation creation brief. The user is describing what deck they want to build.");
+          const { data, error: fnErr } = await supabase.functions.invoke("transcribe-audio", { body: formData });
+          if (fnErr) throw fnErr;
+          if (data?.text) {
+            noteStart();
+            setBrief(prev => (prev ? prev + " " : "") + data.text);
+            trackProductEvent("brief_started", { source: "home_hero_voice" });
+          }
+        } catch (err) {
+          console.error("Voice transcription failed:", err);
+        } finally {
+          setVoiceTranscribing(false);
+        }
+      };
+      recorder.start();
+      voiceRecorderRef.current = recorder;
+      setVoiceRecording(true);
+    } catch {
+      // Mic access denied — silently fail
+    }
+  };
+
+  const stopVoiceRecording = () => {
+    if (voiceRecorderRef.current && voiceRecorderRef.current.state !== "inactive") {
+      voiceRecorderRef.current.stop();
+    }
+    voiceRecorderRef.current = null;
+    setVoiceRecording(false);
+  };
 
   useEffect(() => {
     trackABEvent("hero_headline", "impression");
@@ -138,24 +196,60 @@ const Hero = () => {
               >
                 What do you need to present?
               </label>
-              <Textarea
-                id="hero-brief"
-                ref={textareaRef}
-                value={brief}
-                aria-describedby={
-                  [brief ? "hero-brief-status" : "", error ? "hero-brief-error" : ""]
-                    .filter(Boolean)
-                    .join(" ") || undefined
-                }
-                aria-invalid={tooLong || undefined}
-                onChange={(e) => {
-                  noteStart();
-                  setBrief(e.target.value);
-                }}
-                rows={4}
-                placeholder="e.g. A board update on Q4 results and next quarter’s priorities."
-                className="mt-3 min-h-[112px] resize-y bg-card/60 text-base"
-              />
+              <div className="relative mt-3">
+                <Textarea
+                  id="hero-brief"
+                  ref={textareaRef}
+                  value={brief}
+                  aria-describedby={
+                    [brief ? "hero-brief-status" : "", error ? "hero-brief-error" : ""]
+                      .filter(Boolean)
+                      .join(" ") || undefined
+                  }
+                  aria-invalid={tooLong || undefined}
+                  onChange={(e) => {
+                    noteStart();
+                    setBrief(e.target.value);
+                  }}
+                  rows={4}
+                  placeholder={voiceRecording ? "🎙️ Listening... speak your deck brief" : voiceTranscribing ? "✨ Transcribing..." : "e.g. A board update on Q4 results and next quarter’s priorities."}
+                  className={cn(
+                    "min-h-[112px] resize-y bg-card/60 text-base pr-14",
+                    voiceRecording && "ring-2 ring-red-500/50 border-red-500/50"
+                  )}
+                  disabled={voiceTranscribing}
+                />
+                {/* Microphone button */}
+                <button
+                  type="button"
+                  onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+                  disabled={voiceTranscribing}
+                  className={cn(
+                    "absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full transition-all",
+                    voiceRecording
+                      ? "bg-red-500 text-white shadow-lg shadow-red-500/30 animate-pulse"
+                      : voiceTranscribing
+                      ? "bg-muted text-muted-foreground cursor-wait"
+                      : "bg-accent/10 text-accent hover:bg-accent/20 hover:shadow-md"
+                  )}
+                  title={voiceRecording ? "Stop recording" : voiceTranscribing ? "Transcribing..." : "Speak your brief"}
+                >
+                  {voiceTranscribing ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : voiceRecording ? (
+                    <MicOff className="h-5 w-5" />
+                  ) : (
+                    <Mic className="h-5 w-5" />
+                  )}
+                </button>
+                {/* Recording indicator */}
+                {voiceRecording && (
+                  <div className="absolute right-14 top-3 flex items-center gap-2 rounded-full bg-red-500/10 px-3 py-2">
+                    <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-xs font-medium text-red-500">Recording</span>
+                  </div>
+                )}
+              </div>
 
               {brief && (
                 <p
