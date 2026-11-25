@@ -1,4 +1,4 @@
-import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown, Palette, Paintbrush, SwatchBook, BarChart3, CalendarDays, GalleryHorizontalEnd, Target, Zap, Share2, Mic } from "lucide-react";
+import { Home, Library, LayoutTemplate, Settings, Crown, CreditCard, ChevronDown, Palette, Paintbrush, SwatchBook, BarChart3, CalendarDays, GalleryHorizontalEnd, Target, Zap, Share2, Mic, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import axivaWordmark from "@/assets/axiva-wordmark-dark.svg";
@@ -53,6 +53,7 @@ const navItems = [
   { id: "live-polls", label: "Live Polls", icon: BarChart3 },
   { id: "smart-slides", label: "Smart Slides", icon: Zap, href: "/create?prompt=Create+a+Smart+Slides+deck+with+live_input+blocks+for+capturing+audience+requirements+and+adaptive_blocks+that+regenerate+based+on+those+inputs.+Include+a+voice_input+block." },
   { id: "voice-slides", label: "Voice Slides", icon: Mic, href: "/create?prompt=Create+a+Voice+Slide+presentation+with+voice_input+blocks+that+use+OpenAI+transcription+to+capture+audience+speech.+Include+adaptive_blocks+that+regenerate+based+on+voice+input.+The+deck+should+listen+and+adapt+automatically." },
+  { id: "meeting-notes", label: "Meeting Notes", icon: FileText },
   { id: "social", label: "Social Posts", icon: Share2 },
   { id: "slides", label: "Slide Library", icon: GalleryHorizontalEnd },
   { id: "data-visuals", label: "Data & Visuals", icon: BarChart3 },

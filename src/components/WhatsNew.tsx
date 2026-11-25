@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const CURRENT_VERSION = "2026.11";
+const CURRENT_VERSION = "2026.11b";
 const STORAGE_KEY = "axiva_whats_new_dismissed";
 
 interface Feature {
@@ -35,6 +35,15 @@ interface Feature {
 }
 
 const FEATURES: Feature[] = [
+  {
+    icon: FileText,
+    badge: "NEW",
+    title: "Meeting Notes",
+    description: "Record any meeting. OpenAI transcribes with 96% accuracy. AI summarizes decisions, action items, and follow-ups. Create a deck from the transcript in one click. Like Granola, built into AXIVA.",
+    color: "#06B6D4",
+    cta: "Try Meeting Notes",
+    href: "/dashboard?tab=meeting-notes",
+  },
   {
     icon: Mic,
     badge: "NEW",
@@ -256,12 +265,13 @@ export default function WhatsNew() {
             {/* "No competitor has this" callout */}
             <div className="relative z-10 mt-4 text-center">
               <p className="text-[10px] text-muted-foreground">
-                {activeFeature === 0 ? "No competitor has voice-powered slide adaptation" :
-                 activeFeature === 1 ? "No competitor has real-time adaptive slides" :
-                 activeFeature === 2 ? "No competitor has delivery coaching built in" :
-                 activeFeature === 3 ? "Replaces Slido as a separate tool" :
-                 activeFeature === 4 ? "Replaces PowerPoint + Slido + speaker notes" :
-                 activeFeature === 5 ? "All templates are AI-customizable" :
+                {activeFeature === 0 ? "No presentation tool has meeting transcription built in" :
+                 activeFeature === 1 ? "No competitor has voice-powered slide adaptation" :
+                 activeFeature === 2 ? "No competitor has real-time adaptive slides" :
+                 activeFeature === 3 ? "No competitor has delivery coaching built in" :
+                 activeFeature === 4 ? "Replaces Slido as a separate tool" :
+                 activeFeature === 5 ? "Replaces PowerPoint + Slido + speaker notes" :
+                 activeFeature === 6 ? "All templates are AI-customizable" :
                  "Every share is free marketing for you"}
               </p>
             </div>

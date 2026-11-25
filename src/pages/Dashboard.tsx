@@ -32,6 +32,7 @@ import TimelineGenerator from '@/components/timelines/TimelineGenerator';
 import SlideInspiration from '@/components/slides/SlideInspiration';
 import LivePollCreator from '@/components/polls/LivePollCreator';
 import SocialContentGenerator from '@/components/social/SocialContentGenerator';
+import MeetingNotes from '@/components/meetings/MeetingNotes';
 import WhatsNew from '@/components/WhatsNew';
 
 interface Project {
@@ -772,6 +773,12 @@ const Dashboard = () => {
           {sidebarTab === 'social' && (
             <div className="py-4">
               <SocialContentGenerator />
+            </div>
+          )}
+
+          {sidebarTab === 'meeting-notes' && (
+            <div className="py-4">
+              <MeetingNotes />
             </div>
           )}
 
