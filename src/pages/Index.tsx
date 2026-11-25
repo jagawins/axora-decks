@@ -10,13 +10,13 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>AXIVA — Presentations that win the room</title>
+        <title>AXIVA</title>
         <meta
           name="description"
           content="Speak your brief, record your meetings, build your deck. AXIVA turns one sentence into consulting-grade slides with voice input, live polls, and delivery coaching."
         />
         <link rel="canonical" href="https://axiva.ai/" />
-        <meta property="og:title" content="AXIVA — Presentations that win the room" />
+        <meta property="og:title" content="AXIVA" />
         <meta
           property="og:description"
           content="Turn your notes into a clear, presentation-ready deck with AXIVA."

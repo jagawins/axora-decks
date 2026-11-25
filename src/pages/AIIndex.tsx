@@ -9,7 +9,7 @@ const AIIndex = () => {
   return (
     <>
       <Helmet>
-        <title>AXIVA — AI Executive Presentation Generator</title>
+        <title>AXIVA</title>
         <meta
           name="description"
           content="AXIVA converts raw ideas into structured executive-grade presentations. AI PowerPoint generator for leaders, consultants, and strategists."
