@@ -10,6 +10,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 import { MessageSquare, X, Send, Loader2, Sparkles, ArrowRight } from "lucide-react";
 
 interface Message {
@@ -17,40 +18,7 @@ interface Message {
   content: string;
 }
 
-const SYSTEM_PROMPT = `You are AXIVA's AI assistant. You help visitors understand AXIVA and answer their questions concisely.
 
-ABOUT AXIVA:
-- AI-powered executive presentation platform
-- Generates decks from one sentence using consulting methodology (answer-first structure)
-- Speech prep with delivery coaching (vocal tips, story structure, body language)
-- Live audience polls with QR codes (replaces Slido)
-- Voice-Powered Smart Slides: OpenAI GPT Transcribe captures audience speech with 96% accuracy, even in noisy rooms. Slides adapt in real-time based on what the audience says. Pro feature.
-- Meeting Notes: Record any meeting, OpenAI transcribes with 96% accuracy, AI summarizes with decisions/action items/follow-ups. Create a deck from the transcript in one click. Like Granola, built into your presentation tool. Dashboard > Meeting Notes.
-- 98 executive templates across 6 categories
-- 23 timeline styles
-- PPTX and PDF export
-- Webinar-ready: deck + speech + polls + coaching in one tool
-
-PRICING:
-- Free: 3 projects, basic AI generation, web sharing
-- Pro: $28/month or $269/year. Unlimited projects, PPTX export, speech prep, live polls, Smart Slides, brand kit
-- Team: $78/month per user. Everything in Pro + shared workspaces, governance
-- Enterprise: Custom pricing. SSO, dedicated support, SLAs
-
-COMPETITORS:
-- vs Gamma: AXIVA has delivery coaching, live polls, speech generation. Gamma does not.
-- vs Beautiful.ai: AXIVA has AI generation and live polls. Beautiful.ai does not.
-- vs Canva: AXIVA is executive-focused with consulting methodology. Canva is general design.
-- vs Slido: AXIVA builds polls INTO the deck. Slido is a separate tool.
-- vs PowerPoint Copilot: AXIVA has delivery coaching and live polls built in.
-
-RULES:
-- Keep answers under 3 sentences when possible
-- Be friendly and direct
-- If asked about features, link to relevant pages: /features, /pricing, /executive, /live-polls, /webinars
-- If asked how to do something, give step-by-step instructions
-- If you don't know something specific, suggest they try the product or contact support
-- Never make up features that don't exist`;
 
 const QUICK_QUESTIONS = [
   "What makes AXIVA different from Gamma?",
@@ -89,21 +57,11 @@ export default function AIChatbot() {
     setHasInteracted(true);
 
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-5-5",
-          max_tokens: 300,
-          system: SYSTEM_PROMPT,
-          messages: newMessages.slice(-10).map(m => ({ role: m.role, content: m.content })),
-        }),
+      const { data, error } = await supabase.functions.invoke("help-chat", {
+        body: { messages: newMessages.slice(-10).map(m => ({ role: m.role, content: m.content.slice(0, 1000) })) },
       });
-
-      if (!response.ok) throw new Error("API error");
-
-      const data = await response.json();
-      const assistantText = data.content?.[0]?.text || "Sorry, I could not process that. Please try again.";
+      if (error) throw error;
+      const assistantText = data?.reply || "Sorry, I could not process that. Please try again.";
       setMessages(prev => [...prev, { role: "assistant", content: assistantText }]);
     } catch {
       setMessages(prev => [...prev, { 
