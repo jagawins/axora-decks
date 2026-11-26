@@ -93,7 +93,7 @@ export default function AIChatbot() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-5-20250929",
+          model: "claude-sonnet-5-5",
           max_tokens: 300,
           system: SYSTEM_PROMPT,
           messages: newMessages.slice(-10).map(m => ({ role: m.role, content: m.content })),
